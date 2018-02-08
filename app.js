@@ -4,11 +4,15 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var flash = require('connect-flash');
 var session = require('express-session');
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
 var franchisee = require('./routes/franchisees/franchisee');
-var authenticate = require('./routes/authenticate/authenticate');
+var authenticate = require('./routes/authenticate/authenticate')(passport);
+var library = require('./routes/digital_library/library');
+//var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
  
 var mongoose = require('mongoose');      //add for Mongo support
@@ -25,6 +29,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
 app.use(logger('dev'));
 app.use(session({
   secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9'
@@ -37,9 +42,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.static(__dirname + '/public'));
 
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
 app.use('/franchisee', franchisee);
 app.use('/authenticate',authenticate);
-
+app.use('/library',library);
+var authService = require('./routes/authenticate/auth-service');
+authService(passport);
 app.get('/*', function(req, res, next) {
     res.sendFile('public/index.html', { root: __dirname });
 });
