@@ -6,20 +6,20 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 require('./models/franchisees/franchisee');
-var franchisee = require('./routes/franchisees/franchisee');    
+require('./models/authenticate/authenticate');
+var franchisee = require('./routes/franchisees/franchisee');
+var authenticate = require('./routes/authenticate/authenticate');
 //initialize mongoose schemas\
  
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
 mongoose.connect("mongodb://localhost/carz");
-console.log(mongoose.connection.readyState);
 var app = express();
 var http = require('http').Server(app);
 // view engine setup
 app.set('views', path.join(__dirname, 'public'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
-console.log("11",mongoose.connection.readyState);
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -38,6 +38,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public'));
 
 app.use('/franchisee', franchisee);
+app.use('/authenticate',authenticate);
+
 app.get('/*', function(req, res, next) {
     res.sendFile('public/index.html', { root: __dirname });
 });
@@ -75,7 +77,7 @@ app.use(function(err, req, res, next) {
 process.on('uncaughtException', (err) => {
   console.log(err);
 });
-//process.env.NODE_TLS_REJECT_UNAUTHORIZED = "1";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 http.listen(process.env.PORT || 3000, function(){
 });
 module.exports = app;
