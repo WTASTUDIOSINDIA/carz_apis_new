@@ -5,8 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-require('./models/models');
-var api = require('./routes/api');    
+require('./models/franchisees/franchisee');
+var franchisee = require('./routes/franchisees/franchisee');    
 //initialize mongoose schemas\
  
 var mongoose = require('mongoose');      //add for Mongo support
@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.static(__dirname + '/public'));
 
-app.use('/api', api);
+app.use('/franchisee', franchisee);
 app.get('/*', function(req, res, next) {
     res.sendFile('public/index.html', { root: __dirname });
 });
