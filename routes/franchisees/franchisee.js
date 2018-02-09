@@ -91,8 +91,7 @@ router.get('/get_franchisees',function(req,res){
         franchisee_preferred_time:req.body.franchisee_preferred_time,
         franchisee_how_soon_to_start:req.body.franchisee_how_soon_to_start,
         franchisee_franchise_model:req.body.franchisee_franchise_model,
-        franchisee_remarks:req.body.franchisee_remarks,
-        role:req.body.role
+        franchisee_remarks:req.body.franchisee_remarks
       });
       Franchisee.save(function(err, franchisee){
           if(err)
