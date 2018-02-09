@@ -20,4 +20,9 @@ var franchiseeSchema = new mongoose.Schema({
     "role":String
 });
 
-var Franchisee = module.exports = mongoose.model('Franchisee', franchiseeSchema);
+var librarySchema = new mongoose.Schema({
+    franchisee_pic:{type: Schema.Types.Mixed, default : {}}
+});
+
+mongoose.model('Franchisee', franchiseeSchema);
+mongoose.model('Library', librarySchema);
