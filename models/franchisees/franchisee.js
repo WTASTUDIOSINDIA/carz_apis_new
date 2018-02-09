@@ -13,11 +13,16 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_lead_source":String,
     "franchisee_investment":String,
     "franchisee_preferred_date":Date,
-    "franchisee_preferred_time":TimeRanges,
+    "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
     "role":String
 });
 
+var librarySchema = new mongoose.Schema({
+    franchisee_pic:{type: Schema.Types.Mixed, default : {}}
+});
+
 mongoose.model('Franchisee', franchiseeSchema);
+mongoose.model('Library', librarySchema);
