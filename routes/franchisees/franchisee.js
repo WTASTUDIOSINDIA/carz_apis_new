@@ -206,7 +206,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                     res.send({
                         status:200,
                         state:"success",
-                        message:"Franchisee Created."
+                        message:"Franchisee Updated."
                     });
                 }
                 });
