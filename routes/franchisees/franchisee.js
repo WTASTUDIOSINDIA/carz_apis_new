@@ -29,7 +29,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({user_id:req.body.user_id},function(err,franchiees){
+        Franchisee.find({},function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -89,8 +89,10 @@ router.get('/get_franchisee_by_id',function(req,res){
 	}
 });
 //create franchisee
-router.post('/create_franchisee', upload.single('franchisee_img'), function(req, res) {
-    var franchiseeForm = JSON.parse(req.body.franchisee_details)
+//upload.single('franchisee_img'),
+//JSON.parse(req.body.franchisee_details)
+router.post('/create_franchisee',  function(req, res) {
+    var franchiseeForm = req.body;
     try{
         Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
             if(err){
@@ -125,12 +127,12 @@ router.post('/create_franchisee', upload.single('franchisee_img'), function(req,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeForm.lead_age,
                 franchisee.lead_source=franchiseeForm.lead_source
-                if(req.file){
-                    var franchisee_pic = {};
-                    franchisee_pic.path = req.file.location;
-                    franchisee_pic.key = req.file.key;
-                    franchisee.franchisee_pic = franchisee_pic;
-                }
+                // if(req.file){
+                //     var franchisee_pic = {};
+                //     franchisee_pic.path = req.file.location;
+                //     franchisee_pic.key = req.file.key;
+                //     franchisee.franchisee_pic = franchisee_pic;
+                // }
                 franchisee.save(function(err,franchisee){
                    if(err){
                      res.send({
@@ -139,6 +141,13 @@ router.post('/create_franchisee', upload.single('franchisee_img'), function(req,
                         message:"Something went wrong.We are looking into it."
                     });
                    }
+                else{
+                    res.send({
+                        status:200,
+                        state:"success",
+                        message:"Franchisee Created."
+                    });
+                }
                 });
             }
         })
