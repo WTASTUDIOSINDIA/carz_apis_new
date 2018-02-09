@@ -58,25 +58,23 @@ router.get('/get_franchisees',function(req,res){
 	}
 });
 //get franchisee by id
-router.get('/get_franchisee_by_id',function(req,res){
+router.get('/get_franchisee/:id',function(req,res){
     try{
-        Franchisee.findById({franchisee_id:req.body.franchisee_id},function(err,franchisee){
+        Franchisee.findById({_id:req.params.id},function(err,franchisee){
             if(err){
                 return res.send(500, err);
             }
             if(!franchisee){
                 res.send({
                     "status":"201",
-                    "message":"Franchisee not found",
-                    "franchisees_data":[],
-                    "state":"success"
+                    "message":"Unsucessfull",
+                    "franchisees_data":"failure"
                 });
             }
             else{
                 res.send({
                     "status":"200",
-                    "franchisees_data":franchisee,
-                    "state":"success"
+                    "message":"sucessfully",
                 });
             }
         })
@@ -138,7 +136,7 @@ router.post('/create_franchisee',  function(req, res) {
                      res.send({
                         status:500,
                         state:"err",
-                        message:"Something went wrong.We are looking into it."
+                        message:"Something went wrong."
                     });
                    }
                 else{
@@ -234,12 +232,11 @@ router.put('/edit_franchisee', function(req, res, next) {
   //delete franchisee
   router.delete('/delete_franchisee',function(req,res){
     try{
-        Franchisee.findByIdAndRemove({franchisee_id:req.body.franchisee_id},function(err,user){
+        Franchisee.findByIdAndRemove({_id:req.params.id},function(err,franchisee){
             if(err){
                 return res.send(500, err);
             }
-            console.log("user",user);
-            if(!user){
+            if(!franchisee){
                 res.send({
                     "status":"201",
                     "message":"Unsucessfull",
