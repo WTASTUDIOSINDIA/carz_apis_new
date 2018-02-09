@@ -11,29 +11,38 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_state":String,
     "franchisee_address":String,
     "franchisee_mobile_number":Number,
-    "franchisee_age":Number,
-    "franchisee_lead_source":String,
     "franchisee_investment":String,
     "franchisee_preferred_date":Date,
     "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
-    "role":String
+    "lead_age":Number,
+    "lead_source":String
 });
 
 var librarySchema = new mongoose.Schema({
-    "common_files":{type: Schema.Types.Mixed, default : {}},
-    "uploaded_status":{type:'Number',default:0}//0 or 1
+    "common_files":[{path:String,key:String}],
+    "uploaded_status":{type:Number,default:0},//0 or 1
+    "date_uploaded":Date,
+    "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
 });
 
-var UserlibrarySchema = new mongoose.Schema({
-    "personal_files":{type: Schema.Types.Mixed, default : {}},
-    "uploaded_status":{type:'Number',default:0},//0 or 1
-    "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'}
+// var UserlibrarySchema = new mongoose.Schema({
+//     "personal_files":[{path:String,key:String}],
+//     "uploaded_status":{type:'Number',default:0},//0 or 1
+    
+//     "date_uploaded":Date
+// });
+
+var FolderSchema = new mongoose.Schema({
+    "folder_name":String,
+    "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "files":[{path:String,key:String,file_type:String,"date_uploaded":Date}],
+    "create_date":Date
 });
 
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
-mongoose.model('UserLibrary', UserlibrarySchema);
+mongoose.model('Folder', FolderSchema);
 mongoose.model('Auth').Schema;
