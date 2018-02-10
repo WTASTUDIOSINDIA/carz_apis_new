@@ -67,14 +67,15 @@ router.get('/get_franchisee/:id',function(req,res){
             if(!franchisee){
                 res.send({
                     "status":"201",
-                    "message":"Unsucessfull",
-                    "franchisees_data":"failure"
+                    "state":"failure",
+                    "franchisees_data":[]
                 });
             }
             else{
                 res.send({
-                    "status":"200",
-                    "message":"sucessfully",
+                    status:200,
+                    state:"success",
+                    franchisees_data:franchisee
                 });
             }
         })
