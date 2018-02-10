@@ -149,6 +149,77 @@ router.post('/create_franchisee',  function(req, res) {
                 }
                 });
             }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+  
+//update franchisee
+router.put('/edit_franchisee', function(req, res, next) {
+    var franchiseeEditForm = req.body;
+    try{
+        Franchisee.findOne({'_id':franchiseeForm._id},function(err,franchisee){
+            if(err){
+                return res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong.We are looking into it."
+                    });
+            }
+            //If franchisee found,it will enter inside
+            if(franchisee){
+                franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
+                franchisee.franchisee_name=franchiseeEditForm.franchisee_name,
+                franchisee.franchisee_occupation=franchiseeEditForm.franchisee_occupation,
+                franchisee.franchisee_email=franchiseeEditForm.franchisee_email,
+                franchisee.franchisee_city=franchiseeEditForm.franchisee_city,
+                franchisee.franchisee_state=franchiseeEditForm.franchisee_state,
+                franchisee.franchisee_address=franchiseeEditForm.franchisee_address,
+                franchisee.franchisee_mobile_number=franchiseeEditForm.franchisee_mobile_number,
+                franchisee.franchisee_investment=franchiseeEditForm.franchisee_investment,
+                franchisee.franchisee_preferred_date=franchiseeEditForm.franchisee_preferred_date,
+                franchisee.franchisee_preferred_time=franchiseeEditForm.franchisee_preferred_time,
+                franchisee.franchisee_how_soon_to_start=franchiseeEditForm.franchisee_how_soon_to_start,
+                franchisee.franchisee_franchise_model=franchiseeEditForm.franchisee_franchise_model,  
+                franchisee.franchisee_remarks=franchiseeEditForm.franchisee_remarks,
+                franchisee.lead_age=franchiseeEditForm.lead_age,
+                franchisee.lead_source=franchiseeEditForm.lead_source
+                // if(req.file){
+                //     var franchisee_pic = {};
+                //     franchisee_pic.path = req.file.location;
+                //     franchisee_pic.key = req.file.key;
+                //     franchisee.franchisee_pic = franchisee_pic;
+                // }
+                franchisee.save(function(err,franchisee){
+                   if(err){
+                     res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong."
+                    });
+                   }
+                else{
+                    res.send({
+                        status:200,
+                        state:"success",
+                        message:"Franchisee Updated."
+                    });
+                }
+                });
+            }
+            //If franchisee not found,it will enter inside and send error message
+            if(!franchisee){
+                res.send({
+                    status:201,
+                    state:"failure",
+                    message:"Franchise exist with this Id."
+                });
+            }
         })
     }
     catch(err){
@@ -159,44 +230,8 @@ router.post('/create_franchisee',  function(req, res) {
 	}
 });
   
-  //update franchisee
-  router.put('/edit_franchisee', function(req, res, next) {
-    Franchisee.findByIdAndUpdate(req.params.id, 
-        name,
-        mail, 
-        investment, 
-        occupation, 
-        mobile, 
-        age, 
-        model, 
-        city, 
-        state, 
-        lead_name, 
-        model, 
-        address, 
-        source, 
-        pic, 
-        setup_percentage, 
-        req.body,
-        role, 
-        function (err, post) {
-      if (err) return next(err);
-      res.json(post);
-    });
-  Franchisee.findByIdAndUpdate(function(err, franchisee){
-        if(err)
-        {
-            res.json({msg: 'Failed to update'});
-        }
-        else{
-            res.json({msg: 'Updated sucessfully'});
-        }
-    });
-});
-  
   //delete franchisee
-  router.delete('/delete_franchisee/:id',function(req,res){
-    console.log("req.params",req.params.franchisee_id);
+  router.delete('/delete_franchisee',function(req,res){
     try{
         Franchisee.findByIdAndRemove({_id:req.params.id},function(err,franchisee){
             if(err){

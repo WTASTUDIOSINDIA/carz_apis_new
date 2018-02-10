@@ -22,10 +22,10 @@ var franchiseeSchema = new mongoose.Schema({
 });
 
 var librarySchema = new mongoose.Schema({
-    "common_files":[{path:String,key:String}],
+    "files":[{file_name:String,path:String,key:String,date_uploaded:Date}],
     "uploaded_status":{type:Number,default:0},//0 or 1
-    "date_uploaded":Date,
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
 });
 
 // var UserlibrarySchema = new mongoose.Schema({
@@ -38,7 +38,6 @@ var librarySchema = new mongoose.Schema({
 var FolderSchema = new mongoose.Schema({
     "folder_name":String,
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "files":[{path:String,key:String,file_type:String,"date_uploaded":Date}],
     "create_date":Date
 });
 
