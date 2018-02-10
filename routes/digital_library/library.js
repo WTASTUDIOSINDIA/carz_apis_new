@@ -24,7 +24,9 @@ var upload = multer({
             cb(null, {fieldName: file.fieldname});
         },
         key: function (req, file, cb) {
-          cb(null, Date.now().toString() + '.' + file.originalname)
+            console.log("req",req);
+            console.log("file",file);
+            cb(null, Date.now().toString() + '.' + file.originalname)
         }
     })
 });
@@ -37,14 +39,12 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
         }
         else{
             var library = new Library();
-            var file = {};
-            file.path = req.file.location;
-            file.key = req.file.key;
-            file.file_name = req.file.originalname;
-            file.created_date = req.file.created_date;
+            library.file_name = req.file.originalname,
+            library.path = req.file.location,
+            library.key = req.file.key,
+            library.date_uploaded = Date.now();
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
-            library.files.push(file);
             library.save(function(err,lib){
                 if(err){
                     return res.send(err);
@@ -53,7 +53,7 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
                     res.send({
                         state:'success',
                         message:"file uploaded successfully !",
-                        files_list:lib
+                        files_list:library
                     });
                 }
             });

@@ -22,7 +22,10 @@ var franchiseeSchema = new mongoose.Schema({
 });
 
 var librarySchema = new mongoose.Schema({
-    "files":[{file_name:String,path:String,key:String,date_uploaded:Date}],
+    "file_name":String,
+    "path":String,
+    "key":String,
+    "date_uploaded":Date,
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
