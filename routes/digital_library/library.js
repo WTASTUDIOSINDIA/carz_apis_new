@@ -18,15 +18,13 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'carzwta',
-        contentType: multerS3.AUTO_CONTENT_TYPE || 'application/octet-stream',
+        bucket:'carztest',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
             cb(null, {fieldName: file.fieldname});
         },
         key: function (req, file, cb) {
-            console.log("req",req);
-            console.log("file",file);
             cb(null, Date.now().toString() + '.' + file.originalname)
         }
     })
@@ -81,7 +79,7 @@ router.delete('/delete_file_by_Id',function(req,res){
             });
         }
         if(file){
-            var params = {Bucket: 'carzwta', Key : req.body.key};
+            var params = {Bucket: 'carztest', Key : req.body.key};
             s0.deleteObject(params, function (err, response) {
                 if (err) {
                     return res.send({ "error": err });
@@ -118,7 +116,7 @@ router.get('/get_common_files',function(req,res){
             res.send ({
                 status: 200,
                 file: file,
-                state: "failure"
+                state: "success"
             });
         }
     });
@@ -255,12 +253,16 @@ router.put('/update/folder/:id',function(req,res){
         }
     })
 })
-
-router.post('/test',upload.single('test_file'),function(req,res){
+var cpUpload = upload.fields([{ name: 'test_file', maxCount: 20 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/test',cpUpload,function(req,res){
     Library.find({},function(err,lib){
         var file = {};
-            file.path = req.file.location;
-            file.key = req.file.key;
+        console.log("req.file",req.files.test_file);
+        file=req.files.test_file;
+            for(var i=0;i<file.length;i++){
+                file.path = file[i].location;
+                file.key = file[i].key;
+            }
             res.send({
                 state:'success',
                 message:"file uploaded successfully !",
