@@ -124,7 +124,7 @@ router.get('/get_common_files',function(req,res){
 });
 
 router.get('/get_folder_by_id/:id',function(req,res){
-    Folder.findOne({_id:req.params.id},function(err,folder){
+    Folder.find({_id:req.params.id},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
