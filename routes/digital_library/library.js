@@ -5,6 +5,7 @@ var path = require('path');
 var multer  = require('multer');
 var Franchisee = mongoose.model('Franchisee');
 var Library = mongoose.model('Library');
+var Folder = mongoose.model('Folder');
 /*S3 uploads*/
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -39,9 +40,10 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
         }
         else{
             var library = new Library();
-            library.file_name = req.file.originalname,
-            library.path = req.file.location,
-            library.key = req.file.key,
+            library.file_name = req.file.originalname;
+            library.path = req.file.location;
+            library.key = req.file.key;
+            library.uploaded_status = req.file.uploaded_status;
             library.date_uploaded = Date.now();
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
@@ -51,7 +53,8 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
                 }
                 else{
                     res.send({
-                        state:'success',
+                        state:200,
+                        status:'success',
                         message:"file uploaded successfully !",
                         files_list:library
                     });
@@ -61,16 +64,208 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
     });
 });
 
+router.delete('/delete_file_by_Id',function(req,res){
+    Library.findOne({_id:req.body.file_id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(!file){
+            res.send ({
+                status: 201,
+                message: "File not found.",
+                state: "failure"
+            });
+        }
+        if(file){
+            var params = {Bucket: 'carzwta', Key : req.body.key};
+            s0.deleteObject(params, function (err, response) {
+                if (err) {
+                    return res.send({ "error": err });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "File deleted successfully.",
+                        state: "success"
+                    });
+                }
+            });
+        }
+    });
+});
+
+router.get('/get_common_files',function(req,res){
+    Library.findOne({uploaded_status:0},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(!file){
+            res.send ({
+                status: 201,
+                message: "File not found.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "failure"
+            });
+        }
+    });
+});
+
+router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
+    Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_Id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(!file){
+            res.send ({
+                status: 201,
+                message: "File not found.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "failure"
+            });
+        }
+    });
+});
+
+router.post('/create_Folder',function(req,res){
+    Folder.findOne({franchisee_Id:req.body.franchisee_id,folder_name:req.body.folder_name},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 201,
+                message: "Folder exsit with this name.",
+                state: "failure"
+            });
+        }
+        if(!folder){
+           var folder = new Folder();
+           folder.folder_name = req.body.folder_name;
+           folder.franchisee_Id = req.body.franchisee_Id;
+           folder.create_date = Date.now();
+           folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "File deleted successfully.",
+                        state: "error"
+                    });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "Folder created successfully.",
+                        state: "success"
+                    });
+                }
+           })
+        }
+    });
+});
+
+router.delete('/delete/folder/:id',function(req,res){
+    Folder.remove({_id:req.body.folder_Id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.Looking into it.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
+                state: "failure"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                message: "Folder deleted successfully.",
+                state: "success"
+            });
+        }
+    })
+})
+
+router.put('/update/folder/:id',function(req,res){
+    Folder.findOne({_id:req.body.folder_Id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.Looking into it.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
+                state: "failure"
+            });
+        }
+        if(folder){
+            folder.folder_name=req.body.folder_name;
+            folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "Something went wrong.Looking into it.",
+                        state: "error"
+                    });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "Folder deleted successfully.",
+                        state: "success",
+                        folder:folder
+                    });
+                }
+            })
+        }
+    })
+})
+
 router.post('/test',upload.single('test_file'),function(req,res){
     Library.find({},function(err,lib){
         var file = {};
             file.path = req.file.location;
             file.key = req.file.key;
             res.send({
-                        state:'success',
-                        message:"file uploaded successfully !",
-                        files_list:file
-                    });
+                state:'success',
+                message:"file uploaded successfully !",
+                files_list:file
+            });
     })
 });
 
