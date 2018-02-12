@@ -18,6 +18,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
+        AcceptRanges: "bytes",
         bucket:'carztest',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
@@ -101,7 +102,7 @@ router.get('/get_common_files',function(req,res){
         if(err){
             res.send ({
                 status: 500,
-                message: "File deleted successfully.",
+                message: "Something went wrong.",
                 state: "error"
             });
         }
@@ -116,6 +117,32 @@ router.get('/get_common_files',function(req,res){
             res.send ({
                 status: 200,
                 file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+router.get('/get_folder_by_id/:id',function(req,res){
+    Folder.findOne({_id:req.params.id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
+                state: "failure"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                folder: folder,
                 state: "success"
             });
         }
