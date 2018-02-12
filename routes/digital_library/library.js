@@ -191,16 +191,81 @@ router.post('/create_Folder',function(req,res){
     });
 });
 
+router.delete('/delete/folder/:id',function(req,res){
+    Folder.remove({_id:req.body.folder_Id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.Looking into it.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
+                state: "failure"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                message: "Folder deleted successfully.",
+                state: "success"
+            });
+        }
+    })
+})
+
+router.put('/update/folder/:id',function(req,res){
+    Folder.findOne({_id:req.body.folder_Id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.Looking into it.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
+                state: "failure"
+            });
+        }
+        if(folder){
+            folder.folder_name=req.body.folder_name;
+            folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "Something went wrong.Looking into it.",
+                        state: "error"
+                    });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "Folder deleted successfully.",
+                        state: "success",
+                        folder:folder
+                    });
+                }
+            })
+        }
+    })
+})
+
 router.post('/test',upload.single('test_file'),function(req,res){
     Library.find({},function(err,lib){
         var file = {};
             file.path = req.file.location;
             file.key = req.file.key;
             res.send({
-                        state:'success',
-                        message:"file uploaded successfully !",
-                        files_list:file
-                    });
+                state:'success',
+                message:"file uploaded successfully !",
+                files_list:file
+            });
     })
 });
 
