@@ -229,8 +229,8 @@ router.put('/edit_franchisee', function(req, res, next) {
 	}
 });
   
-  //delete franchisee
-  router.delete('/delete_franchisee',function(req,res){
+//delete franchisee
+router.delete('/delete_franchisee',function(req,res){
     try{
         Franchisee.findByIdAndRemove({_id:req.params.id},function(err,franchisee){
             if(err){
@@ -252,11 +252,11 @@ router.put('/edit_franchisee', function(req, res, next) {
         })
     }
     catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		});
-	}
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
 });
   
   module.exports = router;

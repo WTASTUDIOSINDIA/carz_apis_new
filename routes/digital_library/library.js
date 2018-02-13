@@ -18,8 +18,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        AcceptRanges: "bytes",
-        bucket:'carztest',
+        bucket:'carztesting',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -30,8 +29,8 @@ var upload = multer({
         }
     })
 });
-
-router.post('/upload_file',upload.single('file_upload'),function(req,res){
+var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 20 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/upload_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
     Library.findOne({'folder_Id':file_details.folder_Id,'franchisee_Id':file_details.franchisee_Id},function(err,lib){
         if(err){
@@ -39,13 +38,24 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
         }
         else{
             var library = new Library();
-            library.file_name = req.file.originalname;
-            library.path = req.file.location;
-            library.key = req.file.key;
-            library.uploaded_status = req.file.uploaded_status;
+            library.uploaded_status = file_details.uploaded_status;
             library.date_uploaded = Date.now();
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
+            library.image_type = "docs";
+            var file = [];
+            file=req.files.file_upload;
+            for(var i=0;i<file.length;i++){
+                library.path = file[i].location;
+                library.key = file[i].key;
+                library.file_name = file[i].originalname;
+                if(file[i].mimetype == "application/pdf"){
+                    library.image_type = "pdf";
+                }
+                if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
+                    library.image_type = "image";
+                }
+            }
             library.save(function(err,lib){
                 if(err){
                     return res.send(err);
@@ -80,7 +90,7 @@ router.delete('/delete_file_by_Id',function(req,res){
             });
         }
         if(file){
-            var params = {Bucket: 'carztest', Key : req.body.key};
+            var params = {Bucket: 'carztesting', Key : req.body.key};
             s0.deleteObject(params, function (err, response) {
                 if (err) {
                     return res.send({ "error": err });
@@ -97,8 +107,8 @@ router.delete('/delete_file_by_Id',function(req,res){
     });
 });
 
-router.get('/get_common_files',function(req,res){
-    Library.findOne({uploaded_status:0},function(err,file){
+router.get('/get_common_files/:uploaded_status',function(req,res){
+    Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -106,10 +116,10 @@ router.get('/get_common_files',function(req,res){
                 state: "error"
             });
         }
-        if(!file){
+        if(file.length == 0){
             res.send ({
                 status: 201,
-                message: "File not found.",
+                message: "No file are uploaded.",
                 state: "failure"
             });
         }
@@ -280,7 +290,7 @@ router.put('/update/folder/:id',function(req,res){
         }
     })
 })
-var cpUpload = upload.fields([{ name: 'test_file', maxCount: 20 }, { name: 'imgFields', maxCount: 20 }])
+
 router.post('/test',cpUpload,function(req,res){
     Library.find({},function(err,lib){
         var file = {};
