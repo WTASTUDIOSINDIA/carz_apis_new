@@ -134,7 +134,7 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
 });
 
 router.get('/get_folder_by_id/:id',function(req,res){
-    Folder.find({_id:req.params.id},function(err,folder){
+    Folder.findOne({_id:req.params.id},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
