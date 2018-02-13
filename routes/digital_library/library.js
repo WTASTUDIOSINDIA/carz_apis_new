@@ -133,7 +133,7 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
     });
 });
 
-router.get('/get_folder_by_id/:franchisee_id',function(req,res){
+router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
     Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
         if(err){
             res.send ({
