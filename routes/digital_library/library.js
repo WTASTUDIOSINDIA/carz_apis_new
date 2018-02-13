@@ -123,8 +123,8 @@ router.get('/get_common_files',function(req,res){
     });
 });
 
-router.get('/get_folder_by_id/:id',function(req,res){
-    Folder.find({_id:req.params.id},function(err,folder){
+router.get('/get_folder_by_id/:franchisee_id',function(req,res){
+    Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -132,14 +132,14 @@ router.get('/get_folder_by_id/:id',function(req,res){
                 state: "error"
             });
         }
-        if(!folder){
+        if(folder.length==0){
             res.send ({
                 status: 201,
                 message: "Folder not found.",
                 state: "failure"
             });
         }
-        if(folder){
+        if(folder.length>0){
             res.send ({
                 status: 200,
                 folder: folder,
@@ -176,8 +176,7 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
 });
 
 router.post('/create_Folder',function(req,res){
-    console.log('req.body', req.body);
-    Folder.findOne({franchisee_Id:req.body.franchisee_id,folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
