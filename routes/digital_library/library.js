@@ -52,19 +52,18 @@ function deleteFile(key){
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
+    var libraries=[];
     Library.findOne({'folder_Id':file_details.folder_Id,'franchisee_Id':file_details.franchisee_Id},function(err,lib){
         if(err){
             return res.send(err);
         }
         else{
-            var library = new Library();
-            library.uploaded_status = file_details.uploaded_status;
-            library.date_uploaded = Date.now();
-            library.franchisee_Id = file_details.franchisee_Id;
-            library.folder_Id = file_details.folder_Id;
             var file = [];
+            var getNumber = 0;
+            var length = req.files.file_upload.length;
             file=req.files.file_upload;
             for(var i=0;i<file.length;i++){
+                var library = new Library();
                 library.path = file[i].location;
                 library.key = file[i].key;
                 library.file_name = file[i].originalname;
@@ -74,20 +73,47 @@ router.post('/upload_file',cpUpload,function(req,res){
                 if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
                     library.image_type = "image";
                 }
+                library.uploaded_status = file_details.uploaded_status;
+                library.date_uploaded = Date.now();
+                library.franchisee_Id = file_details.franchisee_Id;
+                library.folder_Id = file_details.folder_Id;
+                libraries.push(library);             
             }
-            library.save(function(err,lib){
+            console.log(":libraries",libraries);
+            for(var i=0;i<libraries.length;i++){
+                getNumber = getNumber + 1;
+                libraries[i].save(function(err,libraries){
+                    console.log("getNumber",getNumber);
                 if(err){
-                    return res.send(err);
+                        return res.send(err);
                 }
                 else{
-                    res.send({
-                        state:200,
-                        status:'success',
-                        message:"file uploaded successfully !",
-                        files_list:library
-                    });
+                    if(parseInt(length) == parseInt(getNumber)){
+                        res.send({
+                            state:200,
+                            status:'success',
+                            message:"file uploaded successfully !"
+                        });
+                    }
                 }
-            });
+            })
+            }
+            
+        //    for(var j=0;j<libraries.length;j++){
+        //         library.save(function(err,lib){
+        //             if(err){
+        //                 return res.send(err);
+        //             }
+        //             else{
+        //                 res.send({
+        //                     state:200,
+        //                     status:'success',
+        //                     message:"file uploaded successfully !",
+        //                     files_list:library
+        //                 });
+        //             }
+        //         });
+        //     }
         }
     });
 });
