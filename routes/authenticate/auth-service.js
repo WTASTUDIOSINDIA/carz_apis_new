@@ -4,6 +4,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 var bCrypt = require('bcrypt-nodejs');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
+var Franchisee = mongoose.model('Franchisee');
 module.exports = function(passport){
     // Passport needs to be able to serialize and deserialize users to support persistent login sessions
     passport.serializeUser(function(user, done) {
@@ -58,26 +59,36 @@ module.exports = function(passport){
             //var email = req.body.user_mail;
             // find a user in mongo with provided username
             try{
-                Auth.findOne({ 'user_mail':username }, function(err, franchisee) {
+                Auth.findOne({ 'user_mail':username }, function(err, auth) {
                     // In case of any error, return using the done method
                     if (err){
                         return done(err, { message: 'Error in SignUp' });
                     }
                     // already exists
-                    if (franchisee) {
+                    if (auth) {
                         return done(null, false, { message: 'User already exists with this username or email' });
                     }
                     // if there is no user, create the user
-                    if (!franchisee) {
-                        var franchisee = new Auth();
+                    if (!auth) {
+                        //var franchisee = new Auth();
+                        var auth = new Auth();
                         if(req.body.user_mail=="admin@admin.com"){
-                            franchisee.user_role = "Admin";
+                            auth.user_role = "Admin";
                         }
-                        franchisee.user_mail = username;
-                        franchisee.user_pass = createHash(password);
-                        franchisee.user_name = req.body.user_name;
-                        franchisee.save(function(err,franchisee){
-                            return done(null, franchisee);
+                        auth.user_mail = username;
+                        auth.user_pass = createHash(password);
+                        auth.user_name = req.body.user_name;
+                        auth.save(function(err,auth){
+                            var franchisee = new Franchisee();
+                            franchisee.franchisee_code = auth._id;
+                            franchisee.save(function(err,franchisee){
+                                if(err){
+                                    return done(err, { message: 'Error in Franchisee setup' });
+                                }
+                                else{
+                                    return done(null, auth);
+                                }
+                            })
                         })                       
                     }
                 });

@@ -79,11 +79,9 @@ router.post('/upload_file',cpUpload,function(req,res){
                 library.folder_Id = file_details.folder_Id;
                 libraries.push(library);             
             }
-            console.log(":libraries",libraries);
             for(var i=0;i<libraries.length;i++){
                 getNumber = getNumber + 1;
                 libraries[i].save(function(err,libraries){
-                    console.log("getNumber",getNumber);
                 if(err){
                         return res.send(err);
                 }

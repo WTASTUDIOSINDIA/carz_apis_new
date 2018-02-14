@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
 var franchiseeSchema = new mongoose.Schema({
-    // "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
+    "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
     "franchisee_name":String,
     "franchisee_occupation":String,
     "franchisee_email":String,
