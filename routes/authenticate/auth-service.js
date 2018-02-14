@@ -74,6 +74,9 @@ module.exports = function(passport){
                         var auth = new Auth();
                         if(req.body.user_mail=="admin@admin.com"){
                             auth.user_role = "Admin";
+                            auth.user_mail = "Admin";
+                            auth.user_pass = createHash(password);
+                            return done(null, auth);
                         }
                         auth.user_mail = username;
                         auth.user_pass = createHash(password);
@@ -81,6 +84,8 @@ module.exports = function(passport){
                         auth.save(function(err,auth){
                             var franchisee = new Franchisee();
                             franchisee.franchisee_code = auth._id;
+                            franchisee.franchisee_email = auth.user_mail;
+                            franchisee.franchisee_name = auth.user_name;
                             franchisee.save(function(err,franchisee){
                                 if(err){
                                     return done(err, { message: 'Error in Franchisee setup' });

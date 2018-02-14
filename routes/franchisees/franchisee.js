@@ -90,10 +90,10 @@ router.get('/get_franchisee/:id',function(req,res){
 //create franchisee
 //upload.single('franchisee_img'),
 //JSON.parse(req.body.franchisee_details)
-router.post('/create_franchisee',  function(req, res) {
+router.put('/create_franchisee',  function(req, res) {
     var franchiseeForm = req.body;
     try{
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
+        Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
             if(err){
                 return res.send({
                         status:500,
@@ -101,19 +101,15 @@ router.post('/create_franchisee',  function(req, res) {
                         message:"Something went wrong.We are looking into it."
                     });
             }
-            if(franchisee){
+            if(!franchisee){
                 res.send({
                     status:200,
                     state:"failure",
-                    message:"Franchise exist with this Id."
+                    message:"Franchise doesn't exist with this Id."
                 });
             }
-            if(!franchisee){
-                var franchisee = new Franchisee();
-                franchisee.franchisee_code = franchiseeForm.franchisee_code,
-                franchisee.franchisee_name=franchiseeForm.franchisee_name,
+            if(franchisee){
                 franchisee.franchisee_occupation=franchiseeForm.franchisee_occupation,
-                franchisee.franchisee_email=franchiseeForm.franchisee_email,
                 franchisee.franchisee_city=franchiseeForm.franchisee_city,
                 franchisee.franchisee_state=franchiseeForm.franchisee_state,
                 franchisee.franchisee_address=franchiseeForm.franchisee_address,
