@@ -14,10 +14,11 @@ var authenticate = require('./routes/authenticate/authenticate')(passport);
 var library = require('./routes/digital_library/library');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
- 
+
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
-mongoose.connect("mongodb://localhost/carz");
+mongoose.connect('mongodb://heroku_m6bl4944:heroku_m6bl4944@ds149905.mlab.com:49905/heroku_m6bl4944');
+//mongoose.connect("mongodb://localhost/carz");
 var app = express();
 var http = require('http').Server(app);
 // view engine setup
@@ -25,7 +26,7 @@ app.set('views', path.join(__dirname, 'public'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "https://carzapi.herokuapp.com/");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
   next();
