@@ -133,6 +133,58 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
     });
 });
 
+router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,res){
+    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(file.length == 0){
+            res.send ({
+                status: 201,
+                message: "No file are uploaded.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',function(req,res){
+    Library.find({folder_Id:req.params.folder_Id,franchisee_Id:req.params.franchisee_Id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(file.length == 0){
+            res.send ({
+                status: 201,
+                message: "No file are uploaded.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
 router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
     Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
         if(err){
