@@ -163,7 +163,7 @@ router.post('/create_franchisee',  function(req, res) {
 router.put('/edit_franchisee', function(req, res, next) {
     var franchiseeEditForm = req.body;
     try{
-        Franchisee.findOne({'_id':franchiseeForm._id},function(err,franchisee){
+        Franchisee.findOne({'_id':franchiseeEditForm._id},function(err,franchisee){
             if(err){
                 return res.send({
                         status:500,

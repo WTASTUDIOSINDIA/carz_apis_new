@@ -6,6 +6,7 @@ var multer  = require('multer');
 var Franchisee = mongoose.model('Franchisee');
 var Library = mongoose.model('Library');
 var Folder = mongoose.model('Folder');
+var _ = require('lodash');
 /*S3 uploads*/
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -29,7 +30,26 @@ var upload = multer({
         }
     })
 });
-var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 20 }, { name: 'imgFields', maxCount: 20 }])
+function deleteFile(key){
+    try{
+        var params = {Bucket: 'carztesting', Key : key};
+        s0.deleteObject(params, function (err, response) {
+            if (err) {
+                return res.send({ "error": err });
+            }
+            else{
+                console.log("here");
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        });
+    }
+}
+var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
     Library.findOne({'folder_Id':file_details.folder_Id,'franchisee_Id':file_details.franchisee_Id},function(err,lib){
@@ -42,8 +62,9 @@ router.post('/upload_file',cpUpload,function(req,res){
             library.date_uploaded = Date.now();
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
-            library.image_type = "docs";
             var file = [];
+            var libraries=[];
+            console.log("this.files",req.files.file_upload);
             file=req.files.file_upload;
             for(var i=0;i<file.length;i++){
                 library.path = file[i].location;
@@ -55,26 +76,34 @@ router.post('/upload_file',cpUpload,function(req,res){
                 if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
                     library.image_type = "image";
                 }
+                libraries.push(library);
             }
-            library.save(function(err,lib){
-                if(err){
-                    return res.send(err);
-                }
-                else{
-                    res.send({
-                        state:200,
-                        status:'success',
-                        message:"file uploaded successfully !",
-                        files_list:library
-                    });
-                }
-            });
+           for(var j=0;j<libraries.length;j++){
+                library.save(function(err,lib){
+                    if(err){
+                        return res.send(err);
+                    }
+                    else{
+                        res.send({
+                            state:200,
+                            status:'success',
+                            message:"file uploaded successfully !",
+                            files_list:library
+                        });
+                    }
+                });
+            }
         }
     });
 });
 
-router.delete('/delete_file_by_Id',function(req,res){
-    Library.findOne({_id:req.body.file_id},function(err,file){
+router.put('/delete_file_by_Id',function(req,res){
+    var file_id=[];
+    file_id = req.body.map(_.property('file_id'));
+    for(var i=0;i<req.body.length;i++){
+        deleteFile(req.body[i].key);
+    }
+    Library.remove({ _id: { $in: file_id } },function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -82,26 +111,11 @@ router.delete('/delete_file_by_Id',function(req,res){
                 state: "error"
             });
         }
-        if(!file){
+        else{
             res.send ({
-                status: 201,
-                message: "File not found.",
-                state: "failure"
-            });
-        }
-        if(file){
-            var params = {Bucket: 'carztesting', Key : req.body.key};
-            s0.deleteObject(params, function (err, response) {
-                if (err) {
-                    return res.send({ "error": err });
-                }
-                else{
-                    res.send ({
-                        status: 200,
-                        message: "File deleted successfully.",
-                        state: "success"
-                    });
-                }
+                status:200,
+                message: "Successfully Removed.",
+                state: "success"
             });
         }
     });
@@ -133,8 +147,8 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
     });
 });
 
-router.get('/get_folder_by_id/:id',function(req,res){
-    Folder.findOne({_id:req.params.id},function(err,folder){
+router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,res){
+    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -142,14 +156,66 @@ router.get('/get_folder_by_id/:id',function(req,res){
                 state: "error"
             });
         }
-        if(!folder){
+        if(file.length == 0){
+            res.send ({
+                status: 201,
+                message: "No file are uploaded.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',function(req,res){
+    Library.find({folder_Id:req.params.folder_Id,franchisee_Id:req.params.franchisee_Id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(file.length == 0){
+            res.send ({
+                status: 201,
+                message: "No file are uploaded.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
+    Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(folder.length==0){
             res.send ({
                 status: 201,
                 message: "Folder not found.",
                 state: "failure"
             });
         }
-        if(folder){
+        if(folder.length>0){
             res.send ({
                 status: 200,
                 folder: folder,
@@ -186,7 +252,7 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
 });
 
 router.post('/create_Folder',function(req,res){
-    Folder.findOne({franchisee_Id:req.body.franchisee_id,folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -227,7 +293,7 @@ router.post('/create_Folder',function(req,res){
 });
 
 router.delete('/delete/folder/:id',function(req,res){
-    Folder.remove({_id:req.body.folder_Id},function(err,folder){
+    Folder.remove({_id:req.params.id},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -235,14 +301,7 @@ router.delete('/delete/folder/:id',function(req,res){
                 state: "error"
             });
         }
-        if(!folder){
-            res.send ({
-                status: 201,
-                message: "Folder not found.",
-                state: "failure"
-            });
-        }
-        if(folder){
+        else{
             res.send ({
                 status: 200,
                 message: "Folder deleted successfully.",
