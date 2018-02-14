@@ -18,21 +18,19 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'carzwta',
-        contentType: multerS3.AUTO_CONTENT_TYPE || 'application/octet-stream',
+        bucket:'carztesting',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
             cb(null, {fieldName: file.fieldname});
         },
         key: function (req, file, cb) {
-            console.log("req",req);
-            console.log("file",file);
             cb(null, Date.now().toString() + '.' + file.originalname)
         }
     })
 });
-
-router.post('/upload_file',upload.single('file_upload'),function(req,res){
+var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 20 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/upload_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
     Library.findOne({'folder_Id':file_details.folder_Id,'franchisee_Id':file_details.franchisee_Id},function(err,lib){
         if(err){
@@ -40,13 +38,24 @@ router.post('/upload_file',upload.single('file_upload'),function(req,res){
         }
         else{
             var library = new Library();
-            library.file_name = req.file.originalname;
-            library.path = req.file.location;
-            library.key = req.file.key;
-            library.uploaded_status = req.file.uploaded_status;
+            library.uploaded_status = file_details.uploaded_status;
             library.date_uploaded = Date.now();
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
+            library.image_type = "docs";
+            var file = [];
+            file=req.files.file_upload;
+            for(var i=0;i<file.length;i++){
+                library.path = file[i].location;
+                library.key = file[i].key;
+                library.file_name = file[i].originalname;
+                if(file[i].mimetype == "application/pdf"){
+                    library.image_type = "pdf";
+                }
+                if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
+                    library.image_type = "image";
+                }
+            }
             library.save(function(err,lib){
                 if(err){
                     return res.send(err);
@@ -81,7 +90,7 @@ router.delete('/delete_file_by_Id',function(req,res){
             });
         }
         if(file){
-            var params = {Bucket: 'carzwta', Key : req.body.key};
+            var params = {Bucket: 'carztesting', Key : req.body.key};
             s0.deleteObject(params, function (err, response) {
                 if (err) {
                     return res.send({ "error": err });
@@ -98,19 +107,19 @@ router.delete('/delete_file_by_Id',function(req,res){
     });
 });
 
-router.get('/get_common_files',function(req,res){
-    Library.findOne({uploaded_status:0},function(err,file){
+router.get('/get_common_files/:uploaded_status',function(req,res){
+    Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
         if(err){
             res.send ({
                 status: 500,
-                message: "File deleted successfully.",
+                message: "Something went wrong.",
                 state: "error"
             });
         }
-        if(!file){
+        if(file.length == 0){
             res.send ({
                 status: 201,
-                message: "File not found.",
+                message: "No file are uploaded.",
                 state: "failure"
             });
         }
@@ -118,7 +127,33 @@ router.get('/get_common_files',function(req,res){
             res.send ({
                 status: 200,
                 file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+router.get('/get_folder_by_id/:id',function(req,res){
+    Folder.findOne({_id:req.params.id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folder not found.",
                 state: "failure"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                folder: folder,
+                state: "success"
             });
         }
     });
@@ -256,11 +291,15 @@ router.put('/update/folder/:id',function(req,res){
     })
 })
 
-router.post('/test',upload.single('test_file'),function(req,res){
+router.post('/test',cpUpload,function(req,res){
     Library.find({},function(err,lib){
         var file = {};
-            file.path = req.file.location;
-            file.key = req.file.key;
+        console.log("req.file",req.files.test_file);
+        file=req.files.test_file;
+            for(var i=0;i<file.length;i++){
+                file.path = file[i].location;
+                file.key = file[i].key;
+            }
             res.send({
                 state:'success',
                 message:"file uploaded successfully !",
