@@ -63,8 +63,6 @@ router.post('/upload_file',cpUpload,function(req,res){
             library.franchisee_Id = file_details.franchisee_Id;
             library.folder_Id = file_details.folder_Id;
             var file = [];
-            var libraries=[];
-            console.log("this.files",req.files.file_upload);
             file=req.files.file_upload;
             for(var i=0;i<file.length;i++){
                 library.path = file[i].location;
@@ -76,23 +74,20 @@ router.post('/upload_file',cpUpload,function(req,res){
                 if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
                     library.image_type = "image";
                 }
-                libraries.push(library);
             }
-           for(var j=0;j<libraries.length;j++){
-                library.save(function(err,lib){
-                    if(err){
-                        return res.send(err);
-                    }
-                    else{
-                        res.send({
-                            state:200,
-                            status:'success',
-                            message:"file uploaded successfully !",
-                            files_list:library
-                        });
-                    }
-                });
-            }
+            library.save(function(err,lib){
+                if(err){
+                    return res.send(err);
+                }
+                else{
+                    res.send({
+                        state:200,
+                        status:'success',
+                        message:"file uploaded successfully !",
+                        files_list:library
+                    });
+                }
+            });
         }
     });
 });
