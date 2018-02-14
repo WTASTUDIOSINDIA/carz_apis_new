@@ -26,7 +26,7 @@ var librarySchema = new mongoose.Schema({
     "path":String,
     "key":String,
     "date_uploaded":Date,
-    "image_type":String,
+    "image_type":{type:String,default:'docs'},
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
