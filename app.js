@@ -17,8 +17,8 @@ var library = require('./routes/digital_library/library');
 
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
-mongoose.connect('mongodb://heroku_m6bl4944:heroku_m6bl4944@ds149905.mlab.com:49905/heroku_m6bl4944');
-//mongoose.connect("mongodb://localhost/carz");
+//mongoose.connect('mongodb://heroku_m6bl4944:carz_m6bl4944@ds149905.mlab.com:49905/heroku_m6bl4944'); //mongoose.connect("mongodb://localhost/carz");
+mongoose.connect('mongodb://swamy:swamy123@ds149905.mlab.com:49905/heroku_m6bl4944');
 var app = express();
 var http = require('http').Server(app);
 // view engine setup
