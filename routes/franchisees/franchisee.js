@@ -122,7 +122,7 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.franchisee_preferred_date=franchiseeForm.franchisee_preferred_date,
                 franchisee.franchisee_preferred_time=franchiseeForm.franchisee_preferred_time,
                 franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
-                franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,  
+                franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeForm.lead_age,
                 franchisee.lead_source=franchiseeForm.lead_source
@@ -158,7 +158,7 @@ router.post('/create_franchisee',  function(req, res) {
 		});
 	}
 });
-  
+
 //update franchisee
 router.put('/edit_franchisee', function(req, res, next) {
     var franchiseeEditForm = req.body;
@@ -185,7 +185,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                 franchisee.franchisee_preferred_date=franchiseeEditForm.franchisee_preferred_date,
                 franchisee.franchisee_preferred_time=franchiseeEditForm.franchisee_preferred_time,
                 franchisee.franchisee_how_soon_to_start=franchiseeEditForm.franchisee_how_soon_to_start,
-                franchisee.franchisee_franchise_model=franchiseeEditForm.franchisee_franchise_model,  
+                franchisee.franchisee_franchise_model=franchiseeEditForm.franchisee_franchise_model,
                 franchisee.franchisee_remarks=franchiseeEditForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeEditForm.lead_age,
                 franchisee.lead_source=franchiseeEditForm.lead_source
@@ -229,9 +229,9 @@ router.put('/edit_franchisee', function(req, res, next) {
 		});
 	}
 });
-  
+
 //delete franchisee
-router.delete('/delete_franchisee',function(req,res){
+router.delete('/delete_franchisee/:id',function(req,res){
     try{
         Franchisee.findByIdAndRemove({_id:req.params.id},function(err,franchisee){
             if(err){
@@ -259,5 +259,5 @@ router.delete('/delete_franchisee',function(req,res){
         });
     }
 });
-  
+
   module.exports = router;
