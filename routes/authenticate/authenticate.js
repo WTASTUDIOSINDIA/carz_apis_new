@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require( 'mongoose' );
 var path = require('path');
-var Auth = mongoose.model('Auth');
+var Franchisor = mongoose.model('Franchisor');
 var ForgotPassword = mongoose.model('ForgotPassword');
 var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
@@ -12,7 +12,7 @@ module.exports = function(passport){
     //sends successful login state back to angular
     router.get('/success', function(req, res){
         res.send({
-            state: 'success', 
+            state: 'success',
             user: req.user ? req.user : null,
             status:200
         });
@@ -20,9 +20,10 @@ module.exports = function(passport){
 
     //sends failure login state back to angular
     router.get('/failure', function(req, res){
+      
         res.send({
-            state: 'failure', 
-            user: null,
+            state: 'failure',
+            user: req.body,
             status:201,
             message: req.flash('error')
         });
@@ -52,14 +53,14 @@ module.exports = function(passport){
     function getGroupPasscode () {
         var len = 6;
         var passcode = crypto.randomBytes(Math.ceil(len/2))
-            .toString('hex') 
-            .slice(0,len);  
+            .toString('hex')
+            .slice(0,len);
         return passcode;
     }
     //Forgot Password
     router.post('/forgot_password',function(req,res){
         try{
-            Auth.findOne({user_mail:req.body.user_mail},function(err,franchisee){
+            Franchisor.findOne({user_mail:req.body.user_mail},function(err,franchisor){
                 if(err){
                     res.send({
                         status:500,
@@ -67,7 +68,7 @@ module.exports = function(passport){
                         message:"Something went wrong.We are looking into it."
                     });
                 }
-                if(!franchisee){
+                if(!franchisor){
                     res.send({
                         status:201,
                         state:"failure",
@@ -75,23 +76,23 @@ module.exports = function(passport){
                     });
                 }
                 //Franchisee is there
-                if(franchisee){
+                if(franchisor){
                     //Send mail
                     var fp = new ForgotPassword();
                     var getCode=getGroupPasscode();
                     fp.unique_code = Date.now().toString()+''+getCode;
-                    fp.franchisee_mail = franchisee.user_mail;
+                    fp.user_mail = franchisor.user_mail;
                     fp.save(function(err,mail){
                         var fromName = "CARZ";
                         var mailOptions={
-                            to: franchisee.user_mail,
+                            to: franchisor.user_mail,
                             subject: 'Forgot Password Link',
                             from: "ikshitnodemailer@gmail.com",
                             headers: {
                                 "X-Laziness-level": 1000,
                                 "charset" : 'UTF-8'
                             },
-                            html: '<p style="color:#0079c1;">Hello'+' '+franchisee.user_name+'</p></br>'
+                            html: '<p style="color:#0079c1;">Hello'+' '+franchisor.user_name+'</p></br>'
                             +'<p>Click on the link below to reset your password</p></br>'
                             +'<a href="http://localhost:3000/reset_password/'+fp.unique_code+'">Click here to activate your account</a>'
                             //html: '<a href="https://howdydev.herokuapp.com/resetpassword/'+pwdchangerequest.passcode+'">Click here to change your password</a>'
@@ -101,8 +102,8 @@ module.exports = function(passport){
                             secure: false, // use SSL
                             port: 25, // port for secure SMTP
                             auth: {
-                                user: 'ikshitnodemailer@gmail.com', 
-                                pass: 'ikshit1007007' 
+                                user: 'ikshitnodemailer@gmail.com',
+                                pass: 'ikshit1007007'
                             }
                         });
                         transporter.sendMail(mailOptions, function(error, response){
@@ -145,7 +146,7 @@ module.exports = function(passport){
                 });
             }
             if(match){
-                Auth.findOne({user_mail:match.franchisee_mail},function(err,auth){
+                Franchisor.findOne({user_mail:match.user_mail},function(err,franchisor){
                     if(err){
                         res.send({
                             status:500,
@@ -153,14 +154,14 @@ module.exports = function(passport){
                             message:"Something went wrong.We are looking into it."
                         });
                     }
-                    if(!auth){
+                    if(!franchisor){
                         res.send({
                             status:201,
                             state:"failure",
                             message:"User not found."
                         });
                     }
-                    if(auth){
+                    if(franchisor){
                         auth.user_pass=createHash(req.body.user_pass);
                         auth.save(function(err,auth){
                             if(err){

@@ -1,17 +1,20 @@
-var mongoose = require('mongoose');   
-var Auth = mongoose.model('Auth');
+var mongoose = require('mongoose');
+var Franchisor = mongoose.model('Franchisor');
 var LocalStrategy   = require('passport-local').Strategy;
 var bCrypt = require('bcrypt-nodejs');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 module.exports = function(passport){
+  console.log(passport.user, 'testtt');
     // Passport needs to be able to serialize and deserialize users to support persistent login sessions
     passport.serializeUser(function(user, done) {
+      console.log("serializing " + user);
         done(null, user._id);
     });
 
     passport.deserializeUser(function(id, done) {
-        Auth.findById(id, function(err, user) {
+      console.log("serializing " + user);
+        Franchisor.findById(id, function(err, user) {
             done(err, user);
         });
     });
@@ -20,25 +23,26 @@ module.exports = function(passport){
             passReqToCallback : true
         },
         function(req, username, password, done) {
+            console.log("test");
             try{
                 // check in mongo if a user with username exists or not
-                Auth.findOne({ 'user_mail' :  username},
-                    function(err, franchisee) {
+                Franchisor.findOne({ 'user_mail' :  username},
+                    function(err, franchisor) {
                         // In case of any error, return using the done method
                         if (err){
                             return done(err+"Error data");
                         }
                         // Username does not exist, log the error and redirect back
-                        if (!franchisee){
+                        if (!franchisor){
                             return done(null, false, { message: 'User Not Found with username' });
                         }
-                        // User exists but wrong password, log the error 
-                        if (!isValidPassword(franchisee, password)){
+                        // User exists but wrong password, log the error
+                        if (!isValidPassword(franchisor, password)){
                             return done(null, false, { message: 'Invalid UserName Or Password' });
                         }
                         // User and password both match, return user from done method
                         // which will be treated like success
-                        return done(null, franchisee);
+                        return done(null, franchisor);
                     }
                 );
             }
@@ -50,35 +54,37 @@ module.exports = function(passport){
             }
         }
     ));
-	
+
     passport.use('register', new LocalStrategy({
             passReqToCallback : true // allows us to pass back the entire request to the callback
         },
         function(req, username, password, done) {
+          console.log("Hellsdsdo");
             //var email = req.body.user_mail;
             // find a user in mongo with provided username
             try{
-                Auth.findOne({ 'user_mail':username }, function(err, franchisee) {
+              console.log("Hellsdsdo");console.log("Hellsdsdo");
+                Franchisor.findOne({ 'user_mail':username }, function(err, franchisor) {
                     // In case of any error, return using the done method
                     if (err){
                         return done(err, { message: 'Error in SignUp' });
                     }
                     // already exists
-                    if (franchisee) {
+                    if (franchisor) {
                         return done(null, false, { message: 'User already exists with this username or email' });
                     }
                     // if there is no user, create the user
-                    if (!franchisee) {
-                        var franchisee = new Auth();
-                        if(req.body.user_mail=="admin@admin.com"){
-                            franchisee.user_role = "Admin";
+                    if (!franchisor) {
+                        var franchisor = new Franchisor();
+                        if(req.body.user_mail=="admin@carz.com"){
+                            franchisor.user_role = "Franchisor";
                         }
-                        franchisee.user_mail = username;
-                        franchisee.user_pass = createHash(password);
-                        franchisee.user_name = req.body.user_name;
-                        franchisee.save(function(err,franchisee){
-                            return done(null, franchisee);
-                        })                       
+                        franchisor.user_mail = username;
+                        franchisor.user_pass = createHash(password);
+                        franchisor.user_name = req.body.user_name;
+                        franchisor.save(function(err,franchisor){
+                            return done(null, franchisor);
+                        })
                     }
                 });
             }
@@ -90,9 +96,9 @@ module.exports = function(passport){
             }
         })
     );
-    
-    var isValidPassword = function(franchisee, password){
-        return bCrypt.compareSync(password, franchisee.user_pass);
+
+    var isValidPassword = function(franchisor, password){
+        return bCrypt.compareSync(password, franchisor.user_pass);
     };
     // Generates hash using bCrypt
     var createHash = function(password){
