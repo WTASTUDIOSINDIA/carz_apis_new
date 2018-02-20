@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var bCrypt = require('bcrypt-nodejs');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
 var franchiseeSchema = new mongoose.Schema({
@@ -6,6 +7,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_name":String,
     "franchisee_occupation":String,
     "franchisee_email":String,
+    "franchisee_pass":String,
     "franchisee_profile_pic":{type: Schema.Types.Mixed, default : {}},
     "franchisee_city":String,
     "franchisee_state":String,
@@ -18,7 +20,8 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
     "lead_age":Number,
-    "lead_source":String
+    "lead_source":String,
+    "user_role": {type:String, default:'franchisee'}
 });
 
 var librarySchema = new mongoose.Schema({
@@ -35,7 +38,7 @@ var librarySchema = new mongoose.Schema({
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
 //     "uploaded_status":{type:'Number',default:0},//0 or 1
-    
+
 //     "date_uploaded":Date
 // });
 
