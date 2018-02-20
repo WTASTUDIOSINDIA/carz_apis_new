@@ -311,8 +311,13 @@ router.post('/create_Folder',function(req,res){
     });
 });
 
-router.delete('/delete/folder/:id',function(req,res){
-    Folder.remove({_id:req.params.id},function(err,folder){
+router.delete('/delete_folder_by_Id',function(req,res){
+    var folder_Id=[];
+    folder_Id = req.body.map(_.property('folder_Id'));
+    for(var i=0;i<req.body.length;i++){
+        deleteFolder(req.body[i].key)
+    }
+    Folder.remove({ _Id: { $in: folder_Id } },function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -327,8 +332,9 @@ router.delete('/delete/folder/:id',function(req,res){
                 state: "success"
             });
         }
-    })
-})
+    });
+});
+
 
 router.put('/update/folder/:id',function(req,res){
     Folder.findOne({_id:req.body.folder_Id},function(err,folder){
