@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var bCrypt = require('bcrypt-nodejs');
 var Schema = mongoose.Schema;
 var franchisorSchema = new mongoose.Schema({
     // "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
