@@ -1,53 +1,147 @@
 var mongoose = require('mongoose');
 var Franchisor = mongoose.model('Franchisor');
+var Franchisee = mongoose.model('Franchisee');
+var Admin = mongoose.model('Admin');
 var LocalStrategy   = require('passport-local').Strategy;
 var bCrypt = require('bcrypt-nodejs');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 module.exports = function(passport){
-  console.log(passport.franchisor, 'testtt');
+//  console.log(passport);
     // Passport needs to be able to serialize and deserialize users to support persistent login sessions
-    passport.serializeUser(function(franchisor, done) {
-      console.log("serializing " + franchisor);
-        done(null, franchisor._id);
+    passport.serializeUser(function(user, done) {
+
+        done(null, {id:user._id, user_role:user.user_role});
     });
 
-    passport.deserializeUser(function(id, done) {      
-        Franchisor.findById(id, function(err, franchisor) {
+    passport.deserializeUser(function(user, done) {
+      //if user role is admin
+      if(user.user_role === "admin"){
+        Admin.findById(user.id, function(err, admin) {
+            done(err, admin);
+        });
+      }
+
+      //if user role is franchisor
+      if(user.user_role === "franchisor"){
+        Franchisor.findById(user.id, function(err, franchisor) {
             done(err, franchisor);
         });
+      };
+
+      //if user role is franchisee
+      if(user.user_role === "franchisee"){
+        Franchisee.findById(user.id, function(err, franchisee) {
+            done(err, franchisee);
+        });
+      };
     });
 
-    passport.use('login', new LocalStrategy({
+    passport.use('franchisor-login', new LocalStrategy({
             usernameField : 'user_mail',
             passwordField : 'user_pass',
             passReqToCallback : true
         },
         function(req, username, password, done) {
-            console.log("test");
+
             try{
-              console.log("test error 4");
                 // check in mongo if a user with username exists or not
                 Franchisor.findOne({ 'user_mail' :  username},
                     function(err, franchisor) {
                         // In case of any error, return using the done method
                         if (err){
-                          console.log("test error 1");
                             return done(err+"Error data");
                         }
                         // Username does not exist, log the error and redirect back
                         if (!franchisor){
-                          console.log("test error 2");
                             return done(null, false, { message: 'User Not Found with username' });
                         }
                         // User exists but wrong password, log the error
                         if (!isValidPassword(franchisor, password)){
-                          console.log("test error 3");
                             return done(null, false, { message: 'Invalid UserName Or Password' });
                         }
                         // User and password both match, return user from done method
                         // which will be treated like success
-                        console.log("test error 4");
+                        return done(null, franchisor);
+                    }
+                );
+            }
+            catch(err){
+                res.send({
+                    state:"error",
+                    message:err
+                });
+            }
+        }
+    ));
+    passport.use('franchisee-login', new LocalStrategy({
+            usernameField : 'franchisee_email',
+            passwordField : 'franchisee_pass',
+            passReqToCallback : true
+        },
+        function(req, username, password, done) {
+            try{
+                // check in mongo if a user with username exists or not
+                Franchisee.findOne({ 'franchisee_email' :  username},
+                    function(err, franchisee) {
+                        // In case of any error, return using the done method
+                        if (err){
+
+                            return done(err+"Error data");
+                        }
+                        // Username does not exist, log the error and redirect back
+                        if (!franchisee){
+
+                            return done(null, false, { message: 'User Not Found with username' });
+                        }
+                        // User exists but wrong password, log the error
+                        if (!isValidPasswordOfFranchisee(franchisee, password)){
+
+                            return done(null, false, { message: 'Invalid UserName Or Password' });
+                        }
+                        // User and password both match, return user from done method
+                        // which will be treated like success
+                        //console.log(franchisee);
+                        return done(null, franchisee);
+                    }
+                );
+            }
+            catch(err){
+                res.send({
+                    state:"error",
+                    message:err
+                });
+            }
+        }
+    ));
+    passport.use('admin-login', new LocalStrategy({
+            usernameField : 'user_mail',
+            passwordField : 'user_pass',
+            passReqToCallback : true
+        },
+        function(req, username, password, done) {
+            try{
+                // check in mongo if a user with username exists or not
+                Franchisor.findOne({ 'user_mail' :  username},
+                    function(err, admin) {
+                        // In case of any error, return using the done method
+                        if (err){
+
+                            return done(err+"Error data");
+                        }
+                        // Username does not exist, log the error and redirect back
+                        if (!admin){
+
+                            return done(null, false, { message: 'User Not Found with username' });
+                        }
+                        // User exists but wrong password, log the error
+                        if (!isValidPassword(admin, password)){
+
+                            return done(null, false, { message: 'Invalid UserName Or Password' });
+                        }
+                        // User and password both match, return user from done method
+                        // which will be treated like success
+
                         return done(null, franchisor);
                     }
                 );
@@ -61,7 +155,7 @@ module.exports = function(passport){
         }
     ));
 
-    passport.use('register', new LocalStrategy({
+    passport.use('franchisor-register', new LocalStrategy({
             usernameField : 'user_mail',
             passwordField : 'user_pass',
             passReqToCallback : true // allows us to pass back the entire request to the callback
@@ -71,7 +165,6 @@ module.exports = function(passport){
             //var email = req.body.user_mail;
             // find a user in mongo with provided username
             try{
-              console.log("Hellsdsdo");console.log("Hellsdsdo");
                 Franchisor.findOne({ 'user_mail':username }, function(err, franchisor) {
                     // In case of any error, return using the done method
                     if (err){
@@ -106,8 +199,10 @@ module.exports = function(passport){
     );
 
     var isValidPassword = function(franchisor, password){
-        console.log(franchisor);
         return bCrypt.compareSync(password, franchisor.user_pass);
+    };
+    var isValidPasswordOfFranchisee = function(franchisee, password){
+        return bCrypt.compareSync(password, franchisee.franchisee_pass);
     };
     // Generates hash using bCrypt
     var createHash = function(password){

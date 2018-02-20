@@ -6,7 +6,7 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
-
+var bCrypt = require('bcrypt-nodejs');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
@@ -125,7 +125,10 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeForm.lead_age,
-                franchisee.lead_source=franchiseeForm.lead_source
+                franchisee.lead_source=franchiseeForm.lead_source,
+                franchisee.franchisee_pass = createHash(generatePassword());
+                console.log('franchisee password', franchisee.franchisee_pass);
+
                 // if(req.file){
                 //     var franchisee_pic = {};
                 //     franchisee_pic.path = req.file.location;
@@ -171,6 +174,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                         message:"Something went wrong.We are looking into it."
                     });
             }
+
             //If franchisee found,it will enter inside
             if(franchisee){
                 franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
@@ -189,6 +193,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                 franchisee.franchisee_remarks=franchiseeEditForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeEditForm.lead_age,
                 franchisee.lead_source=franchiseeEditForm.lead_source
+
                 // if(req.file){
                 //     var franchisee_pic = {};
                 //     franchisee_pic.path = req.file.location;
@@ -259,5 +264,16 @@ router.delete('/delete_franchisee/:id',function(req,res){
         });
     }
 });
-
+function generatePassword() {
+    var length = 8,
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
+var createHash = function(password){
+    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+};
   module.exports = router;

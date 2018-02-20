@@ -3,6 +3,7 @@ var router = express.Router();
 var mongoose = require( 'mongoose' );
 var path = require('path');
 var Franchisor = mongoose.model('Franchisor');
+var Franchisee = mongoose.model('Franchisee');
 var ForgotPassword = mongoose.model('ForgotPassword');
 var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
@@ -10,33 +11,67 @@ var nodemailer = require('nodemailer');
 
 module.exports = function(passport){
     //sends successful login state back to angular
-    router.get('/success', function(req, res){
+    router.get('/success-franchisor', function(req, res){
         res.send({
             state: 'success',
-            user: req.user ? req.user : null,
+            franchisor: req.user ? req.user : null,
             status:200
         });
     });
 
     //sends failure login state back to angular
-    router.get('/failure', function(req, res){
-      
+    router.get('/failure-franchisor', function(req, res){
+
         res.send({
             state: 'failure',
-            user: req.body,
+            franchisor: null,
+            status:201,
+            message: req.flash('error')
+        });
+    });
+    //sends successful login state back to angular
+    router.get('/success-franchisee', function(req, res){
+
+        res.send({
+            state: 'success',
+            franchisee: req.user ? req.user : null,
+            status:200
+        });
+    });
+
+    //sends failure login state back to angular
+    router.get('/failure-franchisee', function(req, res){
+
+        res.send({
+            state: 'failure',
+            user: null,
             status:201,
             message: req.flash('error')
         });
     });
 
-    //log in
-    router.post('/login', passport.authenticate('login', {
+    //franchisor log in
+    router.post('/franchisor-login', passport.authenticate('franchisor-login', {
+        failureRedirect: '/authenticate/failure-franchisor',
+        successRedirect: '/authenticate/success-franchisor',
+        failureFlash: true
+    }));
+
+    //admin log in
+    router.post('/franchisee-login', passport.authenticate('franchisee-login', {
+        failureRedirect: '/authenticate/failure-franchisee',
+        successRedirect: '/authenticate/success-franchisee',
+        failureFlash: true
+    }));
+
+    //franchisee log in
+    router.post('/admin-login', passport.authenticate('admin-login', {
         failureRedirect: '/authenticate/failure',
         successRedirect: '/authenticate/success',
         failureFlash: true
     }));
     //sign up
-    router.post('/register', passport.authenticate('register', {
+    router.post('/franchisor-register', passport.authenticate('franchisor-register', {
         successRedirect: '/authenticate/success',
         failureRedirect: '/authenticate/failure',
         failureFlash: true
@@ -130,23 +165,23 @@ module.exports = function(passport){
     })
     //Reset Password
     router.post('/reset_password',function(req,res){
-        ForgotPassword.findOne({unique_code:req.body.unique_code},function(err,match){
-            if(err){
-                res.send({
-                    status:500,
-                    state:"error",
-                    message:"Something went wrong.We are looking into it."
-                });
-            }
-            if(!match){
-                res.send({
-                    status:201,
-                    state:"failure",
-                    message:"Code didn't match."
-                });
-            }
-            if(match){
-                Franchisor.findOne({user_mail:match.user_mail},function(err,franchisor){
+    //    ForgotPassword.findOne({unique_code:req.body.unique_code},function(err,match){
+            // if(err){
+            //     res.send({
+            //         status:500,
+            //         state:"error",
+            //         message:"Something went wrong.We are looking into it."
+            //     });
+            // }
+            // if(!match){
+            //     res.send({
+            //         status:201,
+            //         state:"failure",
+            //         message:"Code didn't match."
+            //     });
+            // }
+            // if(match){
+                Franchisee.findOne({franchisee_email:req.body.franchisee_email},function(err,franchisee){
                     if(err){
                         res.send({
                             status:500,
@@ -154,16 +189,16 @@ module.exports = function(passport){
                             message:"Something went wrong.We are looking into it."
                         });
                     }
-                    if(!franchisor){
+                    if(!franchisee){
                         res.send({
                             status:201,
                             state:"failure",
                             message:"User not found."
                         });
                     }
-                    if(franchisor){
-                        auth.user_pass=createHash(req.body.user_pass);
-                        auth.save(function(err,auth){
+                    if(franchisee){
+                        franchisee.franchisee_pass=createHash(req.body.franchisee_pass);
+                        franchisee.save(function(err,franchisee){
                             if(err){
                                 res.send({
                                     status:500,
@@ -181,8 +216,9 @@ module.exports = function(passport){
                         })
                     }
                 })
-            }
-        })
+      //      }
+      //  })
     })
+
     return router;
 }
