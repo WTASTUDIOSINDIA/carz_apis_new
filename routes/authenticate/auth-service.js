@@ -8,14 +8,16 @@ var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 module.exports = function(passport){
 //  console.log(passport);
+
     // Passport needs to be able to serialize and deserialize users to support persistent login sessions
     passport.serializeUser(function(user, done) {
-
+    //  console.log("serrializing user",user);
         done(null, {id:user._id, user_role:user.user_role});
     });
-
+    console.log('Testinggg');
     passport.deserializeUser(function(user, done) {
       //if user role is admin
+      console.log("deserrializing uses r",user);
       if(user.user_role === "admin"){
         Admin.findById(user.id, function(err, admin) {
             done(err, admin);
@@ -37,6 +39,8 @@ module.exports = function(passport){
       };
     });
 
+    // passport config
+//  passport.use(new LocalStrategy(user.authenticate()));
     passport.use('franchisor-login', new LocalStrategy({
             usernameField : 'user_mail',
             passwordField : 'user_pass',
@@ -122,7 +126,7 @@ module.exports = function(passport){
         function(req, username, password, done) {
             try{
                 // check in mongo if a user with username exists or not
-                Franchisor.findOne({ 'user_mail' :  username},
+                Admin.findOne({ 'user_mail' :  username},
                     function(err, admin) {
                         // In case of any error, return using the done method
                         if (err){
@@ -135,14 +139,14 @@ module.exports = function(passport){
                             return done(null, false, { message: 'User Not Found with username' });
                         }
                         // User exists but wrong password, log the error
-                        if (!isValidPassword(admin, password)){
+                        if (!isValidPasswordOfAdmin(admin, password)){
 
                             return done(null, false, { message: 'Invalid UserName Or Password' });
                         }
                         // User and password both match, return user from done method
                         // which will be treated like success
 
-                        return done(null, franchisor);
+                        return done(null, admin);
                     }
                 );
             }
@@ -203,6 +207,9 @@ module.exports = function(passport){
     };
     var isValidPasswordOfFranchisee = function(franchisee, password){
         return bCrypt.compareSync(password, franchisee.franchisee_pass);
+    };
+    var isValidPasswordOfAdmin = function(franchisee, password){
+        return bCrypt.compareSync(password, franchisee.user_pass);
     };
     // Generates hash using bCrypt
     var createHash = function(password){

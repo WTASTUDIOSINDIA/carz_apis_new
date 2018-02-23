@@ -17,6 +17,7 @@ module.exports = function(passport){
             user: req.user ? req.user : null,
             status:200
         });
+        console.log(req.user);
     });
 
     //sends failure login state back to angular
