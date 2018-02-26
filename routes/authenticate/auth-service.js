@@ -166,48 +166,12 @@ module.exports = function(passport){
             //var email = req.body.user_mail;
             // find a user in mongo with provided username
             try{
-<<<<<<< HEAD
-                Auth.findOne({ 'user_mail':username }, function(err, auth) {
-=======
                 Franchisor.findOne({ 'user_mail':username }, function(err, franchisor) {
->>>>>>> 01945aa244ef2171f4ff14eadf351502df11d66b
                     // In case of any error, return using the done method
                     if (err){
                         return done(err, { message: 'Error in SignUp' });
                     }
                     // already exists
-<<<<<<< HEAD
-                    if (auth) {
-                        return done(null, false, { message: 'User already exists with this username or email' });
-                    }
-                    // if there is no user, create the user
-                    if (!auth) {
-                        //var franchisee = new Auth();
-                        var auth = new Auth();
-                        if(req.body.user_mail=="admin@admin.com"){
-                            auth.user_role = "Admin";
-                            auth.user_mail = "Admin";
-                            auth.user_pass = createHash(password);
-                            return done(null, auth);
-                        }
-                        auth.user_mail = username;
-                        auth.user_pass = createHash(password);
-                        auth.user_name = req.body.user_name;
-                        auth.save(function(err,auth){
-                            var franchisee = new Franchisee();
-                            franchisee.franchisee_code = auth._id;
-                            franchisee.franchisee_email = auth.user_mail;
-                            franchisee.franchisee_name = auth.user_name;
-                            franchisee.save(function(err,franchisee){
-                                if(err){
-                                    return done(err, { message: 'Error in Franchisee setup' });
-                                }
-                                else{
-                                    return done(null, auth);
-                                }
-                            })
-                        })                       
-=======
                     if (franchisor) {
                         return done(null, false, { message: 'User already exists with this username or email' });
                     }
@@ -223,7 +187,6 @@ module.exports = function(passport){
                         franchisor.save(function(err,franchisor){
                             return done(null, franchisor);
                         })
->>>>>>> 01945aa244ef2171f4ff14eadf351502df11d66b
                     }
                 });
             }

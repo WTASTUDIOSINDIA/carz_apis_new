@@ -336,6 +336,86 @@ router.delete('/delete_folder_by_Id',function(req,res){
 });
 
 
+// To create common folder
+router.post('/create_common_folder',function(req,res){
+    console.log('Request body', req.body);
+    Folder.findOne({folder_name:req.body.folder_name},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 201,
+                message: "Folder exsit with this name.",
+                state: "failure"
+            });
+        }
+        if(!folder){
+           var folder = new Folder();
+           folder.folder_name = req.body.folder_name;
+           folder.create_date = Date.now();
+           folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "File deleted successfully.",
+                        state: "error"
+                    });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "Folder created successfully.",
+                        state: "success"
+                    });
+                }
+           })
+        }
+    });
+});
+// To get common folder
+router.get('/get_common_folder',function(req,res){
+    console.log('Request body', req.body);
+    try{
+        Folder.find({},function(err,folder){
+            if(err){
+                res.send ({
+                    status: 500,
+                    message: "Something went wrong.",
+                    state: "error"
+                });
+            }
+            if(folder.length==0){
+                res.send ({
+                    status: 201,
+                    message: "Folder not found.",
+                    state: "failure"
+                });
+            }
+            if(folder.length>0){
+                res.send ({
+                    status: 200,
+                    folder: folder,
+                    state: "success"
+                });
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+
+
+
 router.put('/update/folder/:id',function(req,res){
     Folder.findOne({_id:req.body.folder_Id},function(err,folder){
         if(err){
@@ -375,6 +455,85 @@ router.put('/update/folder/:id',function(req,res){
     })
 })
 
+// To get folder files folder id
+router.get('/get_folder_files_by_folder_Id/:folder_id',function(req,res){
+    Library.find({folder_id:req.params.folder_id},function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Something went wrong.",
+                state: "error"
+            });
+        }
+        if(file.length == 0){
+            res.send ({
+                status: 201,
+                message: "No file are uploaded.",
+                state: "failure"
+            });
+        }
+        if(file){
+            res.send ({
+                status: 200,
+                file: file,
+                state: "success"
+            });
+        }
+    });
+});
+
+// To upload files by folder id
+var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/upload_folder_file',cpUpload,function(req,res){
+    var file_details = JSON.parse(req.body.file_details);
+    var libraries=[];
+    Library.findOne({'folder_id':file_details.folder_id},function(err,lib){
+        if(err){
+            return res.send(err);
+        }
+        else{
+            var file = [];
+            var getNumber = 0;
+            var length = req.files.file_upload.length;
+            file=req.files.file_upload;
+            for(var i=0;i<file.length;i++){
+                var library = new Library();
+                library.path = file[i].location;
+                library.key = file[i].key;
+                library.file_name = file[i].originalname;
+                if(file[i].mimetype == "application/pdf"){
+                    library.image_type = "pdf";
+                }
+                if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg" || file[i].mimetype == "image/gif"){
+                    library.image_type = "image";
+                }
+                library.uploaded_status = file_details.uploaded_status;
+                library.date_uploaded = Date.now();
+                library.folder_id = file_details.folder_id;
+                libraries.push(library);             
+            }
+            for(var i=0;i<libraries.length;i++){
+                getNumber = getNumber + 1;
+                libraries[i].save(function(err,libraries){
+                if(err){
+                        return res.send(err);
+                }
+                else{
+                    if(parseInt(length) == parseInt(getNumber)){
+                        res.send({
+                            state:200,
+                            status:'success',
+                            message:"file uploaded successfully !"
+                        });
+                    }
+                }
+            })
+            }
+            
+        }
+    });
+});
+
 router.post('/test',cpUpload,function(req,res){
     Library.find({},function(err,lib){
         var file = {};
@@ -391,5 +550,4 @@ router.post('/test',cpUpload,function(req,res){
             });
     })
 });
-
 module.exports = router;
