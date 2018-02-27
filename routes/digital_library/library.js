@@ -343,7 +343,7 @@ router.post('/create_common_folder',function(req,res){
         if(err){
             res.send ({
                 status: 500,
-                message: "File deleted successfully.",
+                message: "File error.",
                 state: "error"
             });
         }
@@ -362,7 +362,7 @@ router.post('/create_common_folder',function(req,res){
                 if(err){
                     res.send ({
                         status: 500,
-                        message: "File deleted successfully.",
+                        message: "File error.",
                         state: "error"
                     });
                 }
@@ -456,8 +456,9 @@ router.put('/update/folder/:id',function(req,res){
 })
 
 // To get folder files folder id
-router.get('/get_folder_files_by_folder_Id/:folder_id',function(req,res){
-    Library.find({folder_id:req.params.folder_id},function(err,file){
+router.get('/get_folder_files_by_folder_Id/:folder_Id',function(req,res){
+    console.log('Request body', req.body);
+    Library.find({folder_Id:req.params.folder_Id},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -482,12 +483,38 @@ router.get('/get_folder_files_by_folder_Id/:folder_id',function(req,res){
     });
 });
 
+// router.get('/get_folder_files_by_folder_Id/:upload_status/:folder_Id',function(req,res){
+//     Library.find({upload_status:req.params.upload_status,folder_Id:req.params.folder_Id},function(err,file){
+//         if(err){
+//             res.send ({
+//                 status: 500,
+//                 message: "Something went wrong.",
+//                 state: "error"
+//             });
+//         }
+//         if(file.length == 0){
+//             res.send ({
+//                 status: 201,
+//                 message: "No file are uploaded.",
+//                 state: "failure"
+//             });
+//         }
+//         if(file){
+//             res.send ({
+//                 status: 200,
+//                 file: file,
+//                 state: "success"
+//             });
+//         }
+//     });
+// });
+
 // To upload files by folder id
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_folder_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
     var libraries=[];
-    Library.findOne({'folder_id':file_details.folder_id},function(err,lib){
+    Library.findOne({'folder_Id':file_details.folder_Id},function(err,lib){
         if(err){
             return res.send(err);
         }
@@ -509,7 +536,7 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
                 }
                 library.uploaded_status = file_details.uploaded_status;
                 library.date_uploaded = Date.now();
-                library.folder_id = file_details.folder_id;
+                library.folder_Id = file_details.folder_Id;
                 libraries.push(library);             
             }
             for(var i=0;i<libraries.length;i++){
