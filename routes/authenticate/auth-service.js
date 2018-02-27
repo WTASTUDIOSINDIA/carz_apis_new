@@ -6,6 +6,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 var bCrypt = require('bcrypt-nodejs');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
+var Franchisee = mongoose.model('Franchisee');
 module.exports = function(passport){
 //  console.log(passport);
 
