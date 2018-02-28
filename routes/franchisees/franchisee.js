@@ -111,7 +111,8 @@ router.post('/create_franchisee',  function(req, res) {
             }
             if(!franchisee){
                var franchisee = new Franchisee();
-                franchisee.franchisee_name=franchiseeForm.franchisee_name,
+               franchisee.franchisee_name=franchiseeForm.franchisee_name,
+                franchisee.franchisee_email=franchiseeForm.franchisee_email,
                 franchisee.franchisee_occupation=franchiseeForm.franchisee_occupation,
                 franchisee.franchisee_city=franchiseeForm.franchisee_city,
                 franchisee.franchisee_state=franchiseeForm.franchisee_state,
