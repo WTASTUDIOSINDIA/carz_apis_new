@@ -94,7 +94,7 @@ router.post('/create_franchisee',  function(req, res) {
   console.log(req.body);
     var franchiseeForm = req.body;
     try{
-        Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
+        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
             if(err){
                 return res.send({
                         status:500,
@@ -111,7 +111,8 @@ router.post('/create_franchisee',  function(req, res) {
             }
             if(!franchisee){
                var franchisee = new Franchisee();
-               franchisee.franchisee_name=franchiseeForm.franchisee_name,
+              //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
+                franchisee.franchisee_name=franchiseeForm.franchisee_name,
                 franchisee.franchisee_email=franchiseeForm.franchisee_email,
                 franchisee.franchisee_occupation=franchiseeForm.franchisee_occupation,
                 franchisee.franchisee_city=franchiseeForm.franchisee_city,
