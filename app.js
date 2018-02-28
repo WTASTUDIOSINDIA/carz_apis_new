@@ -28,10 +28,14 @@ app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
   var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com', 'https://carz-api.herokuapp.com'];
+  //var origin = req.headers.origin;
+  //res.setHeader('Access-Control-Allow-Origin', origin);
   var origin = req.headers.origin;
-//  res.header("Access-Control-Allow-Origin", "https://carz-api.herokuapp.com/");
-res.setHeader('Access-Control-Allow-Origin', origin);
-  //  res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+  if(allowedOrigins.indexOf(origin) > -1){
+       res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  //res.header("Access-Control-Allow-Origin", "https://carz-api.herokuapp.com/");
+  //res.header("Access-Control-Allow-Origin", "http://localhost:4200");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
