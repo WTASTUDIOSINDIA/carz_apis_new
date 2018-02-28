@@ -27,7 +27,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com', 'https://carz-api.herokuapp.com'];
+  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com'];
   //var origin = req.headers.origin;
   //res.setHeader('Access-Control-Allow-Origin', origin);
   var origin = req.headers.origin;
