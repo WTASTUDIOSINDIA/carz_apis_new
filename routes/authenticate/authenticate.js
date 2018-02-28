@@ -28,7 +28,7 @@ module.exports = function(passport){
             user: null,
             status:200,
             message: req.flash('error')
-        }, 400);
+        });
     });
     //sends successful login state back to angular
     router.get('/success-franchisee', function(req, res){
