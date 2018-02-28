@@ -317,7 +317,7 @@ router.put('/delete_folder_by_Id',function(req,res){
     for(var i=0;i<req.body.length;i++){
         deleteFolder(req.body[i].key)
     }
-    Folder.remove({ _Id: { $in: folder_Id } },function(err,folder){
+    Folder.remove({ _id: { $in: folder_Id } },function(err,folder){
         if(err){
             res.send ({
                 status: 500,
