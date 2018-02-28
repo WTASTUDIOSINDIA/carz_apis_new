@@ -77,7 +77,7 @@ router.post('/upload_file',cpUpload,function(req,res){
                 library.date_uploaded = Date.now();
                 library.franchisee_Id = file_details.franchisee_Id;
                 library.folder_Id = file_details.folder_Id;
-                libraries.push(library);             
+                libraries.push(library);
             }
             for(var i=0;i<libraries.length;i++){
                 getNumber = getNumber + 1;
@@ -96,7 +96,7 @@ router.post('/upload_file',cpUpload,function(req,res){
                 }
             })
             }
-            
+
         //    for(var j=0;j<libraries.length;j++){
         //         library.save(function(err,lib){
         //             if(err){
@@ -311,7 +311,7 @@ router.post('/create_Folder',function(req,res){
     });
 });
 
-router.delete('/delete_folder_by_Id',function(req,res){
+router.put('/delete_folder_by_Id',function(req,res){
     var folder_Id=[];
     folder_Id = req.body.map(_.property('folder_Id'));
     for(var i=0;i<req.body.length;i++){
@@ -537,7 +537,7 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
                 library.uploaded_status = file_details.uploaded_status;
                 library.date_uploaded = Date.now();
                 library.folder_Id = file_details.folder_Id;
-                libraries.push(library);             
+                libraries.push(library);
             }
             for(var i=0;i<libraries.length;i++){
                 getNumber = getNumber + 1;
@@ -556,7 +556,7 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
                 }
             })
             }
-            
+
         }
     });
 });
