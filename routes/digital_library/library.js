@@ -381,7 +381,8 @@ router.post('/create_common_folder',function(req,res){
 router.get('/get_common_folder',function(req,res){
     console.log('Request body', req.body);
     try{
-        Folder.find({},function(err,folder){
+    //  var franchisee_Id = 'franchisee_Id';
+        Folder.find({ franchisee_Id : { $exists: false }},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,

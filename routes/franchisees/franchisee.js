@@ -94,6 +94,7 @@ router.post('/create_franchisee',  function(req, res) {
   console.log(req.body);
     var franchiseeForm = req.body;
     try{
+        //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
         Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
             if(err){
                 return res.send({
