@@ -288,6 +288,51 @@ router.post('/create_Folder',function(req,res){
         }
     });
 });
+router.put('/edit_folder', function(req, res, next){
+
+  var folderEditForm = req.body;
+
+  try{
+    Folder.findOne({'_id': folderEditForm._id}, function(err, folder){
+      if(err){
+        return res.send({
+              status:500,
+              state:"err",
+              message:"Something went wrong.We are looking into it."
+          });
+      }
+
+      if(folder){
+        console.log(folderEditForm, "inside if folder");
+        folder.folder_name = folderEditForm.folder_name
+        folder.save(function(err, folder){
+          if(err){
+            res.send({
+               status:500,
+               state:"err",
+               message:"Something went wrong."
+           });
+        }
+        else{
+            res.send({
+                status:200,
+                state:"success",
+                message:"Folder Updated."
+            });
+        }
+      });
+
+    }
+
+  })
+}
+catch(err){
+return res.send({
+  state:"error",
+  message:err
+});
+}
+});
 
 router.put('/delete_file_by_Id',function(req,res){
     var file_id=[];
