@@ -18,8 +18,8 @@ var library = require('./routes/digital_library/library');
 
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
-mongoose.connect('mongodb://localhost/carz-api');
-//mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
+//mongoose.connect('mongodb://localhost/carz-api');
+mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 var app = express();
 var http = require('http').Server(app);
 // view engine setup
@@ -27,17 +27,36 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-//  res.header("Access-Control-Allow-Origin", "https://carz-api.herokuapp.com/");
-    res.header("Access-Control-Allow-Origin", "*");
+  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com'];
+  //var origin = req.headers.origin;
+  //res.setHeader('Access-Control-Allow-Origin', origin);
+  var origin = req.headers.origin;
+  if(allowedOrigins.indexOf(origin) > -1){
+       res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  //res.header("Access-Control-Allow-Origin", "https://carz-api.herokuapp.com/");
+  //res.header("Access-Control-Allow-Origin", "http://localhost:4200");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
   next();
 });
-
+app.use(require('express-session')({
+    secret: 'crackalackin',
+    resave: true,
+    saveUninitialized: true,
+    cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
+}));
 app.use(logger('dev'));
 app.use(session({
-  secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9'
+  secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9',
+  cookie: {
+        secure: true
+    }
+
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -46,8 +65,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.static(__dirname + '/public'));
 
-app.use(passport.initialize());
-app.use(passport.session());
+
 app.use(flash());
 
 app.use('/franchisee', franchisee);

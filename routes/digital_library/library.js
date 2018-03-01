@@ -49,6 +49,7 @@ function deleteFile(key){
         });
     }
 }
+
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_file',cpUpload,function(req,res){
     var file_details = JSON.parse(req.body.file_details);
@@ -77,7 +78,7 @@ router.post('/upload_file',cpUpload,function(req,res){
                 library.date_uploaded = Date.now();
                 library.franchisee_Id = file_details.franchisee_Id;
                 library.folder_Id = file_details.folder_Id;
-                libraries.push(library);             
+                libraries.push(library);
             }
             for(var i=0;i<libraries.length;i++){
                 getNumber = getNumber + 1;
@@ -96,7 +97,7 @@ router.post('/upload_file',cpUpload,function(req,res){
                 }
             })
             }
-            
+
         //    for(var j=0;j<libraries.length;j++){
         //         library.save(function(err,lib){
         //             if(err){
@@ -116,29 +117,6 @@ router.post('/upload_file',cpUpload,function(req,res){
     });
 });
 
-router.put('/delete_file_by_Id',function(req,res){
-    var file_id=[];
-    file_id = req.body.map(_.property('file_id'));
-    for(var i=0;i<req.body.length;i++){
-        deleteFile(req.body[i].key);
-    }
-    Library.remove({ _id: { $in: file_id } },function(err,file){
-        if(err){
-            res.send ({
-                status: 500,
-                message: "File deleted successfully.",
-                state: "error"
-            });
-        }
-        else{
-            res.send ({
-                status:200,
-                message: "Successfully Removed.",
-                state: "success"
-            });
-        }
-    });
-});
 
 router.get('/get_common_files/:uploaded_status',function(req,res){
     Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
@@ -310,14 +288,82 @@ router.post('/create_Folder',function(req,res){
         }
     });
 });
+router.put('/edit_folder', function(req, res, next){
 
-router.delete('/delete_folder_by_Id',function(req,res){
-    var folder_Id=[];
-    folder_Id = req.body.map(_.property('folder_Id'));
-    for(var i=0;i<req.body.length;i++){
-        deleteFolder(req.body[i].key)
+  var folderEditForm = req.body;
+
+  try{
+    Folder.findOne({'_id': folderEditForm._id}, function(err, folder){
+      if(err){
+        return res.send({
+              status:500,
+              state:"err",
+              message:"Something went wrong.We are looking into it."
+          });
+      }
+
+      if(folder){
+        console.log(folderEditForm, "inside if folder");
+        folder.folder_name = folderEditForm.folder_name
+        folder.save(function(err, folder){
+          if(err){
+            res.send({
+               status:500,
+               state:"err",
+               message:"Something went wrong."
+           });
+        }
+        else{
+            res.send({
+                status:200,
+                state:"success",
+                message:"Folder Updated."
+            });
+        }
+      });
+
     }
-    Folder.remove({ _Id: { $in: folder_Id } },function(err,folder){
+
+  })
+}
+catch(err){
+return res.send({
+  state:"error",
+  message:err
+});
+}
+});
+
+router.put('/delete_file_by_Id',function(req,res){
+    var file_id=[];
+    file_id = req.body.map(_.property('file_id'));
+    for(var i=0;i<req.body.length;i++){
+        deleteFile(req.body[i].key);
+    }
+    Library.remove({ _id: { $in: file_id } },function(err,file){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        else{
+            res.send ({
+                status:200,
+                message: "Successfully Removed.",
+                state: "success"
+            });
+        }
+    });
+});
+router.put('/delete_folder_by_Id',function(req,res){
+    var folder_Id=[];
+    folder_Id = req.body.map(_.property('folder_id'));
+    // for(var i=0;i<req.body.length;i++){
+    //     deleteFolder(req.body[i].key)
+    // }
+    Folder.remove({ _id: { $in: folder_Id } },function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -381,7 +427,8 @@ router.post('/create_common_folder',function(req,res){
 router.get('/get_common_folder',function(req,res){
     console.log('Request body', req.body);
     try{
-        Folder.find({},function(err,folder){
+    //  var franchisee_Id = 'franchisee_Id';
+        Folder.find({ franchisee_Id : { $exists: false }},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,
@@ -511,7 +558,7 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
                 library.uploaded_status = file_details.uploaded_status;
                 library.date_uploaded = Date.now();
                 library.folder_Id = file_details.folder_Id;
-                libraries.push(library);             
+                libraries.push(library);
             }
             for(var i=0;i<libraries.length;i++){
                 getNumber = getNumber + 1;
@@ -530,7 +577,7 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
                 }
             })
             }
-            
+
         }
     });
 });

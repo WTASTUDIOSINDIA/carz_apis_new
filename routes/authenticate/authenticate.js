@@ -14,9 +14,10 @@ module.exports = function(passport){
     router.get('/success-franchisor', function(req, res){
         res.send({
             state: 'success',
-            franchisor: req.user ? req.user : null,
+            user: req.user ? req.user : null,
             status:200
         });
+        console.log(req.user);
     });
 
     //sends failure login state back to angular
@@ -24,8 +25,8 @@ module.exports = function(passport){
 
         res.send({
             state: 'failure',
-            franchisor: null,
-            status:201,
+            user: null,
+            status:200,
             message: req.flash('error')
         });
     });
@@ -34,13 +35,34 @@ module.exports = function(passport){
 
         res.send({
             state: 'success',
-            franchisee: req.user ? req.user : null,
+            user: req.user ? req.user : null,
             status:200
         });
     });
 
     //sends failure login state back to angular
     router.get('/failure-franchisee', function(req, res){
+
+        res.send({
+            state: 'failure',
+            user: null,
+            status:201,
+            message: req.flash('error')
+        });
+    });
+
+    //sends successful login state back to angular
+    router.get('/success-admin', function(req, res){
+
+        res.send({
+            state: 'success',
+            user: req.user ? req.user : null,
+            status:200
+        });
+    });
+
+    //sends failure login state back to angular
+    router.get('/failure-admin', function(req, res){
 
         res.send({
             state: 'failure',
@@ -66,8 +88,8 @@ module.exports = function(passport){
 
     //franchisee log in
     router.post('/admin-login', passport.authenticate('admin-login', {
-        failureRedirect: '/authenticate/failure',
-        successRedirect: '/authenticate/success',
+        failureRedirect: '/authenticate/failure-admin',
+        successRedirect: '/authenticate/success-admin',
         failureFlash: true
     }));
     //sign up
