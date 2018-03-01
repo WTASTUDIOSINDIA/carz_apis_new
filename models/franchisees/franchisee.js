@@ -45,7 +45,8 @@ var librarySchema = new mongoose.Schema({
 var FolderSchema = new mongoose.Schema({
     "folder_name":String,
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "create_date":Date
+    "create_date":Date,
+    "parent_folder_id": String
 });
 
 mongoose.model('Franchisee', franchiseeSchema);
