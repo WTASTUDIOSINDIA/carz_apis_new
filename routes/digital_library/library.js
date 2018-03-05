@@ -173,25 +173,25 @@ router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,
 router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',function(req,res){
     Library.find({folder_Id:req.params.folder_Id,franchisee_Id:req.params.franchisee_Id},function(err,file){
         if(err){
-            res.send ({
+            return res.send ({
                 status: 500,
                 message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(file.length == 0){
-            res.send ({
-                status: 201,
+            return res.send ({
+                status: 404,
                 message: "No file are uploaded.",
                 state: "failure"
-            });
+            },404);
         }
         if(file){
-            res.send ({
+            return res.send ({
                 status: 200,
                 file: file,
                 state: "success"
-            });
+            },200);
         }
     });
 });
@@ -199,25 +199,25 @@ router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',functi
 router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
     Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
         if(err){
-            res.send ({
+            return res.send ({
                 status: 500,
                 message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(folder.length==0){
-            res.send ({
-                status: 201,
+            return res.send ({
+                status: 400,
                 message: "Folder not found.",
                 state: "failure"
-            });
+            },400);
         }
         if(folder.length>0){
-            res.send ({
+            return res.send ({
                 status: 200,
                 folder: folder,
                 state: "success"
-            });
+            },200);
         }
     });
 });
