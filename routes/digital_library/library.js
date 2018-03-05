@@ -268,7 +268,11 @@ router.post('/create_Folder',function(req,res){
            var folder = new Folder();
            folder.folder_name = req.body.folder_name;
            folder.franchisee_Id = req.body.franchisee_Id;
+           if(req.body.parent_folder_id){
+             folder.parent_folder_id = req.body.parent_folder_id;
+           }
            folder.create_date = Date.now();
+
            folder.save(function(err,folder){
                 if(err){
                     res.send ({
@@ -278,6 +282,25 @@ router.post('/create_Folder',function(req,res){
                     });
                 }
                 else{
+                  Folder.findOne({'_id': folder._id}, function(err, folder){
+                    console.log(folder);
+                    if(folder.parent_folder_id){
+                        Folder.findOne({'_id': folder.parent_folder_id}, function(err, folder){
+                          console.log("checking before folder", folder);
+                          folder.path.push({'folder_id': folder._id, 'folder_name': folder.folder_name});
+                          folder.save(function(err, folder){
+                              console.log("First parent added", folder);
+                              return true;
+                            });
+                      });
+                    }
+                   folder.path.push({'folder_id': folder._id, 'folder_name': req.body.folder_name});
+                  console.log("Before second time path updated", folder);
+                  folder.save(function(err, folder){
+                      console.log("Folder path updated", folder);
+                    });
+                });
+
                     res.send ({
                         status: 200,
                         message: "Folder created successfully.",
