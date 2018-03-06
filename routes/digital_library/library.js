@@ -283,22 +283,17 @@ router.post('/create_Folder',function(req,res){
                 }
                 else{
                   Folder.findOne({'_id': folder._id}, function(err, folder){
-                    console.log(folder);
+
+
                     if(folder.parent_folder_id){
-                        Folder.findOne({'_id': folder.parent_folder_id}, function(err, folder){
-                          console.log("checking before folder", folder);
-                          folder.path.push({'folder_id': folder._id, 'folder_name': folder.folder_name});
+                        Folder.findOne({'_id': folder.parent_folder_id}, function(err, folderParent){
+                          folder.path = folderParent.path;
+                          folder.path.push({'folder_id': folderParent._id, 'folder_name': folderParent.folder_name});
                           folder.save(function(err, folder){
-                              console.log("First parent added", folder);
                               return true;
                             });
                       });
                     }
-                   folder.path.push({'folder_id': folder._id, 'folder_name': req.body.folder_name});
-                  console.log("Before second time path updated", folder);
-                  folder.save(function(err, folder){
-                      console.log("Folder path updated", folder);
-                    });
                 });
 
                     res.send ({
