@@ -90,4 +90,159 @@ router.post('/create_partner_franchisee', function(req, res){
         });
     }
 });
+
+//update franchisee
+router.put('/edit_partner_franchisee', function(req, res, next) {
+    var partnerEditForm = req.body;
+    try{
+        Partner.findOne({'_id':partnerEditForm._id},function(err,partner){
+            if(err){
+                return res.send({
+                        state:"err",
+                        message:"Something went wrong.We are looking into it."
+                    },500);
+            }
+
+            //If partner franchisee found,it will enter inside
+            if(partner){
+
+                partner.partner_name=partnerEditForm.partner_name,
+                partner.partner_occupation=partnerEditForm.partner_occupation,
+                partner.partner_email=partnerEditForm.partner_email,
+                partner.partner_address=partnerEditForm.partner_address,
+                partner.partner_city=partnerEditForm.partner_city,
+                partner.partner_state=partnerEditForm.partner_state,
+                partner.partner_country=partnerEditForm.partner_country,
+                partner.partner_pincode=partnerEditForm.partner_pincode,
+                partner.partner_mobile_number=partnerEditForm.partner_mobile_number,
+                partner.partner_age=partnerEditForm.partner_age,
+                partner.partner_lead_source=partnerEditForm.partner_lead_source,
+                partner.partner_investment=partnerEditForm.partner_investment,
+                partner.partner_franchise_type=partnerEditForm.partner_franchise_type,
+                partner.partner_how_soon_to_start=partnerEditForm.partner_how_soon_to_start,
+                partner.partner_remarks=partnerEditForm.partner_remarks,
+                partner.partner_preferred_date=partnerEditForm.partner_preferred_date,
+                partner.partner_preferred_time=partnerEditForm.partner_preferred_time
+
+
+                partner.save(function(err,partner){
+                   if(err){
+                     res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                   }
+                else{
+                    res.send({
+                        state:"success",
+                        message:"Partner franchisee Updated."
+                    },200);
+                }
+                });
+            }
+            //If partner franchisee not found,it will enter inside and send error message
+            if(!partner){
+                res.send({
+                    state:"failure",
+                    message:"Partner franchise exist with this Id."
+                },201);
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+//get all partner franchisees
+router.get('/get_partner_franchisee',function(req,res){
+    try{
+        Partner.find({},function(err,partner){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!partner){
+                res.send({
+                    "message":"Partner franchiees not found",
+                    "state":"failure",
+                    "partner_list":[]
+                },201);
+            }
+            else{
+                res.send({
+                    "state":"success",
+                    "partner_list":partner
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+//get partner franchisee by id
+router.get('/get_partner_franchisee/:id',function(req,res){
+    try{
+        Partner.findById({_id:req.params.id},function(err,partner){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!partner){
+                res.send({
+                    "status":"201",
+                    "state":"failure",
+                    "partner_data":[]
+                });
+            }
+            else{
+                res.send({
+                    status:200,
+                    state:"success",
+                    partner_data:partner
+                });
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+//delete partner franchisee
+router.delete('/delete_partner_franchisee/:id',function(req,res){
+    try{
+        Partner.findByIdAndRemove({_id:req.params.id},function(err,partner){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!partner){
+                res.send({
+                    "message":"Unsucessfull",
+                    "partner_data":"failure"
+                },201);
+            }
+            else{
+                res.send({
+                    "message":"User deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
 module.exports = router;
