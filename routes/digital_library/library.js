@@ -268,7 +268,66 @@ router.post('/create_Folder',function(req,res){
            var folder = new Folder();
            folder.folder_name = req.body.folder_name;
            folder.franchisee_Id = req.body.franchisee_Id;
+           if(req.body.parent_folder_id){
+             folder.parent_folder_id = req.body.parent_folder_id;
+           }
            folder.create_date = Date.now();
+
+           folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "File deleted successfully.",
+                        state: "error"
+                    });
+                }
+                else{
+                  Folder.findOne({'_id': folder._id}, function(err, folder){
+
+
+                    if(folder.parent_folder_id){
+                        Folder.findOne({'_id': folder.parent_folder_id}, function(err, folderParent){
+                          folder.path = folderParent.path;
+                          folder.path.push({'folder_id': folderParent._id, 'folder_name': folderParent.folder_name});
+                          folder.save(function(err, folder){
+                              return true;
+                            });
+                      });
+                    }
+                });
+
+                    res.send ({
+                        status: 200,
+                        message: "Folder created successfully.",
+                        state: "success"
+                    });
+                }
+           })
+        }
+    });
+});
+router.post('/create_sub_folder',function(req,res){
+    Folder.findOne({franchisee_Id:req.body.franchisee_Id,parent_folder_id: req.body.parent_folder_id,folder_name:req.body.folder_name},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File deleted successfully.",
+                state: "error"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 201,
+                message: "Folder exsit with this name.",
+                state: "failure"
+            });
+        }
+        if(!folder){
+           var folder = new Folder();
+           folder.folder_name = req.body.folder_name;
+           folder.franchisee_Id = req.body.franchisee_Id;
+           folder.create_date = Date.now();
+           folder.parent_folder_id = req.body.parent_folder_id;
            folder.save(function(err,folder){
                 if(err){
                     res.send ({
@@ -423,12 +482,93 @@ router.post('/create_common_folder',function(req,res){
         }
     });
 });
+// To create common sub folder
+router.post('/create_common_sub_folder',function(req,res){
+    console.log('Request body', req.body);
+    Folder.findOne({folder_name:req.body.folder_name, parent_folder_id: req.body.parent_folder_id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "File error.",
+                state: "error"
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 201,
+                message: "Folder exsit with this name.",
+                state: "failure"
+            });
+        }
+        if(!folder){
+           var folder = new Folder();
+           folder.folder_name = req.body.folder_name;
+           folder.create_date = Date.now();
+           folder.parent_folder_id = req.body.parent_folder_id;
+           folder.save(function(err,folder){
+                if(err){
+                    res.send ({
+                        status: 500,
+                        message: "File error.",
+                        state: "error"
+                    });
+                }
+                else{
+                    res.send ({
+                        status: 200,
+                        message: "Folder created successfully.",
+                        state: "success"
+                    });
+                }
+           })
+        }
+    });
+});
+
 // To get common folder
 router.get('/get_common_folder',function(req,res){
     console.log('Request body', req.body);
     try{
     //  var franchisee_Id = 'franchisee_Id';
         Folder.find({ franchisee_Id : { $exists: false }},function(err,folder){
+            if(err){
+                res.send ({
+                    status: 500,
+                    message: "Something went wrong.",
+                    state: "error"
+                });
+            }
+            if(folder.length==0){
+                res.send ({
+                    status: 201,
+                    message: "Folder not found.",
+                    state: "failure"
+                });
+            }
+            if(folder.length>0){
+                res.send ({
+                    status: 200,
+                    folder: folder,
+                    state: "success"
+                });
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+// To get common folder
+router.get('/get_common_sub_folder',function(req,res){
+
+
+    try{
+    //  var franchisee_Id = 'franchisee_Id';
+        Folder.findOne({ franchisee_Id : { $exists: false }, parent_folder_id: req.body.parent_folder_id},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,
@@ -500,7 +640,7 @@ router.put('/update/folder/:id',function(req,res){
             })
         }
     })
-})
+});
 
 // To get folder files folder id
 router.get('/get_folder_files_by_folder_Id/:folder_Id',function(req,res){
