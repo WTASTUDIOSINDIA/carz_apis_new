@@ -256,6 +256,32 @@ router.get('/get_folder/:id', function(req, res){
 	}
 });
 
+router.get('/get_folders_by_folder_id/:folder_id',function(req,res){
+    Folder.find({parent_folder_id:req.params.folder_id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Some error.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folders not found.",
+                state: "failure",
+                data: []
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                data: folder,
+                state: "success"
+            });
+        }
+    });
+});
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
     Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_Id},function(err,file){
         if(err){
