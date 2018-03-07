@@ -198,7 +198,7 @@ router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',functi
 });
 
 router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
-    Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
+    Folder.find({franchisee_Id:req.params.franchisee_id, parent_folder_id : { $exists: false }},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -256,8 +256,8 @@ router.get('/get_folder/:id', function(req, res){
 	}
 });
 
-router.get('/get_folders_by_folder_id/:folder_id',function(req,res){
-    Folder.find({parent_folder_id:req.params.folder_id},function(err,folder){
+router.get('/get_folders_by_folder_id/:parent_folder_id',function(req,res){
+    Folder.find({parent_folder_id:req.params.parent_folder_id},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -590,7 +590,7 @@ router.get('/get_common_folder',function(req,res){
     console.log('Request body', req.body);
     try{
     //  var franchisee_Id = 'franchisee_Id';
-        Folder.find({ franchisee_Id : { $exists: false }},function(err,folder){
+        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,
