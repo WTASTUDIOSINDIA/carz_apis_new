@@ -228,7 +228,7 @@ router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
 
 router.get('/get_folder/:id', function(req, res){
     try{
-      Folder.findById({_id:req.params._id}, function(err, folder){
+      Folder.findById({_id:req.params.id}, function(err, folder){
         if(err){
           return res.send(500, err);
         }
@@ -248,6 +248,12 @@ router.get('/get_folder/:id', function(req, res){
         }
       })
     }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
 });
 
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
