@@ -30,6 +30,7 @@ var upload = multer({
         }
     })
 });
+
 function deleteFile(key){
     try{
         var params = {Bucket: 'carztesting', Key : key};
@@ -220,6 +221,33 @@ router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
             });
         }
     });
+});
+
+
+//get folder by id
+
+router.get('/get_folder/:id', function(req, res){
+    try{
+      Folder.findById({_id:req.params._id}, function(err, folder){
+        if(err){
+          return res.send(500, err);
+        }
+        if(folder){
+          res.send({
+              "status":200,
+              "state":"success",
+              "data":folder
+          });
+        }
+        else {
+          res.send({
+              "status":201,
+              "state":"failure",
+              "data":[]
+          });
+        }
+      })
+    }
 });
 
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
