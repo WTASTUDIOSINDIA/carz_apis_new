@@ -19,6 +19,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
+    "master_franchisee_id": String,
     "lead_age":Number,
     "lead_source":String,
     "user_role": {type:String, default:'franchisee'}

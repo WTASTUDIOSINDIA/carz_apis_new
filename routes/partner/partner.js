@@ -196,17 +196,15 @@ router.get('/get_partner_franchisee/:id',function(req,res){
             }
             if(!partner){
                 res.send({
-                    "status":"201",
                     "state":"failure",
                     "partner_data":[]
-                });
+                },201);
             }
             else{
                 res.send({
-                    status:200,
                     state:"success",
                     partner_data:partner
-                });
+                },200);
             }
         })
     }
