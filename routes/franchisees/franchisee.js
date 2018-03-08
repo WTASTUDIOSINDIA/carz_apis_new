@@ -149,6 +149,7 @@ router.post('/create_franchisee',  function(req, res) {
                     res.send({
                         status:200,
                         state:"success",
+                        data: franchisee,
                         message:"Franchisee Created."
                     },200);
                 }
