@@ -65,7 +65,7 @@ router.post('/create_partner_franchisee', function(req, res){
                 partner.partner_remarks=partnerForm.partner_remarks,
                 partner.partner_preferred_date=partnerForm.partner_preferred_date,
                 partner.partner_preferred_time=partnerForm.partner_preferred_time,
-
+                partner.franchisee_id=partnerForm.franchisee_id
                 partner.save(function(err,partner){
                     if(err){
                         res.send({
