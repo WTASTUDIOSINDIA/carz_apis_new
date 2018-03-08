@@ -35,18 +35,18 @@ router.get('/get_franchisees',function(req,res){
             }
             if(!franchiees){
                 res.send({
-                    "status":"201",
+                    "status":404,
                     "message":"Franchiees not found",
                     "message":"failure",
                     "franchisees_list":[]
-                });
+                },404);
             }
             else{
                 res.send({
                     "status":"200",
                     "state":"success",
                     "franchisees_list":franchiees
-                });
+                },200);
             }
         })
     }
@@ -66,17 +66,17 @@ router.get('/get_franchisee/:id',function(req,res){
             }
             if(!franchisee){
                 res.send({
-                    "status":"201",
+                    "status":400,
                     "state":"failure",
                     "franchisees_data":[]
-                });
+                },400);
             }
             else{
                 res.send({
                     status:200,
                     state:"success",
                     franchisees_data:franchisee
-                });
+                },200);
             }
         })
     }
@@ -91,7 +91,6 @@ router.get('/get_franchisee/:id',function(req,res){
 //upload.single('franchisee_img'),
 //JSON.parse(req.body.franchisee_details)
 router.post('/create_franchisee',  function(req, res) {
-  console.log(req.body);
     var franchiseeForm = req.body;
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
@@ -128,8 +127,9 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeForm.lead_age,
                 franchisee.lead_source=franchiseeForm.lead_source,
+                franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
+                franchisee.user_role=franchiseeForm.user_role,
                 franchisee.franchisee_pass = createHash(generatePassword());
-                console.log('franchisee password', franchisee.franchisee_pass);
 
                 // if(req.file){
                 //     var franchisee_pic = {};
@@ -143,14 +143,15 @@ router.post('/create_franchisee',  function(req, res) {
                         status:500,
                         state:"err",
                         message:"Something went wrong."
-                    });
+                    },500);
                    }
                 else{
                     res.send({
                         status:200,
                         state:"success",
+                        data: franchisee,
                         message:"Franchisee Created."
-                    });
+                    },200);
                 }
                 });
             }
@@ -174,7 +175,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                         status:500,
                         state:"err",
                         message:"Something went wrong.We are looking into it."
-                    });
+                    },500);
             }
 
             //If franchisee found,it will enter inside
@@ -208,24 +209,24 @@ router.put('/edit_franchisee', function(req, res, next) {
                         status:500,
                         state:"err",
                         message:"Something went wrong."
-                    });
+                    },500);
                    }
                 else{
                     res.send({
                         status:200,
                         state:"success",
                         message:"Franchisee Updated."
-                    });
+                    },200);
                 }
                 });
             }
             //If franchisee not found,it will enter inside and send error message
             if(!franchisee){
                 res.send({
-                    status:201,
+                    status:400,
                     state:"failure",
                     message:"Franchise exist with this Id."
-                });
+                },400);
             }
         })
     }
@@ -246,16 +247,16 @@ router.delete('/delete_franchisee/:id',function(req,res){
             }
             if(!franchisee){
                 res.send({
-                    "status":"201",
+                    "status":400,
                     "message":"Unsucessfull",
                     "franchisees_data":"failure"
-                });
+                },400);
             }
             else{
                 res.send({
                     "status":"200",
                     "message":"User deleted sucessfully",
-                });
+                },200);
             }
         })
     }

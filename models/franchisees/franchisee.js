@@ -19,6 +19,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
+    "master_franchisee_id": String,
     "lead_age":Number,
     "lead_source":String,
     "user_role": {type:String, default:'franchisee'}
@@ -52,6 +53,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_remarks": String,
     "partner_preferred_date": String,
     "partner_preferred_time": String,
+    "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "partner_profile_pic":{type: Schema.Types.Mixed, default : {}}
 
 });
