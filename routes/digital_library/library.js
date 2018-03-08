@@ -730,32 +730,6 @@ router.get('/get_folder_files_by_folder_Id/:folder_Id',function(req,res){
     });
 });
 
-// router.get('/get_folder_files_by_folder_Id/:upload_status/:folder_Id',function(req,res){
-//     Library.find({upload_status:req.params.upload_status,folder_Id:req.params.folder_Id},function(err,file){
-//         if(err){
-//             res.send ({
-//                 status: 500,
-//                 message: "Something went wrong.",
-//                 state: "error"
-//             });
-//         }
-//         if(file.length == 0){
-//             res.send ({
-//                 status: 201,
-//                 message: "No file are uploaded.",
-//                 state: "failure"
-//             });
-//         }
-//         if(file){
-//             res.send ({
-//                 status: 200,
-//                 file: file,
-//                 state: "success"
-//             });
-//         }
-//     });
-// });
-
 // To upload files by folder id
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_folder_file',cpUpload,function(req,res){
