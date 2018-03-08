@@ -146,7 +146,7 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
 });
 
 router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,res){
-    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id},function(err,file){
+    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id, folder_Id : { $exists: false }},function(err,file){
         if(err){
             res.send ({
                 status: 500,
