@@ -22,6 +22,7 @@ var franchiseeSchema = new mongoose.Schema({
     "master_franchisee_id": String,
     "franchisee_country": String,
     "franchisee_pincode": String,
+    "franchisee_area": String,
     "lead_age":Number,
     "lead_source":String,
     "user_role": {type:String, default:'franchisee'}

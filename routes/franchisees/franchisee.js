@@ -95,12 +95,24 @@ router.get('/get_franchisee/:id',function(req,res){
 router.post('/validate_franchisee',  function(req, res) {
     var FranchiseeValidateForm = req.body;
     try{
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
+        Franchisee.findOne({'franchisee_email':FranchiseeValidateForm.franchisee_email},function(err,franchisee){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
             if(franchisee){
-                res.send({
+                return res.send({
                     state:"failure",
                     message:"This franchisee already exists!"
                 }, 400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    message:"Success!"
+                }, 200);
             }
         });
     }
@@ -108,13 +120,14 @@ router.post('/validate_franchisee',  function(req, res) {
 		return res.send({
 			state:"error",
 			message:err
-		});
+		},500);
 	}
 });
 
 //create franchisee
 router.post('/create_franchisee',  function(req, res) {
     var franchiseeForm = req.body;
+    console.log('req.body', req.body);
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
         Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
@@ -210,6 +223,7 @@ router.post('/create_multiple_franchisee',  function(req, res) {
                     franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
                     franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
                     franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                    franchisee.franchisee_area = franchiseeMultipleForm[i].franchisee_area
                     franchisee.master_franchisee_id = franchiseeMultipleForm[i].master_franchisee_id
     
                     franchisee.save(function(err,franchisee){
