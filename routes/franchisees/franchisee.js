@@ -105,7 +105,7 @@ router.post('/validate_franchisee',  function(req, res) {
             if(franchisee){
                 return res.send({
                     state:"failure",
-                    message:"This franchisee already exists!"
+                    message:"This email already exists!"
                 }, 400);
             }
             else{
