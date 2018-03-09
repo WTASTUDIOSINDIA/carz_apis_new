@@ -193,44 +193,42 @@ router.post('/create_franchisee',  function(req, res) {
 router.post('/create_multiple_franchisee',  function(req, res) {
     var franchiseeMultipleForm = req.body;
     try{
-        Franchisee.findOne({'franchisee_email':franchiseeMultipleForm.franchisee_email},function(err,franchisee){
+        Franchisee.find({},function(err,franchisee){
             if(err){
                 return res.send({
                         state:"err",
                         message:"Something went wrong.We are looking into it."
                     },500);
             }
-            if(franchisee){
-                res.send({
-                    state:"failure",
-                    message:"This franchisee already exists!"
-                },400);
-            }
-            if(!franchisee){
-               var franchisee = new Franchisee();
-               franchisee.franchisee_name = franchiseeMultipleForm.franchisee_name,
-               franchisee.franchisee_email = franchiseeMultipleForm.franchisee_email,
-               franchisee.franchisee_pincode = franchiseeMultipleForm.franchisee_pincode,
-               franchisee.franchiee_country = franchiseeMultipleForm.franchisee_country,
-               franchisee.franchisee_state = franchiseeMultipleForm.franchisee_state,
-               franchisee.franchisee_city = franchiseeMultipleForm.franchisee_city,
-               franchisee.master_franchisee_id = franchiseeMultipleForm.master_franchisee_id
-
-                franchisee.save(function(err,franchisee){
-                   if(err){
-                     res.send({
-                        state:"err",
-                        message:"Something went wrong."
-                    },500);
-                   }
-                else{
-                    res.send({
-                        state:"success",
-                        data: franchisee,
-                        message:"Multiple Franchisee Created."
-                    },200);
-                }
-                });
+            else{
+                var franchisee_length = (franchiseeMultipleForm.length-1);
+                for(var i=0;i<franchiseeMultipleForm.length-1;i++){
+                    var franchisee = new Franchisee();
+                    franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+                    franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+                    franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+                    franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+                    franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+                    franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                    franchisee.master_franchisee_id = franchiseeMultipleForm[i].master_franchisee_id
+    
+                    franchisee.save(function(err,franchisee){
+                        if(err){
+                            return res.send({
+                                state:"err",
+                                message:"Something went wrong."
+                            },500);
+                        }
+                        else{
+                            if(franchisee_length==i){
+                                return res.send({
+                                    state:"success",
+                                    message:"Multiple Franchisee Created."
+                                },200);
+                            }
+                        }
+                    });
+               }
             }
         });
     }
