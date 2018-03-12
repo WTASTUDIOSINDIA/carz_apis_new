@@ -4,6 +4,8 @@ var mongoose = require( 'mongoose' );;
 var multer  = require('multer');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+// var Discussion = mongoose.model('Discussion');
+var Stages = mongoose.model('Stages');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -225,7 +227,7 @@ router.post('/create_multiple_franchisee',  function(req, res) {
                     franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
                     franchisee.franchisee_area = franchiseeMultipleForm[i].franchisee_area
                     franchisee.master_franchisee_id = franchiseeMultipleForm[i].master_franchisee_id
-    
+
                     franchisee.save(function(err,franchisee){
                         if(err){
                             return res.send({
@@ -356,6 +358,193 @@ router.delete('/delete_franchisee/:id',function(req,res){
         });
     }
 });
+
+
+//for get stagesSchema
+router.get('/get_stages', function(req, res){
+  try{
+      Stages.find({},function(err,stages){
+          if(err){
+              return res.send(500, err);
+          }
+          if(!stages){
+              res.send({
+                  "status":404,
+                  "message":"Franchiees not found",
+                  "message":"failure",
+                  "franchisees_list":[]
+              },404);
+          }
+          else{
+              res.send({
+                  "status":"200",
+                  "state":"success",
+                  "stages_list":stages
+              },200);
+          }
+      })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+//for get stagesSchema
+router.get('/get_stage_by_id/:id', function(req, res){
+  try{
+      Stages.findById({_id:req.params.id},function(err,stage){
+          if(err){
+              return res.send(500, err);
+          }
+          if(!stage){
+              res.send({
+                  "status":404,
+                  "message":"Stage not found",
+                  "message":"failure"
+              },404);
+          }
+          else{
+              res.send({
+                  "status":"200",
+                  "state":"success",
+                  "data":stage
+              },200);
+          }
+      })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+//delete stage
+router.delete('/delete_stage/:id',function(req,res){
+    try{
+        Stages.findByIdAndRemove({_id:req.params.id},function(err,stage){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!stage){
+                res.send({
+                    "status":400,
+                    "message":stage
+                },400);
+            }
+            else{
+                res.send({
+                    "status":"200",
+                    "message":"Stage deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+
+//update_stage
+var cpUpload = upload.single('file');
+router.put('/edit_stage', cpUpload, function(req, res){
+  try{
+    Stages.findOne({franchisee_id: req.body.franchisee_id}, function(err, stage){
+      if(err){
+        return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            },500);
+      }
+        if(stage){
+          if(stage == 'discussion_stage' && stage.sub_stage == 'payment'){
+            stage.stage_discussion.status = "false";
+            stage.stage_discussion.payment_value = 100000;
+            stage.stage_discussion.payment_file =  req.file.location;
+          }
+          if(stage == 'discussion_stage' && stage.sub_stage == 'nda'){
+            stage.stage_discussion.status = "false";
+            stage.stage_discussion.nda_file =   req.file.location;
+          }
+
+          stage.save(function(){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+            }
+            else{
+
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated"
+                    },200);
+
+            }
+          })
+        }
+        if(!stage){
+          var stage = new Stages();
+
+          stage.stage_discussion.status = "false";
+          stage.stage_discussion.payment_value = 100000;
+          stage.stage_discussion.payment_file =  req.file.location;
+          stage.save(function(err, stage){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+            }
+
+            else{
+              console.log(stage);
+              var Discussion  = stage.stage_discussion;
+
+              // discussion.save(function(err, discussion){
+              //   if(err){
+              //       return res.send({
+              //           state:"err",
+              //           message:"Something went wrong."
+              //       },500);
+              //   }
+              //   else{
+              //
+              //           return res.send({
+              //               state:"success",
+              //               message:"Discussion stage Updated"
+              //           },200);
+              //
+              //   }
+              // })
+
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated new"
+                    },200);
+
+            }
+          })
+        }
+    })
+  }
+
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+
+
 function generatePassword() {
     var length = 8,
         charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
