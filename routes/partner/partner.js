@@ -188,22 +188,22 @@ router.get('/get_partner_franchisee',function(req,res){
 });
 
 //get partner franchisee by id
-router.get('/get_partner_franchisee/:id',function(req,res){
+router.get('/get_franchisee_partners/:id',function(req,res){
     try{
-        Partner.findById({_id:req.params.id},function(err,partner){
+        Partner.find({franchisee_id:req.params.id},function(err,partner){
             if(err){
                 return res.send(500, err);
             }
             if(!partner){
                 res.send({
                     "state":"failure",
-                    "partner_data":[]
+                    "data":[]
                 },201);
             }
             else{
                 res.send({
                     state:"success",
-                    partner_data:partner
+                    data:partner
                 },200);
             }
         })
