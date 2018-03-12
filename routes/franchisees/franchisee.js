@@ -361,9 +361,9 @@ router.delete('/delete_franchisee/:id',function(req,res){
 
 
 //for get stagesSchema
-router.get('/get_stages', function(req, res){
+router.get('/get_stages/:franchisee_id', function(req, res){
   try{
-      Stages.find({},function(err,stages){
+      Stages.find({franchisee_id: req.params.franchisee_id},function(err,stages){
           if(err){
               return res.send(500, err);
           }
@@ -467,13 +467,16 @@ router.put('/edit_stage', cpUpload, function(req, res){
             stage.stage_discussion.status = "false";
             stage.stage_discussion.payment_value = 100000;
             stage.stage_discussion.payment_file =  req.file.location;
+            stage.stage_discussion.payment_file_name =  req.file.originalname;
+
           }
           if(stage == 'discussion_stage' && stage.sub_stage == 'nda'){
             stage.stage_discussion.status = "false";
             stage.stage_discussion.nda_file =   req.file.location;
+            stage.stage_discussion.nda_file_name =  req.file.originalname;
           }
 
-          stage.save(function(){
+          stage.save(function(err, stage){
             if(err){
                 return res.send({
                     state:"err",
@@ -484,7 +487,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
 
                     return res.send({
                         state:"success",
-                        message:"Stage Updated"
+                        message:"Stage Updated",
+                        data: stage
                     },200);
 
             }
@@ -496,6 +500,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
           stage.stage_discussion.status = "false";
           stage.stage_discussion.payment_value = 100000;
           stage.stage_discussion.payment_file =  req.file.location;
+          stage.stage_discussion.payment_file_name =  req.file.originalname;
+          stage.franchisee_id = req.body.franchisee_id;
           stage.save(function(err, stage){
             if(err){
                 return res.send({
@@ -527,7 +533,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
 
                     return res.send({
                         state:"success",
-                        message:"Stage Updated new"
+                        message:"Stage Updated",
+                        data: stage
                     },200);
 
             }
