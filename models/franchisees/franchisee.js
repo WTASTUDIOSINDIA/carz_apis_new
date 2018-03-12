@@ -19,6 +19,10 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
     "franchisee_remarks":String,
+    "master_franchisee_id": String,
+    "franchisee_country": String,
+    "franchisee_pincode": String,
+    "franchisee_area": String,
     "lead_age":Number,
     "lead_source":String,
     "user_role": {type:String, default:'franchisee'}
@@ -34,7 +38,28 @@ var librarySchema = new mongoose.Schema({
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
 });
+var partnerSchema = new mongoose.Schema({
+    "partner_name": String,
+    "partner_occupation": String,
+    "partner_email": String,
+    "partner_address": String,
+    "partner_city": String,
+    "partner_state": String,
+    "partner_country": String,
+    "partner_pincode": String,
+    "partner_mobile_number": Number,
+    "partner_age": String,
+    "partner_lead_source": String,
+    "partner_investment": String,
+    "partner_franchisee_type": String,
+    "partner_how_soon_to_start": String,
+    "partner_remarks": String,
+    "partner_preferred_date": String,
+    "partner_preferred_time": String,
+    "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "partner_profile_pic":{type: Schema.Types.Mixed, default : {}}
 
+});
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
 //     "uploaded_status":{type:'Number',default:0},//0 or 1
@@ -54,3 +79,4 @@ mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
 mongoose.model('Folder', FolderSchema);
 mongoose.model('Auth').Schema;
+mongoose.model('Partner', partnerSchema);

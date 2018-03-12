@@ -4,6 +4,8 @@ var mongoose = require( 'mongoose' );;
 var multer  = require('multer');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+// var Discussion = mongoose.model('Discussion');
+var Stages = mongoose.model('Stages');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -35,18 +37,18 @@ router.get('/get_franchisees',function(req,res){
             }
             if(!franchiees){
                 res.send({
-                    "status":"201",
+                    "status":404,
                     "message":"Franchiees not found",
                     "message":"failure",
                     "franchisees_list":[]
-                });
+                },404);
             }
             else{
                 res.send({
                     "status":"200",
                     "state":"success",
                     "franchisees_list":franchiees
-                });
+                },200);
             }
         })
     }
@@ -66,17 +68,17 @@ router.get('/get_franchisee/:id',function(req,res){
             }
             if(!franchisee){
                 res.send({
-                    "status":"201",
+                    "status":400,
                     "state":"failure",
                     "franchisees_data":[]
-                });
+                },400);
             }
             else{
                 res.send({
                     status:200,
                     state:"success",
                     franchisees_data:franchisee
-                });
+                },200);
             }
         })
     }
@@ -87,12 +89,47 @@ router.get('/get_franchisee/:id',function(req,res){
 		});
 	}
 });
-//create franchisee
+
 //upload.single('franchisee_img'),
 //JSON.parse(req.body.franchisee_details)
+
+//validate franchisee by email
+router.post('/validate_franchisee',  function(req, res) {
+    var FranchiseeValidateForm = req.body;
+    try{
+        Franchisee.findOne({'franchisee_email':FranchiseeValidateForm.franchisee_email},function(err,franchisee){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(franchisee){
+                return res.send({
+                    state:"failure",
+                    message:"This email already exists!"
+                }, 400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    message:"Success!"
+                }, 200);
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+//create franchisee
 router.post('/create_franchisee',  function(req, res) {
-  console.log(req.body);
     var franchiseeForm = req.body;
+    console.log('req.body', req.body);
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
         Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
@@ -128,8 +165,9 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeForm.lead_age,
                 franchisee.lead_source=franchiseeForm.lead_source,
+                franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
+                franchisee.user_role=franchiseeForm.user_role,
                 franchisee.franchisee_pass = createHash(generatePassword());
-                console.log('franchisee password', franchisee.franchisee_pass);
 
                 // if(req.file){
                 //     var franchisee_pic = {};
@@ -143,16 +181,70 @@ router.post('/create_franchisee',  function(req, res) {
                         status:500,
                         state:"err",
                         message:"Something went wrong."
-                    });
+                    },500);
                    }
                 else{
                     res.send({
                         status:200,
                         state:"success",
+                        data: franchisee,
                         message:"Franchisee Created."
-                    });
+                    },200);
                 }
                 });
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+
+//create multiple franchisee
+router.post('/create_multiple_franchisee',  function(req, res) {
+    var franchiseeMultipleForm = req.body;
+    try{
+        Franchisee.find({},function(err,franchisee){
+            if(err){
+                return res.send({
+                        state:"err",
+                        message:"Something went wrong.We are looking into it."
+                    },500);
+            }
+            else{
+                var franchisee_length = (franchiseeMultipleForm.length-1);
+                for(var i=0;i<franchiseeMultipleForm.length-1;i++){
+                    var franchisee = new Franchisee();
+                    franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+                    franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+                    franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+                    franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+                    franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+                    franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                    franchisee.franchisee_area = franchiseeMultipleForm[i].franchisee_area
+                    franchisee.master_franchisee_id = franchiseeMultipleForm[i].master_franchisee_id
+
+                    franchisee.save(function(err,franchisee){
+                        if(err){
+                            return res.send({
+                                state:"err",
+                                message:"Something went wrong."
+                            },500);
+                        }
+                        else{
+                            if(franchisee_length==i){
+                                return res.send({
+                                    state:"success",
+                                    message:"Multiple Franchisee Created."
+                                },200);
+                            }
+                        }
+                    });
+               }
             }
         });
     }
@@ -174,7 +266,7 @@ router.put('/edit_franchisee', function(req, res, next) {
                         status:500,
                         state:"err",
                         message:"Something went wrong.We are looking into it."
-                    });
+                    },500);
             }
 
             //If franchisee found,it will enter inside
@@ -208,24 +300,24 @@ router.put('/edit_franchisee', function(req, res, next) {
                         status:500,
                         state:"err",
                         message:"Something went wrong."
-                    });
+                    },500);
                    }
                 else{
                     res.send({
                         status:200,
                         state:"success",
                         message:"Franchisee Updated."
-                    });
+                    },200);
                 }
                 });
             }
             //If franchisee not found,it will enter inside and send error message
             if(!franchisee){
                 res.send({
-                    status:201,
+                    status:400,
                     state:"failure",
                     message:"Franchise exist with this Id."
-                });
+                },400);
             }
         })
     }
@@ -246,16 +338,16 @@ router.delete('/delete_franchisee/:id',function(req,res){
             }
             if(!franchisee){
                 res.send({
-                    "status":"201",
+                    "status":400,
                     "message":"Unsucessfull",
                     "franchisees_data":"failure"
-                });
+                },400);
             }
             else{
                 res.send({
                     "status":"200",
                     "message":"User deleted sucessfully",
-                });
+                },200);
             }
         })
     }
@@ -266,6 +358,193 @@ router.delete('/delete_franchisee/:id',function(req,res){
         });
     }
 });
+
+
+//for get stagesSchema
+router.get('/get_stages', function(req, res){
+  try{
+      Stages.find({},function(err,stages){
+          if(err){
+              return res.send(500, err);
+          }
+          if(!stages){
+              res.send({
+                  "status":404,
+                  "message":"Franchiees not found",
+                  "message":"failure",
+                  "franchisees_list":[]
+              },404);
+          }
+          else{
+              res.send({
+                  "status":"200",
+                  "state":"success",
+                  "stages_list":stages
+              },200);
+          }
+      })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+//for get stagesSchema
+router.get('/get_stage_by_id/:id', function(req, res){
+  try{
+      Stages.findById({_id:req.params.id},function(err,stage){
+          if(err){
+              return res.send(500, err);
+          }
+          if(!stage){
+              res.send({
+                  "status":404,
+                  "message":"Stage not found",
+                  "message":"failure"
+              },404);
+          }
+          else{
+              res.send({
+                  "status":"200",
+                  "state":"success",
+                  "data":stage
+              },200);
+          }
+      })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+//delete stage
+router.delete('/delete_stage/:id',function(req,res){
+    try{
+        Stages.findByIdAndRemove({_id:req.params.id},function(err,stage){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!stage){
+                res.send({
+                    "status":400,
+                    "message":stage
+                },400);
+            }
+            else{
+                res.send({
+                    "status":"200",
+                    "message":"Stage deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+
+//update_stage
+var cpUpload = upload.single('file');
+router.put('/edit_stage', cpUpload, function(req, res){
+  try{
+    Stages.findOne({franchisee_id: req.body.franchisee_id}, function(err, stage){
+      if(err){
+        return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            },500);
+      }
+        if(stage){
+          if(stage == 'discussion_stage' && stage.sub_stage == 'payment'){
+            stage.stage_discussion.status = "false";
+            stage.stage_discussion.payment_value = 100000;
+            stage.stage_discussion.payment_file =  req.file.location;
+          }
+          if(stage == 'discussion_stage' && stage.sub_stage == 'nda'){
+            stage.stage_discussion.status = "false";
+            stage.stage_discussion.nda_file =   req.file.location;
+          }
+
+          stage.save(function(){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+            }
+            else{
+
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated"
+                    },200);
+
+            }
+          })
+        }
+        if(!stage){
+          var stage = new Stages();
+
+          stage.stage_discussion.status = "false";
+          stage.stage_discussion.payment_value = 100000;
+          stage.stage_discussion.payment_file =  req.file.location;
+          stage.save(function(err, stage){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+            }
+
+            else{
+              console.log(stage);
+              var Discussion  = stage.stage_discussion;
+
+              // discussion.save(function(err, discussion){
+              //   if(err){
+              //       return res.send({
+              //           state:"err",
+              //           message:"Something went wrong."
+              //       },500);
+              //   }
+              //   else{
+              //
+              //           return res.send({
+              //               state:"success",
+              //               message:"Discussion stage Updated"
+              //           },200);
+              //
+              //   }
+              // })
+
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated new"
+                    },200);
+
+            }
+          })
+        }
+    })
+  }
+
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+}
+});
+
+
 function generatePassword() {
     var length = 8,
         charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
