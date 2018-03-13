@@ -14,6 +14,7 @@ var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
+var meeting = require('./routes/meetings/meeting');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
@@ -73,6 +74,7 @@ app.use('/franchisee', franchisee);
 app.use('/authenticate',authenticate);
 app.use('/library',library);
 app.use('/partner', partner);
+app.use('/meeting', meeting);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {
