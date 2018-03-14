@@ -449,7 +449,6 @@ router.delete('/delete_stage/:id',function(req,res){
         });
     }
 });
-
 //update_stage
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
