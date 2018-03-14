@@ -148,7 +148,8 @@ router.delete('/delete_meeting/:id',function(req,res){
 //to get meeting by id
 router.get('/get_meeting/:franchisee_id/:stage_id',function(req,res){
         try{
-            Meeting.findById({'franchisee_id':req.params.franchisee_id,'stage_id':req.params.stage_id},function(err,meeting){
+            Meeting.findOne({'franchisee_id':req.params.franchisee_id,'stage_id':req.params.stage_id},function(err,meeting){
+
                 if(err){
                     return res.send(500, err);
                 }
