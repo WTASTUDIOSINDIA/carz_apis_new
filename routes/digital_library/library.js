@@ -30,6 +30,7 @@ var upload = multer({
         }
     })
 });
+
 function deleteFile(key){
     try{
         var params = {Bucket: 'carztesting', Key : key};
@@ -145,7 +146,7 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
 });
 
 router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,res){
-    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id},function(err,file){
+    Library.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id, folder_Id : { $exists: false }},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -197,7 +198,7 @@ router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',functi
 });
 
 router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
-    Folder.find({franchisee_Id:req.params.franchisee_id},function(err,folder){
+    Folder.find({franchisee_Id:req.params.franchisee_id, parent_folder_id : { $exists: false }},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -222,6 +223,65 @@ router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
     });
 });
 
+
+//get folder by id
+
+router.get('/get_folder/:id', function(req, res){
+    try{
+      Folder.findById({_id:req.params.id}, function(err, folder){
+        if(err){
+          return res.send(500, err);
+        }
+        if(folder){
+          res.send({
+              "status":200,
+              "state":"success",
+              "data":folder
+          });
+        }
+        else {
+          res.send({
+              "status":201,
+              "state":"failure",
+              "data":[]
+          });
+        }
+      })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+router.get('/get_folders_by_folder_id/:parent_folder_id',function(req,res){
+    Folder.find({parent_folder_id:req.params.parent_folder_id},function(err,folder){
+        if(err){
+            res.send ({
+                status: 500,
+                message: "Some error.",
+                state: "error"
+            });
+        }
+        if(!folder){
+            res.send ({
+                status: 201,
+                message: "Folders not found.",
+                state: "failure",
+                data: []
+            });
+        }
+        if(folder){
+            res.send ({
+                status: 200,
+                data: folder,
+                state: "success"
+            });
+        }
+    });
+});
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
     Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_Id},function(err,file){
         if(err){
@@ -530,7 +590,7 @@ router.get('/get_common_folder',function(req,res){
     console.log('Request body', req.body);
     try{
     //  var franchisee_Id = 'franchisee_Id';
-        Folder.find({ franchisee_Id : { $exists: false }},function(err,folder){
+        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,

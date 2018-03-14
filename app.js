@@ -10,6 +10,7 @@ var session = require('express-session');
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
 require('./models/franchisors/franchisor')
+require('./models/crm/stages')
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var library = require('./routes/digital_library/library');
