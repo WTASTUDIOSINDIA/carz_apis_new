@@ -47,7 +47,6 @@ router.post('/create_meeting',  function(req, res) {
                 else{
                     res.send({
                         state:"success",
-                        data: meeting,
                         message:"Meeting Scheduled .",
                         meeting: meeting
                     },200);
@@ -147,9 +146,9 @@ router.delete('/delete_meeting/:id',function(req,res){
 });
 
 //to get meeting by id
-router.get('/get_meeting/:id',function(req,res){
+router.get('/get_meeting/:franchisee_id/:stage_id',function(req,res){
         try{
-            Meeting.findById({_id:req.params.id},function(err,meeting){
+            Meeting.findById({'franchisee_id':req.params.franchisee_id,'stage_id':req.params.stage_id},function(err,meeting){
                 if(err){
                     return res.send(500, err);
                 }
@@ -174,4 +173,35 @@ router.get('/get_meeting/:id',function(req,res){
             });
         }
 });
+
+// to get all meetings
+router.get('/get_all_meetings',function(req,res){
+    try{
+        Meeting.find({},function(err,meeting){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!meeting){
+                res.send({
+                    "message":"Meetings not found",
+                    "state":"failure",
+                    "meetings":[]
+                },201);
+            }
+            else{
+                res.send({
+                    "state":"success",
+                    "meetings":meeting
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
 module.exports = router;
