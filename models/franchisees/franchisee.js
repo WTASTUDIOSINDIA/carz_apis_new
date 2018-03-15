@@ -87,9 +87,31 @@ var FolderSchema = new mongoose.Schema({
     "path": Array
 });
 
+var DocSchema = new mongoose.Schema({
+    "doc_name": String,
+    "status": {type: String, default: 'inprogress'},
+    "link": {type: Schema.Types.Mixed, default : {}},
+    "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "file_type": String
+})
+
+var FranchiseeTypeSchema = new mongoose.Schema({
+    types :{
+        type_name: {type:String},
+        type_files: {type: Array}
+    }
+//    "type_one":{type: Array,'default': [1, 2, 3]},
+//    "type_two":{type: Array,'default': [1, 2, 3]},
+//    "type_three":{type: Array,'default': [1, 2, 3]},
+//    "type_four":{type: Array,'default': [1, 2, 3]}
+})
+
+
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
 mongoose.model('Folder', FolderSchema);
 mongoose.model('Auth').Schema;
 mongoose.model('Partner', partnerSchema);
-mongoose.model('Meeting', meetingSchema)
+mongoose.model('Meeting', meetingSchema);
+mongoose.model('Document', DocSchema);
+mongoose.model('FranchiseeType', FranchiseeTypeSchema);
