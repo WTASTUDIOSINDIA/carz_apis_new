@@ -126,6 +126,39 @@ router.post('/validate_franchisee',  function(req, res) {
 	}
 });
 
+//validate franchisee by pincode
+router.post('/validate_franchisee_pincode',  function(req, res) {
+    var FranchiseeValidateForm = req.body;
+    try{
+        Franchisee.findOne({'franchisee_pincode':FranchiseeValidateForm.franchisee_pincode},function(err,franchisee){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(franchisee){
+                return res.send({
+                    state:"failure",
+                    message:"This pincode already exists!"
+                }, 400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    message:"Success!"
+                }, 200);
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
 //create franchisee
 router.post('/create_franchisee',  function(req, res) {
     var franchiseeForm = req.body;
@@ -449,7 +482,6 @@ router.delete('/delete_stage/:id',function(req,res){
         });
     }
 });
-
 //update_stage
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
