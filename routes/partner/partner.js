@@ -51,20 +51,8 @@ router.post('/create_partner_franchisee', function(req, res){
                 partner.partner_name=partnerForm.partner_name,
                 partner.partner_occupation=partnerForm.partner_occupation,
                 partner.partner_email=partnerForm.partner_email,
-                partner.partner_address=partnerForm.partner_address,
-                partner.partner_city=partnerForm.partner_city,
-                partner.partner_state=partnerForm.partner_state,
-                partner.partner_country=partnerForm.partner_country,
-                partner.partner_pincode=partnerForm.partner_pincode,
                 partner.partner_mobile_number=partnerForm.partner_mobile_number,
                 partner.partner_age=partnerForm.partner_age,
-                partner.partner_lead_source=partnerForm.partner_lead_source,
-                partner.partner_investment=partnerForm.partner_investment,
-                partner.partner_franchise_type=partnerForm.partner_franchise_type,
-                partner.partner_how_soon_to_start=partnerForm.partner_how_soon_to_start,
-                partner.partner_remarks=partnerForm.partner_remarks,
-                partner.partner_preferred_date=partnerForm.partner_preferred_date,
-                partner.partner_preferred_time=partnerForm.partner_preferred_time,
                 partner.franchisee_id=partnerForm.franchisee_id
                 partner.save(function(err,partner){
                     if(err){

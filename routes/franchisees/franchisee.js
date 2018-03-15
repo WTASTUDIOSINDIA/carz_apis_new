@@ -6,6 +6,7 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 // var Discussion = mongoose.model('Discussion');
 var Stages = mongoose.model('Stages');
+var Partner = mongoose.model('Partner');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -33,7 +34,7 @@ var upload = multer({
 // To upload profile pic
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/profile_pic',cpUpload,function(req,res){
-    var file_details = JSON.parse(req.body);
+    var file_details = (req.body);
     console.log('file_details', file_details);
     var files=[];
     Franchisee.find({},function(err,profilepic){
@@ -43,36 +44,32 @@ router.post('/profile_pic',cpUpload,function(req,res){
         else{
             var file = [];
             var getNumber = 0;
-            var length = req.files.file_upload.length;
-            file=req.files.file_upload;
-            for(var i=0;i<file.length;i++){
+            var length = req.file.file_upload.length;
+            file=req.file.file_upload;
                 var franchisee = new Franchisee();
                 franchisee.path = file[i].location;
                 franchisee.key = file[i].key;
                 franchisee.file_name = file[i].originalname;
-                if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg"){
+                if(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg"){
                     franchisee.image_type = "image";
                 }
                 franchisee.franchisee_id = req.body.franchisee_id;
-                files.push(franchisee);
-            }
-            for(var i=0;i<files.length;i++){
-                getNumber = getNumber + 1;
-                files[i].save(function(err,files){
+                file.push(franchisee);
+            
+                file.save(function(err,file){
                 if(err){
                         return res.send(err);
                 }
                 else{
                     if(parseInt(length) == parseInt(getNumber)){
                         res.send({
-                            state:200,
                             status:'success',
                             message:"Profile picture uploaded successfully!"
-                        });
+                        },200);
                     }
                 }
             })
-            }
+            
         }
     });
 });
@@ -267,12 +264,30 @@ router.post('/create_franchisee',  function(req, res) {
                     },500);
                    }
                 else{
-                    res.send({
-                        status:200,
-                        state:"success",
-                        data: franchisee,
-                        message:"Franchisee Created."
-                    },200);
+                 
+                    var partner = new Partner();
+
+                    partner.partner_name=partnerForm.partner_name,
+                    partner.partner_occupation=partnerForm.partner_occupation,
+                    partner.partner_email=partnerForm.partner_email,
+                    partner.partner_mobile_number=partnerForm.partner_mobile_number,
+                    partner.partner_age=partnerForm.partner_age,
+                    partner.franchisee_id=partnerForm.franchisee._id
+                    partner.save(function(err,partner){
+                        if(err){
+                            res.send({
+                                state:"err",
+                                message:"Something went wrong."
+                            },500);
+                        }
+                        else{
+                            res.send({
+                             state:"success",
+                             data: franchisee,
+                             message:"Franchisee Created."
+                            },200);
+                        }
+                    });
                 }
                 });
             }

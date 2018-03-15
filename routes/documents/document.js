@@ -16,7 +16,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'carzwta',
+        bucket:'celebappfiles',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -29,10 +29,10 @@ var upload = multer({
 });
 
 
-// To upload files
+// To upload files kyc
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_file',cpUpload,function(req,res){
-    var file_details = JSON.parse(req.body);
+    var file_details = (req.body);
     console.log('file_details', file_details);
     var files=[];
     Doc.find({},function(err,kyc){
@@ -45,21 +45,21 @@ router.post('/upload_file',cpUpload,function(req,res){
             var length = req.files.file_upload.length;
             file=req.files.file_upload;
             for(var i=0;i<file.length;i++){
-                var doc = new Doc();
-                doc.path = file[i].location;
-                doc.key = file[i].key;
-                doc.file_name = file[i].originalname;
+                var document = new Doc();
+                document.path = file[i].location;
+                document.key = file[i].key;
+                document.file_name = file[i].originalname;
                 if(file[i].mimetype == "application/pdf"){
-                    doc.image_type = "pdf";
+                    document.image_type = "pdf";
                 }
                 if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg"){
-                    doc.image_type = "image";
+                    document.image_type = "image";
                 }
-                doc.is_provide = req.body.is_provide;
-                doc.stage_name = req.body.stage_name;
-                doc.date_uploaded = Date.now();
-                doc.franchisee_id = req.body.franchisee_id;
-                files.push(doc);
+                document.is_provide = req.body.is_provide;
+                document.stage_name = req.body.stage_name;
+                document.date_uploaded = Date.now();
+                document.franchisee_id = req.body.franchisee_id;
+                files.push(document);
             }
             for(var i=0;i<files.length;i++){
                 getNumber = getNumber + 1;
@@ -79,12 +79,25 @@ router.post('/upload_file',cpUpload,function(req,res){
             })
             }
         }
-    });
+   });
 });
 
-//to get files
+router.post('/uploadData',cpUpload,function(req,res){
+    try{
+        console.log("getData",req.body);
+        console.log("req.files",req.files);
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
+
+//to get uploded files
 router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
-    Doc.find({uploaded_status:req.params.uploaded_status,franchisee_Id:req.params.franchisee_Id, stage_name:req.params.stage_name},function(err,file){
+    Doc.find({uploaded_status:req.params.uploaded_status,franchisee_id:req.params.franchisee_id, stage_name:req.params.stage_name},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -209,6 +222,20 @@ router.delete('/delete/franchiseeType/:id',function(req,res){
             message:err
         },500);
     }
-})
+});
+
+router.post('/upload',cpUpload,function(req,res){
+    var getData=JSON.parse(req.body);
+    try{
+        console.log("getData",getData);
+        console.log("req.files",req.files);
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 
 module.exports = router;

@@ -119,6 +119,18 @@ router.post('/upload_file',cpUpload,function(req,res){
 });
 
 
+router.post('/uploadDtaa',cpUpload,function(req,res){
+    try{
+        console.log("getData",req.body);
+        console.log("req.files",req.files);
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 router.get('/get_common_files/:uploaded_status',function(req,res){
     Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
         if(err){
