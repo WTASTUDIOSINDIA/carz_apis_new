@@ -28,6 +28,56 @@ var upload = multer({
         }
     })
 });
+
+
+// To upload profile pic
+var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/profile_pic',cpUpload,function(req,res){
+    var file_details = JSON.parse(req.body);
+    console.log('file_details', file_details);
+    var files=[];
+    Franchisee.find({},function(err,profilepic){
+        if(err){
+            return res.send(err);
+        }
+        else{
+            var file = [];
+            var getNumber = 0;
+            var length = req.files.file_upload.length;
+            file=req.files.file_upload;
+            for(var i=0;i<file.length;i++){
+                var franchisee = new Franchisee();
+                franchisee.path = file[i].location;
+                franchisee.key = file[i].key;
+                franchisee.file_name = file[i].originalname;
+                if(file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg"){
+                    franchisee.image_type = "image";
+                }
+                franchisee.franchisee_id = req.body.franchisee_id;
+                files.push(franchisee);
+            }
+            for(var i=0;i<files.length;i++){
+                getNumber = getNumber + 1;
+                files[i].save(function(err,files){
+                if(err){
+                        return res.send(err);
+                }
+                else{
+                    if(parseInt(length) == parseInt(getNumber)){
+                        res.send({
+                            state:200,
+                            status:'success',
+                            message:"Profile picture uploaded successfully!"
+                        });
+                    }
+                }
+            })
+            }
+        }
+    });
+});
+
+
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
