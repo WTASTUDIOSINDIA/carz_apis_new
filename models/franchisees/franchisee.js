@@ -60,6 +60,18 @@ var partnerSchema = new mongoose.Schema({
     "partner_profile_pic":{type: Schema.Types.Mixed, default : {}}
 
 });
+var meetingSchema = new mongoose.Schema({
+   "meeting_title" : String,
+   "meeting_location": String,
+   "meeting_date": String,
+   "meeting_time": String,
+   "meeting_assigned_people": [],
+   "meeting_additional_services": String,
+   "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+   "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+   "stage_id": String
+
+});
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
 //     "uploaded_status":{type:'Number',default:0},//0 or 1
@@ -80,3 +92,4 @@ mongoose.model('Library', librarySchema);
 mongoose.model('Folder', FolderSchema);
 mongoose.model('Auth').Schema;
 mongoose.model('Partner', partnerSchema);
+mongoose.model('Meeting', meetingSchema)

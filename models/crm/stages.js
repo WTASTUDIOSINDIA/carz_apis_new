@@ -18,7 +18,9 @@ var stagesSchema = new mongoose.Schema({
       "status": Boolean,
       "payment_value": {type: Number, default: 100000},
       "payment_file": String,
+      "payment_file_name": String,
       "nda_file": String,
+      "nda_file_name": String,
       "franchisee_id": String
     },
     "stage_kycupload":{"status": Boolean,
