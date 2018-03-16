@@ -12,6 +12,7 @@ aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
 });
+//carzwta
 var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
@@ -106,7 +107,7 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
     });
 });
 
-router.get('/get_type',function(req,res){
+router.get('/get_business_type',function(req,res){
     try{
         FranchiseeType.find({},function(err,type){
             if(err){
@@ -117,7 +118,7 @@ router.get('/get_type',function(req,res){
             }
             else{
                 return res.send({
-                    state:"suces",
+                    state:"success",
                     FranchiseeType:type
                 },200);
             }
@@ -131,7 +132,7 @@ router.get('/get_type',function(req,res){
     }
 });
 
-router.post('/set_type',function(req,res){
+router.post('/set_business_type',function(req,res){
     try{
         FranchiseeType.findOne({type_name:req.body.type_name},function(err,type){
             if(err){
