@@ -96,7 +96,7 @@ var DocSchema = new mongoose.Schema({
     "file_type": String,
     "stage_name": String,
     "date_uploaded":Date,
-    "is_provide": {type:String, default:'pending'}
+    "franchisor_response": {type:String, default:'inProgress'}
 });
 
 var FranchiseeTypeSchema = new mongoose.Schema({

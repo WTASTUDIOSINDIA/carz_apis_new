@@ -220,7 +220,7 @@ router.put('/send_mail',function(req,res){
                 var fromName = "CARZ";
                     var mailOptions={
                     to: "ikshit1@gmail.com,whyso.09@gmail.com",
-                    subject: 'Forgot Password Link',
+                    subject: req.body.subject,
                     from: "ikshitnodemailer@gmail.com",
                     headers: {
                         "X-Laziness-level": 1000,
@@ -231,9 +231,7 @@ router.put('/send_mail',function(req,res){
                         contentType: 'application/pdf',
                         path: 'https://celebappfiles.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf'
                     }],
-                    html: '<p style="color:#0079c1;">Hello'+' '+"franchisor.user_name"+'</p></br>'
-                    +'<p>Click on the link below to reset your password</p></br>'
-                    +'<a href="http://localhost:3000/reset_password/'+"fp.unique_code"+'">Click here to activate your account</a>'
+                    html: req.body.body
                     //html: '<a href="https://howdydev.herokuapp.com/resetpassword/'+pwdchangerequest.passcode+'">Click here to change your password</a>'
                 }
                 var transporter = nodemailer.createTransport({
