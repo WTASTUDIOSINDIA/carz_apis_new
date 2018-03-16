@@ -2,9 +2,10 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require( 'mongoose' );;
 var multer  = require('multer');
+var fs = require('fs');
 var path = require('path');
 var Meeting = mongoose.model('Meeting');
-
+var nodemailer = require('nodemailer');
 // to create meeting 
 router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
@@ -204,5 +205,66 @@ router.get('/get_all_meetings',function(req,res){
 		});
 	}
 });
+
+router.put('/send_mail',function(req,res){
+    try{
+        Meeting.findOne({franchisee_id:req.body.franchisee_id},function(err,franchise){
+            if(err){
+                return res({
+                    "state":"failure",
+                    "message":err
+                })
+            }
+            else{
+                var filepath ='https://celebappfiles.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf';
+                var fromName = "CARZ";
+                    var mailOptions={
+                    to: "ikshit1@gmail.com,whyso.09@gmail.com",
+                    subject: 'Forgot Password Link',
+                    from: "ikshitnodemailer@gmail.com",
+                    headers: {
+                        "X-Laziness-level": 1000,
+                        "charset" : 'UTF-8'
+                    },
+                    attachments: [{
+                        filename: "Application Form.pdf",
+                        contentType: 'application/pdf',
+                        path: 'https://celebappfiles.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf'
+                    }],
+                    html: '<p style="color:#0079c1;">Hello'+' '+"franchisor.user_name"+'</p></br>'
+                    +'<p>Click on the link below to reset your password</p></br>'
+                    +'<a href="http://localhost:3000/reset_password/'+"fp.unique_code"+'">Click here to activate your account</a>'
+                    //html: '<a href="https://howdydev.herokuapp.com/resetpassword/'+pwdchangerequest.passcode+'">Click here to change your password</a>'
+                }
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    secure: false, // use SSL
+                    port: 25, // port for secure SMTP
+                    auth: {
+                        user: 'ikshitnodemailer@gmail.com',
+                        pass: 'ikshit1007007'
+                    }
+                });
+                transporter.sendMail(mailOptions, function(error, response){
+                    if(error){
+                        return res.send(error);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:"Email send successfully"
+                        });
+                    }
+                });
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+})
 
 module.exports = router;

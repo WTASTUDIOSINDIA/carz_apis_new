@@ -37,6 +37,7 @@ var librarySchema = new mongoose.Schema({
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
+   
 });
 var partnerSchema = new mongoose.Schema({
     "partner_name": String,
@@ -89,11 +90,14 @@ var FolderSchema = new mongoose.Schema({
 
 var DocSchema = new mongoose.Schema({
     "doc_name": String,
-    "status": {type: String, default: 'inprogress'},
+    "status": {type: String, default: 'New'},
     "link": {type: Schema.Types.Mixed, default : {}},
     "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "file_type": String
-})
+    "file_type": String,
+    "stage_name": String,
+    "date_uploaded":Date,
+    "is_provide": {type:String, default:'pending'}
+});
 
 var FranchiseeTypeSchema = new mongoose.Schema({
     types :{
@@ -113,5 +117,5 @@ mongoose.model('Folder', FolderSchema);
 mongoose.model('Auth').Schema;
 mongoose.model('Partner', partnerSchema);
 mongoose.model('Meeting', meetingSchema);
-mongoose.model('Document', DocSchema);
+mongoose.model('Doc', DocSchema);
 mongoose.model('FranchiseeType', FranchiseeTypeSchema);

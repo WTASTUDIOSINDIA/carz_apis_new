@@ -19,7 +19,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'carztesting',
+        bucket:'celebappfiles',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -119,6 +119,18 @@ router.post('/upload_file',cpUpload,function(req,res){
 });
 
 
+router.post('/uploadDtaa',cpUpload,function(req,res){
+    try{
+        console.log("getData",req.body);
+        console.log("req.files",req.files);
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 router.get('/get_common_files/:uploaded_status',function(req,res){
     Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
         if(err){
@@ -174,25 +186,25 @@ router.get('/get_franchisee_files/:uploaded_status/:franchisee_Id',function(req,
 router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',function(req,res){
     Library.find({folder_Id:req.params.folder_Id,franchisee_Id:req.params.franchisee_Id},function(err,file){
         if(err){
-            res.send ({
+            return res.send ({
                 status: 500,
                 message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(file.length == 0){
-            res.send ({
-                status: 201,
+            return res.send ({
+                status: 404,
                 message: "No file are uploaded.",
                 state: "failure"
-            });
+            },404);
         }
         if(file){
-            res.send ({
+            return res.send ({
                 status: 200,
                 file: file,
                 state: "success"
-            });
+            },200);
         }
     });
 });
@@ -200,25 +212,25 @@ router.get('/get_franchisee_files_by_folder_Id/:folder_Id/:franchisee_Id',functi
 router.get('/get_folder_by_franchisee_id/:franchisee_id',function(req,res){
     Folder.find({franchisee_Id:req.params.franchisee_id, parent_folder_id : { $exists: false }},function(err,folder){
         if(err){
-            res.send ({
+            return res.send ({
                 status: 500,
                 message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(folder.length==0){
-            res.send ({
-                status: 201,
+            return res.send ({
+                status: 400,
                 message: "Folder not found.",
                 state: "failure"
-            });
+            },400);
         }
         if(folder.length>0){
-            res.send ({
+            return res.send ({
                 status: 200,
                 folder: folder,
                 state: "success"
-            });
+            },200);
         }
     });
 });
