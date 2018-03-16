@@ -32,47 +32,42 @@ var upload = multer({
 
 
 // To upload profile pic
-var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
-router.post('/profile_pic',cpUpload,function(req,res){
-    var file_details = (req.body);
-    console.log('file_details', file_details);
-    var files=[];
-    Franchisee.find({},function(err,profilepic){
-        if(err){
-            return res.send(err);
-        }
-        else{
-            var file = [];
-            var getNumber = 0;
-            var length = req.file.file_upload.length;
-            file=req.file.file_upload;
-                var franchisee = new Franchisee();
-                franchisee.path = file[i].location;
-                franchisee.key = file[i].key;
-                franchisee.file_name = file[i].originalname;
-                if(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg"){
-                    franchisee.image_type = "image";
-                }
-                franchisee.franchisee_id = req.body.franchisee_id;
-                file.push(franchisee);
+// var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+// router.post('/profile_pic',cpUpload,function(req,res){
+//     var file=[];
+//     Franchisee.find({},function(err,profilepic){
+//         if(err){
+//             return res.send(err);
+//         }
+//         else{
+//             var file = [];
+//             file=req.file.file_upload;
+//                 var franchisee = new Franchisee();
+//                 franchisee.path = file.location;
+//                 franchisee.key = file.key;
+//                 franchisee.file_name = file.originalname;
+//                 if(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg"){
+//                     franchisee.image_type = "image";
+//                 }
+//                 franchisee.franchisee_id = req.body.franchisee_id;
+//                 file.push();
             
-                file.save(function(err,file){
-                if(err){
-                        return res.send(err);
-                }
-                else{
-                    if(parseInt(length) == parseInt(getNumber)){
-                        res.send({
-                            status:'success',
-                            message:"Profile picture uploaded successfully!"
-                        },200);
-                    }
-                }
-            })
+//                 file.save(function(err,file){
+//                 if(err){
+//                         return res.send(err);
+//                 }
+//                 else{
+//                         res.send({
+//                             status:'success',
+//                             message:"Profile picture uploaded successfully!"
+//                         },200);
+                    
+//                 }
+//             })
             
-        }
-    });
-});
+//         }
+//     });
+// });
 
 
 //get all franchisees

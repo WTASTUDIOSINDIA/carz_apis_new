@@ -82,42 +82,26 @@ router.post('/upload_file',cpUpload,function(req,res){
    });
 });
 
-router.post('/uploadData',cpUpload,function(req,res){
-    try{
-        console.log("getData",req.body);
-        console.log("req.files",req.files);
-    }
-    catch(err){
-        res.send({
-            state:"error",
-            message:err
-        },500);
-    }
-});
-
 //to get uploded files
 router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
     Doc.find({uploaded_status:req.params.uploaded_status,franchisee_id:req.params.franchisee_id, stage_name:req.params.stage_name},function(err,file){
         if(err){
             res.send ({
-                status: 500,
                 message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(file.length == 0){
             res.send ({
-                status: 201,
                 message: "No file are uploaded.",
                 state: "failure"
-            });
+            },201);
         }
         if(file){
             res.send ({
-                status: 200,
                 file: file,
                 state: "success"
-            });
+            },200);
         }
     });
 });
