@@ -4,6 +4,7 @@ var mongoose = require( 'mongoose' );;
 var multer  = require('multer');
 var path = require('path');
 var Partner = mongoose.model('Partner');
+var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var KycUploads = mongoose.model('KycUploads');
@@ -250,8 +251,55 @@ router.delete('/delete_partner_franchisee/:id',function(req,res){
             }
             else{
                 res.send({
+                    "state":"success",
                     "message":"User deleted sucessfully",
                 },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+router.put('/make_default_profile',function(req,res){
+    try{
+        Partner.findById({_id:req.body.partnerId},function(err,partner){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!partner){
+                res.send({
+                    "message":"Unsucessfull",
+                    "partner_data":"failure"
+                },201);
+            }
+            else{
+                Franchisee.findOne({_id:partner.franchisee_id},function(err,franchisee){
+                    if(err){
+                        return res.send(500, err);
+                    }
+                    else{
+                        franchisee.franchisee_email = partner.partner_email;
+                        franchisee.franchisee_mobile_number = partner.partner_mobile_number;
+                        franchisee.franchisee_name = partner.partner_name;
+                        franchisee.lead_age = partner.partner_age;
+                        franchisee.franchisee_occupation = partner.partner_occupation;
+                        franchisee.save(function(err,franchisee){
+                            if(err){
+                                return res.send(500, err);
+                            }
+                            else{
+                                return res.send({
+                                    "state":"success",
+                                    "message":franchisee.franchisee_name+' '+ 'is your default profile'
+                                },200);
+                            }
+                        });
+                    }
+                });
             }
         })
     }
