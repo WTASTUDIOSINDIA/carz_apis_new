@@ -25,7 +25,9 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_area": String,
     "lead_age":Number,
     "lead_source":String,
-    "user_role": {type:String, default:'franchisee'}
+    "sub_stage":String,
+    "user_role": {type:String, default:'franchisee'},
+    "bussiness_type": String
 });
 
 var librarySchema = new mongoose.Schema({
@@ -66,7 +68,7 @@ var meetingSchema = new mongoose.Schema({
    "meeting_location": String,
    "meeting_date": String,
    "meeting_time": String,
-   "meeting_assigned_people": [],
+   "meeting_assigned_people": Array,
    "meeting_additional_services": String,
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
@@ -93,23 +95,41 @@ var DocSchema = new mongoose.Schema({
     "status": {type: String, default: 'New'},
     "link": {type: Schema.Types.Mixed, default : {}},
     "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "partner_id": {type: Schema.Types.ObjectId, ref: 'Partner'},
     "file_type": String,
     "stage_name": String,
     "date_uploaded":Date,
+    "key":String,
     "franchisor_response": {type:String, default:'inProgress'}
 });
 
-var FranchiseeTypeSchema = new mongoose.Schema({
-    types :{
-        type_name: {type:String},
-        type_files: {type: Array}
-    }
-//    "type_one":{type: Array,'default': [1, 2, 3]},
-//    "type_two":{type: Array,'default': [1, 2, 3]},
-//    "type_three":{type: Array,'default': [1, 2, 3]},
-//    "type_four":{type: Array,'default': [1, 2, 3]}
-})
+var BussinessTypeSchema = new mongoose.Schema({
+        bussiness_type_name: String,
+});
 
+var BussinessTypeListSchema = new mongoose.Schema({
+    "businessType_id": {type: Schema.Types.ObjectId, ref: 'FranchiseeType'},
+    "doc_name":String,
+    "doc_status":{type:String, default:'Pending'},
+    "doc_link":String,
+    "doc_type":{type:String,default:'docs'}
+});
+
+var KycSchema = new mongoose.Schema({
+    "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "partner_id": {type: Schema.Types.ObjectId, ref: 'Partner'},
+    "docs_types": Array
+});
+
+var ReasonSchema = new mongoose.Schema({
+    'reason_listed': String,
+    'reason_in_text': String,
+    'status' : String,
+    'doc_name' : String,
+    'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'partner_Id' :{type: Schema.Types.ObjectId, ref: 'Partner'},
+    'kyc_id' : {type: Schema.Types.ObjectId, ref: 'KycUploads'},
+  });
 
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
@@ -118,4 +138,7 @@ mongoose.model('Auth').Schema;
 mongoose.model('Partner', partnerSchema);
 mongoose.model('Meeting', meetingSchema);
 mongoose.model('Doc', DocSchema);
-mongoose.model('FranchiseeType', FranchiseeTypeSchema);
+mongoose.model('FranchiseeType', BussinessTypeSchema);
+mongoose.model('FranchiseeTypeList', BussinessTypeListSchema);
+mongoose.model('KycUploads', KycSchema);
+mongoose.model('Reasons', ReasonSchema);

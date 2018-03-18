@@ -6,7 +6,9 @@ var path = require('path');
 var Partner = mongoose.model('Partner');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
+var KycUploads = mongoose.model('KycUploads');
 var bCrypt = require('bcrypt-nodejs');
+var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
@@ -29,7 +31,6 @@ var upload = multer({
 
 // To Create Partner Franchisee
 router.post('/create_partner_franchisee', function(req, res){
-    console.log(req.body);
     var partnerForm = req.body;
     try{
         Partner.findOne({'partner_email': partnerForm.partner_email},function(err, partner){
@@ -62,10 +63,11 @@ router.post('/create_partner_franchisee', function(req, res){
                         },500);
                     }
                     else{
-                        res.send({
-                            state:"Success",
-                            message:"Partner franchisee created."
-                        },200);
+                        // res.send({
+                        //     state:"Success",
+                        //     message:"Partner franchisee created."
+                        // },200);
+                       kyc_Upload(req, res,partner,partnerForm);
                     }
                 });
             }
@@ -78,7 +80,36 @@ router.post('/create_partner_franchisee', function(req, res){
         });
     }
 });
-
+function kyc_Upload(req,res,partner,partnerForm){
+    FranchiseeTypeList.find({businessType_id:partnerForm.bussiness_type_id},function(err,type){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+            var kyc = new KycUploads();
+            kyc.franchisee_id = partner.franchisee_id;
+            kyc.partner_id = partner._id;
+            kyc.docs_types = type;
+            kyc.save(function(err,kyc){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                else{
+                    res.send({
+                        state:"Success",
+                        message:"Partner franchisee created."
+                    },200);
+                }
+            })
+        }
+    })
+}
 //update franchisee
 router.put('/edit_partner_franchisee', function(req, res, next) {
     var partnerEditForm = req.body;
