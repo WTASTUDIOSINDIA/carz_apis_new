@@ -797,7 +797,71 @@ function send_mail(req,res,stageForm){
             message:err
         });
     }
-}
+};
+
+router.get('/master_franchisee_list',function(req,res){
+    try{
+        Franchisee.find({user_role:"master_franchisee"},function(err,master_franchisee){
+            if(err){
+                return res.send({
+                    status:500,
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
+            }
+            if(master_franchisee.length == 0){
+                return res.send({
+                    state:"err",
+                    message:"Master franchisee not created yet"
+                },400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    data:master_franchisee
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+
+router.get('/master_franchisee/franchisee_list/:id',function(req,res){
+    try{
+        Franchisee.find({master_franchisee_id:req.params.id},function(err,franchisee){
+            if(err){
+                return res.send({
+                    status:500,
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
+            }
+            if(franchisee.length == 0){
+                return res.send({
+                    state:"err",
+                    message:"Master franchisee not created yet"
+                },400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    data:franchisee
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
 
 function generatePassword() {
     var length = 8,
