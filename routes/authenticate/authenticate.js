@@ -187,22 +187,6 @@ module.exports = function(passport){
     })
     //Reset Password
     router.post('/reset_password',function(req,res){
-    //    ForgotPassword.findOne({unique_code:req.body.unique_code},function(err,match){
-            // if(err){
-            //     res.send({
-            //         status:500,
-            //         state:"error",
-            //         message:"Something went wrong.We are looking into it."
-            //     });
-            // }
-            // if(!match){
-            //     res.send({
-            //         status:201,
-            //         state:"failure",
-            //         message:"Code didn't match."
-            //     });
-            // }
-            // if(match){
                 Franchisee.findOne({franchisee_email:req.body.franchisee_email},function(err,franchisee){
                     if(err){
                         res.send({
