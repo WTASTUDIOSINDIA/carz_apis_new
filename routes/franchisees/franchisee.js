@@ -248,7 +248,8 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
                 franchisee.user_role=franchiseeForm.user_role,
                 franchisee.franchisee_pass = createHash(generatePassword());
-                franchisee.bussiness_type = franchiseeForm.bussiness_type
+                franchisee.bussiness_type = franchiseeForm.bussiness_type;
+                franchisee.partners_list = 1;
 
                 // if(req.file){
                 //     var franchisee_pic = {};
@@ -267,11 +268,11 @@ router.post('/create_franchisee',  function(req, res) {
                 else{
                  
                     var partner = new Partner();
-                    partner.partner_name=franchisee.partner_name,
-                    partner.partner_occupation=franchisee.partner_occupation,
-                    partner.partner_email=franchisee.partner_email,
-                    partner.partner_mobile_number=franchisee.partner_mobile_number,
-                    partner.partner_age=franchisee.partner_age,
+                    partner.partner_name=franchisee.franchisee_name,
+                    partner.partner_occupation=franchisee.franchisee_occupation,
+                    partner.partner_email=franchisee.franchisee_email,
+                    partner.partner_mobile_number=franchisee.franchisee_mobile_number,
+                    partner.partner_age=franchisee.lead_age,
                     partner.franchisee_id=franchisee._id
                     partner.save(function(err,partner){
                         if(err){
@@ -343,6 +344,29 @@ router.get('/get_kyc_docs/:id', function(req,res){
             },400);
         }
         if(kyc.length > 0){
+            return res.send({
+                state:"success",
+                data:kyc
+            },200);
+        }
+    })
+});
+
+router.get('/get_kyc_docs_by_partner/:id/:partner_id', function(req,res){
+    KycUploads.findOne({franchisee_id:req.params.id,partner_id:req.params.partner_id},function(err,kyc){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(!kyc){
+            return res.send({
+                state:"failure",
+                message:"Data not foound"
+            },200);
+        }
+        if(kyc){
             return res.send({
                 state:"success",
                 data:kyc

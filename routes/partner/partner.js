@@ -64,11 +64,33 @@ router.post('/create_partner_franchisee', function(req, res){
                         },500);
                     }
                     else{
-                        // res.send({
-                        //     state:"Success",
-                        //     message:"Partner franchisee created."
-                        // },200);
-                       kyc_Upload(req, res,partner,partnerForm);
+                        Franchisee.findOne({_id:partnerForm.franchisee_id},function(err,franchiees){
+                            if(err){
+                                return res.send({
+                                    state:"err",
+                                    message:"Something went wrong. We are looking into it."
+                                },500);
+                            }
+                            else{
+                                if(franchiees.partners_list){
+                                    franchiees.partners_list = franchiees.partners_list + 1;
+                                }
+                                else{
+                                    franchiees.partners_list =  1;
+                                }
+                                franchiees.save(function(err,franchiees){
+                                    if(err){
+                                        return res.send({
+                                            state:"err",
+                                            message:"Updation in franchisee got wrong"
+                                        },500);
+                                    }
+                                    else{
+                                        kyc_Upload(req, res,partner,partnerForm);
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
