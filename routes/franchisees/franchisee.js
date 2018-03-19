@@ -59,7 +59,7 @@ var upload = multer({
 //                 }
 //                 franchisee.franchisee_id = req.body.franchisee_id;
 //                 file.push();
-            
+
 //                 file.save(function(err,file){
 //                 if(err){
 //                         return res.send(err);
@@ -69,10 +69,10 @@ var upload = multer({
 //                             status:'success',
 //                             message:"Profile picture uploaded successfully!"
 //                         },200);
-                    
+
 //                 }
 //             })
-            
+
 //         }
 //     });
 // });
@@ -247,7 +247,7 @@ router.post('/create_franchisee',  function(req, res) {
                 franchisee.lead_source=franchiseeForm.lead_source,
                 franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
                 franchisee.user_role=franchiseeForm.user_role,
-                franchisee.franchisee_pass = createHash(generatePassword());
+                franchisee.franchisee_pass = createHash('myunknownpassword');
                 franchisee.bussiness_type = franchiseeForm.bussiness_type;
                 franchisee.partners_list = 1;
 
@@ -266,7 +266,7 @@ router.post('/create_franchisee',  function(req, res) {
                     },500);
                    }
                 else{
-                 
+
                     var partner = new Partner();
                     partner.partner_name=franchisee.franchisee_name,
                     partner.partner_occupation=franchisee.franchisee_occupation,
@@ -688,7 +688,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 stage.stage_discussion.nda_file_uploaded = Date.now();
             }
             //'application_form'
-            
+
             if(stageForm.sub_stage == 'application_form'){
                 send_mail(req,res,stageForm);
                 stage.stage_discussion.status = "true";
@@ -722,7 +722,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
 
                 }
             })
-            
+
         }
             if(!stage){
             var stage = new Stages();
