@@ -72,8 +72,13 @@ router.post('/create_partner_franchisee', function(req, res){
                                 },500);
                             }
                             else{
-                                franchiees.partners_list = partners_list + 1;
-                                franchisee.save(function(err,franchiees){
+                                if(franchiees.partners_list){
+                                    franchiees.partners_list = franchiees.partners_list + 1;
+                                }
+                                else{
+                                    franchiees.partners_list =  1;
+                                }
+                                franchiees.save(function(err,franchiees){
                                     if(err){
                                         return res.send({
                                             state:"err",

@@ -350,6 +350,29 @@ router.get('/get_kyc_docs/:id', function(req,res){
             },200);
         }
     })
+});
+
+router.get('/get_kyc_docs_by_partner/:id/:partner_id', function(req,res){
+    KycUploads.findOne({franchisee_id:req.params.id,partner_id:req.params.partner_id},function(err,kyc){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(!kyc){
+            return res.send({
+                state:"failure",
+                message:"Data not foound"
+            },200);
+        }
+        if(kyc){
+            return res.send({
+                state:"success",
+                data:kyc
+            },200);
+        }
+    })
 })
 
 //create multiple franchisee
