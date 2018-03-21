@@ -13,6 +13,7 @@ require('./models/franchisors/franchisor')
 require('./models/crm/stages')
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
+var assessment = require('./routes/assessment/assessment');
 var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
@@ -78,6 +79,7 @@ app.use('/library',library);
 app.use('/partner', partner);
 app.use('/meeting', meeting);
 app.use('/document', document);
+app.use('/assessment', assessment);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {
