@@ -132,6 +132,25 @@ var ReasonSchema = new mongoose.Schema({
     'kyc_id' : {type: Schema.Types.ObjectId, ref: 'KycUploads'},
   });
 
+var QuestionTypeSchema = new mongoose.Schema({
+    'question_type_name':String
+});
+
+var InterviewQuestionSchema = new mongoose.Schema({
+    'question_EN':String,
+    'options':[{option:String,correct_answer:{type:Number,default:0}}],
+    'correct_answer':String,
+    'question_type_id':{type: Schema.Types.ObjectId, ref: 'QuestionType'}
+});
+
+// var AssessmentSchema = new mongoose.Schema({
+//     'assessment_list':Array,
+//     'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
+//     'partner_id':{type: Schema.Types.ObjectId, ref: 'Partner'},
+
+// });
+
+
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
 mongoose.model('Folder', FolderSchema);
@@ -143,3 +162,5 @@ mongoose.model('FranchiseeType', BussinessTypeSchema);
 mongoose.model('FranchiseeTypeList', BussinessTypeListSchema);
 mongoose.model('KycUploads', KycSchema);
 mongoose.model('Reasons', ReasonSchema);
+mongoose.model('QuestionType', QuestionTypeSchema);
+mongoose.model('Question', InterviewQuestionSchema);
