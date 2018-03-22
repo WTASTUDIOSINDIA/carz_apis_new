@@ -8,9 +8,13 @@ var upload = multer({ dest: 'public/uploads/' });
 var fs = require('fs');
 var path = require('path');
 var User = mongoose.model('User');
+var Franchisor = mongoose.model('Franchisor');
+var Franchisee = mongoose.model('Franchisee');
+var Admin = mongoose.model('Admin');
 
 router.post('/login',function(req,res){
     console.log("req.body",req.body.user_mail);
+
     try{
         User.findOne({user_mail:req.body.user_mail},function(err,user){
             if(err){
