@@ -321,6 +321,7 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
 });
 
 router.post('/create_Folder',function(req,res){
+    console.log('response', res);
     Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
         if(err){
             res.send ({
@@ -340,6 +341,12 @@ router.post('/create_Folder',function(req,res){
            var folder = new Folder();
            folder.folder_name = req.body.folder_name;
            folder.franchisee_Id = req.body.franchisee_Id;
+           folder.create_date = Date.now();
+           
+           if(req.body.crm_folder){
+            console.log('req.body.crm_folder', req.body.crm_folder);
+                folder.crm_folder = req.body.crm_folder;
+           }
            if(req.body.parent_folder_id){
              folder.parent_folder_id = req.body.parent_folder_id;
            }
@@ -419,6 +426,39 @@ router.post('/create_sub_folder',function(req,res){
         }
     });
 });
+
+// get folders api
+
+router.get('/get_crm_folders/:franchisee_id', function(req, res){
+    try{
+     Folder.find({franchisee_Id:req.params.franchisee_id, crm_folder:true}, function(err, folder){
+        if(err){
+          return res.send(500, err);
+        }
+        if(folder){
+          res.send({
+              "status":200,
+              "state":"success",
+              "data":folder
+          });
+        }
+        else {
+          res.send({
+              "status":201,
+              "state":"failure",
+              "data":[]
+          });
+        }
+      })
+    }
+       catch(err){
+        return res.send({
+          state:"error",
+          message:err
+        });
+        }
+});
+
 router.put('/edit_folder', function(req, res, next){
 
   var folderEditForm = req.body;
