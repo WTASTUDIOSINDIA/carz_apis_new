@@ -151,6 +151,7 @@ var InterviewQuestionSchema = new mongoose.Schema({
 var AssessmentSchema = new mongoose.Schema({
     'assessment_list':Array,
     'correct_answers':Number,
+    'total_questions':Number,
     'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'partner_id':{type: Schema.Types.ObjectId, ref: 'Partner'},
     'status': {type:String,default:'Pending'}

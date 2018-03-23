@@ -715,7 +715,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     },500);
                 }
                 else{
-
+console.log("stage", stage);
                         return res.send({
                             state:"success",
                             message:"Stage Updated",
@@ -728,7 +728,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
         }
             if(!stage){
             var stage = new Stages();
-            stage.franchisee_id = stageForm.franchisee_id;
+                stage.franchisee_id = stageForm.franchisee_id;
                 stage.stage_discussion.status = false;
                 stage.stage_discussion.payment_value = 100000;
                 stage.stage_discussion.payment_file =  req.file.location;
