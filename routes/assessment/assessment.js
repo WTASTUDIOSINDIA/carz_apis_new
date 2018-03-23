@@ -311,16 +311,35 @@ router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
                 },200);
             }
             if(report){
-                const obj = {
-                    "correct_answers": report.correct_answers,
-                    "total_question": report.total_questions
-                }; 
-                return res.send({
-                    state:"success",
-                    message:"Result is out",
-                    data:report,
-                    test_report:obj
-                },200);
+                Question_Type.find({},function(err,list){
+                    var graph_array = [];
+                    const obj = {
+                        "correct_answers": report.correct_answers,
+                        "total_question": report.total_questions
+                    };
+                    for(var i=0;i<list.length;i++){
+                        var ques = {
+                            ques_head_val:list[i].question_type_name,
+                            correct_opt : 0,
+                            total_ques_by_type:0
+                        };
+                        for(var j=0;j<report.assessment_list.length;j++){
+                            if((ques.ques_head_val == report.assessment_list[j].question_type)){
+                                    ques.total_ques_by_type = ques.total_ques_by_type + 1;
+                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                                    ques.correct_opt = ques.correct_opt + 1;
+                                }
+                            }
+                        }
+                        graph_array.push(ques);
+                    }
+                    return res.send({
+                        state:"success",
+                        message:"Result is out",
+                        data:report,
+                        graph_data:graph_array
+                    },200);
+                })
             }
         })
     }
