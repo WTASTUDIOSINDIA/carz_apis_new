@@ -5,6 +5,8 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
+var Assessment = mongoose.model('Assessment');
+
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
@@ -102,6 +104,7 @@ router.post('/question_list',function(req,res){
                 question.options = req.body.options;
                 question.correct_answer = req.body.correct_answer;
                 question.question_type_id = req.body.question_type_id;
+                question.question_type = req.body.question_type;
                 question.save(function(err,question){
                     if(err){
                         return res.send({
@@ -210,6 +213,7 @@ router.put('/update_question',function(req,res){
                 ques.options = req.body.options;
                 ques.correct_answer = req.body.correct_answer;
                 ques.question_type_id = req.body.question_type_id;
+                ques.question_type = req.body.question_type;
                 ques.save(function(err,ques){
                     if(err){
                         return res.send({
@@ -222,6 +226,60 @@ router.put('/update_question',function(req,res){
                             state:"success",
                             message:"Question created",
                             data:ques
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+router.put('/answer',function(req,res){
+    try{
+        Assessment.findOne({franchisee_id:req.body.franchisee_id,partner_id:req.body.partner_id},function(err,answer){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(answer){
+                return res.send({
+                    state:"failure",
+                    message:"This person has already attempt this test."
+                },200);
+            }
+            else{
+                var answer = new Assessment();
+                var right_answer = 0;
+                var answer_array = req.body.assessment_list;
+                for(var i=0;i<answer_array.length;i++){
+                    if(answer_array[i].correct_answer == answer_array[i].selected_option){
+                        right_answer = right_answer + 1;
+                    }
+                }
+                answer.assessment_list = req.body.assessment_list;
+                answer.franchisee_id = req.body.franchisee_id;
+                answer.partner_id = req.body.partner_id;
+                answer.correct_answers = right_answer;
+                answer.status = 'Completed';
+                answer.save(function(err,answer){
+                     if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:"Test Completed"
                         },200);
                     }
                 })
