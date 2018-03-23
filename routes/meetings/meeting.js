@@ -35,6 +35,7 @@ router.post('/create_meeting',  function(req, res) {
                meeting.meeting_time = meetingForm.meeting_time,
                meeting.assigned_people = meetingForm.meeting_assigned_people,
                meeting.meeting_additional_services = meetingForm.meeting_additional_services,
+               meeting.meeting_remarks = meetingForm.meeting_remarks
                meeting.franchisor_id = meetingForm.franchisor_id,
                meeting.franchisee_id = meetingForm.franchisee_id,
                meeting.stage_id = meetingForm.stage_id
@@ -204,6 +205,36 @@ router.get('/get_all_meetings',function(req,res){
 			message:err
 		});
 	}
+});
+
+// to get meetings by franchisee id
+router.get('/get_meeting_franchisee/:franchisee_id',function(req,res){
+    try{
+        Meeting.find({'franchisee_id':req.params.franchisee_id},function(err,meeting){
+
+            if(err){
+                return res.send(500, err);
+            }
+            if(!meeting){
+                res.send({
+                    "state":"failure",
+                    "data":[]
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    data:meeting
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
 });
 
 module.exports = router;
