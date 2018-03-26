@@ -6,7 +6,6 @@ var Franchisee = mongoose.model('Franchisee');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
-
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){

@@ -659,11 +659,10 @@ router.put('/edit_stage', cpUpload, function(req, res){
             if(stage){
                 //'payment'
                 if(stageForm.sub_stage == 'payment'){
-                    stage.stage_discussion.status = "false";
+                    stage.stage_discussion.status = false;
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file =  req.file.location;
                     stage.stage_discussion.payment_file_name =  req.file.originalname;
-
                 }
                 //'nda'
                 if(stageForm.sub_stage == 'nda'){
@@ -681,7 +680,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
                     send_mail(req,res,stageForm);
-                    stage.stage_discussion.status = "true";
+                    stage.stage_kycupload.status = true;
                 }
                 //aggrement
                 if(stageForm.sub_stage == 'aggrement'){
