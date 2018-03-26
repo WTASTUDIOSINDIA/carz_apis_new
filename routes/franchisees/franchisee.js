@@ -5,6 +5,7 @@ var multer  = require('multer');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
+var Library = mongoose.model('Library');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
 var fs = require('fs');
@@ -708,6 +709,10 @@ router.put('/edit_stage', cpUpload, function(req, res){
             };
 
             stage.save(function(err, stage){
+                if(req.file){
+                    upload_folder_file(req.file,  stage.fileStatus,  stage.folder_id);
+                }
+                
                 if(err){
                     return res.send({
                         state:"err",
@@ -729,6 +734,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
             if(!stage){
             var stage = new Stages();
             stage.franchisee_id = stageForm.franchisee_id;
+            stage.folder_id = stageForm.folder_id;
                 stage.stage_discussion.status = false;
                 stage.stage_discussion.payment_value = 100000;
                 stage.stage_discussion.payment_file =  req.file.location;
@@ -749,6 +755,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
 
                 else{
+                    upload_folder_file(req.file,  stage.fileStatus,  stage.folder_id);
                 var Discussion  = stage.stage_discussion;
                         return res.send({
                             state:"success",
@@ -898,6 +905,42 @@ function generatePassword() {
     }
     return retVal;
 }
+function upload_folder_file(obj, status, folder_Id){
+
+        var library = new Library();
+        library.path = obj.location;
+        library.key = obj.key;
+        library.file_name = obj.originalname;
+        if(obj.mimetype == "application/pdf"){
+            library.image_type = "pdf";
+        }
+        if(obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif"){
+            library.image_type = "image";
+        }
+        library.uploaded_status = status;
+        library.date_uploaded = Date.now();
+        library.folder_Id = folder_Id;
+
+
+library.save(function(err,library){
+    if(err){
+      res.send({
+         status:500,
+         state:"err",
+         message:"Something went wrong."
+     },500);
+    }
+ else{
+     res.send({
+         status:200,
+         state:"success",
+         message:"Franchisee Updated."
+     },200);
+ }
+ });
+ 
+}
+
 var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
