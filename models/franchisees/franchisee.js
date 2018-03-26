@@ -88,7 +88,11 @@ var FolderSchema = new mongoose.Schema({
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "create_date":Date,
     "parent_folder_id": String,
-    "path": Array
+    "path": Array,
+    "crm_folder": {
+        type:Boolean,
+        default:false
+    }
 });
 
 var DocSchema = new mongoose.Schema({
