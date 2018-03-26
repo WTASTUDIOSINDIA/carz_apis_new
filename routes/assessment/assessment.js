@@ -6,7 +6,6 @@ var Franchisee = mongoose.model('Franchisee');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
-
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
@@ -268,6 +267,7 @@ router.put('/answer',function(req,res){
                 answer.franchisee_id = req.body.franchisee_id;
                 answer.partner_id = req.body.partner_id;
                 answer.correct_answers = right_answer;
+                answer.total_questions = req.body.total_questions;
                 answer.status = 'Completed';
                 answer.save(function(err,answer){
                      if(err){
@@ -285,6 +285,62 @@ router.put('/answer',function(req,res){
                 })
             }
         });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
+    try{
+        Assessment.findOne({franchisee_id:req.params.franchisee_Id,partner_id:req.params.partner_Id},function(err,report){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(!report){
+                return res.send({
+                    state:"falure",
+                    message:"Franchisee has not attempt the test yet."
+                },200);
+            }
+            if(report){
+                Question_Type.find({},function(err,list){
+                    var graph_array = [];
+                    const obj = {
+                        "correct_answers": report.correct_answers,
+                        "total_question": report.total_questions
+                    };
+                    for(var i=0;i<list.length;i++){
+                        var ques = {
+                            ques_head_val:list[i].question_type_name,
+                            correct_opt : 0,
+                            total_ques_by_type:0
+                        };
+                        for(var j=0;j<report.assessment_list.length;j++){
+                            if((ques.ques_head_val == report.assessment_list[j].question_type)){
+                                    ques.total_ques_by_type = ques.total_ques_by_type + 1;
+                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                                    ques.correct_opt = ques.correct_opt + 1;
+                                }
+                            }
+                        }
+                        graph_array.push(ques);
+                    }
+                    return res.send({
+                        state:"success",
+                        message:"Result is out",
+                        data:report,
+                        graph_data:graph_array
+                    },200);
+                })
+            }
+        })
     }
     catch(err){
 		return res.send({

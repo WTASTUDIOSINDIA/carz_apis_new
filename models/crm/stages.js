@@ -13,6 +13,7 @@ var Schema = mongoose.Schema;
 // });
 var stagesSchema = new mongoose.Schema({
     "franchisee_id": String,
+    "folder_id": String,    
     "stage_profile": {type: Schema.Types.ObjectId, ref: 'Franchisee', status: "completed"},
     "stage_discussion":  {
       "status": Boolean,
@@ -27,10 +28,14 @@ var stagesSchema = new mongoose.Schema({
       "nda_file_type":{type:String,default:'docs'},
       "franchisee_id": String
     },
-    "stage_kycupload":{"status": Boolean,
-    "franchisee_id": String},
-    "stage_assessment": {"status": Boolean,
-      "franchisee_id": String},
+    "stage_kycupload":{
+      "status": Boolean,
+      "franchisee_id": String
+    },
+    "stage_assessment": {
+      "status": Boolean,
+      "franchisee_id": String
+    },
     "stage_agreenent":  {
       "status": Boolean,
       "agreement_value": {type: Number, default: 400000},

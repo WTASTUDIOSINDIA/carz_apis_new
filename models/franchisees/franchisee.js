@@ -88,7 +88,11 @@ var FolderSchema = new mongoose.Schema({
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "create_date":Date,
     "parent_folder_id": String,
-    "path": Array
+    "path": Array,
+    "crm_folder": {
+        type:Boolean,
+        default:false
+    }
 });
 
 var DocSchema = new mongoose.Schema({
@@ -147,6 +151,7 @@ var InterviewQuestionSchema = new mongoose.Schema({
 var AssessmentSchema = new mongoose.Schema({
     'assessment_list':Array,
     'correct_answers':Number,
+    'total_questions':Number,
     'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'partner_id':{type: Schema.Types.ObjectId, ref: 'Partner'},
     'status': {type:String,default:'Pending'}
