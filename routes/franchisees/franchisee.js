@@ -720,7 +720,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     },500);
                 }
                 else{
-
+console.log("stage", stage);
                         return res.send({
                             state:"success",
                             message:"Stage Updated",
