@@ -651,10 +651,10 @@ router.put('/edit_stage', cpUpload, function(req, res){
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
             if(err){
                 return res.send({
-                        status:500,
-                        state:"err",
-                        message:"Something went wrong.We are looking into it."
-                    },500);
+                    status:500,
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
             }
             if(stage){
                 //'payment'
@@ -680,25 +680,31 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
                     send_mail(req,res,stageForm);
-                    stage.stage_kycupload.status = true;
+                    stage.stage_discussion.status = true;
+                }
+                //assessment
+                if(stageForm.sub_stage == 'assessment'){
+                    stage.stage_assessment.status = true;
+                    stage.stage_assessment.franchisee_id = stageForm.franchisee_id;
                 }
                 //aggrement
                 if(stageForm.sub_stage == 'aggrement'){
-                    stage.stage_agreenent.status = "false";
+                    stage.stage_agreenent.status = false;
                     stage.stage_agreenent.agreement_value = 400000;
                     stage.stage_agreenent.agreement_file =  req.file.location;
                     stage.stage_agreenent.agreement_file_name =  req.file.originalname;
-                    franchisee_id = req.body.franchisee_id;
+                    franchisee_id = stageForm.franchisee_id;
                 }
                 //aggrement copy
                 if(stageForm.sub_stage == 'aggrement_Copy'){
+                    stage.stage_agreenent.status = true;
                     stage.stage_agreenent.final_agreement_file = req.file.location;
                     stage.stage_agreenent.final_agreement_file_name=req.file.originalname;
                 };
                 //save data in the table
                 stage.save(function(err, stage){
                     if(req.file){
-                        upload_folder_file(req.file,  stage.fileStatus,  stage.folder_id);
+                        upload_folder_file(req, res,req.file,  stage.fileStatus,  stage.folder_id);
                     }
                     if(err){
                         return res.send({
@@ -740,7 +746,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     }
 
                     else{
-                    upload_folder_file(req.file,  stage.fileStatus,  stage.folder_id);
+                    upload_folder_file(req, res,req.file,  stage.fileStatus,  stage.folder_id);
                     var Discussion  = stage.stage_discussion;
                         return res.send({
                             state:"success",
@@ -888,7 +894,7 @@ function generatePassword() {
     }
     return retVal;
 }
-function upload_folder_file(obj, status, folder_Id){
+function upload_folder_file(req, res, obj, status, folder_Id){
     var library = new Library();
     library.path = obj.location;
     library.key = obj.key;
