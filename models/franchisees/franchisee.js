@@ -71,6 +71,7 @@ var meetingSchema = new mongoose.Schema({
    "meeting_time": String,
    "meeting_assigned_people": Array,
    "meeting_additional_services": String,
+   "meeting_remarks": String,
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
    "stage_id": String
