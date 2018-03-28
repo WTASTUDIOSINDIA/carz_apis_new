@@ -28,10 +28,14 @@ var stagesSchema = new mongoose.Schema({
       "nda_file_type":{type:String,default:'docs'},
       "franchisee_id": String
     },
-    "stage_kycupload":{"status": Boolean,
-    "franchisee_id": String},
-    "stage_assessment": {"status": Boolean,
-      "franchisee_id": String},
+    "stage_kycupload":{
+      "status": Boolean,
+      "franchisee_id": String
+    },
+    "stage_assessment": {
+      "status": Boolean,
+      "franchisee_id": String
+    },
     "stage_agreenent":  {
       "status": Boolean,
       "agreement_value": {type: Number, default: 400000},
