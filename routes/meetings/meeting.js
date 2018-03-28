@@ -8,12 +8,12 @@ var Meeting = mongoose.model('Meeting');
 var Stages = mongoose.model('Stages');
 var nodemailer = require('nodemailer');
 // to create meeting 
+// 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
     try{
-        Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,
-        'stage_id':meetingForm.stage_id},function(err,meeting){
-                console.log('meeting',meeting);
+        Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'meeting_date':meetingForm.meeting_date,'meeting_time':meetingForm.meeting_time},function(err,meeting){
+            console.log("meeting",meeting);
             if(err){
                 return res.send({
                         state:"err",

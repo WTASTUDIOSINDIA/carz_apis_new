@@ -647,6 +647,7 @@ router.delete('/delete_stage/:id',function(req,res){
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
     var stageForm = JSON.parse(req.body.franchisee_id);
+    console.log("stageForm",stageForm);
     try{
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
             if(err){
@@ -704,7 +705,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //save data in the table
                 stage.save(function(err, stage){
                     if(req.file){
-                        upload_folder_file(req, res,req.file,  stage.fileStatus,  stage.folder_id);
+                         upload_folder_file(req, res,req.file,  stageForm.fileStatus, stageForm.folder_id,stageForm.franchisee_id);
                     }
                     if(err){
                         return res.send({
@@ -725,7 +726,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
             if(!stage){
                 var stage = new Stages();
                 stage.franchisee_id = stageForm.franchisee_id;
-                stage.folder_id = stageForm.folder_id;
+                stage.folder_id = stageForm.folder_Id;
                 stage.stage_discussion.status = false;
                 stage.stage_discussion.payment_value = 100000;
                 stage.stage_discussion.payment_file =  req.file.location;
@@ -738,15 +739,14 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 stage.stage_discussion.payment_file_uploaded = Date.now();
                 stage.save(function(err, stage){
+                    upload_folder_file(req, res,req.file,  stageForm.fileStatus, stageForm.folder_Id,stageForm.franchisee_id);
                     if(err){
                         return res.send({
                             state:"err",
                             message:"Something went wrong."
                         },500);
                     }
-
                     else{
-                    upload_folder_file(req, res,req.file,  stage.fileStatus,  stage.folder_id);
                     var Discussion  = stage.stage_discussion;
                         return res.send({
                             state:"success",
@@ -894,7 +894,7 @@ function generatePassword() {
     }
     return retVal;
 }
-function upload_folder_file(req, res, obj, status, folder_Id){
+function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
     var library = new Library();
     library.path = obj.location;
     library.key = obj.key;
@@ -908,6 +908,7 @@ function upload_folder_file(req, res, obj, status, folder_Id){
     library.uploaded_status = status;
     library.date_uploaded = Date.now();
     library.folder_Id = folder_Id;
+    library.franchisee_Id = franchisee_Id;
     library.save(function(err,library){
         if(err){
         res.send({
@@ -917,11 +918,6 @@ function upload_folder_file(req, res, obj, status, folder_Id){
         },500);
         }
     else{
-        res.send({
-            status:200,
-            state:"success",
-            message:"Franchisee Updated."
-        },200);
     }
     });
 }
