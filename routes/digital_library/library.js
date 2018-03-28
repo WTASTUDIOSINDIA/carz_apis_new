@@ -459,6 +459,7 @@ router.get('/get_crm_folders/:franchisee_id', function(req, res){
         }
 });
 
+
 router.put('/edit_folder', function(req, res, next){
 
   var folderEditForm = req.body;
@@ -673,6 +674,9 @@ router.get('/get_common_folder',function(req,res){
 		});
 	}
 });
+
+
+
 
 // To get common folder
 router.get('/get_common_sub_folder',function(req,res){
