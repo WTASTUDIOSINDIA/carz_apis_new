@@ -3,9 +3,12 @@ var router = express.Router();
 var mongoose = require( 'mongoose' );
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+var Partner = mongoose.model('Partner');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
+var Folder = mongoose.model('Folder');
+var Stages = mongoose.model('Stages');
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
@@ -239,6 +242,98 @@ router.put('/update_question',function(req,res){
 	}
 });
 
+function create_folder(req,res,franchisee_Id,status){
+    var folder = new Folder();
+    folder.folder_name = 'Agreement';
+    folder.franchisee_Id = franchisee_Id;
+    
+    if(status){
+        folder.crm_folder = status;
+    }
+    folder.create_date = Date.now();
+    folder.save(function(err,folder){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+    })
+}
+
+function update_stage(req,res,franchisee_id,status){
+    Stages.findOne({franchisee_id: franchisee_id}, function(err, stage){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+            stage.stage_assessment.status = true;
+            stage.stage_assessment.franchisee_id = franchisee_id;
+            stage.save(function(err,stage){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                else{
+                    create_folder(req,res,franchisee_id,status);
+                }
+            })
+        }
+    });
+}
+
+function check_franchisee_partners(req,res,franchisee_Id,status){
+    Partner.find({franchisee_id:franchisee_Id},function(err,partner){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(partner.length > 0){
+            var partner_status = 0;
+            for(var i = 0;i<partner.length; i++){
+                if(partner[i].test_completed == true){
+                    partner_status = partner_status + 1;
+                }
+                if(partner_status == partner.length){
+                    update_stage(req,res,franchisee_Id,status);
+                }
+            }
+        }
+    })
+}
+
+function update_partners(req,res,partner_id,status){
+    Partner.findOne({_id:partner_id},function(err,partner){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+            partner.test_completed = true;
+            partner.save(function(err,partner){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                else{
+                    check_franchisee_partners(req,res,partner.franchisee_id,status);
+                }
+            })
+        }
+    })
+}
+
 router.put('/answer',function(req,res){
     try{
         Assessment.findOne({franchisee_id:req.body.franchisee_id,partner_id:req.body.partner_id},function(err,answer){
@@ -249,6 +344,7 @@ router.put('/answer',function(req,res){
                 },500);
             }
             if(answer){
+                check_franchisee_partners(req,res,answer.franchisee_id);
                 return res.send({
                     state:"failure",
                     message:"This person has already attempt this test."
@@ -277,6 +373,7 @@ router.put('/answer',function(req,res){
                         },500);
                     }
                     else{
+                        update_partners(req,res,answer.partner_id,req.body.crm_status);
                         return res.send({
                             state:"success",
                             message:"Test Completed"

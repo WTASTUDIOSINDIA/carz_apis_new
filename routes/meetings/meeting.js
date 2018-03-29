@@ -8,12 +8,12 @@ var Meeting = mongoose.model('Meeting');
 var Stages = mongoose.model('Stages');
 var nodemailer = require('nodemailer');
 // to create meeting 
+// 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
     try{
-        Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,
-        'stage_id':meetingForm.stage_id},function(err,meeting){
-                console.log('meeting',meeting);
+        Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'meeting_date':meetingForm.meeting_date,'meeting_time':meetingForm.meeting_time},function(err,meeting){
+            console.log("meeting",meeting);
             if(err){
                 return res.send({
                         state:"err",
@@ -35,6 +35,7 @@ router.post('/create_meeting',  function(req, res) {
                meeting.meeting_time = meetingForm.meeting_time,
                meeting.assigned_people = meetingForm.meeting_assigned_people,
                meeting.meeting_additional_services = meetingForm.meeting_additional_services,
+               meeting.meeting_remarks = meetingForm.meeting_remarks
                meeting.franchisor_id = meetingForm.franchisor_id,
                meeting.franchisee_id = meetingForm.franchisee_id,
                meeting.stage_id = meetingForm.stage_id
@@ -154,32 +155,32 @@ router.delete('/delete_meeting/:id',function(req,res){
 
 //to get meeting by id
 router.get('/get_meeting/:franchisee_id/:stage_id',function(req,res){
-        try{
-            Meeting.findOne({'franchisee_id':req.params.franchisee_id,'stage_id':req.params.stage_id},function(err,meeting){
+    try{
+        Meeting.find({'franchisee_id':req.params.franchisee_id,'stage_id':req.params.stage_id},function(err,meeting){
 
-                if(err){
-                    return res.send(500, err);
-                }
-                if(!meeting){
-                    res.send({
-                        "state":"failure",
-                        "data":[]
-                    },400);
-                }
-                else{
-                    res.send({
-                        state:"success",
-                        data:meeting
-                    },200);
-                }
-            })
-        }
-        catch(err){
-            return res.send({
-                state:"error",
-                message:err
-            });
-        }
+            if(err){
+                return res.send(500, err);
+            }
+            if(!meeting){
+                res.send({
+                    "state":"failure",
+                    "data":[]
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    data:meeting
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
 });
 
 // to get all meetings
@@ -242,5 +243,34 @@ function update_stage_table(req, res,meeting){
 		},500);
 	}
 }
+// to get meetings by franchisee id
+router.get('/get_meeting_franchisee/:franchisee_id',function(req,res){
+    try{
+        Meeting.find({'franchisee_id':req.params.franchisee_id},function(err,meeting){
+
+            if(err){
+                return res.send(500, err);
+            }
+            if(!meeting){
+                res.send({
+                    "state":"failure",
+                    "data":[]
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    data:meeting
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
 
 module.exports = router;
