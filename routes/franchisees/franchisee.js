@@ -210,9 +210,10 @@ router.post('/validate_franchisee_pincode',  function(req, res) {
 //create franchisee
 router.post('/create_franchisee',upload.single('franchisee_img'),function(req, res) {
     var franchiseeForm =JSON.parse(req.body.franchisee);
+    console.log('franchiseeForm', franchiseeForm);
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
+        Franchisee.findOne({franchisee_email:franchiseeForm.franchisee_email},function(err,franchisee){
             if(err){
                 return res.send({
                         status:500,
@@ -242,6 +243,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_preferred_time=franchiseeForm.franchisee_preferred_time,
                 franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
                 franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
+                franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
                 franchisee.franchisee_pincode=franchiseeForm.franchisee_pincode,
