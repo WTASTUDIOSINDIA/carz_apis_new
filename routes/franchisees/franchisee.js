@@ -643,10 +643,42 @@ router.delete('/delete_stage/:id',function(req,res){
         });
     }
 });
+
+function update_franchisee(req, res, franchisee_id,val,stage){
+    Franchisee.findOne({_id:franchisee_id},function(err,franchiees){
+        if(err){
+            return res.send({
+                state:"err",
+                message:"Something went wrong."
+            },500);
+        }
+        else{
+            franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
+            franchiees.save(function(err,franchisee){
+                if(err){
+                    res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                }
+                else{
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated",
+                        data: stage
+                    },200);
+                }
+            });
+        }
+    })
+}
+
 //update_stage
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
     var stageForm = JSON.parse(req.body.franchisee_id);
+    var stage_Completed = 0;
     try{
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
             if(err){
@@ -680,10 +712,12 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
                     send_mail(req,res,stageForm);
+                    stage_Completed = 1;
                     stage.stage_discussion.status = true;
                 }
                 //assessment
                 if(stageForm.sub_stage == 'assessment'){
+                    stage_Completed = 1;
                     stage.stage_assessment.status = true;
                     stage.stage_assessment.franchisee_id = stageForm.franchisee_id;
                 }
@@ -697,6 +731,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //aggrement copy
                 if(stageForm.sub_stage == 'aggrement_Copy'){
+                    stage_Completed = 1;
                     stage.stage_agreenent.status = true;
                     stage.stage_agreenent.final_agreement_file = req.file.location;
                     stage.stage_agreenent.final_agreement_file_name=req.file.originalname;
@@ -713,11 +748,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         },500);
                     }
                     else{
-                        return res.send({
-                            state:"success",
-                            message:"Stage Updated",
-                            data: stage
-                        },200);
+                        update_franchisee(req, res, stageForm.franchisee_id,stage_Completed,stage);
                     }
                 })    
             }
@@ -746,12 +777,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         },500);
                     }
                     else{
-                    var Discussion  = stage.stage_discussion;
-                        return res.send({
-                            state:"success",
-                            message:"Stage Updated",
-                            data: stage
-                        },200);
+                        update_franchisee(req, res, stageForm.franchisee_id,stage_Completed,stage);
                     }
                 })
             }
