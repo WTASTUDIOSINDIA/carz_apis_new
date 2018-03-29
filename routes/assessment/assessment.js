@@ -7,6 +7,7 @@ var Partner = mongoose.model('Partner');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
+var Folder = mongoose.model('Folder');
 var Stages = mongoose.model('Stages');
 var _ = require('lodash');
 
@@ -241,7 +242,26 @@ router.put('/update_question',function(req,res){
 	}
 });
 
-function update_stage(req,res,franchisee_id){
+function create_folder(req,res,franchisee_Id,status){
+    var folder = new Folder();
+    folder.folder_name = 'Agreement';
+    folder.franchisee_Id = franchisee_Id;
+    
+    if(status){
+        folder.crm_folder = status;
+    }
+    folder.create_date = Date.now();
+    folder.save(function(err,folder){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+    })
+}
+
+function update_stage(req,res,franchisee_id,status){
     Stages.findOne({franchisee_id: franchisee_id}, function(err, stage){
         if(err){
             return res.send({
@@ -259,12 +279,15 @@ function update_stage(req,res,franchisee_id){
                         message:err
                     },500);
                 }
+                else{
+                    create_folder(req,res,franchisee_id,status);
+                }
             })
         }
     });
 }
 
-function check_franchisee_partners(req,res,franchisee_Id){
+function check_franchisee_partners(req,res,franchisee_Id,status){
     Partner.find({franchisee_id:franchisee_Id},function(err,partner){
         if(err){
             return res.send({
@@ -279,14 +302,14 @@ function check_franchisee_partners(req,res,franchisee_Id){
                     partner_status = partner_status + 1;
                 }
                 if(partner_status == partner.length){
-                    update_stage(req,res,franchisee_Id);
+                    update_stage(req,res,franchisee_Id,status);
                 }
             }
         }
     })
 }
 
-function update_partners(req,res,partner_id){
+function update_partners(req,res,partner_id,status){
     Partner.findOne({_id:partner_id},function(err,partner){
         if(err){
             return res.send({
@@ -304,7 +327,7 @@ function update_partners(req,res,partner_id){
                     },500);
                 }
                 else{
-                    check_franchisee_partners(req,res,partner.franchisee_id);
+                    check_franchisee_partners(req,res,partner.franchisee_id,status);
                 }
             })
         }
@@ -350,7 +373,7 @@ router.put('/answer',function(req,res){
                         },500);
                     }
                     else{
-                        update_partners(req,res,answer.partner_id);
+                        update_partners(req,res,answer.partner_id,req.body.crm_status);
                         return res.send({
                             state:"success",
                             message:"Test Completed"
