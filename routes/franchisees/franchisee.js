@@ -647,7 +647,6 @@ router.delete('/delete_stage/:id',function(req,res){
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
     var stageForm = JSON.parse(req.body.franchisee_id);
-    console.log("stageForm",stageForm);
     try{
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
             if(err){
@@ -705,7 +704,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //save data in the table
                 stage.save(function(err, stage){
                     if(req.file){
-                         upload_folder_file(req, res,req.file,  stageForm.fileStatus, stageForm.folder_id,stageForm.franchisee_id);
+                         upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
                     }
                     if(err){
                         return res.send({
@@ -720,7 +719,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                             data: stage
                         },200);
                     }
-                })      
+                })    
             }
             //If requesting it for first time
             if(!stage){
@@ -739,7 +738,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 stage.stage_discussion.payment_file_uploaded = Date.now();
                 stage.save(function(err, stage){
-                    upload_folder_file(req, res,req.file,  stageForm.fileStatus, stageForm.folder_Id,stageForm.franchisee_id);
+                    upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
                     if(err){
                         return res.send({
                             state:"err",
