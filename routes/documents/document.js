@@ -495,13 +495,22 @@ router.put('/reject_doc',function(req,res){
     }
 });
 router.put('/approve_doc',function(req,res){
+    var kycForm = req.body;
+    console.log("kycForm",kycForm);
     try{
-        KycUploads.findOne({_id : req.body.kyc_id},function(err,kyc){
+        KycUploads.findById({ _id : kycForm.kyc_id},function(err,kyc){
+            console.log('kyc11',kyc);
             if(err){
-                res.send({
+                return res.send({
                     state:"error",
                     message:err
                 },500);
+            }
+            if(!kyc){
+                return res.send({
+                    state:"failure",
+                    message:"Not found"
+                },200);
             }
             else{
                 var reason = new Reasons()
@@ -509,7 +518,7 @@ router.put('/approve_doc',function(req,res){
                 reason.doc_name  = req.body.doc_name;
                 reason.franchisee_Id  = req.body.franchisee_Id;
                 reason.partner_Id  = req.body.partner_Id;
-                reason.kyc_id = req.body.kyc_id;
+                reason.kyc_id =kyc._id;
                 reason.save(function(err,reason){
                     if(err){
                         res.send({
@@ -536,4 +545,5 @@ router.put('/approve_doc',function(req,res){
         },500);
     }
 });
+
 module.exports = router;
