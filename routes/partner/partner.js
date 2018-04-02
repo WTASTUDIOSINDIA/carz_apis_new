@@ -33,8 +33,10 @@ var upload = multer({
 // To Create Partner Franchisee
 router.post('/create_partner_franchisee', function(req, res){
     var partnerForm = req.body;
+    console.log('req.body', req.body);
     try{
         Partner.findOne({'partner_email': partnerForm.partner_email},function(err, partner){
+            console.log('partner', partner);
             if(err){
                 return res.send({
                     state:"err",
@@ -50,15 +52,16 @@ router.post('/create_partner_franchisee', function(req, res){
             if(!partner){
                 var partner = new Partner();
 
-                partner.partner_name=partnerForm.partner_name,
-                partner.partner_occupation=partnerForm.partner_occupation,
-                partner.partner_email=partnerForm.partner_email,
-                partner.partner_mobile_number=partnerForm.partner_mobile_number,
-                partner.partner_age=partnerForm.partner_age,
-                partner.partner_address=partnerForm.partner_address,
-                partner.partner_city=partnerForm.partner_city,
-                partner.partner_state=partnerForm.partner_state,
-                partner.partner_pincode=partnerForm.partner_pincode,
+                partner.partner_name = partnerForm.partner_name,
+                partner.partner_occupation = partnerForm.partner_occupation,
+                partner.partner_email = partnerForm.partner_email,
+                partner.partner_mobile_number = partnerForm.partner_mobile_number,
+                partner.partner_age = partnerForm.partner_age,
+                partner.partner_address = partnerForm.partner_address,
+                partner.partner_city = partnerForm.partner_city,
+                partner.partner_state = partnerForm.partner_state,
+                partner.partner_pincode = partnerForm.partner_pincode,
+                partner.partner_country = partnerForm.partner_country,
                 partner.franchisee_id=partnerForm.franchisee_id
                 partner.save(function(err,partner){
                     if(err){
@@ -69,6 +72,7 @@ router.post('/create_partner_franchisee', function(req, res){
                     }
                     else{
                         Franchisee.findOne({_id:partnerForm.franchisee_id},function(err,franchiees){
+                            console.log('franchiees', franchiees);
                             if(err){
                                 return res.send({
                                     state:"err",
