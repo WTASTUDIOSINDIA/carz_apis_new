@@ -48,16 +48,16 @@ router.post('/create_meeting',  function(req, res) {
                    }
                 else{
 
-                    if(meeting.stage_id == 'Kyc'){
+                    //if(meeting.stage_id == 'Kyc'){
                         update_stage_table(req, res,meeting);
-                    }
-                    else{
-                        return res.send({
-                            state:"success",
-                            message:"Meeting Scheduled .",
-                            meeting: meeting
-                        },200);
-                    }
+                    // }
+                    // else{
+                    //     return res.send({
+                    //         state:"success",
+                    //         message:"Meeting Scheduled .",
+                    //         meeting: meeting
+                    //     },200);
+                    // }
                 }
                 });
             }
@@ -227,11 +227,13 @@ function update_stage_table(req, res,meeting){
                     },500);
                 }
                 else{
-                    return res.send({
-                        state:"success",
-                        message:"Meeting Scheduled .",
-                        meeting: meeting
-                    },200);
+                    var stage_Completed = 1;
+                    update_franchisee(req, res, meeting.franchisee_id,stage_Completed);
+                    // return res.send({
+                    //     state:"success",
+                    //     message:"Meeting Scheduled .",
+                    //     meeting: meeting
+                    // },200);
                 }
             });
         });
@@ -242,6 +244,35 @@ function update_stage_table(req, res,meeting){
 			message:err
 		},500);
 	}
+}
+function update_franchisee(req, res, franchisee_id,val,stage){
+    Franchisee.findOne({_id:franchisee_id},function(err,franchiees){
+        if(err){
+            return res.send({
+                state:"err",
+                message:"Something went wrong."
+            },500);
+        }
+        else{
+            franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
+            franchiees.save(function(err,franchisee){
+                if(err){
+                    res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                }
+                else{
+                    return res.send({
+                        state:"success",
+                        message:"Stage Updated",
+                        data: stage
+                    },200);
+                }
+            });
+        }
+    })
 }
 // to get meetings by franchisee id
 router.get('/get_meeting_franchisee/:franchisee_id',function(req,res){
