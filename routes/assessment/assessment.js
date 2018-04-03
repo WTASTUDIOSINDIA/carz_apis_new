@@ -261,6 +261,35 @@ function create_folder(req,res,franchisee_Id,status){
     })
 }
 
+function update_franchisee(req, res, franchisee_id){
+    Franchisee.findOne({_id:franchisee_id},function(err,franchiees){
+        if(err){
+            return res.send({
+                state:"err",
+                message:"Something went wrong."
+            },500);
+        }
+        else{
+
+            ////////////////////////////////////// need to work
+                franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + 1;
+            
+            franchiees.save(function(err,franchisee){
+                if(err){
+                    res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                }
+                else{
+                    console.log("ewedwdsadasdsadsad");
+                }
+            });
+        }
+    })
+}
+
 function update_stage(req,res,franchisee_id,status){
     Stages.findOne({franchisee_id: franchisee_id}, function(err, stage){
         if(err){
@@ -302,6 +331,7 @@ function check_franchisee_partners(req,res,franchisee_Id,status){
                     partner_status = partner_status + 1;
                 }
                 if(partner_status == partner.length){
+                    console.log("to update partner");
                     update_stage(req,res,franchisee_Id,status);
                 }
             }
