@@ -111,7 +111,7 @@ var DocSchema = new mongoose.Schema({
 });
 
 var BussinessTypeSchema = new mongoose.Schema({
-        bussiness_type_name: String,
+    "bussiness_type_name": String,
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
