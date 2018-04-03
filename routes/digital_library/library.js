@@ -39,7 +39,6 @@ function deleteFile(key){
                 return res.send({ "error": err });
             }
             else{
-                console.log("here");
             }
         });
     }
@@ -121,8 +120,6 @@ router.post('/upload_file',cpUpload,function(req,res){
 
 router.post('/uploadDtaa',cpUpload,function(req,res){
     try{
-        console.log("getData",req.body);
-        console.log("req.files",req.files);
     }
     catch(err){
         res.send({
@@ -321,7 +318,6 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
 });
 
 router.post('/create_Folder',function(req,res){
-    console.log('response', res);
     Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
         if(err){
             res.send ({
@@ -344,7 +340,6 @@ router.post('/create_Folder',function(req,res){
            folder.create_date = Date.now();
            
            if(req.body.crm_folder){
-            console.log('req.body.crm_folder', req.body.crm_folder);
                 folder.crm_folder = req.body.crm_folder;
            }
            if(req.body.parent_folder_id){
@@ -459,6 +454,7 @@ router.get('/get_crm_folders/:franchisee_id', function(req, res){
         }
 });
 
+
 router.put('/edit_folder', function(req, res, next){
 
   var folderEditForm = req.body;
@@ -474,7 +470,6 @@ router.put('/edit_folder', function(req, res, next){
       }
 
       if(folder){
-        console.log(folderEditForm, "inside if folder");
         folder.folder_name = folderEditForm.folder_name
         folder.save(function(err, folder){
           if(err){
@@ -555,7 +550,6 @@ router.put('/delete_folder_by_Id',function(req,res){
 
 // To create common folder
 router.post('/create_common_folder',function(req,res){
-    console.log('Request body', req.body);
     Folder.findOne({folder_name:req.body.folder_name},function(err,folder){
         if(err){
             res.send ({
@@ -596,7 +590,6 @@ router.post('/create_common_folder',function(req,res){
 });
 // To create common sub folder
 router.post('/create_common_sub_folder',function(req,res){
-    console.log('Request body', req.body);
     Folder.findOne({folder_name:req.body.folder_name, parent_folder_id: req.body.parent_folder_id},function(err,folder){
         if(err){
             res.send ({
@@ -639,7 +632,6 @@ router.post('/create_common_sub_folder',function(req,res){
 
 // To get common folder
 router.get('/get_common_folder',function(req,res){
-    console.log('Request body', req.body);
     try{
     //  var franchisee_Id = 'franchisee_Id';
         Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }},function(err,folder){
@@ -673,6 +665,9 @@ router.get('/get_common_folder',function(req,res){
 		});
 	}
 });
+
+
+
 
 // To get common folder
 router.get('/get_common_sub_folder',function(req,res){
@@ -756,7 +751,6 @@ router.put('/update/folder/:id',function(req,res){
 
 // To get folder files folder id
 router.get('/get_folder_files_by_folder_Id/:folder_Id',function(req,res){
-    console.log('Request body', req.body);
     Library.find({folder_Id:req.params.folder_Id},function(err,file){
         if(err){
             res.send ({
@@ -834,20 +828,4 @@ router.post('/upload_folder_file',cpUpload,function(req,res){
     });
 });
 
-router.post('/test',cpUpload,function(req,res){
-    Library.find({},function(err,lib){
-        var file = {};
-        console.log("req.file",req.files.test_file);
-        file=req.files.test_file;
-            for(var i=0;i<file.length;i++){
-                file.path = file[i].location;
-                file.key = file[i].key;
-            }
-            res.send({
-                state:'success',
-                message:"file uploaded successfully !",
-                files_list:file
-            });
-    })
-});
 module.exports = router;
