@@ -110,7 +110,7 @@ function kyc_Upload(req,res,partner,partnerForm){
                 state:"error",
                 message:err
             },500);
-        }
+        } 
         else{
             var kyc = new KycUploads();
             kyc.franchisee_id = partner.franchisee_id;
