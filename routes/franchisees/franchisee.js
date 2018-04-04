@@ -444,6 +444,7 @@ router.put('/edit_franchisee',upload.single('franchisee_img'), function(req, res
                 franchisee.franchisee_email=franchiseeEditForm.franchisee_email,
                 franchisee.franchisee_city=franchiseeEditForm.franchisee_city,
                 franchisee.franchisee_state=franchiseeEditForm.franchisee_state,
+                franchisee.franchisee_pincode =franchiseeEditForm.franchisee_pincode,
                 franchisee.franchisee_address=franchiseeEditForm.franchisee_address,
                 franchisee.franchisee_mobile_number=franchiseeEditForm.franchisee_mobile_number,
                 franchisee.franchisee_investment=franchiseeEditForm.franchisee_investment,
