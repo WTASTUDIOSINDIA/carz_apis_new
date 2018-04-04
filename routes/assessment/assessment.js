@@ -3,8 +3,12 @@ var router = express.Router();
 var mongoose = require( 'mongoose' );
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+var Partner = mongoose.model('Partner');
 var Question_Type = mongoose.model('QuestionType');
 var Question = mongoose.model('Question');
+var Assessment = mongoose.model('Assessment');
+var Folder = mongoose.model('Folder');
+var Stages = mongoose.model('Stages');
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
@@ -102,6 +106,7 @@ router.post('/question_list',function(req,res){
                 question.options = req.body.options;
                 question.correct_answer = req.body.correct_answer;
                 question.question_type_id = req.body.question_type_id;
+                question.question_type = req.body.question_type;
                 question.save(function(err,question){
                     if(err){
                         return res.send({
@@ -210,6 +215,7 @@ router.put('/update_question',function(req,res){
                 ques.options = req.body.options;
                 ques.correct_answer = req.body.correct_answer;
                 ques.question_type_id = req.body.question_type_id;
+                ques.question_type = req.body.question_type;
                 ques.save(function(err,ques){
                     if(err){
                         return res.send({
@@ -227,6 +233,211 @@ router.put('/update_question',function(req,res){
                 })
             }
         });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+function create_folder(req,res,franchisee_Id,status){
+    var folder = new Folder();
+    folder.folder_name = 'Agreement';
+    folder.franchisee_Id = franchisee_Id;
+    
+    if(status){
+        folder.crm_folder = status;
+    }
+    folder.create_date = Date.now();
+    folder.save(function(err,folder){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+    })
+}
+
+function update_stage(req,res,franchisee_id,status){
+    Stages.findOne({franchisee_id: franchisee_id}, function(err, stage){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+            stage.stage_assessment.status = true;
+            stage.stage_assessment.franchisee_id = franchisee_id;
+            stage.save(function(err,stage){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                else{
+                    create_folder(req,res,franchisee_id,status);
+                }
+            })
+        }
+    });
+}
+
+function check_franchisee_partners(req,res,franchisee_Id,status){
+    Partner.find({franchisee_id:franchisee_Id},function(err,partner){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(partner.length > 0){
+            var partner_status = 0;
+            for(var i = 0;i<partner.length; i++){
+                if(partner[i].test_completed == true){
+                    partner_status = partner_status + 1;
+                }
+                if(partner_status == partner.length){
+                    update_stage(req,res,franchisee_Id,status);
+                }
+            }
+        }
+    })
+}
+
+function update_partners(req,res,partner_id,status){
+    Partner.findOne({_id:partner_id},function(err,partner){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+            partner.test_completed = true;
+            partner.save(function(err,partner){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                else{
+                    check_franchisee_partners(req,res,partner.franchisee_id,status);
+                }
+            })
+        }
+    })
+}
+
+router.put('/answer',function(req,res){
+    try{
+        Assessment.findOne({franchisee_id:req.body.franchisee_id,partner_id:req.body.partner_id},function(err,answer){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(answer){
+                check_franchisee_partners(req,res,answer.franchisee_id);
+                return res.send({
+                    state:"failure",
+                    message:"This person has already attempt this test."
+                },200);
+            }
+            else{
+                var answer = new Assessment();
+                var right_answer = 0;
+                var answer_array = req.body.assessment_list;
+                for(var i=0;i<answer_array.length;i++){
+                    if(answer_array[i].correct_answer == answer_array[i].selected_option){
+                        right_answer = right_answer + 1;
+                    }
+                }
+                answer.assessment_list = req.body.assessment_list;
+                answer.franchisee_id = req.body.franchisee_id;
+                answer.partner_id = req.body.partner_id;
+                answer.correct_answers = right_answer;
+                answer.total_questions = req.body.total_questions;
+                answer.status = 'Completed';
+                answer.save(function(err,answer){
+                     if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        update_partners(req,res,answer.partner_id,req.body.crm_status);
+                        return res.send({
+                            state:"success",
+                            message:"Test Completed"
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
+    try{
+        Assessment.findOne({franchisee_id:req.params.franchisee_Id,partner_id:req.params.partner_Id},function(err,report){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(!report){
+                return res.send({
+                    state:"falure",
+                    message:"Franchisee has not attempt the test yet."
+                },200);
+            }
+            if(report){
+                Question_Type.find({},function(err,list){
+                    var graph_array = [];
+                    const obj = {
+                        "correct_answers": report.correct_answers,
+                        "total_question": report.total_questions
+                    };
+                    for(var i=0;i<list.length;i++){
+                        var ques = {
+                            ques_head_val:list[i].question_type_name,
+                            correct_opt : 0,
+                            total_ques_by_type:0
+                        };
+                        for(var j=0;j<report.assessment_list.length;j++){
+                            if((ques.ques_head_val == report.assessment_list[j].question_type)){
+                                    ques.total_ques_by_type = ques.total_ques_by_type + 1;
+                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                                    ques.correct_opt = ques.correct_opt + 1;
+                                }
+                            }
+                        }
+                        graph_array.push(ques);
+                    }
+                    return res.send({
+                        state:"success",
+                        message:"Result is out",
+                        data:report,
+                        graph_data:graph_array
+                    },200);
+                })
+            }
+        })
     }
     catch(err){
 		return res.send({

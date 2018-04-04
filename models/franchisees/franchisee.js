@@ -61,8 +61,8 @@ var partnerSchema = new mongoose.Schema({
     "partner_preferred_date": String,
     "partner_preferred_time": String,
     "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "partner_profile_pic":{type: Schema.Types.Mixed, default : {}}
-
+    "partner_profile_pic":{type: Schema.Types.Mixed, default : {}},
+    "test_completed":{type:Boolean,default:false}
 });
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
@@ -71,6 +71,7 @@ var meetingSchema = new mongoose.Schema({
    "meeting_time": String,
    "meeting_assigned_people": Array,
    "meeting_additional_services": String,
+   "meeting_remarks": String,
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
    "stage_id": String
@@ -88,7 +89,11 @@ var FolderSchema = new mongoose.Schema({
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "create_date":Date,
     "parent_folder_id": String,
-    "path": Array
+    "path": Array,
+    "crm_folder": {
+        type:Boolean,
+        default:false
+    }
 });
 
 var DocSchema = new mongoose.Schema({
@@ -140,15 +145,18 @@ var InterviewQuestionSchema = new mongoose.Schema({
     'question_EN':String,
     'options':[{option:String,correct_answer:{type:Number,default:0}}],
     'correct_answer':String,
-    'question_type_id':{type: Schema.Types.ObjectId, ref: 'QuestionType'}
+    'question_type_id':{type: Schema.Types.ObjectId, ref: 'QuestionType'},
+    'question_type':String
 });
 
-// var AssessmentSchema = new mongoose.Schema({
-//     'assessment_list':Array,
-//     'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
-//     'partner_id':{type: Schema.Types.ObjectId, ref: 'Partner'},
-
-// });
+var AssessmentSchema = new mongoose.Schema({
+    'assessment_list':Array,
+    'correct_answers':Number,
+    'total_questions':Number,
+    'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'partner_id':{type: Schema.Types.ObjectId, ref: 'Partner'},
+    'status': {type:String,default:'Pending'}
+});
 
 
 mongoose.model('Franchisee', franchiseeSchema);
@@ -164,3 +172,4 @@ mongoose.model('KycUploads', KycSchema);
 mongoose.model('Reasons', ReasonSchema);
 mongoose.model('QuestionType', QuestionTypeSchema);
 mongoose.model('Question', InterviewQuestionSchema);
+mongoose.model('Assessment', AssessmentSchema);
