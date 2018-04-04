@@ -18,6 +18,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
+    "franchisee_franchise_type": String,
     "franchisee_stage_completed": {type:Number, default:1},
     "franchisee_remarks":String,
     "master_franchisee_id": String,
@@ -41,7 +42,7 @@ var librarySchema = new mongoose.Schema({
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
-   
+
 });
 var partnerSchema = new mongoose.Schema({
     "partner_name": String,
