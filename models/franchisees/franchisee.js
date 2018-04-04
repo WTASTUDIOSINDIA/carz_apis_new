@@ -18,6 +18,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
     "franchisee_franchise_model":String,
+    "franchisee_stage_completed": {type:Number, default:1},
     "franchisee_remarks":String,
     "master_franchisee_id": String,
     "franchisee_country": String,
@@ -110,7 +111,7 @@ var DocSchema = new mongoose.Schema({
 });
 
 var BussinessTypeSchema = new mongoose.Schema({
-        bussiness_type_name: String,
+    "bussiness_type_name": String,
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
