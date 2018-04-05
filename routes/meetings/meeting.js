@@ -34,7 +34,7 @@ router.post('/create_meeting',  function(req, res) {
                meeting.meeting_location = meetingForm.meeting_location,
                meeting.meeting_date = meetingForm.meeting_date,
                meeting.meeting_time = meetingForm.meeting_time,
-               meeting.assigned_people = meetingForm.meeting_assigned_people,
+               meeting.meeting_assigned_people = meetingForm.meeting_assigned_people,
                meeting.meeting_additional_services = meetingForm.meeting_additional_services,
                meeting.meeting_remarks = meetingForm.meeting_remarks
                meeting.franchisor_id = meetingForm.franchisor_id,
