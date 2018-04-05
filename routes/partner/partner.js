@@ -150,7 +150,6 @@ function kyc_Upload(req,res,partner,partnerForm){
 
 router.put('/edit_partner_franchisee', upload.single('partner_pic'), function(req, res, next) {
     var partnerEditForm = JSON.parse(req.body.partner);
-
     try{
         Partner.findOne({'_id':partnerEditForm._id},function(err,partner){
             if(err){
