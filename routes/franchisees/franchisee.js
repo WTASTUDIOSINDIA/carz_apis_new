@@ -275,6 +275,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.partner_country = franchiseeForm.partner_country,
                     partner.partner_state = franchiseeForm.partner_state,
                     partner.partner_city = franchiseeForm.partner_city,
+                    partner.partner_profile_pic = franchisee.franchisee_profile_pic,
                     partner.partner_pincode = franchiseeForm.partner_pincode,
                     partner.franchisee_id=franchisee._id
                     partner.save(function(err,partner){
