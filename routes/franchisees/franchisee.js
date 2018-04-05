@@ -60,7 +60,7 @@ var upload = multer({
 //                 }
 //                 franchisee.franchisee_id = req.body.franchisee_id;
 //                 file.push();
-            
+
 //                 file.save(function(err,file){
 //                 if(err){
 //                         return res.send(err);
@@ -70,10 +70,10 @@ var upload = multer({
 //                             status:'success',
 //                             message:"Profile picture uploaded successfully!"
 //                         },200);
-                    
+
 //                 }
 //             })
-            
+
 //         }
 //     });
 // });
@@ -237,6 +237,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_preferred_time=franchiseeForm.franchisee_preferred_time,
                 franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
                 franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
+                franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
                 franchisee.franchisee_pincode=franchiseeForm.franchisee_pincode,
@@ -244,7 +245,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.lead_source=franchiseeForm.lead_source,
                 franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
                 franchisee.user_role=franchiseeForm.user_role,
-                franchisee.franchisee_pass = createHash(generatePassword());
+                franchisee.franchisee_pass = createHash('mypassword');
                 franchisee.bussiness_type = franchiseeForm.bussiness_type;
                 franchisee.partners_list = 1;
 
@@ -263,7 +264,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     },500);
                    }
                 else{
-                 
+
                     var partner = new Partner();
                     partner.partner_name=franchisee.franchisee_name,
                     partner.partner_occupation=franchisee.franchisee_occupation,
@@ -294,7 +295,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
 		});
 	}
 });
-//Creating kyc table for the frachisee 
+//Creating kyc table for the frachisee
 function kyc_Upload(req,res,partner,franchisee,franchiseeForm){
     FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
         if(err){
@@ -443,6 +444,7 @@ router.put('/edit_franchisee',upload.single('franchisee_img'), function(req, res
                 franchisee.franchisee_email=franchiseeEditForm.franchisee_email,
                 franchisee.franchisee_city=franchiseeEditForm.franchisee_city,
                 franchisee.franchisee_state=franchiseeEditForm.franchisee_state,
+                franchisee.franchisee_pincode =franchiseeEditForm.franchisee_pincode,
                 franchisee.franchisee_address=franchiseeEditForm.franchisee_address,
                 franchisee.franchisee_mobile_number=franchiseeEditForm.franchisee_mobile_number,
                 franchisee.franchisee_investment=franchiseeEditForm.franchisee_investment,
@@ -450,6 +452,7 @@ router.put('/edit_franchisee',upload.single('franchisee_img'), function(req, res
                 franchisee.franchisee_preferred_time=franchiseeEditForm.franchisee_preferred_time,
                 franchisee.franchisee_how_soon_to_start=franchiseeEditForm.franchisee_how_soon_to_start,
                 franchisee.franchisee_franchise_model=franchiseeEditForm.franchisee_franchise_model,
+                franchisee.franchisee_franchise_type = franchiseeEditForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeEditForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeEditForm.lead_age,
                 franchisee.lead_source=franchiseeEditForm.lead_source
@@ -750,7 +753,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     else{
                         update_franchisee(req, res, stageForm.franchisee_id,stage_Completed,stage);
                     }
-                })    
+                })
             }
             //If requesting it for first time
             if(!stage){
@@ -950,4 +953,4 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
 var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
-module.exports = router;      
+module.exports = router;

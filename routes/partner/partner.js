@@ -134,8 +134,9 @@ function kyc_Upload(req,res,partner,partnerForm){
     })
 }
 //update franchisee
-router.put('/edit_partner_franchisee', function(req, res, next) {
-    var partnerEditForm = req.body;
+router.put('/edit_partner_franchisee', upload.single('partner_img'), function(req, res, next) {
+    var partnerEditForm = JSON.parse(req.body.partner);
+    console.log(partnerEditForm);
     try{
         Partner.findOne({'_id':partnerEditForm._id},function(err,partner){
             if(err){
@@ -165,7 +166,12 @@ router.put('/edit_partner_franchisee', function(req, res, next) {
                 partner.partner_remarks=partnerEditForm.partner_remarks,
                 partner.partner_preferred_date=partnerEditForm.partner_preferred_date,
                 partner.partner_preferred_time=partnerEditForm.partner_preferred_time
-
+                if(req.file){
+                    var partner_profile_pic = {};
+                    partner_profile_pic = req.file.location;
+                  //  partner_profile_pic.key = req.file.key;
+                    partner.partner_profile_pic = partner_profile_pic;
+                }
 
                 partner.save(function(err,partner){
                    if(err){
@@ -177,7 +183,8 @@ router.put('/edit_partner_franchisee', function(req, res, next) {
                 else{
                     res.send({
                         state:"success",
-                        message:"Partner franchisee Updated."
+                        message:"Partner franchisee Updated.",
+                        data:partner
                     },200);
                 }
                 });

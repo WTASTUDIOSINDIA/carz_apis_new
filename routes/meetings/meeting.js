@@ -8,7 +8,7 @@ var Franchisee = mongoose.model('Franchisee');
 var Meeting = mongoose.model('Meeting');
 var Stages = mongoose.model('Stages');
 var nodemailer = require('nodemailer');
-// to create meeting 
+// to create meeting
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
@@ -126,7 +126,7 @@ router.put('/edit_meeting', function(req, res, next) {
 	}
 });
 
-//to delete meeting 
+//to delete meeting
 router.delete('/delete_meeting/:id',function(req,res){
     try{
         Meeting.findByIdAndRemove({_id:req.params.id},function(err,meeting){
