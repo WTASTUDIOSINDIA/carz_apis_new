@@ -273,7 +273,6 @@ function update_franchisee(req, res, franchisee_id){
 
             ////////////////////////////////////// need to work
                 franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + 1;
-
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({

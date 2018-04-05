@@ -266,12 +266,19 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 else{
 
                     var partner = new Partner();
-                    partner.partner_name=franchisee.franchisee_name,
-                    partner.partner_occupation=franchisee.franchisee_occupation,
-                    partner.partner_email=franchisee.franchisee_email,
-                    partner.partner_mobile_number=franchisee.franchisee_mobile_number,
-                    partner.partner_age=franchisee.lead_age,
+                  
+                    partner.partner_name=partnerForm.partner_name,
+                    partner.partner_occupation=partnerForm.partner_occupation,
+                    partner.partner_email=partnerForm.partner_email,
+                    partner.partner_mobile_number=partnerForm.partner_mobile_number,
+                    partner.partner_age=partnerForm.partner_age,
+                    partner.partner_address = partnerForm.partner_address,
+                    partner.partner_city = partnerForm.partner_city,
+                    partner.partner_state = partnerForm.partner_state,
+                    partner.partner_pincode = partnerForm.partner_pincode,
+                    partner.partner_country = partnerForm.partner_country,
                     partner.franchisee_id=franchisee._id
+                    partner.partner_profile_pic = franchisee.franchisee_profile_pic
                     partner.save(function(err,partner){
                         if(err){
                             res.send({
