@@ -258,6 +258,9 @@ function create_folder(req,res,franchisee_Id,status){
                 message:err
             },500);
         }
+        else{
+            update_franchisee(req, res, franchisee_Id);
+        }
     })
 }
 
