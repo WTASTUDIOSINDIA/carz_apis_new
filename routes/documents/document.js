@@ -5,6 +5,7 @@ var multer  = require('multer');
 var path = require('path');
 var Doc = mongoose.model('Doc');
 var FranchiseeType = mongoose.model('FranchiseeType');
+var Library = mongoose.model('Library');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var _ = require('lodash');
 var KycUploads = mongoose.model('KycUploads');
@@ -32,8 +33,6 @@ var upload = multer({
         }
     })
 });
-
-
 // To upload files kyc
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/upload_file',cpUpload,function(req,res){
@@ -85,7 +84,6 @@ router.post('/upload_file',cpUpload,function(req,res){
         }
    });
 });
-
 //to get uploded files
 router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
     Doc.find({uploaded_status:req.params.uploaded_status,franchisee_id:req.params.franchisee_id, stage_name:req.params.stage_name},function(err,file){
@@ -109,7 +107,6 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
-
 router.get('/get_business_type',function(req,res){
     try{
         FranchiseeType.find({},function(err,type){
@@ -134,7 +131,6 @@ router.get('/get_business_type',function(req,res){
         },500);
     }
 });
-
 router.post('/set_business_type',function(req,res){
     try{
         FranchiseeType.findOne({bussiness_type_name:req.body.bussiness_type_name},function(err,type){
@@ -177,8 +173,6 @@ router.post('/set_business_type',function(req,res){
         },500);
     }
 });
-
-
 router.post('/create_business_type',function(req,res){
     try{
         FranchiseeTypeList.findOne({doc_name:req.body.doc_name},function(err,type){
@@ -254,8 +248,6 @@ router.delete('/delete/business_type/:id',function(req,res){
         },500);
     }
 });
-
-
 router.get('/get_business_type_list/:id',function(req,res){
     try{
         FranchiseeTypeList.find({businessType_id:req.params.id},function(err,type){
@@ -279,8 +271,7 @@ router.get('/get_business_type_list/:id',function(req,res){
             message:err
         },500);
     }
-})
-
+});
 router.delete('/delete/franchiseeType/:id',function(req,res){
     try{
         FranchiseeType.findByIdAndRemove({_id:req.params.id},function(err,type){
@@ -311,7 +302,33 @@ router.delete('/delete/franchiseeType/:id',function(req,res){
         },500);
     }
 });
-
+function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+    var library = new Library();
+    library.path = obj.location;
+    library.key = obj.key;
+    library.file_name = obj.originalname;
+    if(obj.mimetype == "application/pdf"){
+        library.image_type = "pdf";
+    }
+    if(obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif"){
+        library.image_type = "image";
+    }
+    library.uploaded_status = status;
+    library.date_uploaded = Date.now();
+    library.folder_Id = folder_Id;
+    library.franchisee_Id = franchisee_Id;
+    library.save(function(err,library){
+        if(err){
+            res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong."
+            },500);
+        }
+        else{
+        }
+    });
+}
 function update_kyc(req,res,kyc,message){
     KycUploads.findById({_id:kyc._id},function(err,update_kyc){
         if(err){
@@ -331,7 +348,6 @@ function update_kyc(req,res,kyc,message){
         }
     });
 }
-
 function update_business_type(req,res,getData,doc){
     KycUploads.findOne({franchisee_id:doc.franchisee_id,partner_id:doc.partner_id},function(err,kyc){
         if(err){
@@ -356,7 +372,6 @@ function update_business_type(req,res,getData,doc){
         }
     });
 }
-
 router.put('/upload_doc',upload.single('doc_file'),function(req,res){
     var getData=JSON.parse(req.body.document);
     try{
@@ -375,6 +390,7 @@ router.put('/upload_doc',upload.single('doc_file'),function(req,res){
         doc.stage_name= getData.stage_name;
         doc.date_uploaded=new Date();
         doc.save(function(err,doc){
+            upload_folder_file(req, res, req.file, getData.status, getData.folder_Id,getData.franchisee_id)
             if(err){
                 return res.send({
                     state:"error",
@@ -393,7 +409,19 @@ router.put('/upload_doc',upload.single('doc_file'),function(req,res){
         },500);
     }
 });
-
+function find_and_delete_file(req,res,lib_file){
+    // remove
+    Library.remove({path:lib_file},function(err,lib){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        else{
+        }
+    })
+}
 router.put('/delete_doc',function(req,res){
     try{
         KycUploads.findOne({_id : req.body.kyc_id},function(err,kyc){
@@ -408,6 +436,8 @@ router.put('/delete_doc',function(req,res){
                 var results=_.findIndex(kyc.docs_types, function(chr) {
                     return chr.doc_name == search;
                 });
+                console.log("kyc.docs_types[results].doc_link",kyc.docs_types[results].doc_link);
+                find_and_delete_file(req,res,kyc.docs_types[results].doc_link);
                 kyc.docs_types[results].doc_link = "";
                 update_kyc(req,res,kyc,"Doc deleted successfully!");
             }
@@ -420,7 +450,6 @@ router.put('/delete_doc',function(req,res){
         },500);
     }
 });
-
 router.put('/reject_doc',function(req,res){
     try{
         KycUploads.findOne({_id : req.body.kyc_id},function(err,kyc){
@@ -464,16 +493,24 @@ router.put('/reject_doc',function(req,res){
             message:err
         },500);
     }
-})
-
+});
 router.put('/approve_doc',function(req,res){
+    var kycForm = req.body;
+    console.log("kycForm",kycForm);
     try{
-        KycUploads.findOne({_id : req.body.kyc_id},function(err,kyc){
+        KycUploads.findById({ _id : kycForm.kyc_id},function(err,kyc){
+            console.log('kyc11',kyc);
             if(err){
-                res.send({
+                return res.send({
                     state:"error",
                     message:err
                 },500);
+            }
+            if(!kyc){
+                return res.send({
+                    state:"failure",
+                    message:"Not found"
+                },200);
             }
             else{
                 var reason = new Reasons()
@@ -481,7 +518,7 @@ router.put('/approve_doc',function(req,res){
                 reason.doc_name  = req.body.doc_name;
                 reason.franchisee_Id  = req.body.franchisee_Id;
                 reason.partner_Id  = req.body.partner_Id;
-                reason.kyc_id = req.body.kyc_id;
+                reason.kyc_id =kyc._id;
                 reason.save(function(err,reason){
                     if(err){
                         res.send({
@@ -507,6 +544,6 @@ router.put('/approve_doc',function(req,res){
             message:err
         },500);
     }
-})
+});
 
 module.exports = router;
