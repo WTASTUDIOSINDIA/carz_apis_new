@@ -267,10 +267,15 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
 
                     var partner = new Partner();
                     partner.partner_name=franchisee.franchisee_name,
-                    partner.partner_occupation=franchisee.franchisee_occupation,
+                    partner.partner_occupation=franchiseeForm.partner_occupation,
                     partner.partner_email=franchisee.franchisee_email,
-                    partner.partner_mobile_number=franchisee.franchisee_mobile_number,
-                    partner.partner_age=franchisee.lead_age,
+                    partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
+                    partner.partner_age=franchiseeForm.partner_age,
+                    partner.partner_address = franchiseeForm.partner_address,
+                    partner.partner_country = franchiseeForm.partner_country,
+                    partner.partner_state = franchiseeForm.partner_state,
+                    partner.partner_city = franchiseeForm.partner_city,
+                    partner.partner_pincode = franchiseeForm.partner_pincode,
                     partner.franchisee_id=franchisee._id
                     partner.save(function(err,partner){
                         if(err){

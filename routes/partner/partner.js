@@ -136,7 +136,6 @@ function kyc_Upload(req,res,partner,partnerForm){
 //update franchisee
 router.put('/edit_partner_franchisee', upload.single('partner_img'), function(req, res, next) {
     var partnerEditForm = JSON.parse(req.body.partner);
-    console.log(partnerEditForm);
     try{
         Partner.findOne({'_id':partnerEditForm._id},function(err,partner){
             if(err){
@@ -169,7 +168,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_img'), function(re
                 if(req.file){
                     var partner_profile_pic = {};
                     partner_profile_pic = req.file.location;
-                  //  partner_profile_pic.key = req.file.key;
+                    partner_profile_pic.key = req.file.key;
                     partner.partner_profile_pic = partner_profile_pic;
                 }
 
