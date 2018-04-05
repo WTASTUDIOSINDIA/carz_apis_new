@@ -110,7 +110,7 @@ function kyc_Upload(req,res,partner,partnerForm){
                 state:"error",
                 message:err
             },500);
-        } 
+        }
         else{
             var kyc = new KycUploads();
             kyc.franchisee_id = partner.franchisee_id;
@@ -134,8 +134,8 @@ function kyc_Upload(req,res,partner,partnerForm){
     })
 }
 //update franchisee
-router.put('/edit_partner_franchisee', function(req, res, next) {
-    var partnerEditForm = req.body;
+router.put('/edit_partner_franchisee', upload.single('partner_img'), function(req, res, next) {
+    var partnerEditForm = req.body.partner;
     try{
         Partner.findOne({'_id':partnerEditForm._id},function(err,partner){
             if(err){
@@ -165,7 +165,12 @@ router.put('/edit_partner_franchisee', function(req, res, next) {
                 partner.partner_remarks=partnerEditForm.partner_remarks,
                 partner.partner_preferred_date=partnerEditForm.partner_preferred_date,
                 partner.partner_preferred_time=partnerEditForm.partner_preferred_time
-
+                if(req.file){
+                    var partner_profile_pic = {};
+                    partner_profile_pic.path = req.file.location;
+                    partner_profile_pic.key = req.file.key;
+                    partner.partner_profile_pic = partner_profile_pic;
+                }
 
                 partner.save(function(err,partner){
                    if(err){
