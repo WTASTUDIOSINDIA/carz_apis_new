@@ -134,7 +134,7 @@ function kyc_Upload(req,res,partner,partnerForm){
     })
 }
 //update franchisee
-router.put('/edit_partner_franchisee', upload.single('partner_img'), function(req, res, next) {
+router.put('/edit_partner_franchisee', upload.single('partner_pic'), function(req, res, next) {
     var partnerEditForm = JSON.parse(req.body.partner);
     console.log(partnerEditForm);
     try{
