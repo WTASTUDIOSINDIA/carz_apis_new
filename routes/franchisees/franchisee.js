@@ -271,6 +271,11 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.partner_email=franchisee.franchisee_email,
                     partner.partner_mobile_number=franchisee.franchisee_mobile_number,
                     partner.partner_age=franchisee.lead_age,
+                    partner_address = franchisee.franchisee_address
+                    partner_city = franchisee.franchisee_city
+                    partner_state = franchisee.franchisee_state
+                    partner_country = franchisee.franchisee_country
+                    partner_pincode = franchisee.franchisee_pincode
                     partner.franchisee_id=franchisee._id,
                     partner.partner_profile_pic = franchisee.franchisee_profile_pic
                     partner.save(function(err,partner){

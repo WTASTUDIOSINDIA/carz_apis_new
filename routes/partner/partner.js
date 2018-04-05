@@ -61,7 +61,12 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                 partner.partner_email=partnerForm.partner_email,
                 partner.partner_mobile_number=partnerForm.partner_mobile_number,
                 partner.partner_age=partnerForm.partner_age,
-                partner.franchisee_id=partnerForm.franchisee_id
+                partner.franchisee_id=partnerForm.franchisee_id,
+                partner.partner_address = partnerForm.partner_address
+                partner.partner_city = partnerForm.partner_city
+                partner.partner_state = partnerForm.partner_state
+                partner.partner_country = partnerForm.partner_country
+                partner.partner_pincode = partnerForm.partner_pincode
                 
                 partner.save(function(err,partner){
                     if(err){
@@ -173,12 +178,12 @@ router.put('/edit_partner_franchisee', function(req, res, next) {
                 partner.partner_remarks=partnerEditForm.partner_remarks,
                 partner.partner_preferred_date=partnerEditForm.partner_preferred_date,
                 partner.partner_preferred_time=partnerEditForm.partner_preferred_time
-                    if(req.file){
-                    var partner_pic = {};
-                    partner_pic.path = req.file.location;
-                    partner_pic.key = req.file.key;
-                    partner.partner_profile_pic = partner_pic;
-                }
+                if(req.file){
+                var partner_pic = {};
+                partner_pic.path = req.file.location;
+                partner_pic.key = req.file.key;
+                partner.partner_profile_pic = partner_pic;
+            }
 
                 partner.save(function(err,partner){
                    if(err){
