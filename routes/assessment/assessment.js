@@ -246,7 +246,7 @@ function create_folder(req,res,franchisee_Id,status){
     var folder = new Folder();
     folder.folder_name = 'Agreement';
     folder.franchisee_Id = franchisee_Id;
-    
+
     if(status){
         folder.crm_folder = status;
     }
@@ -273,7 +273,6 @@ function update_franchisee(req, res, franchisee_id){
 
             ////////////////////////////////////// need to work
                 franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + 1;
-            
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({
