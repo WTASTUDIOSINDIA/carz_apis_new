@@ -258,6 +258,38 @@ function create_folder(req,res,franchisee_Id,status){
                 message:err
             },500);
         }
+        else{
+            update_franchisee(req, res, franchisee_Id);
+        }
+    })
+}
+
+function update_franchisee(req, res, franchisee_id){
+    Franchisee.findOne({_id:franchisee_id},function(err,franchiees){
+        if(err){
+            return res.send({
+                state:"err",
+                message:"Something went wrong."
+            },500);
+        }
+        else{
+
+            ////////////////////////////////////// need to work
+                franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + 1;
+            
+            franchiees.save(function(err,franchisee){
+                if(err){
+                    res.send({
+                        status:500,
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                }
+                else{
+                    console.log("ewedwdsadasdsadsad");
+                }
+            });
+        }
     })
 }
 
