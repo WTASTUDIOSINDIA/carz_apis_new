@@ -266,17 +266,20 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 else{
 
                     var partner = new Partner();
+
+
                     partner.partner_name=franchisee.franchisee_name,
                     partner.partner_occupation=franchiseeForm.partner_occupation,
-                    partner.partner_email=franchisee.franchisee_email,
+                    partner.partner_email=franchisee.partner_email,
                     partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
                     partner.partner_age=franchiseeForm.partner_age,
                     partner.partner_address = franchiseeForm.partner_address,
-                    partner.partner_country = franchiseeForm.partner_country,
-                    partner.partner_state = franchiseeForm.partner_state,
                     partner.partner_city = franchiseeForm.partner_city,
-                    partner.partner_profile_pic = franchisee.franchisee_profile_pic,
+                    partner.partner_state = franchiseeForm.partner_state,
                     partner.partner_pincode = franchiseeForm.partner_pincode,
+                    partner.partner_country = franchiseeForm.partner_country,
+                    partner.main_partner = true,
+
                     partner.franchisee_id=franchisee._id
                     partner.partner_profile_pic = franchisee.franchisee_profile_pic
                     partner.save(function(err,partner){
@@ -890,7 +893,7 @@ router.get('/master_franchisee_list',function(req,res){
 
 router.get('/master_franchisee/franchisee_list/:id',function(req,res){
     try{
-        Franchisee.find({master_franchisee_id:req.params.id},function(err,franchisee){
+        Franchisee.find( { $or:[{master_franchisee_id:req.params.id}, {_id: req.params.id} ]},function(err,franchisee){
             if(err){
                 return res.send({
                     status:500,

@@ -55,6 +55,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_pincode": String,
     "partner_mobile_number": Number,
     "partner_age": String,
+    "main_partner": {type:Boolean,default:false},
     "partner_lead_source": String,
     "partner_investment": String,
     "partner_franchisee_type": String,
