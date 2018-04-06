@@ -49,16 +49,16 @@ router.post('/create_meeting',  function(req, res) {
                    }
                 else{
 
-                    if(meeting.stage_id == 'Kyc'){
-                        update_stage_table(req, res,meeting);
-                    }
-                    else{
+                    // if(meeting.stage_id == 'Kyc'){
+                    //     update_stage_table(req, res,meeting);
+                    // }
+                    //else{
                         return res.send({
                             state:"success",
                             message:"Meeting Scheduled .",
                             meeting: meeting
                         },200);
-                    }
+                    //}
                 }
                 });
             }
