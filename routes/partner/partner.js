@@ -84,7 +84,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                                 },500);
                             }
                             else{
-                                console.log("franchiees",franchiees);
+                                
                                 if(franchiees.partners_list){
                                     franchiees.partners_list = franchiees.partners_list + 1;
                                 }
@@ -197,11 +197,35 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function(re
                     },500);
                    }
                 else{
-                    res.send({
-                        state:"success",
-                        message:"Partner franchisee Updated.",
-                        data:partner
-                    },200);
+                    Franchisee.findOne({_id:partner.franchisee_id},function(err,franchiees){
+                        if(err){
+                            return res.send({
+                                state:"err",
+                                message:"Something went wrong. We are looking into it."
+                            },500);
+                        }
+                        else{
+                            
+                            if(partner.main_partner){
+                                franchiees.franchisee_profile_pic = partner.partner_profile_pic;
+                            }
+                            franchiees.save(function(err,franchiees){
+                                if(err){
+                                    return res.send({
+                                        state:"err",
+                                        message:"Updation in franchisee got wrong"
+                                    },500);
+                                }
+                                else{
+                                    return res.send({
+                                        state:"success",
+                                        message:"Partner franchisee Updated.",
+                                        data:partner
+                                    },200);
+                                }
+                            });
+                        }
+                    });
                 }
                 });
             }
