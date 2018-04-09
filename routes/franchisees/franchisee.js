@@ -535,6 +535,35 @@ router.delete('/delete_franchisee/:id',function(req,res){
         });
     }
 });
+//delete franchisee
+router.delete('/delete_franchisees',function(req,res){
+    try{
+        Franchisee.remove({},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!franchisee){
+                res.send({
+                    "status":400,
+                    "message":"Unsucessfull",
+                    "franchisees_data":"failure"
+                },400);
+            }
+            else{
+                res.send({
+                    "status":"200",
+                    "message":"Franchisees deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
 //for get stagesSchema
 router.get('/get_stages/:franchisee_id', function(req, res){
     try{
