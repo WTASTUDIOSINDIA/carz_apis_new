@@ -8,6 +8,7 @@ var FranchiseeType = mongoose.model('FranchiseeType');
 var Library = mongoose.model('Library');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var _ = require('lodash');
+var nodemailer = require('nodemailer');
 var KycUploads = mongoose.model('KycUploads');
 var Reasons = mongoose.model('Reasons');
 var aws = require('aws-sdk');
@@ -329,7 +330,43 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
         }
     });
 }
-function update_kyc(req,res,kyc,message){
+
+function notify_user(req,res,message,reason){
+    var fromName = "CARZ";
+                    var mailOptions={
+                    to: 'saivishnu.edala@gmail.com',
+                    subject: 'notify',
+                    from: "ikshitnodemailer@gmail.com",
+                    headers: {
+                        "X-Laziness-level": 1000,
+                        "charset" : 'UTF-8'
+                    },
+                    
+                    html: 'file got rejected'
+                }
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    secure: false, // use SSL
+                    port: 25, // port for secure SMTP
+                    auth: {
+                        user: 'ikshitnodemailer@gmail.com',
+                        pass: 'ikshit1007007'
+                    }
+                });
+                transporter.sendMail(mailOptions, function(error, response){
+                    if(error){
+                        return res.send(error);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:message
+                        },200);
+                    }
+                });
+}
+
+function update_kyc(req,res,kyc,message,reason){
     KycUploads.findById({_id:kyc._id},function(err,update_kyc){
         if(err){
             return res.send({
@@ -340,10 +377,11 @@ function update_kyc(req,res,kyc,message){
         else{
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
-                res.send({
-                    state:"success",
-                    message:message
-                },200);
+                notify_user(req,res,message,reason);            
+                // res.send
+                  //  state:"success",
+                //    message:message
+              //  },200);
             });
         }
     });
@@ -481,7 +519,7 @@ router.put('/reject_doc',function(req,res){
                             return chr.doc_name == search;
                         });
                         kyc.docs_types[results].doc_link = "";
-                        update_kyc(req,res,kyc,"Doc rejected!");
+                        update_kyc(req,res,kyc,"Doc rejected!",reason);
                     }
                 });
             }
