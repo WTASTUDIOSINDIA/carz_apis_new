@@ -161,6 +161,13 @@ var AssessmentSchema = new mongoose.Schema({
     'status': {type:String,default:'Pending'}
 });
 
+var ApplicationSchema = new mongoose.Schema({
+    'question_EN':String,
+    'question_type':String,
+    'options': Array,
+    'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+   })
+
 
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
@@ -176,3 +183,5 @@ mongoose.model('Reasons', ReasonSchema);
 mongoose.model('QuestionType', QuestionTypeSchema);
 mongoose.model('Question', InterviewQuestionSchema);
 mongoose.model('Assessment', AssessmentSchema);
+mongoose.model('Application', ApplicationSchema);
+
