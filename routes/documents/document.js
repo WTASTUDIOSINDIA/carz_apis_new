@@ -7,6 +7,7 @@ var Doc = mongoose.model('Doc');
 var FranchiseeType = mongoose.model('FranchiseeType');
 var Library = mongoose.model('Library');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
+var Application = mongoose.model('Application');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
 var KycUploads = mongoose.model('KycUploads');
@@ -584,4 +585,54 @@ router.put('/approve_doc',function(req,res){
     }
 });
 
+// application form
+router.post('/application_form',function(req,res){
+    var applicationForm = req.body
+    console.log("applicationForm",applicationForm);
+    try{
+        Application.findOne({franchisee_id:req.body.franchisee_id,question_EN:req.body.question_EN},function(err,ques){
+            console.log('application')
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(ques){
+                return res.send({
+                    state:"failure",
+                    message:"Application created already"
+                },200);
+            }
+            else{
+                var application = new Application();
+                application.question_EN = req.body.question_EN;
+                application.question_type = req.body.question_type;
+                application.options = req.body.options;
+                application.franchisee_id=req.body.franchisee_id,
+                application.save(function(err,application){
+                    if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:"Application created",
+                            data:application
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
 module.exports = router;

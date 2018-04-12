@@ -116,7 +116,7 @@ router.get('/get_franchisee/:id',function(req,res){
                 return res.send(500, err);
             }
             if(!franchisee){
-                res.send({
+                res.send({  
                     "status":400,
                     "state":"failure",
                     "franchisees_data":[]
@@ -692,6 +692,7 @@ function update_franchisee(req, res, franchisee_id,val,stage){
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
     var stageForm = JSON.parse(req.body.franchisee_id);
+    console.log(stageForm);
     var stage_Completed = 0;
     try{
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
@@ -703,6 +704,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 },500);
             }
             if(stage){
+                console.log(stageForm);
                 //'payment'
                 if(stageForm.sub_stage == 'payment'){
                     stage.stage_discussion.status = false;
@@ -722,6 +724,13 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         stage.stage_discussion.nda_file_type = "image";
                     }
                     stage.stage_discussion.nda_file_uploaded = Date.now();
+                }
+                //kyc background verification upload
+                if(stageForm.sub_stage == 'kycupload'){
+                    console.log(req.file);
+                    // stage.stage_kycupload = false;
+                    stage.stage_kycupload.bgverification_file_link = req.file.location;
+                    stage.stage_kycupload.bgverification_file_name = req.file.originalname;
                 }
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
