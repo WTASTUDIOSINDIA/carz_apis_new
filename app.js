@@ -18,6 +18,7 @@ var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
 var document = require('./routes/documents/document');
+var application = require('./routes/application/application');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
@@ -80,6 +81,7 @@ app.use('/partner', partner);
 app.use('/meeting', meeting);
 app.use('/document', document);
 app.use('/assessment', assessment);
+app.use('/application', application);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {

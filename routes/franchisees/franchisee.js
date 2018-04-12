@@ -667,6 +667,7 @@ function update_franchisee(req, res, franchisee_id,val,stage){
         }
         else{
             franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
+            franchiees.first_lakh_payment = 'Submitted';
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({
@@ -771,11 +772,44 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         },500);
                     }
                     else{
-                        return res.send({
-                            state:"success",
-                            message:"Stage Updated",
-                            data: stage
-                        },200);
+                        if(stage.stage_agreenent.agreement_file){
+                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                                if(err){
+                                    return res.send({
+                                        state:"err",
+                                        message:"Something went wrong."
+                                    },500);
+                                }
+                                else{
+                                    //franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
+                                    franchiees.second_lakh_payment = 'Submitted';
+                                    franchiees.save(function(err,franchisee){
+                                        if(err){
+                                            res.send({
+                                                status:500,
+                                                state:"err",
+                                                message:"Something went wrong."
+                                            },500);
+                                        }
+                                        else{
+                                            return res.send({
+                                                state:"success",
+                                                message:"Stage Updated",
+                                                data: stage,
+                                                franchiees:franchiees
+                                            },200);
+                                        }
+                                    });
+                                }
+                            })
+                        }
+                        else{
+                            return res.send({
+                                state:"success",
+                                message:"Stage Updated",
+                                data: stage
+                            },200);
+                        }
                         //update_franchisee(req, res, stageForm.franchisee_id,stage_Completed,stage);
                     }
                 })
