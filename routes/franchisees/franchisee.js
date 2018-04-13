@@ -9,6 +9,7 @@ var Library = mongoose.model('Library');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
 var fs = require('fs');
+var csv = require('csv')
 var path = require('path');
 var Meeting = mongoose.model('Meeting');
 var nodemailer = require('nodemailer');
@@ -1064,4 +1065,50 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
 var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
+
+
+var request = require("request"),
+ csv = require("csv");
+
+
+    // accepts the POST form submit of the CSV file
+    router.post("/upload/data", function(req, res) {
+        // the name under "files" must correspond to the name of the
+        // file input field in the submitted form (here: "csvdata")
+        csv().from.path(req.files.csvdata.path, {
+            delimiter: ",",
+            escape: '"'
+        })
+        // when a record is found in the CSV file (a row)
+        .on("record", function(row, index) {
+            var franchisee_name, frachisee_email;
+
+            // skip the header row
+            if (index === 0) {
+                return;
+            }
+
+            // read in the data from the row
+            franchisee_name = row[0].trim();
+            frachisee_email = row[1].trim();
+            console.log(franchisee_email);
+            console.log(franchisee_name);
+            franchisee.save();
+
+
+            // perform some operation with the data
+            // ...
+        })
+        // when the end of the CSV document is reached
+        .on("end", function() {
+            // redirect back to the root
+            res.redirect("/");
+        })
+        // if any errors occur
+        .on("error", function(error) {
+            console.log(error.message);
+        });
+    });
+
+
 module.exports = router;

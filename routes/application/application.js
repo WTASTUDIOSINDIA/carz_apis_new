@@ -83,7 +83,7 @@ router.post('/application_form',function(req,res){
 		},500);
 	}
 });
-
+// get questions by franchisee id
 router.get('/get_questions_list/:franchisee_id',function(req,res){
     try{
         Application.find({franchisee_Id:req.params.franchisee_id},function(err,questions){
@@ -115,6 +115,7 @@ router.get('/get_questions_list/:franchisee_id',function(req,res){
     }
 })
 
+//get all questions
 router.get('/getAll',function(req,res){
     try{
         Application.find({},function(err,ques){
@@ -145,7 +146,7 @@ router.get('/getAll',function(req,res){
         },500);
     }
 })
-//delete question
+//delete question by question id
 router.delete('/delete/question/:id',function(req,res){
     try{
         console.log("dsfsdfsd",req.params.id);
