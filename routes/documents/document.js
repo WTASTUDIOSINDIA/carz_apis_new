@@ -378,11 +378,15 @@ function update_kyc(req,res,kyc,message,reason){
         else{
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
-                notify_user(req,res,message,reason);            
-                // res.send
-                  //  state:"success",
-                //    message:message
-              //  },200);
+                if(message === "Doc rejected!"){
+                    notify_user(req,res,message,reason);
+                }          
+                else{
+                    res.send({
+                        state:"success",
+                        message:message
+                    },200);
+                }
             });
         }
     });
@@ -407,6 +411,7 @@ function update_business_type(req,res,getData,doc){
                 return chr.doc_name == search;
               });
             kyc.docs_types[results].doc_link = doc.link;
+            kyc.docs_types[results].doc_status = 'Uploaded';
             update_kyc(req,res,kyc,"Uploaded successfully");
         }
     });
@@ -475,9 +480,9 @@ router.put('/delete_doc',function(req,res){
                 var results=_.findIndex(kyc.docs_types, function(chr) {
                     return chr.doc_name == search;
                 });
-                console.log("kyc.docs_types[results].doc_link",kyc.docs_types[results].doc_link);
                 find_and_delete_file(req,res,kyc.docs_types[results].doc_link);
                 kyc.docs_types[results].doc_link = "";
+                kyc.docs_types[results].doc_status = 'Pending';
                 update_kyc(req,res,kyc,"Doc deleted successfully!");
             }
         });
@@ -520,6 +525,7 @@ router.put('/reject_doc',function(req,res){
                             return chr.doc_name == search;
                         });
                         kyc.docs_types[results].doc_link = "";
+                        kyc.docs_types[results].doc_status = 'Rejected';
                         update_kyc(req,res,kyc,"Doc rejected!",reason);
                     }
                 });
@@ -571,7 +577,7 @@ router.put('/approve_doc',function(req,res){
                             return chr.doc_name == search;
                         });
                         kyc.docs_types[results].doc_status = 'Approved';
-                        update_kyc(req,res,kyc,"Doc rejected!");
+                        update_kyc(req,res,kyc,"Doc approved!");
                     }
                 });
             }

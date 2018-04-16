@@ -169,7 +169,13 @@ var ApplicationSchema = new mongoose.Schema({
     'options': Array,
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'isRequire':{type:Boolean,default:false}
-   })
+})
+
+var ApplicationSubmittedSchema = new mongoose.Schema({
+    'answers': Array,
+    'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "application_status":{type:String,default:'Submitted'}
+})
 
 
 mongoose.model('Franchisee', franchiseeSchema);
@@ -187,4 +193,5 @@ mongoose.model('QuestionType', QuestionTypeSchema);
 mongoose.model('Question', InterviewQuestionSchema);
 mongoose.model('Assessment', AssessmentSchema);
 mongoose.model('Application', ApplicationSchema);
+mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
 

@@ -1110,5 +1110,52 @@ var request = require("request"),
         });
     });
 
+    router.post('/import_franchisee',  function(req, res) {
+        var franchiseeMultipleForm = req.body;
+        try{
+            Franchisee.find({},function(err,franchisee){
+                if(err){
+                    return res.send({
+                            state:"err",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                }
+                else{
+                    var franchisee_length = (franchiseeMultipleForm.length-1);
+                    for(var i=0;i<franchiseeMultipleForm.length-1;i++){
+                        var franchisee = new Franchisee();
+                        franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+                        franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
+                        franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
+                        franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
+    
+                        franchisee.save(function(err,franchisee){
+                            if(err){
+                                return res.send({
+                                    state:"err",
+                                    message:"Something went wrong."
+                                },500);
+                            }
+                            else{
+                                console.log("ghjnmkl,ftcyghnjkml");
+                                if(franchisee_length==i){
+                                    return res.send({
+                                        state:"success",
+                                        message:"Franchisee Created."
+                                    },200);
+                                }
+                            }
+                        });
+                   }
+                }
+            });
+        }
+        catch(err){
+            return res.send({
+                state:"error",
+                message:err
+            });
+        }
+    });
 
 module.exports = router;
