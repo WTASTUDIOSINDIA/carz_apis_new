@@ -30,7 +30,9 @@ var franchiseeSchema = new mongoose.Schema({
     "lead_source":String,
     "sub_stage":String,
     "user_role": {type:String, default:'franchisee'},
-    "bussiness_type": String
+    "bussiness_type": String,
+    "first_lakh_payment":{type:String,default:'Pending'},
+    "second_lakh_payment":{type:String,default:'Pending'}
 });
 
 var librarySchema = new mongoose.Schema({
@@ -161,6 +163,20 @@ var AssessmentSchema = new mongoose.Schema({
     'status': {type:String,default:'Pending'}
 });
 
+var ApplicationSchema = new mongoose.Schema({
+    'question_EN':String,
+    'question_type':String,
+    'options': Array,
+    'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'isRequire':{type:Boolean,default:false}
+})
+
+var ApplicationSubmittedSchema = new mongoose.Schema({
+    'answers': Array,
+    'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "application_status":{type:String,default:'Submitted'}
+})
+
 
 mongoose.model('Franchisee', franchiseeSchema);
 mongoose.model('Library', librarySchema);
@@ -176,3 +192,6 @@ mongoose.model('Reasons', ReasonSchema);
 mongoose.model('QuestionType', QuestionTypeSchema);
 mongoose.model('Question', InterviewQuestionSchema);
 mongoose.model('Assessment', AssessmentSchema);
+mongoose.model('Application', ApplicationSchema);
+mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
+
