@@ -30,6 +30,10 @@ var stagesSchema = new mongoose.Schema({
     },
     "stage_kycupload":{
       "status": Boolean,
+      "bgverification_file_name": String,
+      "bgverification_file_link": String,
+      "bgverificatio_file_uploaded": Date,
+      "bgverification_file_type":{type:String,default:'docs'},
       "franchisee_id": String
     },
     "stage_assessment": {
