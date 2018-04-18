@@ -1123,12 +1123,29 @@ var request = require("request"),
                 else{
                     var franchisee_length = (franchiseeMultipleForm.length-1);
                     for(var i=0;i<franchiseeMultipleForm.length;i++){
+                        var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+                        Franchisee.find({franchisee_email: franchiseeMultipleForm[i].frachisee_email},function(err,franchisee){
+                            if(franchisee){
+                                return res.send({
+                                    state:"err",
+                                    message: franchisee_mail + " is already exists"
+                                },400);
+                            }
+                        });
                         var franchisee = new Franchisee();
                         franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
                         franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
+                        franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                        franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+                        franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+                        franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+                        franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
                         franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
                         franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
-    
+                        franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
+                        franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+                        franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
+                        console.log('franchiseeMultipleForm', franchiseeMultipleForm);
                         franchisee.save(function(err,franchisee){
                             if(err){
                                 return res.send({
