@@ -247,7 +247,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
                 franchisee.user_role=franchiseeForm.user_role,
                 franchisee.franchisee_pass = createHash('mypassword');
-                franchisee.bussiness_type = franchiseeForm.bussiness_type;
+                franchisee.bussiness_type = franchiseeForm.bussiness_type_id;
                 franchisee.partners_list = 1;
 
                 if(req.file){
@@ -280,8 +280,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.partner_pincode = franchiseeForm.partner_pincode,
                     partner.partner_country = franchiseeForm.partner_country,
                     partner.main_partner = true,
-
-                    partner.franchisee_id=franchisee._id
+                    partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
+                    partner.franchisee_id=franchisee._id;
                     partner.partner_profile_pic = franchisee.franchisee_profile_pic
                     partner.save(function(err,partner){
                         if(err){
@@ -1151,7 +1151,7 @@ var request = require("request"),
                 }
                 else{
                     var franchisee_length = (franchiseeMultipleForm.length-1);
-                    for(var i=0;i<franchiseeMultipleForm.length-1;i++){
+                    for(var i=0;i<franchiseeMultipleForm.length;i++){
                         var franchisee = new Franchisee();
                         franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
                         franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,

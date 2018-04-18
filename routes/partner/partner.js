@@ -77,6 +77,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                     }
                     else{
                         Franchisee.findOne({_id:partnerForm.franchisee_id},function(err,franchiees){
+                            console.log(franchiees);
                             if(err){
                                 return res.send({
                                     state:"err",
@@ -99,7 +100,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                                         },500);
                                     }
                                     else{
-                                        kyc_Upload(req, res,partner,partnerForm);
+                                        kyc_Upload(req, res,partner,franchiees);
                                     }
                                 });
                             }
@@ -117,7 +118,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
     }
 });
 function kyc_Upload(req,res,partner,partnerForm){
-    FranchiseeTypeList.find({businessType_id:partnerForm.bussiness_type_id},function(err,type){
+    FranchiseeTypeList.find({businessType_id:partnerForm.bussiness_type},function(err,type){
         if(err){
             return res.send({
                 state:"error",
