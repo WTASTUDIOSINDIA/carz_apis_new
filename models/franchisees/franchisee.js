@@ -67,6 +67,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_preferred_time": String,
     "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "partner_profile_pic":{type: Schema.Types.Mixed, default : {}},
+    "bussiness_type_id": {type: Schema.Types.ObjectId, ref: 'FranchiseeType'},
     "test_completed":{type:Boolean,default:false}
 });
 var meetingSchema = new mongoose.Schema({

@@ -84,24 +84,20 @@ router.post('/application_form',function(req,res){
 // get questions by franchisee id
 router.get('/get_questions_list/:franchisee_id',function(req,res){
     try{
-        Application.find({franchisee_Id:req.params.franchisee_id},function(err,questions){
+        ApplicationSubmitted.findOne({franchisee_Id:req.params.franchisee_id},function(err,questions){
             if(err){
                 return res.send({
                     state:"error",
                     message:err
                 },500);
-            }
-            if(questions.length == 0){
-                return res.send({
-                    state:'failure',
-                    message:"Questions not created"
-                },400);
-            }
-            if(questions.length>0){
+            }else if(questions && questions.application_status == 'Submitted'){
                 return res.send({
                     state:'success',
+                    // message:"Questions not created",
                     questions_list:questions
                 },200);
+            }else{
+                get_all_questions(req,res);
             }
         })
     }
@@ -113,29 +109,33 @@ router.get('/get_questions_list/:franchisee_id',function(req,res){
     }
 })
 
+function get_all_questions(req,res){
+    Application.find({},function(err,ques){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(ques.length == 0){
+            return res.send({
+                state:'failure',
+                message:"Questions not created"
+            },200);
+        }
+        if(ques.length>0){
+            return res.send({
+                state:'success',
+                questions_list:ques
+            },200);
+        }
+    })
+}
+
 //get all questions
 router.get('/getAll',function(req,res){
     try{
-        Application.find({},function(err,ques){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message:err
-                },500);
-            }
-            if(ques.length == 0){
-                return res.send({
-                    state:'failure',
-                    message:"Questions not created"
-                },200);
-            }
-            if(ques.length>0){
-                return res.send({
-                    state:'success',
-                    questions_list:ques
-                },200);
-            }
-        })
+        get_all_questions(req,res);
     }
     catch(err){
         return res.send({
