@@ -117,7 +117,7 @@ router.get('/get_franchisee/:id',function(req,res){
                 return res.send(500, err);
             }
             if(!franchisee){
-                res.send({  
+                res.send({
                     "status":400,
                     "state":"failure",
                     "franchisees_data":[]
@@ -525,6 +525,35 @@ router.delete('/delete_franchisee/:id',function(req,res){
                 res.send({
                     "status":"200",
                     "message":"User deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+//delete franchisee
+router.delete('/delete_franchisees',function(req,res){
+    try{
+        Franchisee.remove({},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!franchisee){
+                res.send({
+                    "status":400,
+                    "message":"Unsucessfull",
+                    "franchisees_data":"failure"
+                },400);
+            }
+            else{
+                res.send({
+                    "status":"200",
+                    "message":"Franchisees deleted sucessfully",
                 },200);
             }
         })
@@ -1112,45 +1141,74 @@ var request = require("request"),
 
     router.post('/import_franchisee',  function(req, res) {
         var franchiseeMultipleForm = req.body;
+
         try{
-            Franchisee.find({},function(err,franchisee){
-                if(err){
-                    return res.send({
-                            state:"err",
-                            message:"Something went wrong.We are looking into it."
-                        },500);
-                }
-                else{
+          var errors_count = 0;
+            // Franchisee.find({},function(err,franchisee){
+            //     if(err){
+            //         return res.send({
+            //                 state:"error",
+            //                 message:"Something went wrong.We are looking into it."
+            //             },500);
+            //     }
+            //
+            //     else{
                     var franchisee_length = (franchiseeMultipleForm.length-1);
                     for(var i=0;i<franchiseeMultipleForm.length;i++){
-                        var franchisee = new Franchisee();
-                        franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
-                        franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
-                        franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
-                        franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
-    
-                        franchisee.save(function(err,franchisee){
-                            if(err){
-                                return res.send({
-                                    state:"err",
-                                    message:"Something went wrong."
-                                },500);
-                            }
-                            else{
-                                console.log("ghjnmkl,ftcyghnjkml");
-                                if(franchisee_length==i){
-                                    return res.send({
-                                        state:"success",
-                                        message:"Franchisee Created."
-                                    },200);
-                                }
+                        
+                        Franchisee.find({franchisee_email: franchiseeMultipleForm[i].frachisee_email},function(err,franchisee){
+                            if(franchisee){
+                              error_mode = true;
+                              errors_count = +1;
+
+                                return res.status(201).send({
+                                    state:"failure",
+                                    message: franchiseeMultipleForm[i].franchisee_email + " is already exists"
+                                });
+
                             }
                         });
+                        console.log(errors_count);
+                        // if(errors_count === 0){
+                        //   var franchisee = new Franchisee();
+                        //   franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+                        //   franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
+                        //   franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                        //   franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+                        //   franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+                        //   franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+                        //   franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
+                        //   franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
+                        //   franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
+                        //   franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
+                        //   franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+                        //   franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
+                        //
+                        //   franchisee.save(function(err,franchisee, next){
+                        //       if(err){
+                        //         console.log(err, "error 1188");
+                        //           return res.send({
+                        //               state:"err",
+                        //               message:"Something went wrong."
+                        //           },500);
+                        //       }
+                        //       else{
+                        //           if(franchisee_length==i){
+                        //               return res.send({
+                        //                   state:"success",
+                        //                   message:"Franchisee Created."
+                        //               },200);
+                        //           }
+                        //       }
+                        //   });
+                        // }
+
                    }
-                }
-            });
+            //     }
+            // });
         }
         catch(err){
+          console.log(err, "error 1188");
             return res.send({
                 state:"error",
                 message:err

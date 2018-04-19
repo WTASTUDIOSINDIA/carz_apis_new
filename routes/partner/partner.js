@@ -56,18 +56,20 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                     partner_pic.key = req.file.key;
                     partner.partner_profile_pic = partner_pic;
                 }
-                partner.partner_name=partnerForm.partner_name,
-                partner.partner_occupation=partnerForm.partner_occupation,
-                partner.partner_email=partnerForm.partner_email,
-                partner.partner_mobile_number=partnerForm.partner_mobile_number,
-                partner.partner_age=partnerForm.partner_age,
-                partner.franchisee_id=partnerForm.franchisee_id,
-                partner.partner_address = partnerForm.partner_address
-                partner.partner_city = partnerForm.partner_city
-                partner.partner_state = partnerForm.partner_state
-                partner.partner_country = partnerForm.partner_country
+                partner.partner_name=partnerForm.partner_name;
+                partner.partner_occupation=partnerForm.partner_occupation;
+                partner.partner_email=partnerForm.partner_email;
+                partner.partner_mobile_number=partnerForm.partner_mobile_number;
+                partner.partner_age=partnerForm.partner_age;
+                partner.franchisee_id=partnerForm.franchisee_id;
+                partner.partner_address = partnerForm.partner_address;
+                partner.partner_city = partnerForm.partner_city;
+                partner.partner_state = partnerForm.partner_state;
+                partner.partner_country = partnerForm.partner_country;
+                partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_pincode = partnerForm.partner_pincode
-                
+                partner.bussiness_type = partner.bussiness_type;
+
                 partner.save(function(err,partner){
                     if(err){
                         res.send({
@@ -85,7 +87,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                                 },500);
                             }
                             else{
-                                
+
                                 if(franchiees.partners_list){
                                     franchiees.partners_list = franchiees.partners_list + 1;
                                 }
@@ -124,7 +126,7 @@ function kyc_Upload(req,res,partner,partnerForm){
                 state:"error",
                 message:err
             },500);
-        } 
+        }
         else{
             var kyc = new KycUploads();
             kyc.franchisee_id = partner.franchisee_id;
@@ -163,23 +165,24 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function(re
             //If partner franchisee found,it will enter inside
             if(partner){
 
-                partner.partner_name=partnerEditForm.partner_name,
-                partner.partner_occupation=partnerEditForm.partner_occupation,
-                partner.partner_email=partnerEditForm.partner_email,
-                partner.partner_address=partnerEditForm.partner_address,
-                partner.partner_city=partnerEditForm.partner_city,
-                partner.partner_state=partnerEditForm.partner_state,
-                partner.partner_country=partnerEditForm.partner_country,
-                partner.partner_pincode=partnerEditForm.partner_pincode,
-                partner.partner_mobile_number=partnerEditForm.partner_mobile_number,
-                partner.partner_age=partnerEditForm.partner_age,
-                partner.partner_lead_source=partnerEditForm.partner_lead_source,
-                partner.partner_investment=partnerEditForm.partner_investment,
-                partner.partner_franchise_type=partnerEditForm.partner_franchise_type,
-                partner.partner_how_soon_to_start=partnerEditForm.partner_how_soon_to_start,
-                partner.partner_remarks=partnerEditForm.partner_remarks,
-                partner.partner_preferred_date=partnerEditForm.partner_preferred_date,
-                partner.partner_preferred_time=partnerEditForm.partner_preferred_time
+                partner.partner_name=partnerEditForm.partner_name;
+                partner.partner_occupation=partnerEditForm.partner_occupation;
+                partner.partner_email=partnerEditForm.partner_email;
+                partner.partner_address=partnerEditForm.partner_address;
+                partner.partner_city=partnerEditForm.partner_city;
+                partner.partner_state=partnerEditForm.partner_state;
+                partner.partner_country=partnerEditForm.partner_country;
+                partner.partner_pincode=partnerEditForm.partner_pincode;
+                partner.partner_mobile_number=partnerEditForm.partner_mobile_number;
+                partner.partner_age=partnerEditForm.partner_age;
+                partner.partner_lead_source=partnerEditForm.partner_lead_source;
+                partner.partner_investment=partnerEditForm.partner_investment;
+                partner.partner_franchise_type=partnerEditForm.partner_franchise_type;
+                partner.partner_how_soon_to_start=partnerEditForm.partner_how_soon_to_start;
+                partner.partner_remarks=partnerEditForm.partner_remarks;
+                partner.partner_preferred_date=partnerEditForm.partner_preferred_date;
+                partner.partner_preferred_time=partnerEditForm.partner_preferred_time;
+                partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 if(req.file){
 
                 var partner_pic = {};
@@ -206,7 +209,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function(re
                             },500);
                         }
                         else{
-                            
+
                             if(partner.main_partner){
                                 franchiees.franchisee_profile_pic = partner.partner_profile_pic;
                             }
