@@ -1158,4 +1158,45 @@ var request = require("request"),
         }
     });
 
+// To select lead type
+    router.put('/lead_type',function(req, res) {
+        try{
+            Franchisee.findOne({_id:req.body.franchisee_Id},function(err,franchisee){
+                if(err){
+                    return res.send({
+                            status:500,
+                            state:"err",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                }
+                if(franchisee){
+                    franchisee.lead_type = req.body.lead_type
+                    franchisee.save(function(err,franchisee){
+                       if(err){
+                         res.send({
+                            status:500,
+                            state:"err",
+                            message:"Something went wrong."
+                        },500);
+                       }
+                    else{
+                        res.send({
+                            status:200,
+                            state:"success",
+                            message:"Lead type created."
+                        },200);
+                    }
+                    });
+                }
+            })
+        }
+        catch(err){
+            return res.send({
+                state:"error",
+                message:err
+            });
+        }
+    });
+
+
 module.exports = router;

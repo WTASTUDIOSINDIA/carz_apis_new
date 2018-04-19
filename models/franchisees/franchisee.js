@@ -32,7 +32,8 @@ var franchiseeSchema = new mongoose.Schema({
     "user_role": {type:String, default:'franchisee'},
     "bussiness_type": String,
     "first_lakh_payment":{type:String,default:'Pending'},
-    "second_lakh_payment":{type:String,default:'Pending'}
+    "second_lakh_payment":{type:String,default:'Pending'},
+    "lead_type": String
 });
 
 var librarySchema = new mongoose.Schema({
