@@ -1155,16 +1155,16 @@ var request = require("request"),
                     var franchisee_length = (franchiseeMultipleForm.length-1);
                     for(var i=0;i<franchiseeMultipleForm.length;i++){
                         var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
-                        Franchisee.find({franchisee_email: franchiseeMultipleForm[i].frachisee_email},function(err,franchisee){
-                            if(franchisee){
-                              error_mode = true;
-                                return res.status(201).send({
-                                    state:"failure",
-                                    message: franchisee_mail + " is already exists"
-                                }).end();
-                                  error_mode = true;
-                            }
-                        });
+                        // Franchisee.find({franchisee_email: franchiseeMultipleForm[i].frachisee_email},function(err,franchisee){
+                        //     if(franchisee){
+                        //       error_mode = true;
+                        //         return res.status(201).send({
+                        //             state:"failure",
+                        //             message: franchisee_mail + " is already exists"
+                        //         }).end();
+                        //           error_mode = true;
+                        //     }
+                        // });
                         console.log(error_mode);
                         if(error_mode === false){
                           var franchisee = new Franchisee();
