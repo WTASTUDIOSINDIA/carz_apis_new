@@ -32,7 +32,8 @@ var franchiseeSchema = new mongoose.Schema({
     "user_role": {type:String, default:'franchisee'},
     "bussiness_type": String,
     "first_lakh_payment":{type:String,default:'Pending'},
-    "second_lakh_payment":{type:String,default:'Pending'}
+    "second_lakh_payment":{type:String,default:'Pending'},
+    "lead_type": String
 });
 
 var librarySchema = new mongoose.Schema({
@@ -67,7 +68,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_preferred_time": String,
     "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "partner_profile_pic":{type: Schema.Types.Mixed, default : {}},
-    "bussiness_type_id": {type: Schema.Types.ObjectId, ref: 'FranchiseeType'},
+    "bussiness_type_id": String,
     "test_completed":{type:Boolean,default:false}
 });
 var meetingSchema = new mongoose.Schema({
@@ -195,4 +196,3 @@ mongoose.model('Question', InterviewQuestionSchema);
 mongoose.model('Assessment', AssessmentSchema);
 mongoose.model('Application', ApplicationSchema);
 mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
-

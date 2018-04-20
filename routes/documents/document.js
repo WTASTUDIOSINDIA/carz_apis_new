@@ -133,6 +133,30 @@ router.get('/get_business_type',function(req,res){
         },500);
     }
 });
+router.get('/get_business_types_list',function(req,res){
+    try{
+        FranchiseeTypeList.find({},function(err,type){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    FranchiseeType:type
+                },200);
+            }
+        })
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 router.post('/set_business_type',function(req,res){
     try{
         FranchiseeType.findOne({bussiness_type_name:req.body.bussiness_type_name},function(err,type){
@@ -342,7 +366,7 @@ function notify_user(req,res,message,reason){
                         "X-Laziness-level": 1000,
                         "charset" : 'UTF-8'
                     },
-                    
+
                     html: 'file got rejected'
                 }
                 var transporter = nodemailer.createTransport({
@@ -380,7 +404,7 @@ function update_kyc(req,res,kyc,message,reason){
             update_kyc.save(function(err,kyc){
                 if(message === "Doc rejected!"){
                     notify_user(req,res,message,reason);
-                }          
+                }
                 else{
                     res.send({
                         state:"success",
