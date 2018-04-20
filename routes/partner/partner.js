@@ -30,6 +30,41 @@ var upload = multer({
     })
 });
 
+
+
+//validate franchisee by mobile number
+router.post('/validate_mobile_number',  function(req, res) {
+    var PartnerValidateForm = req.body;
+    try{
+        Partner.findOne({'partner_mobile_number':PartnerValidateForm.partner_mobile_number},function(err,partner){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(partner){
+                return res.send({
+                    state:"failure",
+                    message:"This number already exists!"
+                }, 400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    message:"Success!"
+                }, 200);
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
 // To Create Partner Franchisee
 router.post('/create_partner_franchisee',upload.single('partner_pic'),function(req, res){
     var partnerForm =JSON.parse(req.body.partner);

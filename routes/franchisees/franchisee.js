@@ -203,6 +203,38 @@ router.post('/validate_franchisee_pincode',  function(req, res) {
 		},500);
 	}
 });
+//validate franchisee by mobile number
+router.post('/validate_mobile_number',  function(req, res) {
+    var FranchiseeValidateForm = req.body;
+    try{
+        Franchisee.findOne({'partner_mobile_number':FranchiseeValidateForm.partner_mobile_number},function(err,franchisee){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(franchisee){
+                return res.send({
+                    state:"failure",
+                    message:"This number already exists!"
+                }, 400);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    message:"Success!"
+                }, 200);
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
 //create franchisee
 router.post('/create_franchisee',upload.single('franchisee_img'),function(req, res) {
     var franchiseeForm =JSON.parse(req.body.franchisee);
