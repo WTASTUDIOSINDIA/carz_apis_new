@@ -288,45 +288,47 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     franchisee_pic.key = req.file.key;
                     franchisee.franchisee_profile_pic = franchisee_pic;
                 }
+                console.log("franchiseeForm",franchiseeForm);
                 franchisee.save(function(err,franchisee){
-                   if(err){
-                     res.send({
-                        status:500,
-                        state:"err",
-                        message:"Something went wrong."
-                    },500);
-                   }
-                else{
+                    if(err){
+                        res.send({
+                            status:500,
+                            state:"err",
+                            message:"Something went wrong."
+                        },500);
+                    }
+                    else{
 
-                    var partner = new Partner();
+                        var partner = new Partner();
 
 
-                    partner.partner_name=franchisee.franchisee_name,
-                    partner.partner_occupation=franchiseeForm.partner_occupation,
-                    partner.partner_email=franchisee.franchisee_email,
-                    partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
-                    partner.partner_age=franchiseeForm.partner_age,
-                    partner.partner_address = franchiseeForm.partner_address,
-                    partner.partner_city = franchiseeForm.partner_city,
-                    partner.partner_state = franchiseeForm.partner_state,
-                    partner.partner_pincode = franchiseeForm.partner_pincode,
-                    partner.partner_country = franchiseeForm.partner_country,
-                    partner.main_partner = true,
-                    partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
-                    partner.franchisee_id=franchisee._id;
-                    partner.partner_profile_pic = franchisee.franchisee_profile_pic
-                    partner.save(function(err,partner){
-                        if(err){
-                            res.send({
-                                state:"err",
-                                message:"Something went wrong."
-                            },500);
-                        }
-                        else{
-                            kyc_Upload(req, res,partner,franchisee,franchiseeForm);
-                        }
-                    });
-                }
+                        partner.partner_name=franchisee.franchisee_name,
+                        partner.partner_occupation=franchiseeForm.partner_occupation,
+                        partner.partner_email=franchisee.franchisee_email,
+                        partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
+                        partner.partner_age=franchiseeForm.partner_age,
+                        partner.partner_address = franchiseeForm.partner_address,
+                        partner.partner_city = franchiseeForm.partner_city,
+                        partner.partner_state = franchiseeForm.partner_state,
+                        partner.partner_pincode = franchiseeForm.partner_pincode,
+                        partner.partner_country = franchiseeForm.partner_country,
+                        partner.main_partner = true,
+                        partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
+                        partner.bussiness_type=franchiseeForm.bussiness_type;
+                        partner.franchisee_id=franchisee._id;
+                        partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                        partner.save(function(err,partner){
+                            if(err){
+                                res.send({
+                                    state:"err",
+                                    message:"Something went wrong."
+                                },500);
+                            }
+                            else{
+                                kyc_Upload(req, res,partner,franchisee,franchiseeForm);
+                            }
+                        });
+                    }
                 });
             }
         });

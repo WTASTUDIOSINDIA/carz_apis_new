@@ -102,7 +102,7 @@ router.post('/validate_partner_pincode',  function(req, res) {
 router.post('/validate_partner_email',  function(req, res) {
     var PartnerValidateForm = req.body;
     try{
-        Partner.findOne({'partner_email':PartnerValidateForm.partner_email},function(err,franchisee){
+        Partner.findOne({'partner_email':PartnerValidateForm.partner_email},function(err,partner){
             if(err){
                 return res.send({
                     state:"error",
