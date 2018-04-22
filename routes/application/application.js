@@ -229,10 +229,38 @@ router.put('/submit_application',cpUpload,function(req,res){
                 },500);
             }
             if(application){
-                return res.send({
-                    state:"failure",
-                    message:"application already submitted."
-                },200);
+                // return res.send({
+                //     state:"failure",
+                //     message:"application already submitted."
+                // },200);
+                console.log('req.files',req.files);
+                if(req.files.file_upload){
+                    console.log('req.files',req.files);
+                    for(var i=0;i<req.files.file_upload.length;i++){
+                        for(var j=0;j<application_form.application_list.length;j++){
+                            if(application_form.application_list[j].question_type === 'File Upload'){
+                                application_form.application_list[j].answer = req.files.file_upload[i].location;
+                            }
+                        }
+                    }
+                }
+                application.franchisee_Id = application_form.franchisee_Id;
+                application.application_status = 'Submitted';
+                application.answers = application_form.application_list;
+                application.save(function(err, application){
+                    if(err){
+                        return res.send({
+                            state:"err",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:"application submitted."
+                        },200);
+                    }
+                })
             }
             if(!application){
                 var application_stats = new ApplicationSubmitted();

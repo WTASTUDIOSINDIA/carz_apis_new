@@ -170,6 +170,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                 partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_pincode = partnerForm.partner_pincode
                 partner.bussiness_type = partner.bussiness_type;
+                partner.bussiness_type = partner.bussiness_type;
 
                 partner.save(function(err,partner){
                     if(err){
@@ -180,7 +181,6 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                     }
                     else{
                         Franchisee.findOne({_id:partnerForm.franchisee_id},function(err,franchiees){
-                            console.log(franchiees);
                             if(err){
                                 return res.send({
                                     state:"err",
