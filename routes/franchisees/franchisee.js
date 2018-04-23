@@ -1227,7 +1227,7 @@ var request = require("request"),
                                   franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
                                   franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
                                   franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
-
+                                  franchisee.business_type_id = franchiseeMultipleForm[i].business_type_id;
                                   franchisee.save(function(err,franchisee){
 
                                       if(err){
