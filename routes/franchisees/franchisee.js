@@ -1175,98 +1175,194 @@ var request = require("request"),
         var franchiseeMultipleForm = req.body;
 
         try{
+
           var errors_count = 0;
-            // Franchisee.find({},function(err,franchisee){
-            //     if(err){
-            //         return res.send({
-            //                 state:"error",
-            //                 message:"Something went wrong.We are looking into it."
-            //             },500);
-            //     }
-            //
-            //     else{
+            Franchisee.find({},function(err,franchisee){
+                if(err){
+                    return res.send({
+                            state:"failure",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                };
+
+
+                  if(franchisee){
+
                     var franchisee_length = (franchiseeMultipleForm.length-1);
-                    for(var i=0;i<franchiseeMultipleForm.length;i++){
-var franchisee_mail = franchiseeMultipleForm[i].frachisee_email;
-                        Franchisee.find({franchisee_email: franchiseeMultipleForm[i].frachisee_email},function(err,franchisee){
-                            if(franchisee){
-                              error_mode = true;
-                              errors_count = +1;
 
-                                return res.status(201).send({
-                                    state:"failure",
-                                    message: franchisee_mail + " is already exists"
-                                });
+                  var existing_franchisees_list =   get_existing_mails(franchiseeMultipleForm);
+                  existing_franchisees_list.then(function(list){
+                    console.log(list.join());
+                    console.log(list);
+                    if(list.length != 0){
+                      return res.send({
+                              state:"failure",
+                              message:list.join() + " already exists in the database"
+                          },201);
+                    }
+                    else {
+                      for(var i=0;i<franchiseeMultipleForm.length;i++){
 
-                            }
-                            else {
-                              console.log(errors_count);
-                              if(errors_count === 0){
-                                var franchisee = new Franchisee();
-                                franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
-                                franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
-                                franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
-                                franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
-                                franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
-                                franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
-                                franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
-                                franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
-                                franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
-                                franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
-                                franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
-                                franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
-
-                                franchisee.save(function(err,franchisee, next){
-                                    if(err){
-                                      console.log(err, "error 1188");
-                                        return res.send({
-                                            state:"err",
-                                            message:"Something went wrong."
-                                        },500);
-                                    }
-                                    else{
-                                        if(franchisee_length==i){
-                                            return res.send({
-                                                state:"success",
-                                                message:"Franchisee Created."
-                                            },200);
-                                            var partner = new Partner();
+                        var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
 
 
-                                            partner.partner_name=franchiseeMultipleForm[i].franchisee_name,
-                                            partner.partner_occupation=franchiseeMultipleForm[i].partner_occupation,
-                                            partner.partner_email=franchiseeMultipleForm[i].franchisee_email,
-                                            partner.partner_mobile_number=franchiseeMultipleForm[i].partner_mobile_number,
-                                            partner.partner_age=franchiseeMultipleForm[i].partner_age,
-                                            partner.partner_address = franchiseeMultipleForm[i].partner_address,
-                                            partner.partner_city = franchiseeMultipleForm[i].partner_city,
-                                            partner.partner_state = franchiseeMultipleForm[i].partner_state,
-                                            partner.partner_pincode = franchiseeMultipleForm[i].partner_pincode,
-                                            partner.partner_country = franchiseeMultipleForm[i].partner_country,
-                                            partner.main_partner = true,
+                                  var franchisee = new Franchisee();
+                                  franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name;
+                                  franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address;
+                                  franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city;
+                                  franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state;
+                                  franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode;
+                                  franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country;
+                                  franchisee.lead_source = franchiseeMultipleForm[i].lead_source;
+                                  franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type;
+                                  franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model;
+                                  franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date;
+                                  franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email;
+                                  franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment;
+                                  franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
+                                  franchisee.partner_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
+                                  franchisee.partner_age = franchiseeMultipleForm[i].partner_age;
+                                  franchisee.partner_address = franchiseeMultipleForm[i].partner_address;
+                                  franchisee.partner_city = franchiseeMultipleForm[i].partner_city;
+                                  franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
+                                  franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
+                                  franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
 
-                                            partner.franchisee_id=franchisee._id;
-                                            partner.partner_profile_pic = franchisee.franchisee_profile_pic
-                                            partner.save(function(err,partner){
-                                                if(err){
-                                                    res.send({
-                                                        state:"err",
-                                                        message:"Something went wrong."
-                                                    },500);
-                                                }
-                                                else{
-                                                    kyc_Upload(req, res,partner,franchisee,franchiseeMultipleForm[i]);
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                              }
-                            }
-                        });
+                                  franchisee.save(function(err,franchisee){
 
+                                      if(err){
+                                        console.log(err, "error 1188");
+                                          return res.send({
+                                              state:"err",
+                                              message:"Something went wrong."
+                                          },500);
+                                      }
+                                      else{
+                                        //  if(franchisee_length==i){
 
-                   }
+                                              var partner = new Partner();
+console.log(franchisee);
+
+                                              partner.partner_name=franchisee.franchisee_name;
+                                              partner.partner_occupation=franchisee.partner_occupation;
+                                              partner.partner_email=franchisee.franchisee_email;
+                                              partner.partner_mobile_number=franchisee.partner_mobile_number;
+                                              partner.partner_age=franchisee.partner_age;
+                                              partner.partner_address = franchisee.partner_address;
+                                              partner.partner_city = franchisee.partner_city;
+                                              partner.partner_state = franchisee.partner_state;
+                                              partner.partner_pincode = franchisee.partner_pincode;
+                                              partner.partner_country = franchisee.partner_country;
+                                              partner.main_partner = true;
+                                              partner.business_type_id = franchisee.business_type_id;
+                                              partner.franchisee_id=franchisee._id;
+                                              partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                                              partner.save(function(err,partner){
+                                                  if(err){
+                                                      res.send({
+                                                          state:"err",
+                                                          message:"Something went wrong."
+                                                      },500);
+                                                  }
+                                                  else{
+                                                    res.status(200).send({
+                                                       state:"success",
+                                                       message:"Franchisee Created."
+                                                   });
+                                                      kyc_Upload(req, res,partner,franchisee,franchisee);
+                                                  }
+                                              });
+                                          }// Else statement after franchisee created
+                                      });
+                                  };
+                          } //else statement of list length
+                        })
+                      }
+                    });
+                    // for(var i=0;i<franchiseeMultipleForm.length;i++){
+                    //
+                    //   var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+                    //
+                    //     Franchisee.find({franchisee_email: franchiseeMultipleForm[i].franchisee_email},function(err,franchisee){
+                    //         if(franchisee){
+                    //           error_mode = true;
+                    //           errors_count = +1;
+                    //
+                    //           existing_franchisees.push(franchisee.franchisee_email);
+                    //
+                    //
+                    //         }
+
+                            // else {
+                            //
+                            //   if(errors_count === 0){
+                            //     var franchisee = new Franchisee();
+                            //     franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+                            //     franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
+                            //     franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+                            //     franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+                            //     franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+                            //     franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+                            //     franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
+                            //     franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
+                            //     franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
+                            //     franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
+                            //     franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+                            //     franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
+                            //
+                            //     franchisee.save(function(err,franchisee, next){
+                            //         if(err){
+                            //           console.log(err, "error 1188");
+                            //             return res.send({
+                            //                 state:"err",
+                            //                 message:"Something went wrong."
+                            //             },500);
+                            //         }
+                            //         else{
+                            //             if(franchisee_length==i){
+                            //                 return res.send({
+                            //                     state:"success",
+                            //                     message:"Franchisee Created."
+                            //                 },200);
+                            //                 var partner = new Partner();
+                            //
+                            //
+                            //                 partner.partner_name=franchiseeMultipleForm[i].franchisee_name,
+                            //                 partner.partner_occupation=franchiseeMultipleForm[i].partner_occupation,
+                            //                 partner.partner_email=franchiseeMultipleForm[i].franchisee_email,
+                            //                 partner.partner_mobile_number=franchiseeMultipleForm[i].partner_mobile_number,
+                            //                 partner.partner_age=franchiseeMultipleForm[i].partner_age,
+                            //                 partner.partner_address = franchiseeMultipleForm[i].partner_address,
+                            //                 partner.partner_city = franchiseeMultipleForm[i].partner_city,
+                            //                 partner.partner_state = franchiseeMultipleForm[i].partner_state,
+                            //                 partner.partner_pincode = franchiseeMultipleForm[i].partner_pincode,
+                            //                 partner.partner_country = franchiseeMultipleForm[i].partner_country,
+                            //                 partner.main_partner = true,
+                            //
+                            //                 partner.franchisee_id=franchisee._id;
+                            //                 partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                            //                 partner.save(function(err,partner){
+                            //                     if(err){
+                            //                         res.send({
+                            //                             state:"err",
+                            //                             message:"Something went wrong."
+                            //                         },500);
+                            //                     }
+                            //                     else{
+                            //                         kyc_Upload(req, res,partner,franchisee,franchiseeMultipleForm[i]);
+                            //                     }
+                            //                 });
+                            //             }
+                            //         }
+                            //     });
+                            //   }
+                            // }
+
+                   //      });
+                   //
+                   //
+                   // }
+
             //     }
             // });
         }
@@ -1278,6 +1374,22 @@ var franchisee_mail = franchiseeMultipleForm[i].frachisee_email;
             });
         }
     });
+  async  function get_existing_mails(values){
+      var existing_franchisees = [];
+      for(var i=0;i<values.length;i++){
+        var franchisee_mail = values[i].franchisee_email;
+        await  Franchisee.find({franchisee_email: values[i].franchisee_email},function(err,franchisee){
+              if(franchisee){
+                for(var j=0; j<franchisee.length; j++){
+                  (function(j){
+                    existing_franchisees.push(franchisee[j].franchisee_email);
+                  })(j);
+                }
+              }
+            });
+          }
+          return existing_franchisees;
+        }
 
 // To select lead type
     router.put('/lead_type',function(req, res) {
