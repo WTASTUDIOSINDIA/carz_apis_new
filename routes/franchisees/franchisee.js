@@ -1230,7 +1230,7 @@ var request = require("request"),
                                   franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
                                   franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
                                   franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
-                                  franchisee.business_type_id = franchiseeMultipleForm[i].business_type_id;
+                                  franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
                                   franchisee.save(function(err,franchisee){
 
                                       if(err){
@@ -1257,7 +1257,7 @@ console.log(franchisee);
                                               partner.partner_pincode = franchisee.partner_pincode;
                                               partner.partner_country = franchisee.partner_country;
                                               partner.main_partner = true;
-                                              partner.business_type_id = franchisee.business_type_id;
+                                              partner.bussiness_type_id = franchisee.bussiness_type_id;
                                               partner.franchisee_id=franchisee._id;
                                               partner.partner_profile_pic = franchisee.franchisee_profile_pic
                                               partner.save(function(err,partner){
