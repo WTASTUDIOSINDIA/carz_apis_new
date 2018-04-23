@@ -201,7 +201,7 @@ router.post('/set_business_type',function(req,res){
 });
 router.post('/create_business_type',function(req,res){
     try{
-        FranchiseeTypeList.findOne({doc_name:req.body.doc_name},function(err,type){
+        FranchiseeTypeList.findOne({doc_name:req.body.doc_name,businessType_id:req.body.businessType_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",

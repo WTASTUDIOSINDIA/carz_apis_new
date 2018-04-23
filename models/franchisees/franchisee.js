@@ -25,7 +25,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_country": String,
     "franchisee_pincode": String,
     "franchisee_area": String,
-    "partners_list":Number,
+    "partners_list": {type:Number, default:0},
     "lead_age":Number,
     "lead_source":String,
     "sub_stage":String,
@@ -79,7 +79,9 @@ var partnerSchema = new mongoose.Schema({
     "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "partner_profile_pic":{type: Schema.Types.Mixed, default : {}},
     "bussiness_type_id": String,
-    "test_completed":{type:Boolean,default:false}
+    "bussiness_type": String,
+    "test_completed":{type:Boolean,default:false},
+    "business_type": String
 });
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
