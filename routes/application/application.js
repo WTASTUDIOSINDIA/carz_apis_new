@@ -425,5 +425,96 @@ router.put('/edit_bg_file_name', function(req, res, next){
   }
   });
 
- 
+  //Edit discussion file name
+router.put('/edit_discussion_file_name', function(req, res, next){
+
+    var fileEditForm = req.body;
+    console.log(fileEditForm);
+    try{
+        Stages.findById({'_id': fileEditForm._id}, function(err, file){
+        if(err){
+          return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            });
+        }
+  
+        if(file){
+          file.payment_file_name = fileEditForm.payment_file_name;
+          file.save(function(err, file){
+            if(err){
+              res.send({
+                 status:500,
+                 state:"err",
+                 message:"Something went wrong."
+             });
+          }
+          else{
+              res.send({
+                  status:200,
+                  state:"success",
+                  message:"File Updated."
+              });
+          }
+        });
+  
+      }
+  
+    })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+  }
+  });
+
+  //  edit agreement file
+  router.put('/edit_agreement_file_name', function(req, res, next){
+
+    var fileEditForm = req.body;
+    console.log(fileEditForm);
+    try{
+        Stages.findById({'_id': fileEditForm._id}, function(err, file){
+        if(err){
+          return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            });
+        }
+  
+        if(file){
+          file.agreement_file_name = fileEditForm.agreement_file_name;
+          file.save(function(err, file){
+            if(err){
+              res.send({
+                 status:500,
+                 state:"err",
+                 message:"Something went wrong."
+             });
+          }
+          else{
+              res.send({
+                  status:200,
+                  state:"success",
+                  message:"File Updated."
+              });
+          }
+        });
+  
+      }
+  
+    })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+  }
+  });
+
 module.exports = router;
