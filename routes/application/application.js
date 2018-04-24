@@ -393,7 +393,7 @@ router.put('/edit_bg_file_name', function(req, res, next){
                 message:"Something went wrong.We are looking into it."
             });
         }
-  
+
         if(file){
           file.doc_name = fileEditForm.doc_name;
           file.save(function(err, file){
@@ -412,9 +412,9 @@ router.put('/edit_bg_file_name', function(req, res, next){
               });
           }
         });
-  
+
       }
-  
+
     })
   }
   catch(err){
@@ -431,7 +431,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
     var fileEditForm = req.body;
     console.log(fileEditForm);
     try{
-        Stages.findById({'_id': fileEditForm._id}, function(err, file){
+        Stages.findById({'franchisee_id': fileEditForm.franchisee_id}, function(err, file){
         if(err){
           return res.send({
                 status:500,
@@ -439,7 +439,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
                 message:"Something went wrong.We are looking into it."
             });
         }
-  
+
         if(file){
           file.payment_file_name = fileEditForm.payment_file_name;
           file.save(function(err, file){
@@ -458,9 +458,9 @@ router.put('/edit_discussion_file_name', function(req, res, next){
               });
           }
         });
-  
+
       }
-  
+
     })
   }
   catch(err){
@@ -485,7 +485,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
                 message:"Something went wrong.We are looking into it."
             });
         }
-  
+
         if(file){
           file.agreement_file_name = fileEditForm.agreement_file_name;
           file.save(function(err, file){
@@ -504,9 +504,9 @@ router.put('/edit_discussion_file_name', function(req, res, next){
               });
           }
         });
-  
+
       }
-  
+
     })
   }
   catch(err){
