@@ -441,7 +441,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
         }
 
         if(file){
-          file.payment_file_name = fileEditForm.payment_file_name;
+          file.stage_discussion.payment_file_name = fileEditForm.payment_file_name;
           file.save(function(err, file){
             if(err){
               res.send({
