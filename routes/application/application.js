@@ -6,6 +6,7 @@ var multer = require('multer');
 var path = require('path');
 var Application = mongoose.model('Application');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
+var Stages = mongoose.model('Stages');
 var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');;
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
@@ -377,4 +378,52 @@ router.get('/get_third_party_files/:id',function(req,res){
  })
 })
 
+
+//Edit third party file name
+router.put('/edit_bg_file_name', function(req, res, next){
+
+    var fileEditForm = req.body;
+    console.log(fileEditForm);
+    try{
+        ThirdPartyFiles.findById({'_id': fileEditForm._id}, function(err, file){
+        if(err){
+          return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            });
+        }
+  
+        if(file){
+          file.doc_name = fileEditForm.doc_name;
+          file.save(function(err, file){
+            if(err){
+              res.send({
+                 status:500,
+                 state:"err",
+                 message:"Something went wrong."
+             });
+          }
+          else{
+              res.send({
+                  status:200,
+                  state:"success",
+                  message:"File Updated."
+              });
+          }
+        });
+  
+      }
+  
+    })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+  }
+  });
+
+ 
 module.exports = router;
