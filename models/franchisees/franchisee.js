@@ -128,6 +128,15 @@ var DocSchema = new mongoose.Schema({
     "franchisor_response": {type:String, default:'inProgress'}
 });
 
+var thirdPartyFileSchema =new mongoose.Schema({
+    "doc_name": String,
+    "link": {type: Schema.Types.Mixed, default : {}},
+    "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "file_type": String,
+    "date_uploaded":Date,
+    "key":String
+});
+
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
 });
@@ -208,3 +217,4 @@ mongoose.model('Question', InterviewQuestionSchema);
 mongoose.model('Assessment', AssessmentSchema);
 mongoose.model('Application', ApplicationSchema);
 mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
+mongoose.model('ThirdPartyFiles', thirdPartyFileSchema);
