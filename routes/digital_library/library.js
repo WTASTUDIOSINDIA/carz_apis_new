@@ -515,7 +515,7 @@ router.put('/edit_file_name', function(req, res, next){
       }
 
       if(fileEditForm){
-        file.file_name = folderEditForm.file_name;
+        file.file_name = fileEditForm.file_name;
         file.save(function(err, file){
           if(err){
             res.send({
