@@ -426,7 +426,7 @@ router.put('/edit_bg_file_name', function(req, res, next){
   });
 
   //Edit discussion file name
-router.put('/edit_discussion_file_name', function(req, res, next){
+router.put('/edit_discussion_payment_file_name', function(req, res, next){
 
     var fileEditForm = req.body;
     // console.log(fileEditForm);
