@@ -360,11 +360,11 @@ function kyc_Upload(req,res,partner,franchisee,franchiseeForm){
                     },500);
                 }
                 else{
-                    return res.send({
-                        state:"success",
-                        data: franchisee,
-                        message:"Franchisee Created."
-                    },200);
+                    // return res.send({
+                    //     state:"success",
+                    //     data: franchisee,
+                    //     message:"Franchisee Created."
+                    // },200);
                 }
             })
         }
