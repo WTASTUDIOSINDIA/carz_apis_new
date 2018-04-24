@@ -455,7 +455,54 @@ router.put('/edit_discussion_file_name', function(req, res, next){
               res.send({
                   status:200,
                   state:"success",
-                  message:"File Updated."
+                  message:"Payment file updated successfully!"
+              });
+          }
+        });
+
+      }
+
+    })
+  }
+  catch(err){
+  return res.send({
+    state:"error",
+    message:err
+  });
+  }
+  });
+
+  //Edit discussion file name
+router.put('/edit_nda_file_name', function(req, res, next){
+
+    var fileEditForm = req.body;
+    // console.log(fileEditForm);
+    try{
+        Stages.find({'franchisee_id': fileEditForm.franchisee_id}, function(err, file){
+        if(err){
+          return res.send({
+                status:500,
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            });
+        }
+
+        if(file){
+
+          file[0].stage_discussion.nda_file_name = fileEditForm.nda_file_name;
+          file[0].save(function(err, file){
+            if(err){
+              res.send({
+                 status:500,
+                 state:"err",
+                 message:"Something went wrong."
+             });
+          }
+          else{
+              res.send({
+                  status:200,
+                  state:"success",
+                  message:"NDA file edited successfully!"
               });
           }
         });
