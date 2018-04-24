@@ -1227,6 +1227,7 @@ var request = require("request"),
                                   franchisee.partner_age = franchiseeMultipleForm[i].partner_age;
                                   franchisee.partner_address = franchiseeMultipleForm[i].partner_address;
                                   franchisee.partner_city = franchiseeMultipleForm[i].partner_city;
+                                  franchisee.franchisee_pass = createHash('mypassword');
                                   franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
                                   franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
                                   franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
