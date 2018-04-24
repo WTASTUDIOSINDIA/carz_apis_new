@@ -338,7 +338,7 @@ router.post('/create_Folder',function(req,res){
            folder.folder_name = req.body.folder_name;
            folder.franchisee_Id = req.body.franchisee_Id;
            folder.create_date = Date.now();
-           
+
            if(req.body.crm_folder){
                 folder.crm_folder = req.body.crm_folder;
            }
@@ -472,6 +472,51 @@ router.put('/edit_folder', function(req, res, next){
       if(folder){
         folder.folder_name = folderEditForm.folder_name
         folder.save(function(err, folder){
+          if(err){
+            res.send({
+               status:500,
+               state:"err",
+               message:"Something went wrong."
+           });
+        }
+        else{
+            res.send({
+                status:200,
+                state:"success",
+                message:"Folder Updated."
+            });
+        }
+      });
+
+    }
+
+  })
+}
+catch(err){
+return res.send({
+  state:"error",
+  message:err
+});
+}
+});
+
+router.put('/edit_file_name', function(req, res, next){
+
+  var fileEditForm = req.body;
+
+  try{
+    Library.findOne({'_id': fileEditForm._id}, function(err, file){
+      if(err){
+        return res.send({
+              status:500,
+              state:"err",
+              message:"Something went wrong.We are looking into it."
+          });
+      }
+
+      if(fileEditForm){
+        file.file_name = folderEditForm.file_name;
+        file.save(function(err, file){
           if(err){
             res.send({
                status:500,
