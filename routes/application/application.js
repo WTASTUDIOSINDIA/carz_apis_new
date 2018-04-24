@@ -431,7 +431,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
     var fileEditForm = req.body;
     console.log(fileEditForm);
     try{
-        Stages.findById({'franchisee_id': fileEditForm.franchisee_id}, function(err, file){
+        Stages.find({'franchisee_id': fileEditForm.franchisee_id}, function(err, file){
         if(err){
           return res.send({
                 status:500,
@@ -487,7 +487,7 @@ router.put('/edit_discussion_file_name', function(req, res, next){
         }
 
         if(file){
-          file.agreement_file_name = fileEditForm.agreement_file_name;
+          file.stage_agreenent.agreement_file_name = fileEditForm.agreement_file_name;
           file.save(function(err, file){
             if(err){
               res.send({
