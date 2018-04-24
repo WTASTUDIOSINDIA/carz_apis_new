@@ -429,7 +429,7 @@ router.put('/edit_bg_file_name', function(req, res, next){
 router.put('/edit_discussion_file_name', function(req, res, next){
 
     var fileEditForm = req.body;
-    console.log(fileEditForm);
+    // console.log(fileEditForm);
     try{
         Stages.find({'franchisee_id': fileEditForm.franchisee_id}, function(err, file){
         if(err){
@@ -441,8 +441,9 @@ router.put('/edit_discussion_file_name', function(req, res, next){
         }
 
         if(file){
-          file.stage_discussion.payment_file_name = fileEditForm.payment_file_name;
-          file.save(function(err, file){
+
+          file[0].stage_discussion.payment_file_name = fileEditForm.payment_file_name;
+          file[0].save(function(err, file){
             if(err){
               res.send({
                  status:500,
