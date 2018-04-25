@@ -400,7 +400,7 @@ router.get('/get_kyc_docs/:id', function(req,res){
 });
 //To get by franchisee and partner id
 router.get('/get_kyc_docs_by_partner/:id/:partner_id', function(req,res){
-    KycUploads.findOne({franchisee_id:req.params.id,partner_id:req.params.partner_id},function(err,kyc){
+    KycUploads.findOne({partner_id:req.params.partner_id},function(err,kyc){
         if(err){
             return res.send({
                 state:"error",

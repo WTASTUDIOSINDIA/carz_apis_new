@@ -356,7 +356,7 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
     });
 }
 
-function notify_user(req,res,message,reason){
+function notify_user(req,res,message,reason, kyc_data){
     var fromName = "CARZ";
                     var mailOptions={
                     to: 'saivishnu.edala@gmail.com',
@@ -385,7 +385,8 @@ function notify_user(req,res,message,reason){
                     else{
                         return res.send({
                             state:"success",
-                            message:message
+                            message:message,
+                            data: kyc_data
                         },200);
                     }
                 });
@@ -403,12 +404,13 @@ function update_kyc(req,res,kyc,message,reason){
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
                 if(message === "Doc rejected!"){
-                    notify_user(req,res,message,reason);
+                    notify_user(req,res,message,reason, kyc);
                 }
                 else{
                     res.send({
                         state:"success",
-                        message:message
+                        message:message,
+                        data: kyc
                     },200);
                 }
             });
