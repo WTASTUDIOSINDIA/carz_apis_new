@@ -324,6 +324,10 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                         }
                         else{
                             kyc_Upload(req, res,partner,franchisee,franchiseeForm);
+                            res.send({
+                                state:"success",
+                                message:"Franchisee created successfully."
+                            },200);
                         }
                     });
                 }
