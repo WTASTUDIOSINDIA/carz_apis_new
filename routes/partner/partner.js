@@ -170,7 +170,7 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
                 partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_pincode = partnerForm.partner_pincode
                 partner.bussiness_type = partner.bussiness_type;
-                partner.bussiness_type = partner.bussiness_type;
+                partner.bussiness_type_id = partnerForm.bussiness_type_id;
 
                 partner.save(function(err,partner){
                     if(err){
@@ -220,8 +220,8 @@ router.post('/create_partner_franchisee',upload.single('partner_pic'),function(r
         });
     }
 });
-function kyc_Upload(req,res,partner,partnerForm){
-    FranchiseeTypeList.find({businessType_id:partnerForm.bussiness_type},function(err,type){
+function kyc_Upload(req,res,partner,partnerForm,message){
+    FranchiseeTypeList.find({businessType_id:partnerForm.bussiness_type_id},function(err,type){
         if(err){
             return res.send({
                 state:"error",
@@ -229,22 +229,53 @@ function kyc_Upload(req,res,partner,partnerForm){
             },500);
         }
         else{
-            var kyc = new KycUploads();
-            kyc.franchisee_id = partner.franchisee_id;
-            kyc.partner_id = partner._id;
-            kyc.docs_types = type;
-            kyc.save(function(err,kyc){
+            KycUploads.findOne({partner_id:partner._id},function(err,kyc){
                 if(err){
                     return res.send({
                         state:"error",
                         message:err
                     },500);
                 }
-                else{
-                    res.send({
-                        state:"Success",
-                        message:"Partner franchisee created."
-                    },200);
+                if(!kyc){
+                    var kyc = new KycUploads();
+                    kyc.franchisee_id = partner.franchisee_id;
+                    kyc.partner_id = partner._id;
+                    var businessType_array = type;
+                    kyc.docs_types = type;
+                    kyc.save(function(err,kyc){
+                        if(err){
+                            return res.send({
+                                state:"error",
+                                message:err
+                            },500);
+                        }
+                        else{
+                            res.send({
+                                state:"Success",
+                                message:message
+                            },200);
+                        }
+                    })
+                }
+                if(kyc){
+                    kyc.franchisee_id = partner.franchisee_id;
+                    kyc.partner_id = partner._id;
+                    var businessType_array = type;
+                    kyc.docs_types = type;
+                    kyc.save(function(err,kyc){
+                        if(err){
+                            return res.send({
+                                state:"error",
+                                message:err
+                            },500);
+                        }
+                        else{
+                            res.send({
+                                state:"Success",
+                                message:message
+                            },200);
+                        }
+                    })
                 }
             })
         }

@@ -326,7 +326,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                             kyc_Upload(req, res,partner,franchisee,franchiseeForm);
                             res.send({
                                 state:"success",
-                                message:"Franchisee created successfully."
+                                message:"Franchisee created successfully.",
+                                data: franchisee
                             },200);
                         }
                     });
@@ -1277,6 +1278,8 @@ console.log(franchisee);
                                                        state:"success",
                                                        message:"Franchisee Created."
                                                    });
+                                                   console.log(partner);
+                                                   console.log(franchisee);
                                                       kyc_Upload(req, res,partner,franchisee,franchisee);
                                                   }
                                               });
