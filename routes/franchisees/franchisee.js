@@ -775,14 +775,14 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 console.log(stageForm);
                 //'payment'
                 if(stageForm.sub_stage == 'payment'){
-                    stage.stage_discussion.status = false;
+                   // stage.stage_discussion.status = false;
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file =  req.file.location;
                     stage.stage_discussion.payment_file_name =  req.file.originalname;
                 }
                 //'nda'
                 if(stageForm.sub_stage == 'nda'){
-                    stage.stage_discussion.status = false;
+                   // stage.stage_discussion.status = false;
                     stage.stage_discussion.nda_file =  req.file.location;
                     stage.stage_discussion.nda_file_name =  req.file.originalname;
                     if(req.file.mimetype == "application/pdf"){
