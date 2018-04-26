@@ -10,6 +10,7 @@ var session = require('express-session');
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
 require('./models/franchisors/franchisor')
+require('./models/setup/setup')
 require('./models/crm/stages')
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
@@ -17,6 +18,7 @@ var assessment = require('./routes/assessment/assessment');
 var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
+var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
 //var auth = require('./routes/authenticate/auth-service');
@@ -82,6 +84,7 @@ app.use('/meeting', meeting);
 app.use('/document', document);
 app.use('/assessment', assessment);
 app.use('/application', application);
+app.use('/setup', setup);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {
