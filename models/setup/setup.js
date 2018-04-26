@@ -23,11 +23,11 @@ var setupDepartmentSchema = new mongoose.Schema({
 })
 
 var setupChecklistSchema = new mongoose.Schema({
-  department_id: {type: Schema.Types.ObjectId, ref: 'SetupDepartment'},
+  setup_department_id: {type: Schema.Types.ObjectId, ref: 'SetupDepartment'},
   visible_to : String,
-  checklist_name_EN: String,
-  created_at: String,
-  franchisor_id: {type: Schema.Types.ObjectId, ref: 'Franchisor'}
+  setup_checklist_name: String,
+  setup_checklist_name_EN: String,
+  created_at: String
 })
 
 mongoose.model('SetupTask', setupTaskSchema);
