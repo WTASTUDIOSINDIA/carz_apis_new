@@ -232,12 +232,23 @@ router.put('/submit_application', cpUpload, function (req, res) {
       }
       if (application) {
 
+        // if (req.files.file_upload) {
+        //   for (var i = 0; i < req.files.file_upload.length; i++) {
+        //     for (var j = 0; j < application_form.application_list.length; j++) {
+        //       if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
+        //         application_form.application_list[j].answer = req.files.file_upload[i].location;
+        //         application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+        //       }
+        //     }
+        //   }
+        // }
         if (req.files.file_upload) {
           for (var i = 0; i < req.files.file_upload.length; i++) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                i++;
               }
             }
           }
@@ -700,7 +711,7 @@ module.exports = router;
 router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, next) {
 
   try {
-    Stages.findByIdAndRemove({ 'franchisee_id': req.params.franchisee_id }, function (err, file) {
+    Stages.find({ 'franchisee_id': req.params.franchisee_id }, function (err, file) {
       if (err) {
         return res.send({
           status: 500,
@@ -746,7 +757,7 @@ router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, ne
 router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next) {
 
   try {
-    Stages.findByIdAndRemove({ 'franchisee_id': req.params.franchisee_id }, function (err, file) {
+    Stages.find({ 'franchisee_id': req.params.franchisee_id }, function (err, file) {
       if (err) {
         return res.send({
           status: 500,
@@ -792,7 +803,7 @@ router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next
 router.delete('/delete_kyc_bg_files/:file_id', function (req, res, next) {
 
   try {
-    ThirdPartyFiles.findByIdAndRemove({'_id': req.params.file_id }, function (err, file) {
+    ThirdPartyFiles.findByIdAndRemove({ '_id': req.params.file_id }, function (err, file) {
       if (err) {
         return res.send({
           status: 500,
@@ -803,13 +814,13 @@ router.delete('/delete_kyc_bg_files/:file_id', function (req, res, next) {
 
       if (file) {
 
- 
-            res.send({
-              status: 200,
-              state: "success",
-              message: "BG file deleted successfully!"
-            });
-          
+
+        res.send({
+          status: 200,
+          state: "success",
+          message: "BG file deleted successfully!"
+        });
+
 
       } //end of file if
 
