@@ -814,7 +814,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //aggrement
                 if(stageForm.sub_stage == 'aggrement'){
-                    stage.stage_agreenent.status = false;
+                    // stage.stage_agreenent.status = false;
                     stage.stage_agreenent.agreement_value = 400000;
                     stage.stage_agreenent.agreement_file =  req.file.location;
                     stage.stage_agreenent.agreement_file_name =  req.file.originalname;
