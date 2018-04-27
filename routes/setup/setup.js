@@ -215,23 +215,23 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 //Create Task for checklists
 router.post('/create_setup_checklist_task', function(req, res){
   try{
-    SetupChecklist.findOne({setup_checklist_name: req.body.setup_checklist_name, setup_department_id: req.body.setup_department_id}, function(err, checklist){
+    SetupTask.findOne({task_name: req.body.task_name, setup_checklist_id: req.body.setup_checklist_id}, function(err, task){
       if(err){
         res.send({
         state:"failure",
         message:"Something went wrong."
         },500);
       }
-      if(checklist) {
+      if(task) {
         res.send({
         state:"failure",
-        message:"This checklist name already exists."
+        message:"This task name already exists."
       },200);
       }
       else {
-        console.log(checklist);
-        checklist = new SetupChecklist();
-        checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
+        console.log(task);
+        task = new SetupTask();
+        task.setup_checklist_name = req.body.setup_checklist_name_EN;
         checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
         checklist.visible_to = req.body.visible_to;
         checklist.created_at = Date.now();
