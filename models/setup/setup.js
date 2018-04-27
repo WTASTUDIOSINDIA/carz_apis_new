@@ -14,7 +14,8 @@ var setupTaskSchema = new mongoose.Schema({
   franchisor_task_file_attachment_file_name: String,
   franchisor_task_file_attachment_file_url: String,
   franchisor_task_file_attachment_file_type: String,
-  task_serial_number: Number
+  task_serial_number: Number,
+  task_radio_options: Array
 })
 
 var setupDepartmentSchema = new mongoose.Schema({
@@ -29,6 +30,7 @@ var setupChecklistSchema = new mongoose.Schema({
   setup_checklist_name: String,
   setup_checklist_name_EN: String,
   created_at: String
+ 
 })
 
 mongoose.model('SetupTask', setupTaskSchema);

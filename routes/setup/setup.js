@@ -213,53 +213,94 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 
 
 //Create Task for checklists
-router.post('/create_setup_checklist_task', function(req, res){
-  try{
-    SetupTask.findOne({task_name: req.body.task_name, setup_checklist_id: req.body.setup_checklist_id}, function(err, task){
-      if(err){
+router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
+  var checklistTaskForm = JSON.stringify(req.body.task)
+  try {
+    SetupTask.findOne({ task_name: req.body.task_name, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
+      if (err) {
         res.send({
-        state:"failure",
-        message:"Something went wrong."
-        },500);
+          state: "failure",
+          message: "Something went wrong."
+        }, 500);
       }
-      if(task) {
+      if (task) {
         res.send({
-        state:"failure",
-        message:"This task name already exists."
-      },200);
+          state: "failure",
+          message: "This task name already exists."
+        }, 200);
       }
       else {
         console.log(task);
         task = new SetupTask();
         task.setup_checklist_name = req.body.setup_checklist_name_EN;
-        checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
-        checklist.visible_to = req.body.visible_to;
-        checklist.created_at = Date.now();
-        checklist.setup_department_id = req.body.setup_department_id;
-        checklist.save(function(err, checklist){
-          if(err){
+        task.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
+        task.visible_to = req.body.visible_to;
+        task.created_at = Date.now();
+        task.task_radio_options = req.body.task_radio_options;
+        task.task_type = req.body.task_type;
+        task.setup_checklist_id = req.body.setup_checklist_id;
+        if (req.file) {
+          var checklist_task_img = {};
+          checklist_task_img.path = req.file.location;
+          checklist_task_img.key = req.file.key;
+          task.checklist_task_img = checklist_task_img;
+        }
+        task.save(function (err, task) {
+
+
+          if (err) {
             res.send({
-            state:"failure",
-            message:"Something went wrong."
-            },500);
+              state: "failure",
+              message: "Something went wrong."
+            }, 500);
           }
           else {
             res.send({
-            state:"success",
-            message:"Checklist created successfully"
-          },200);
+              state: "success",
+              message: "Checklist created successfully"
+            }, 200);
           }
         });
       }
     });
-}
-catch(err){
-  return res.send({
-  state:"error",
-  message:err
-  });
-}
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 })
+
+//Get checklists task
+router.get('/get_setup_checklists_task/:checklist_id', function (req, res) {
+  try {
+    SetupTask.find({ setup_checklist_id: req.params.checklist_id }, function (err, task) {
+      if (err) {
+        return res.send(500, err);
+      }
+      if (task.length == 0) {
+        res.send({
+          message: "Tasks are not found",
+          state: "failure",
+          data: []
+        }, 201);
+      }
+      else {
+        res.send({
+          state: "success",
+          data: task
+        }, 200);
+      }
+    })
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+});
 
 
 module.exports = router;
