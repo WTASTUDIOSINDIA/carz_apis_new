@@ -5,7 +5,7 @@ var Franchisor = mongoose.model('Franchisor');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
 var setupTaskSchema = new mongoose.Schema({
-  checklist_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
+  setup_checklist_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
   task_name_EN: String,
   task_status: {type:Boolean,default:false},
   task_type: String,
