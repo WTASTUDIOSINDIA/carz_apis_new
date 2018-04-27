@@ -1,7 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
-var mongoose = require( 'mongoose' );;
+var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var Partner = mongoose.model('Partner');
@@ -16,81 +16,81 @@ var bCrypt = require('bcrypt-nodejs');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
- signatureVersion: 'v4'
+  signatureVersion: 'v4'
 });
 var s0 = new aws.S3({})
 var upload = multer({
- storage:multerS3({
- s3:s0,
- bucket:'celebappfiles',
- contentType: multerS3.AUTO_CONTENT_TYPE,
- acl: 'public-read',
- metadata: function (req, file, cb) {
- cb(null, {fieldName: file.fieldname});
- },
- key: function (req, file, cb) {
- cb(null, Date.now().toString() + '.' + file.originalname)
- }
- })
+  storage: multerS3({
+    s3: s0,
+    bucket: 'celebappfiles',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString() + '.' + file.originalname)
+    }
+  })
 });
-router.post('/create_setup_department', function(req, res){
-  try{
-    SetupDepartment.findOne({setup_department_name_EN: req.body.setup_department_name_EN, franchisor_id: req.body.franchisor_id}, function(err, department){
-      if(err){
+router.post('/create_setup_department', function (req, res) {
+  try {
+    SetupDepartment.findOne({ setup_department_name_EN: req.body.setup_department_name_EN, franchisor_id: req.body.franchisor_id }, function (err, department) {
+      if (err) {
         res.send({
-        state:"failure",
-        message:"Something went wrong."
-        },500);
+          state: "failure",
+          message: "Something went wrong."
+        }, 500);
       }
-      if(department) {
+      if (department) {
         res.send({
-        state:"failure",
-        message:"This department name already exists."
-      },200);
+          state: "failure",
+          message: "This department name already exists."
+        }, 200);
       }
       else {
         console.log(department);
         department = new SetupDepartment();
         department.setup_department_name_EN = req.body.setup_department_name_EN;
         department.franchisor_id = req.body.franchisor_id;
-        department.save(function(err, department){
-          if(err){
+        department.save(function (err, department) {
+          if (err) {
             res.send({
-            state:"failure",
-            message:"Something went wrong."
-            },500);
+              state: "failure",
+              message: "Something went wrong."
+            }, 500);
           }
           else {
             res.send({
-            state:"success",
-            message:"Department created successfully"
-          },200);
+              state: "success",
+              message: "Department created successfully"
+            }, 200);
           }
         });
       }
     });
-}
-catch(err){
-  return res.send({
-  state:"error",
-  message:err
-  });
-}
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 })
-router.post('/create_setup_checklist', function(req, res){
-  try{
-    SetupChecklist.findOne({setup_checklist_name: req.body.setup_checklist_name, setup_department_id: req.body.setup_department_id}, function(err, checklist){
-      if(err){
+router.post('/create_setup_checklist', function (req, res) {
+  try {
+    SetupChecklist.findOne({ setup_checklist_name: req.body.setup_checklist_name, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
+      if (err) {
         res.send({
-        state:"failure",
-        message:"Something went wrong."
-        },500);
+          state: "failure",
+          message: "Something went wrong."
+        }, 500);
       }
-      if(checklist) {
+      if (checklist) {
         res.send({
-        state:"failure",
-        message:"This checklist name already exists."
-      },200);
+          state: "failure",
+          message: "This checklist name already exists."
+        }, 200);
       }
       else {
         console.log(checklist);
@@ -100,115 +100,115 @@ router.post('/create_setup_checklist', function(req, res){
         checklist.visible_to = req.body.visible_to;
         checklist.created_at = Date.now();
         checklist.setup_department_id = req.body.setup_department_id;
-        checklist.save(function(err, checklist){
-          if(err){
+        checklist.save(function (err, checklist) {
+          if (err) {
             res.send({
-            state:"failure",
-            message:"Something went wrong."
-            },500);
+              state: "failure",
+              message: "Something went wrong."
+            }, 500);
           }
           else {
             res.send({
-            state:"success",
-            message:"Checklist created successfully"
-          },200);
+              state: "success",
+              message: "Checklist created successfully"
+            }, 200);
           }
         });
       }
     });
-}
-catch(err){
-  return res.send({
-  state:"error",
-  message:err
-  });
-}
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 })
-router.get('/get_setup_departments/:franchisor_id', function(req, res){
-  try{
-    SetupDepartment.find({franchisor_id: req.params.franchisor_id},function(err,departments){
-      if(err){
-          return res.send(500, err);
+router.get('/get_setup_departments/:franchisor_id', function (req, res) {
+  try {
+    SetupDepartment.find({ franchisor_id: req.params.franchisor_id }, function (err, departments) {
+      if (err) {
+        return res.send(500, err);
       }
-      if(!departments){
+      if (!departments) {
         res.send({
-        message:"Departments are not found",
-        state:"failure",
-        partner_list:[]
-        },201);
+          message: "Departments are not found",
+          state: "failure",
+          partner_list: []
+        }, 201);
       }
-      else{
+      else {
         res.send({
-        state:"success",
-        data:departments
-        },200);
+          state: "success",
+          data: departments
+        }, 200);
       }
     })
   }
-  catch(err){
-         return res.send({
-             state:"error",
-             message:err
-         });
-     }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 });
-router.get('/get_setup_checklists/:department_id', function(req, res){
-  try{
-    SetupChecklist.find({setup_department_id: req.params.department_id},function(err,checklists){
-      if(err){
-          return res.send(500, err);
+router.get('/get_setup_checklists/:department_id', function (req, res) {
+  try {
+    SetupChecklist.find({ setup_department_id: req.params.department_id }, function (err, checklists) {
+      if (err) {
+        return res.send(500, err);
       }
-      if(checklists.length == 0){
+      if (checklists.length == 0) {
         res.send({
-        message:"Checklists are not found",
-        state:"failure",
-        data:[]
-        },201);
+          message: "Checklists are not found",
+          state: "failure",
+          data: []
+        }, 201);
       }
-      else{
+      else {
         res.send({
-        state:"success",
-        data:checklists
-        },200);
+          state: "success",
+          data: checklists
+        }, 200);
       }
     })
   }
-  catch(err){
-         return res.send({
-             state:"error",
-             message:err
-         });
-     }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 });
-router.delete('/delete_setup_checklist/:checklist_id', function(req, res){
-  try{
-    SetupChecklist.findByIdAndRemove({_id: req.params.checklist_id},function(err,checklist){
-      if(err){
-          return res.send(500, err);
+router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
+  try {
+    SetupChecklist.findByIdAndRemove({ _id: req.params.checklist_id }, function (err, checklist) {
+      if (err) {
+        return res.send(500, err);
       }
       console.log(checklist);
-      if(!checklist){
+      if (!checklist) {
         res.send({
-        message:"Checklists  not found",
-        state:"failure",
-        partner_list:[]
-        },201);
+          message: "Checklists  not found",
+          state: "failure",
+          partner_list: []
+        }, 201);
       }
-      else{
+      else {
         res.send({
-        state:"success",
-        message: "Checklist deleted successfully!",
-        data:checklist
-        },200);
+          state: "success",
+          message: "Checklist deleted successfully!",
+          data: checklist
+        }, 200);
       }
     })
   }
-  catch(err){
-         return res.send({
-             state:"error",
-             message:err
-         });
-     }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
 });
 
 module.exports = router;
