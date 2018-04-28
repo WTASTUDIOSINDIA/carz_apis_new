@@ -271,7 +271,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
 })
 
 //Get checklists task
-router.get('/get_setup_checklists_task/:checklist_id', function (req, res) {
+router.get('/get_setup_checklists_tasks/:checklist_id', function (req, res) {
   try {
     SetupTask.find({ setup_checklist_id: req.params.checklist_id }, function (err, task) {
       if (err) {
