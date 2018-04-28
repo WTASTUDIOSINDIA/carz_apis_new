@@ -216,7 +216,7 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
   var checklistTaskForm = JSON.stringify(req.body.task)
   try {
-    SetupTask.findOne({ task_name: req.body.task_name, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
+    SetupTask.findOne({ task_name: req.body.task_name_EN, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
       if (err) {
         res.send({
           state: "failure",
@@ -271,7 +271,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
 })
 
 //Get checklists task
-router.get('/get_setup_checklists_task/:checklist_id', function (req, res) {
+router.get('/get_setup_checklists_tasks/:checklist_id', function (req, res) {
   try {
     SetupTask.find({ setup_checklist_id: req.params.checklist_id }, function (err, task) {
       if (err) {
@@ -288,6 +288,34 @@ router.get('/get_setup_checklists_task/:checklist_id', function (req, res) {
         res.send({
           state: "success",
           data: task
+        }, 200);
+      }
+    })
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+});
+router.delete('/delete_checklist_task/:task_id', function (req, res) {
+  try {
+    SetupTask.findByIdAndRemove({ _id: req.params.task_id }, function (err, task) {
+      if (err) {
+        return res.send(500, err);
+      }
+
+      if (!task) {
+        res.send({
+          message: "Task  not found",
+          state: "failure",
+        }, 201);
+      }
+      else {
+        res.send({
+          state: "success",
+          message: "Task deleted successfully!",
         }, 200);
       }
     })
