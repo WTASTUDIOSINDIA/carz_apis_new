@@ -232,10 +232,8 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
       else {
         console.log(task);
         task = new SetupTask();
-        task.setup_checklist_name = req.body.setup_checklist_name_EN;
-        task.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
-        task.visible_to = req.body.visible_to;
-        task.created_at = Date.now();
+        task.task_name = req.body.task_name_EN;
+        task.task_name_EN = req.body.task_name_EN;
         task.task_radio_options = req.body.task_radio_options;
         task.task_type = req.body.task_type;
         task.setup_checklist_id = req.body.setup_checklist_id;
