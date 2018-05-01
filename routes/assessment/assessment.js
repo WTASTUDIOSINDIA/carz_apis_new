@@ -481,4 +481,61 @@ router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
 	}
 });
 
+//delete questions list
+router.delete('/delete_questions_list',function(req,res){
+    try{
+        Question.remove({},function(err,ques){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!ques){
+                res.send({
+                    state:"failure",
+                    message:"Failed to delete"
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Questions deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+//delete questions Types
+router.delete('/delete_question_types',function(req,res){
+    try{
+        Question_Type.remove({},function(err,ques){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!ques){
+                res.send({
+                    state:"failure",
+                    message:"Failed to delete"
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Question Types deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+
 module.exports = router;

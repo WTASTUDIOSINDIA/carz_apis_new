@@ -113,7 +113,7 @@ router.put('/edit_meeting', function(req, res, next) {
             if(!meeting){
                 res.send({
                     state:"failure",
-                    message:"Meeting exist with this Id."
+                    message:"Failed to edit."
                 },400);
             }
         })
