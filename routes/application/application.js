@@ -274,6 +274,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
       if (!application) {
         var application_stats = new ApplicationSubmitted();
         if (req.files) {
+          console.log(req.files);
           for (var i = 0; i < req.files.file_upload.length; i++) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload') {
