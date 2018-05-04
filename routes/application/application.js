@@ -278,16 +278,19 @@ router.put('/submit_application', cpUpload, function (req, res) {
       }
       if (!application) {
         var application_stats = new ApplicationSubmitted();
-        if (req.files) {
-          console.log(req.files);
-          for (var i = 0; i < req.files.file_upload.length; i++) {
-            for (var j = 0; j < application_form.application_list.length; j++) {
-              if (application_form.application_list[j].question_type === 'File Upload') {
-                application_form.application_list[j].answer = req.files.file_upload[i].location;
-                application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+
+          if(req.files.file_upload){
+            console.log(req.files);
+            for (var i = 0; i < req.files.file_upload.length; i++) {
+              for (var j = 0; j < application_form.application_list.length; j++) {
+                if (application_form.application_list[j].question_type === 'File Upload') {
+                  application_form.application_list[j].answer = req.files.file_upload[i].location;
+                  application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                }
               }
-            }
+
           }
+
         }
         application_stats.franchisee_Id = application_form.franchisee_Id;
         application_stats.application_status = 'Submitted';
