@@ -279,6 +279,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.lead_source=franchiseeForm.lead_source,
                 franchisee.master_franchisee_id=franchiseeForm.master_franchisee_id,
                 franchisee.user_role=franchiseeForm.user_role,
+                franchisee.bussiness_type_id=franchiseeForm.bussiness_type_id;
                 franchisee.franchisee_pass = createHash('mypassword');
                 franchisee.bussiness_type = franchiseeForm.bussiness_type_id;
                 franchisee.partners_list = 1;
@@ -508,6 +509,7 @@ router.put('/edit_franchisee',upload.single('franchisee_img'), function(req, res
                 franchisee.franchisee_franchise_type = franchiseeEditForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeEditForm.franchisee_remarks,
                 franchisee.lead_age=franchiseeEditForm.lead_age,
+                franchisee.bussiness_type_id=franchiseeEditForm.bussiness_type_id;
                 franchisee.lead_source=franchiseeEditForm.lead_source
                 if(req.file){
                     var franchisee_pic = {};
