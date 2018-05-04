@@ -345,6 +345,9 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
 });
 //Creating kyc table for the frachisee
 function kyc_Upload(req,res,partner,franchisee,franchiseeForm){
+console.log(partner, "partner");
+  console.log(franchisee, "franchisee");
+  console.log(franchiseeForm, "franchiseeForm");
     FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
         if(err){
             return res.send({
