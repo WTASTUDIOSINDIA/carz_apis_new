@@ -77,6 +77,8 @@ router.post('/create_setup_department', function (req, res) {
     });
   }
 })
+
+//To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {
     SetupChecklist.findOne({ setup_checklist_name: req.body.setup_checklist_name, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
@@ -124,6 +126,7 @@ router.post('/create_setup_checklist', function (req, res) {
     });
   }
 })
+//To get setup departments by franchisor id
 router.get('/get_setup_departments/:franchisor_id', function (req, res) {
   try {
     SetupDepartment.find({ franchisor_id: req.params.franchisor_id }, function (err, departments) {
@@ -152,6 +155,8 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
     });
   }
 });
+
+//To get setup checklists by department id
 router.get('/get_setup_checklists/:department_id', function (req, res) {
   try {
     SetupChecklist.find({ setup_department_id: req.params.department_id }, function (err, checklists) {
@@ -180,6 +185,9 @@ router.get('/get_setup_checklists/:department_id', function (req, res) {
     });
   }
 });
+
+
+//To delete setup checklist by checklist id
 router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
   try {
     SetupChecklist.findByIdAndRemove({ _id: req.params.checklist_id }, function (err, checklist) {
@@ -214,7 +222,7 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 
 //Create Task for checklists
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
-  var checklistTaskForm = JSON.stringify(req.body.task)
+  var checklistTaskForm = JSON.parse(req.body.task)
   try {
     SetupTask.findOne({ task_name: req.body.task_name_EN, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
       if (err) {
@@ -327,6 +335,102 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
     });
   }
 });
+
+
+//To edit setup checklists
+router.put('/edit_setup_checklist', function(req, res) {
+  try {
+    SetupChecklist.findOne({_id: req.body._id}, function (err,checklist) {
+      if(err) {
+        return res.send({
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
+      }
+      if(checklist){
+        checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
+        checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
+        checklist.visible_to = req.body.visible_to;
+        checklist.setup_department_id = req.body.setup_department_id;
+        checklist.created_at = Date.now();
+        checklist.save(function (err, checklist){
+          if(err){
+            res.send({
+              state:"err",
+              message:"Something went wrong."
+            },500);
+          }
+          else{
+            res.send({
+              state:"success",
+              message:"Setup checklist updated."
+            },200);
+          }
+        });
+      }
+      if(!checklist){
+        res.send({
+          state:"failure",
+          message:"Failed to edit."
+        },400);
+      }
+    })
+  }
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
+
+//To edit checklist tasks
+router.put('/edit_setup_checklists_tasks', function (req, res) {
+  try {
+    SetupTask.findOne({ _id: req.params._id}, function (err, task) {
+      if(err){
+        return res.send({
+          state:"err",
+          message:"Something went wrong. We are looking into it"
+        },500);
+      }
+      if(task){
+        task.task_name = req.body.task_name_EN;
+        task.task_name_EN = req.body.task_name_EN;
+        task_task_radio_options = req.body.task_radio_options;
+        task.task_type = req.body.req.body.task_type;
+        task.save(function (err, task){
+          if(err){
+            res.send({
+              state:"err",
+              message:"Something went wrong"
+            },500);
+          }
+          else{
+            res.send({
+              state:"success",
+              message:"Setup checklist task updated."
+            },200);
+          }
+        });
+      }
+      if(!task){
+        re.send({
+          state:"failure",
+          message: "Failed to edit."
+        },400);
+      }
+    })
+  }
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
+
+
 
 
 module.exports = router;

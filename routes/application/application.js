@@ -224,87 +224,99 @@ router.put('/edit_question',function(req,res){
  }
 });
 var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
-router.put('/submit_application',cpUpload,function(req,res){
- var application_form = JSON.parse(req.body.data);
- try{
- ApplicationSubmitted.findOne({franchisee_Id:application_form.franchisee_Id},function(err,application){
- if(err){
- return res.send({
- state:"err",
- message:"Something went wrong.We are looking into it."
- },500);
- }
- if(application){
 
- if(req.files.file_upload){
- for(var i=0;i<req.files.file_upload.length;i++){
- for(var j=0;j<application_form.application_list.length;j++){
- if(application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined ) {
- application_form.application_list[j].answer = req.files.file_upload[i].location;
- application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
- i++;
- }
- }
- }
- }
- application.franchisee_Id = application_form.franchisee_Id;
- application.application_status = 'Submitted';
- application.answers = application_form.application_list;
- application.save(function(err, application){
- if(err){
- return res.send({
- state:"err",
- message:"Something went wrong.We are looking into it."
- },500);
- }
- else{
- return res.send({
- state:"success",
- message:"application submitted."
- },200);
- }
- })
- }
- if(!application){
- var application_stats = new ApplicationSubmitted();
- if(req.files){
- for(var i=0;i<req.files.file_upload.length;i++){
- for(var j=0;j<application_form.application_list.length;j++){
- if(application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined){
- application_form.application_list[j].answer = req.files.file_upload[i].location;
- application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
- i++;
- }
- }
- }
- }
- application_stats.franchisee_Id = application_form.franchisee_Id;
- application_stats.application_status = 'Submitted';
- application_stats.answers = application_form.application_list;
- application_stats.save(function(err, application_stats){
- if(err){
- return res.send({
- state:"err",
- message:"Something went wrong.We are looking into it."
- },500);
- }
- else{
- return res.send({
- state:"success",
- message:"application submitted."
- },200);
- }
- })
- }
+router.put('/submit_application', cpUpload, function (req, res) {
+  var application_form = JSON.parse(req.body.data);
+  try {
+    ApplicationSubmitted.findOne({ franchisee_Id: application_form.franchisee_Id }, function (err, application) {
+      if (err) {
+        return res.send({
+          state: "err",
+          message: "Something went wrong.We are looking into it."
+        }, 500);
+      }
+      if (application) {
 
- })
- }
- catch(err){
- res.send({
- state:"error",
- message:err
- },500);
- }
+        // if (req.files.file_upload) {
+        //   for (var i = 0; i < req.files.file_upload.length; i++) {
+        //     for (var j = 0; j < application_form.application_list.length; j++) {
+        //       if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
+        //         application_form.application_list[j].answer = req.files.file_upload[i].location;
+        //         application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+        //       }
+        //     }
+        //   }
+        // }
+        if (req.files.file_upload) {
+          for (var i = 0; i < req.files.file_upload.length; i++) {
+            for (var j = 0; j < application_form.application_list.length; j++) {
+              if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
+                application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                i++;
+              }
+            }
+          }
+        }
+        application.franchisee_Id = application_form.franchisee_Id;
+        application.application_status = 'Submitted';
+        application.answers = application_form.application_list;
+        application.save(function (err, application) {
+          if (err) {
+            return res.send({
+              state: "err",
+              message: "Something went wrong.We are looking into it."
+            }, 500);
+          }
+          else {
+            return res.send({
+              state: "success",
+              message: "application submitted."
+            }, 200);
+          }
+        })
+      }
+      if (!application) {
+        var application_stats = new ApplicationSubmitted();
+        if (req.files) {
+          console.log(req.files);
+          for (var i = 0; i < req.files.file_upload.length; i++) {
+            for (var j = 0; j < application_form.application_list.length; j++) {
+              if (application_form.application_list[j].question_type === 'File Upload') {
+                application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+              }
+            }
+          }
+        }
+        application_stats.franchisee_Id = application_form.franchisee_Id;
+        application_stats.application_status = 'Submitted';
+        application_stats.answers = application_form.application_list;
+        application_stats.save(function (err, application_stats) {
+          if (err) {
+            return res.send({
+              state: "err",
+              message: "Something went wrong.We are looking into it."
+            }, 500);
+          }
+          else {
+            return res.send({
+              state: "success",
+              message: "application submitted."
+            }, 200);
+          }
+        })
+      }
+
+    })
+  }
+  catch (err) {
+    res.send({
+      state: "error",
+      message: err
+    }, 500);
+  }
+
 })
 var docupload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 router.post('/background_verification',docupload,function(req,res){

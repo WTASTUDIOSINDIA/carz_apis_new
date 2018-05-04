@@ -33,7 +33,7 @@ var franchiseeSchema = new mongoose.Schema({
     "bussiness_type": String,
     "first_lakh_payment":{type:String,default:'Pending'},
     "second_lakh_payment":{type:String,default:'Pending'},
-    "lead_type": String,
+    "lead_type": {type:String,default:'Unassigned'},
     "partner_occupation": String,
     "partner_mobile_number":String,
     "partner_age":String,
