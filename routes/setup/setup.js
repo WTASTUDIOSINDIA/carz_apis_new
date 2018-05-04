@@ -336,6 +336,7 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
   }
 });
 
+
 //To edit setup checklists
 router.put('/edit_setup_checklist', function(req, res) {
   try {
@@ -428,6 +429,7 @@ router.put('/edit_setup_checklists_tasks', function (req, res) {
     });
   }
 });
+
 
 
 

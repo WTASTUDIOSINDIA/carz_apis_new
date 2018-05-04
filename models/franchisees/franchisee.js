@@ -191,7 +191,8 @@ var ApplicationSchema = new mongoose.Schema({
     'question_type':String,
     'options': Array,
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    'isRequire':{type:Boolean,default:false}
+    'isRequire':{type:Boolean,default:false},
+    'order': { type:Number, default:0 }
 })
 
 var ApplicationSubmittedSchema = new mongoose.Schema({

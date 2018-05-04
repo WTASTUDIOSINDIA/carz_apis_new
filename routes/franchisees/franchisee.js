@@ -273,6 +273,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
+                franchisee.bussiness_type_id = franchiseeForm.bussiness_type_id,
                 franchisee.franchisee_pincode=franchiseeForm.franchisee_pincode,
                 franchisee.lead_age=franchiseeForm.partner_age,
                 franchisee.lead_source=franchiseeForm.lead_source,
@@ -346,6 +347,9 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
 });
 //Creating kyc table for the frachisee
 function kyc_Upload(req,res,partner,franchisee,franchiseeForm){
+console.log(partner, "partner");
+  console.log(franchisee, "franchisee");
+  console.log(franchiseeForm, "franchiseeForm");
     FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
         if(err){
             return res.send({
@@ -493,6 +497,7 @@ router.put('/edit_franchisee',upload.single('franchisee_img'), function(req, res
                 franchisee.franchisee_email=franchiseeEditForm.franchisee_email,
                 franchisee.franchisee_city=franchiseeEditForm.franchisee_city,
                 franchisee.franchisee_state=franchiseeEditForm.franchisee_state,
+                franchisee.bussiness_type_id = franchiseeEditForm.bussiness_type_id,
                 franchisee.franchisee_pincode =franchiseeEditForm.franchisee_pincode,
                 franchisee.franchisee_address=franchiseeEditForm.franchisee_address,
                 franchisee.franchisee_mobile_number=franchiseeEditForm.franchisee_mobile_number,
