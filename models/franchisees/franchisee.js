@@ -199,7 +199,21 @@ var ApplicationSubmittedSchema = new mongoose.Schema({
     'answers': Array,
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "application_status":{type:String,default:'Submitted'}
-})
+});
+
+var CampaignSchema = new mongoose.Schema({
+    'campaign_name': String,
+    'campaign_location': String,
+    'campaign_start_date': String,
+    'campaign_end_date': String,
+    'campaign_type': String,
+    'campaign_about': String,
+    'campaign_color':String,
+    'campaign_medium':String,
+    'campaign_budget': String,
+    // 'campaign_file':{type: Schema.Types.Mixed, default : {}},
+    'franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+});
 
 
 mongoose.model('Franchisee', franchiseeSchema);
@@ -219,3 +233,4 @@ mongoose.model('Assessment', AssessmentSchema);
 mongoose.model('Application', ApplicationSchema);
 mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
 mongoose.model('ThirdPartyFiles', thirdPartyFileSchema);
+mongoose.model('Campaign', CampaignSchema);
