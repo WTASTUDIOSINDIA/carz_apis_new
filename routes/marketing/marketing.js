@@ -4,6 +4,7 @@ var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var Campaign = mongoose.model('Campaign');
+var Franchisee = mongoose.model('Franchisee');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -143,7 +144,7 @@ router.put('/update_campaign', function(req,res){
 });
 
 //To get all campaign
-router.get('/get_all_campaign', function(req,res){
+router.get('/get_all_campaigns', function(req,res){
     try{
         Campaign.find({}, function(err,campaign){
             if(err){
