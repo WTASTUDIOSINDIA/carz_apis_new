@@ -202,17 +202,18 @@ var ApplicationSubmittedSchema = new mongoose.Schema({
 });
 
 var CampaignSchema = new mongoose.Schema({
-    'campaign_name': String,
-    'campaign_location': String,
-    'campaign_start_date': String,
-    'campaign_end_date': String,
+    'title': String,
+    'location': String,
+    'start': String,
+    'end': String,
     'campaign_type': String,
-    'campaign_about': String,
-    'campaign_color':String,
+    'notes': String,
+    'color':String,
     'campaign_medium':String,
-    'campaign_budget': String,
+    'budget': String,
+    'campaign_feedback': String,
     // 'campaign_file':{type: Schema.Types.Mixed, default : {}},
-    'franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'franchisor_id':{ type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
 

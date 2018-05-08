@@ -37,7 +37,7 @@ router.post('/create_campaign',  function(req, res) {
     var campaignForm = req.body;
     console.log(req.body);
     try{
-        Campaign.findOne({'campaign_name':req.body.campaign_name},function(err,campaign){
+        Campaign.findOne({'title':req.body.title},function(err,campaign){
             console.log("campaign",campaign);
             if(err){
                 return res.send({
@@ -53,16 +53,16 @@ router.post('/create_campaign',  function(req, res) {
             }
             if(!campaign){
                var campaign = new Campaign();
-                campaign.campaign_name = req.body.campaign_name,
-                campaign.campaign_location = req.body.campaign_location,
-                campaign.campaign_start_date = req.body.campaign_start_date,
-                campaign.campaign_end_date = req.body.campaign_end_date,
+                campaign.title = req.body.title,
+                campaign.location = req.body.location,
+                campaign.start = req.body.start,
+                campaign.end = req.body.end,
                 campaign.campaign_type = req.body.campaign_type,
-                campaign.campaign_about = req.body.campaign_about,
-                campaign.campaign_color = req.body.campaign_color,
+                campaign.notes = req.body.notes,
+                campaign.color = req.body.color,
                 campaign.campaign_medium = req.body.campaign_medium,
-                campaign.campaign_budget = req.body.campaign_budget,
-                campaign.franchisee_id = req.body.franchisee_id,
+                campaign.budget =   req.body.budget,
+                campaign.franchisor_id = req.body.franchisor_id,
                 campaign.save(function(err,campaign){
                    if(err){
                      res.send({
@@ -102,16 +102,16 @@ router.put('/update_campaign', function(req,res){
                 },500);
             }
             if(campaign){
-                campaign.campaign_name = campaignEditForm.campaign_name;
-                campaign.campaign_location = campaignEditForm.campaign_location;
-                campaign.campaign_start_date = campaignEditForm.campaign_start_date;
-                campaign.campaign_end_date = campaignEditForm.campaign_end_date;
+                campaign.title = campaignEditForm.title;
+                campaign.location = campaignEditForm.location;
+                campaign.start = campaignEditForm.start;
+                campaign.end = campaignEditForm.end;
                 campaign.campaign_type = campaignEditForm.campaign_type;
-                campaign.campaign_about = campaignEditForm.campaign_about;
-                campaign.campaign_color = campaignEditForm.campaign_color;
+                campaign.notes = campaignEditForm.notes;
+                campaign.color = campaignEditForm.color;
                 campaign.campaign_medium = campaignEditForm.campaign_medium;
-                campaign.campaign_budget = campaignEditForm.campaign_budget;
-                campaign.franchisee_id = campaignEditForm.franchisee_id
+                campaign.budget = campaignEditForm.budget;
+                campaign.franchisor_id = campaignEditForm.franchisor_id
                 campaign.save(function(err,campaign){
                     if(err){
                         res.send({
