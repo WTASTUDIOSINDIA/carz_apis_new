@@ -21,6 +21,7 @@ var meeting = require('./routes/meetings/meeting');
 var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
+var marketing = require('./routes/marketing/marketing');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
@@ -85,6 +86,7 @@ app.use('/document', document);
 app.use('/assessment', assessment);
 app.use('/application', application);
 app.use('/setup', setup);
+app.use('/marketing', marketing);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {

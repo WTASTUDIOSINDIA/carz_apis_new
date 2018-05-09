@@ -75,6 +75,7 @@ router.post('/create_meeting',  function(req, res) {
 //update meeting
 router.put('/edit_meeting', function(req, res, next) {
     var meetingEditForm = req.body;
+    console.log(req.body);
     try{
         Meeting.findOne({'_id':meetingEditForm._id},function(err,meeting){
             console.log('req.body', req.body);
