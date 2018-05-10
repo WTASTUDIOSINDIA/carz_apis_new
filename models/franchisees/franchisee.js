@@ -206,14 +206,20 @@ var CampaignSchema = new mongoose.Schema({
     'location': String,
     'start': String,
     'end': String,
-    'campaign_type': String,
+    'type': String,
     'notes': String,
     'color':String,
-    'campaign_medium':String,
+    'medium':String,
     'budget': String,
-    'campaign_feedback': String,
+    'feedback': String,
     // 'campaign_file':{type: Schema.Types.Mixed, default : {}},
-    'franchisor_id':{ type: Schema.Types.ObjectId, ref: 'Franchisor'}
+    'franchisor_id':{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    'doc_name': String,
+    'link': {type: Schema.Types.Mixed, default : {}},
+    'file_type': String,
+    'date_uploaded':Date,
+    'key':String,
+    'meta': Object
 });
 
 
