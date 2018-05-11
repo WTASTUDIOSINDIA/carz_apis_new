@@ -1392,22 +1392,22 @@ console.log(franchisee);
             });
         }
     });
-//   async  function get_existing_mails(values){
-//       var existing_franchisees = [];
-//       for(var i=0;i<values.length;i++){
-//         var franchisee_mail = values[i].franchisee_email;
-//         await  Franchisee.find({franchisee_email: values[i].franchisee_email},function(err,franchisee){
-//               if(franchisee){
-//                 for(var j=0; j<franchisee.length; j++){
-//                   (function(j){
-//                     existing_franchisees.push(franchisee[j].franchisee_email);
-//                   })(j);
-//                 }
-//               }
-//             });
-//           }
-//           return existing_franchisees;
-//         }
+  async  function get_existing_mails(values){
+      var existing_franchisees = [];
+      for(var i=0;i<values.length;i++){
+        var franchisee_mail = values[i].franchisee_email;
+        await  Franchisee.find({franchisee_email: values[i].franchisee_email},function(err,franchisee){
+              if(franchisee){
+                for(var j=0; j<franchisee.length; j++){
+                  (function(j){
+                    existing_franchisees.push(franchisee[j].franchisee_email);
+                  })(j);
+                }
+              }
+            });
+          }
+          return existing_franchisees;
+        }
 
 // To select lead type
     router.put('/lead_type',function(req, res) {

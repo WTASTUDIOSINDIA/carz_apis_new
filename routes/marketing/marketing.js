@@ -213,7 +213,7 @@ router.delete('/delete_campaigns', function(req,res){
 // To delete campaign by id
 router.delete('/delete_campaign/:id', function(req,res){
     try{
-        Campaign.findByIdAndRemove({_id:req.params.id},function(err,campaign){
+        Campaign.findByIdAndRemove({_id:req.params._id},function(err,campaign){
             if(err){
                 return res.send(500,err);
             }
