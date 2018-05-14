@@ -430,7 +430,81 @@ router.put('/edit_setup_checklists_tasks', function (req, res) {
   }
 });
 
+var fileupload = upload.fields([{
+  name: 'file_upload',
+  maxCount: 50
+}, {
+  name: 'imgFields',
+  maxCount:20
+}])
+// To upload files
+router.post('/upload_setup_checklist_task_file',  fileupload, function  (req,res){
+  var file_details = JSON.parse(req.body.file_details);
+  console.log(req.body.file_details);
+  var files = [];
+  SetupTask.find({},function(err, setupTask){
+      if (err){
+          return res.send(err);
+      }
+      else {
+          var file = [];
+          var getNumber = 0;
+          var length = req.files.file_upload.length;
+          file = req.files.file_upload;
+          for (var i = 0; i < file.length; i++){
+              var document = new SetupTask();
+              document.link = file[i].location;
+              document.key = file[i].key;
+              document.file_name = file[i].originalname;
+              document.files_type = "doc";
+              if (file[i].mimetype == "application/pdf") {
+                  document.file_type = "pdf";
+              }
+              if (file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i] == "image/jpeg"){
+                  files.file_type = "image";
+              }
+              document.date_uploaded = Date.now();
+              document.checklist_id = file_details.checklist_id;
+              files.push(document);
+          }
+          for (var i = 0; i < files.length; i++){
+              getNumber = getNumber + 1;
+              files[i].save(function (err, files){
+                  if (err) {
+                      return res.send(err);
+                  }
+                  else {
+                      if (parseInt(length)== parseInt(getNumber)) {
+                          res.send({
+                              status: "success",
+                              message: "File uploaded"
+                          },200);
+                      }
+                  }
+              })
+          }
+      }
+  });
+});
 
-
+router.get('/get_setup_checklist_task_file/:id', function (req, res) {
+  SetupTask.find({task_id: req.params.id}, function (err, file) {
+    if (err) {
+      return res.send(err);
+    }
+    if (file.length == 0) {
+      return res.send({
+        status: 'failure',
+        message: "file not found !"
+      },400);
+    }
+    if (file.length > 0) {
+      return res.send({
+        status: 'success',
+        data: file
+      },200);
+    }
+  })
+})
 
 module.exports = router;
