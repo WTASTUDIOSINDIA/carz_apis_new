@@ -28,5 +28,8 @@
     "passport-local": "^1.0.0",
     "request": "^2.85.0",
     "serve-favicon": "^2.4.5"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.7.4"
   }
 }
