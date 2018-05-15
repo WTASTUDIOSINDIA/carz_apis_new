@@ -222,29 +222,31 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 
 //Create Task for checklists
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
-  var checklistTaskForm = JSON.parse(req.body.task)
+  var checklistTaskForm = JSON.parse(req.body.task);
+  // console.log(checklistTaskForm);
   try {
-    SetupTask.findOne({ task_name: req.body.task_name_EN, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
+    SetupTask.findOne({ task_name: checklistTaskForm.task_name_EN, setup_checklist_id: checklistTaskForm.setup_checklist_id }, function (err, task) {
       if (err) {
         res.send({
           state: "failure",
           message: "Something went wrong."
         }, 500);
       }
+      console.log(task);
       if (task) {
         res.send({
           state: "failure",
           message: "This task name already exists."
-        }, 200);
+        }, 400);
       }
       else {
         console.log(task);
         task = new SetupTask();
-        task.task_name = req.body.task_name_EN;
-        task.task_name_EN = req.body.task_name_EN;
-        task.task_radio_options = req.body.task_radio_options;
-        task.task_type = req.body.task_type;
-        task.setup_checklist_id = req.body.setup_checklist_id;
+        task.task_name = checklistTaskForm.task_name_EN;
+        task.task_name_EN = checklistTaskForm.task_name_EN;
+        task.task_radio_options = checklistTaskForm.task_radio_options;
+        task.task_type = checklistTaskForm.task_type;
+        task.setup_checklist_id = checklistTaskForm.setup_checklist_id;
         if (req.file) {
           var checklist_task_img = {};
           checklist_task_img.path = req.file.location;
@@ -495,13 +497,13 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
     if (file.length == 0) {
       return res.send({
         status: 'failure',
-        message: "file not found !"
+        message: "file not found!"
       },400);
     }
     if (file.length > 0) {
       return res.send({
         status: 'success',
-        data: file
+        files: file
       },200);
     }
   })

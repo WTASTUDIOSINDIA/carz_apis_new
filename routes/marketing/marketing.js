@@ -304,7 +304,7 @@ router.get('/get_campaign_files/:id', function (req, res) {
       if (file.length == 0) {
         return res.send({
           status: 'failure',
-          message: "file not found !"
+          message: "file not found!"
         },400);
       }
       if (file.length > 0) {
