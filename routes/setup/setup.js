@@ -222,34 +222,37 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
 
 //Create Task for checklists
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
-  var checklistTaskForm = JSON.parse(req.body.task)
+  var checklistTaskForm = JSON.parse(req.body.task);
+  // console.log(checklistTaskForm);
   try {
-    SetupTask.findOne({ task_name: req.body.task_name_EN, setup_checklist_id: req.body.setup_checklist_id }, function (err, task) {
+    SetupTask.findOne({ task_name: checklistTaskForm.task_name_EN, setup_checklist_id: checklistTaskForm.setup_checklist_id }, function (err, task) {
       if (err) {
         res.send({
           state: "failure",
           message: "Something went wrong."
         }, 500);
       }
+      console.log(task);
       if (task) {
         res.send({
           state: "failure",
           message: "This task name already exists."
-        }, 200);
+        }, 400);
       }
       else {
         console.log(task);
         task = new SetupTask();
-        task.task_name = req.body.task_name_EN;
-        task.task_name_EN = req.body.task_name_EN;
-        task.task_radio_options = req.body.task_radio_options;
-        task.task_type = req.body.task_type;
-        task.setup_checklist_id = req.body.setup_checklist_id;
+        task.task_name = checklistTaskForm.task_name_EN;
+        task.task_name_EN = checklistTaskForm.task_name_EN;
+        task.task_radio_options = checklistTaskForm.task_radio_options;
+        task.task_type = checklistTaskForm.task_type;
+        task.franchisee_file_upload_required = checklistTaskForm.franchisee_file_upload_required;
+        task.setup_checklist_id = checklistTaskForm.setup_checklist_id;
         if (req.file) {
-          var checklist_task_img = {};
-          checklist_task_img.path = req.file.location;
-          checklist_task_img.key = req.file.key;
-          task.checklist_task_img = checklist_task_img;
+          console.log(req.file);
+          task.franchisor_task_file_attachment_file_url = req.file.location;
+          task.franchisor_task_file_attachment_file_name = req.file.key;
+          task.franchisor_task_file_attachment_file_type = req.file.contentType;
         }
         task.save(function (err, task) {
 
@@ -385,52 +388,185 @@ router.put('/edit_setup_checklist', function(req, res) {
 });
 
 //To edit checklist tasks
-router.put('/edit_setup_checklists_tasks', function (req, res) {
-  try {
-    SetupTask.findOne({ _id: req.params._id}, function (err, task) {
+// router.put('/edit_setup_checklists_tasks', function (req, res) {
+//   try {
+//     SetupTask.findOne({ task_id: req.params._id}, function (err, task) {
+//       if(err){
+//         return res.send({
+//           state:"err",
+//           message:"Something went wrong. We are looking into it"
+//         },500);
+//       }
+//       if(task){
+//         task.task_name = req.body.task_name_EN;
+//         task.task_name_EN = req.body.task_name_EN;
+//         task_task_radio_options = req.body.task_radio_options;
+//         task.task_type = req.body.task_type;
+//         task.franchisee_file_upload_required = req.body.franchisee_file_upload_required;
+//         task.save(function (err, task){
+//           if(err){
+//             res.send({
+//               state:"err",
+//               message:"Something went wrong"
+//             },500);
+//           }
+//           else{
+//             res.send({
+//               state:"success",
+//               message:"Setup checklist task updated."
+//             },200);
+//           }
+//         });
+//       }
+//       if(!task){
+//         res.send({
+//           state:"failure",
+//           message: "Failed to edit."
+//         },400);
+//       }
+//     })
+//   }
+//   catch(err){
+//     return res.send({
+//       state:"error",
+//       message:err
+//     });
+//   }
+// });
+
+
+router.put('/edit_setup_checklists_tasks', upload.single('checklist_task_img'), function(req, res){
+  var checklistTaskEditForm = JSON.parse(req.body.task);
+  console.log(checklistTaskEditForm);
+  try{
+    SetupTask.findById({_id: checklistTaskEditForm.task_id},function(err,task){
+  if(err){
+    return res.send({
+      state:"err",
+      message:"Something went wrong.We are looking into it."
+    },500);
+  }
+  if (task){
+    task.task_name = checklistTaskEditForm.task_name_EN;
+    task.task_name_EN = checklistTaskEditForm.task_name_EN;
+    task.task_radio_options = checklistTaskEditForm.task_radio_options;
+    task.task_type = checklistTaskEditForm.task_type;
+    task.franchisee_file_upload_required = checklistTaskEditForm.franchisee_file_upload_required;
+    task.setup_checklist_id = checklistTaskEditForm.setup_checklist_id;
+    if (req.file) {
+      console.log(req.file);
+      var checklist_task_img = {};
+      task.franchisor_task_file_attachment_file_url = req.file.location;
+      task.franchisor_task_file_attachment_file_name = req.file.key;
+      task.franchisor_task_file_attachment_file_type = req.file.contentType;
+    }
+    task.save(function(err, task){
       if(err){
-        return res.send({
-          state:"err",
-          message:"Something went wrong. We are looking into it"
-        },500);
+        res.send({
+           state:"err",
+           message:"Something went wrong."
+       },500);
       }
-      if(task){
-        task.task_name = req.body.task_name_EN;
-        task.task_name_EN = req.body.task_name_EN;
-        task_task_radio_options = req.body.task_radio_options;
-        task.task_type = req.body.req.body.task_type;
-        task.save(function (err, task){
-          if(err){
-            res.send({
-              state:"err",
-              message:"Something went wrong"
-            },500);
-          }
-          else{
-            res.send({
-              state:"success",
-              message:"Setup checklist task updated."
-            },200);
-          }
-        });
-      }
-      if(!task){
-        re.send({
-          state:"failure",
-          message: "Failed to edit."
-        },400);
-      }
+   else{
+       res.send({
+           state:"success",
+           message:"Task Updated."
+       },200);
+   }
+    });
+  }
+  if(!task){
+    res.send({
+        state:"failure",
+        message:"Failed to update"
+    },400);
+}
     })
   }
   catch(err){
-    return res.send({
-      state:"error",
-      message:err
-    });
-  }
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+})
+
+var fileupload = upload.fields([{
+  name: 'file_upload',
+  maxCount: 50
+}, {
+  name: 'imgFields',
+  maxCount:20
+}])
+
+// To upload files
+router.post('/upload_setup_checklist_task_file',  fileupload, function  (req,res){
+  var file_details = JSON.parse(req.body.file_details);
+  console.log(req.body.file_details);
+  var files = [];
+  SetupTask.find({},function(err, setupTask){
+      if (err){
+          return res.send(err);
+      }
+      else {
+          var file = [];
+          var getNumber = 0;
+          var length = req.files.file_upload.length;
+          file = req.files.file_upload;
+          for (var i = 0; i < file.length; i++){
+              var document = new SetupTask();
+              document.link = file[i].location;
+              document.key = file[i].key;
+              document.file_name = file[i].originalname;
+              document.files_type = "doc";
+              if (file[i].mimetype == "application/pdf") {
+                  document.file_type = "pdf";
+              }
+              if (file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i] == "image/jpeg"){
+                  files.file_type = "image";
+              }
+              document.date_uploaded = Date.now();
+              document.checklist_id = file_details.checklist_id;
+              files.push(document);
+          }
+          for (var i = 0; i < files.length; i++){
+              getNumber = getNumber + 1;
+              files[i].save(function (err, files){
+                  if (err) {
+                      return res.send(err);
+                  }
+                  else {
+                      if (parseInt(length)== parseInt(getNumber)) {
+                          res.send({
+                              status: "success",
+                              message: "File uploaded"
+                          },200);
+                      }
+                  }
+              })
+          }
+      }
+  });
 });
 
-
-
+router.get('/get_setup_checklist_task_file/:id', function (req, res) {
+  SetupTask.find({task_id: req.params.id}, function (err, file) {
+    if (err) {
+      return res.send(err);
+    }
+    if (file.length == 0) {
+      return res.send({
+        status: 'failure',
+        message: "file not found!"
+      },400);
+    }
+    if (file.length > 0) {
+      return res.send({
+        status: 'success',
+        files: file
+      },200);
+    }
+  })
+})
 
 module.exports = router;

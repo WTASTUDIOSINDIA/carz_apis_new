@@ -15,7 +15,11 @@ var setupTaskSchema = new mongoose.Schema({
   franchisor_task_file_attachment_file_url: String,
   franchisor_task_file_attachment_file_type: String,
   task_serial_number: Number,
-  task_radio_options: Array
+  task_radio_options: Array,
+  doc_name: String,
+  link: {type: Schema.Types.Mixed, default : {}},  "file_type": String,
+  date_uploaded:Date,
+  key:String
 })
 
 var setupDepartmentSchema = new mongoose.Schema({

@@ -283,10 +283,9 @@ router.post('/upload_campaign_file',  fileupload, function  (req,res){
                     else {
                         if (parseInt(length)== parseInt(getNumber)) {
                             res.send({
-                                state: 200,
                                 status: "success",
                                 message: "File uploaded"
-                            });
+                            },200);
                         }
                     }
                 })
@@ -304,17 +303,15 @@ router.get('/get_campaign_files/:id', function (req, res) {
       }
       if (file.length == 0) {
         return res.send({
-          state: 200,
           status: 'failure',
-          message: "file not found !"
-        });
+          message: "file not found!"
+        },400);
       }
       if (file.length > 0) {
         return res.send({
-          state: 200,
           status: 'success',
           files: file
-        });
+        },200);
       }
     })
   })
