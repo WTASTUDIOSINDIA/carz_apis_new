@@ -100,7 +100,7 @@ router.post('/create_setup_checklist', function (req, res) {
         checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
         checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
         checklist.visible_to = req.body.visible_to;
-        checklist.created_at = Date.now();
+        checklist.created_at = new Date();
         checklist.setup_department_id = req.body.setup_department_id;
         checklist.save(function (err, checklist) {
           if (err) {
@@ -344,6 +344,8 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
 router.put('/edit_setup_checklist', function(req, res) {
   try {
     SetupChecklist.findOne({_id: req.body._id}, function (err,checklist) {
+      console.log(req.body);
+      console.log(err);
       if(err) {
         return res.send({
             state:"err",
