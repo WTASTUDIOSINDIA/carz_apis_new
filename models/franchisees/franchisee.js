@@ -208,8 +208,8 @@ var CampaignSchema = new mongoose.Schema({
     'end': String,
     'type': String,
     'notes': String,
-    'color':String,
-    'medium':String,
+    'campaign_color':String,
+    'medium':Array,
     'budget': String,
     'feedback': String,
     // 'campaign_file':{type: Schema.Types.Mixed, default : {}},
@@ -219,7 +219,8 @@ var CampaignSchema = new mongoose.Schema({
     'file_type': String,
     'date_uploaded':Date,
     'key':String,
-    'meta': Object
+    'meta': Object,
+    'campaign_files': Array
 });
 
 
