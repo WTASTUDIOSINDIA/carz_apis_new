@@ -1,7 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
-var mongoose = require('mongoose');;
+var mongoose = require('mongoose');
 var multer = require('multer');
 var path = require('path');
 var Partner = mongoose.model('Partner');
@@ -219,6 +219,33 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
   }
 });
 
+router.delete('/delete_checklists',function(req,res){
+  try{
+      SetupChecklist.remove({},function(err,checklist){
+          if(err){
+              return res.send(500, err);
+          }
+          if(!checklist){
+              res.send({
+                  status:400,
+                  message:"Failed to delete",
+                  data :"checklist"
+              },400);
+          }
+          else{
+              res.send({
+                  message:"Checklists deleted sucessfully",
+              },200);
+          }
+      })
+  }
+  catch(err){
+      return res.send({
+          state:"error",
+          message:err
+      });
+  }
+});
 
 //Create Task for checklists
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
@@ -240,7 +267,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
         }, 400);
       }
       else {
-        console.log(task);
+       // console.log(task);
         task = new SetupTask();
         task.task_name = checklistTaskForm.task_name_EN;
         task.task_name_EN = checklistTaskForm.task_name_EN;
@@ -249,7 +276,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
         task.franchisee_file_upload_required = checklistTaskForm.franchisee_file_upload_required;
         task.setup_checklist_id = checklistTaskForm.setup_checklist_id;
         if (req.file) {
-          console.log(req.file);
+         // console.log(req.file);
           task.franchisor_task_file_attachment_file_url = req.file.location;
           task.franchisor_task_file_attachment_file_name = req.file.key;
           task.franchisor_task_file_attachment_file_type = req.file.contentType;
@@ -264,9 +291,16 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
             }, 500);
           }
           else {
+            SetupChecklist.findById({_id:checklistTaskForm.setup_checklist_id},function(err, checklist){
+              console.log(checklist, "295");
+              checklist.tasks_length =  checklist.tasks_length+1;
+              checklist.save(function (err, checklist){
+                console.log(checklist, "298");
+              })
+            })
             res.send({
               state: "success",
-              message: "Checklist created successfully"
+              message: "Task created successfully"
             }, 200);
           }
         });
@@ -324,6 +358,14 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
         }, 201);
       }
       else {
+        console.log(task, "361");
+        SetupChecklist.findById({_id:task.setup_checklist_id},function(err, checklist){
+          console.log(checklist, "295");
+          checklist.tasks_length =  checklist.tasks_length-1;
+          checklist.save(function (err, checklist){
+            console.log(checklist, "298");
+          })
+        })
         res.send({
           state: "success",
           message: "Task deleted successfully!",
