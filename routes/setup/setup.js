@@ -7,6 +7,7 @@ var path = require('path');
 var Partner = mongoose.model('Partner');
 var SetupTask = mongoose.model('SetupTask');
 var SetupDepartment = mongoose.model('SetupDepartment');
+var UserBasedSetupTask = mongoose.model('UserBasedSetupTask');
 var SetupChecklist = mongoose.model('SetupChecklist');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
