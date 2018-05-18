@@ -9,9 +9,10 @@ var flash = require('connect-flash');
 var session = require('express-session');
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
-require('./models/franchisors/franchisor')
-require('./models/setup/setup')
-require('./models/crm/stages')
+require('./models/franchisors/franchisor');
+require('./models/setup/setup');
+require('./models/crm/stages');
+require('./models/discussion/discussion');
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var assessment = require('./routes/assessment/assessment');
@@ -22,6 +23,7 @@ var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
 var marketing = require('./routes/marketing/marketing');
+var discussion = require('./routes/discussion/discussion');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
@@ -87,6 +89,7 @@ app.use('/assessment', assessment);
 app.use('/application', application);
 app.use('/setup', setup);
 app.use('/marketing', marketing);
+app.use('/discussion', discussion);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {

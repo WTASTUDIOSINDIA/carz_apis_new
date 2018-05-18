@@ -33,7 +33,11 @@ var setupChecklistSchema = new mongoose.Schema({
   visible_to : String,
   setup_checklist_name: String,
   setup_checklist_name_EN: String,
-  created_at: String
+
+  created_at: String,
+  tasks_length: {type:Number,default:0},
+ 
+
 
 })
 
@@ -54,10 +58,13 @@ var userBasedSetupTaskSchema = new mongoose.Schema({
   date_uploaded:Date,
   key:String,
   franchisee_id:  {type: Schema.Types.ObjectId, ref: 'Franchisee'}
+
 })
 
 mongoose.model('SetupTask', setupTaskSchema);
 mongoose.model('SetupDepartment', setupDepartmentSchema);
 mongoose.model('SetupChecklist', setupChecklistSchema);
+
 mongoose.model('UserBasedSetupTask', userBasedSetupTaskSchema);
 //mongoose.model('')
+
