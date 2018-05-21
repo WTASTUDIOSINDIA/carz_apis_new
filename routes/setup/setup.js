@@ -7,6 +7,7 @@ var path = require('path');
 var Partner = mongoose.model('Partner');
 var SetupTask = mongoose.model('SetupTask');
 var SetupDepartment = mongoose.model('SetupDepartment');
+var UserAnswersOfTask = mongoose.model('UserAnswersOfTask');
 var SetupChecklist = mongoose.model('SetupChecklist');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
@@ -610,6 +611,60 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
         files: file
       },200);
     }
+  })
+})
+
+router.post('/complete_task_checklist', function(req, res){
+
+  task = new UserAnswersOfTask();
+  task.task_id = req.body.task_id;
+  task.task_status = true;
+  task.task_answer = req.body.task_answer;
+  task.setup_checklist_id = req.body.setup_checklist_id;
+  task.franchisee_id = req.body.franchisee_id;
+  task.completed_at = new Date();
+  task.save(function(err, task){
+    if(err){
+      return res.send({
+        status: 'error',
+        data: data
+      },400);
+    }
+    else {
+      return res.send({
+        status: 'success',
+        message: 'Task completed successfully',
+        data: task
+      },200);
+    }
+  })
+
+});
+router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, res) {
+  UserAnswersOfTask.find({setup_checklist_id: req.params.checklist_id, franchisee_id: req.params.franchisee_id }, function (err, tasks) {
+    if (err) {
+      return res.send(err);
+    }
+    if (tasks.length == 0) {
+      return res.send({
+        status: 'failure',
+        message: "No tasks are completed!"
+      },400);
+    }
+    if (tasks.length > 0) {
+      return res.send({
+        status: 'success',
+        data: tasks
+      },200);
+    }
+  })
+})
+router.delete('/delete_completed_tasks', function(req, res){
+  UserAnswersOfTask.remove({}, function(err, tasks){
+    return res.send({
+      status: 'success',
+      message: 'Tasks deleted successfully!'
+    },200);
   })
 })
 

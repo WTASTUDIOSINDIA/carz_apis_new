@@ -33,11 +33,29 @@ var setupChecklistSchema = new mongoose.Schema({
   visible_to : String,
   setup_checklist_name: String,
   setup_checklist_name_EN: String,
+
   created_at: String,
   tasks_length: {type:Number,default:0},
- 
+
+
+
+})
+
+var userAnswersOfTaskSchema = new mongoose.Schema({
+  task_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
+  task_status: {type:Boolean,default:false},
+  task_franchisee_submitted_file_name: String,
+  task_franchisee_submitted_file_type: String,
+  task_franchisee_submitted_file_url: String,
+  task_answer:String,
+  completed_at: Date,
+  setup_checklist_id:  {type: Schema.Types.ObjectId, ref: 'SetupChecklist'},
+  franchisee_id:  {type: Schema.Types.ObjectId, ref: 'Franchisee'}
 })
 
 mongoose.model('SetupTask', setupTaskSchema);
 mongoose.model('SetupDepartment', setupDepartmentSchema);
 mongoose.model('SetupChecklist', setupChecklistSchema);
+
+mongoose.model('UserAnswersOfTask', userAnswersOfTaskSchema);
+//mongoose.model('')
