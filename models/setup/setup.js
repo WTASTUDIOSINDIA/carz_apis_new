@@ -8,7 +8,7 @@ var setupTaskSchema = new mongoose.Schema({
   setup_checklist_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
   task_name_EN: String,
   task_name: String,
-  task_status: {type:Boolean,default:false},
+  // task_status: {type:Boolean,default:false},
   task_type: String,
   franchisee_file_upload_required: {type:Boolean,default:false},
   franchisor_task_file_attachment_file_name: String,

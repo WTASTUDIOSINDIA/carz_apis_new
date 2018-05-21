@@ -40,11 +40,11 @@ var fileupload = upload.fields([{
   }])
 // To create campaign
 router.post('/create_campaign', fileupload, function(req, res) {
-    console.log(fileupload);
-    var campaignForm = JSON.parse(req.body);
-    console.log(req.body);
+    console.log('43',req,res);
+    var campaignForm = JSON.parse(req.body.campaign);
+    console.log('45',req.body.campaign);
     try{
-        Campaign.findOne({'title':req.body.title},function(err,campaign){
+        Campaign.findOne({'title':campaignForm.title},function(err,campaign){
             console.log("campaign",campaign);
             if(err){
                 return res.send({
@@ -56,27 +56,26 @@ router.post('/create_campaign', fileupload, function(req, res) {
                 return res.send({
                     state:"failure",
                     message:"This campaign already exists!"
-                },200);
+                },200); 
             }
             if(!campaign){
                var campaign = new Campaign();
-                campaign.title = req.body.title;
-                campaign.location = req.body.location;
-                campaign.start = req.body.start;
-                campaign.end = req.body.end;
-                campaign.type = req.body.type;
-                campaign.notes = req.body.notes;
-                campaign.color = req.body.color;
-                campaign.medium = req.body.medium;
-                campaign.budget =   req.body.budget;
-                campaign.meta = req.body.meta;
-                campaign.franchisor_id = req.body.franchisor_id;
+                campaign.title = campaignForm.title;
+                campaign.location = campaignForm.location;
+                campaign.start = campaignForm.start;
+                campaign.end = campaignForm.end;
+                campaign.type = campaignForm.type;
+                campaign.notes = campaignForm.notes;
+                campaign.campaign_color = campaignForm.campaign_color;
+                campaign.medium = campaignForm.medium;
+                campaign.budget = campaignForm.budget;
+                campaign.meta = campaignForm.meta;
+                campaign.franchisor_id = campaignForm.franchisor_id;
                 if (req.file){
                     console.log(req.file);
                     campaign.link = req.file.location;
                     campaign.name = req.file.key;
                     campaign.file_type = req.file.contentType;
-
                 }
                 campaign.save(function(err,campaign23){
                    if(err){
