@@ -87,7 +87,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
 //Get question by question id
 router.get('/get_discussion_question/:question_id', function (req, res) {
     try {
-        DiscussionQuestion.find({ question_id: req.params.question_id }, function (err, discussionquestion) {
+        DiscussionQuestion.find({ _id: req.params.question_id }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
                     state: "err",
@@ -256,6 +256,35 @@ router.put('/discussion_question/addcomments', function (req, res) {
             state: "error",
             message: "Something went wrong"
         }, 500);
+    }
+});
+
+//To get comments based on question id
+router.get('/getComments/:question_id',function(req,res){
+    try{
+        DiscussionQuestion.findOne({_id:req.params.question_id},function(err,discussionquestion){
+            if(err){
+                return res.send(err);
+            }
+            if(discussionquestion.comments.length>0){
+                res.send({
+                    state:'success',
+                    data:discussionquestion.comments
+                });
+            }
+            if(discussionquestion.comments.length==0){
+                res.send({
+                    state:'failure',
+                    messgae:'No comments'
+                });
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        });
     }
 });
 

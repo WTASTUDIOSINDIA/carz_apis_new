@@ -31,10 +31,17 @@ var upload = multer({
         }
     })
 });
-
+var fileupload = upload.fields([{
+    name: 'file_upload',
+    maxCount: 50
+  }, {
+    name: 'imgFields',
+    maxCount: 20
+  }])
 // To create campaign
-router.post('/create_campaign',  function(req, res) {
-    var campaignForm = req.body;
+router.post('/create_campaign', fileupload, function(req, res) {
+    console.log(fileupload);
+    var campaignForm = JSON.parse(req.body);
     console.log(req.body);
     try{
         Campaign.findOne({'title':req.body.title},function(err,campaign){
@@ -53,17 +60,24 @@ router.post('/create_campaign',  function(req, res) {
             }
             if(!campaign){
                var campaign = new Campaign();
-                campaign.title = req.body.title,
-                campaign.location = req.body.location,
-                campaign.start = req.body.start,
-                campaign.end = req.body.end,
-                campaign.type = req.body.type,
-                campaign.notes = req.body.notes,
-                campaign.color = req.body.color,
-                campaign.medium = req.body.medium,
-                campaign.budget =   req.body.budget,
-                campaign.meta = req.body.meta,
-                campaign.franchisor_id = req.body.franchisor_id,
+                campaign.title = req.body.title;
+                campaign.location = req.body.location;
+                campaign.start = req.body.start;
+                campaign.end = req.body.end;
+                campaign.type = req.body.type;
+                campaign.notes = req.body.notes;
+                campaign.color = req.body.color;
+                campaign.medium = req.body.medium;
+                campaign.budget =   req.body.budget;
+                campaign.meta = req.body.meta;
+                campaign.franchisor_id = req.body.franchisor_id;
+                if (req.file){
+                    console.log(req.file);
+                    campaign.link = req.file.location;
+                    campaign.name = req.file.key;
+                    campaign.file_type = req.file.contentType;
+
+                }
                 campaign.save(function(err,campaign23){
                    if(err){
                      res.send({
@@ -211,9 +225,9 @@ router.delete('/delete_campaigns', function(req,res){
     }
 });
 // To delete campaign by id
-router.delete('/delete_campaign/:id', function(req,res){
+router.delete('/delete_campaign/:campaign_id', function(req,res){
     try{
-        Campaign.findByIdAndRemove({_id:req.params._id},function(err,campaign){
+        Campaign.findByIdAndRemove({_id:req.params.campaign_id},function(err,campaign){
             if(err){
                 return res.send(500,err);
             }
@@ -238,16 +252,11 @@ router.delete('/delete_campaign/:id', function(req,res){
     }
 });
 
-var fileupload = upload.fields([{
-    name: 'file_upload',
-    maxCount: 50
-  }, {
-    name: 'imgFields',
-    maxCount: 20
-  }])
+
 // To upload files
 router.post('/upload_campaign_file',  fileupload, function  (req,res){
     var file_details = JSON.parse(req.body.file_details);
+    console.log(req.body,file_details);
     var files = [];
     Campaign.find({},function(err, campaign){
         if (err){
@@ -273,6 +282,7 @@ router.post('/upload_campaign_file',  fileupload, function  (req,res){
                 document.date_uploaded = Date.now();
                 document.franchisor_id = file_details.franchisor_id;
                 files.push(document);
+                console.log(document);
             }
             for (var i = 0; i < files.length; i++){
                 getNumber = getNumber + 1;
@@ -295,9 +305,7 @@ router.post('/upload_campaign_file',  fileupload, function  (req,res){
 });
 // To get uploaded files
 router.get('/get_campaign_files/:id', function (req, res) {
-    Campaign.find({
-      franchisor_id: req.params.id
-    }, function (err, file) {
+    Campaign.find({_id: req.params.campaign_id}, function (err, file) {
       if (err) {
         return res.send(err);
       }

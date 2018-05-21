@@ -9,7 +9,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     discussion_question : String,
     created_by: String,	
     created_at: {type: Date, default: Date.now},
-    //0= unapproved; 1 = approved, 2= declined
+    //0 = unapproved; 1 = approved, 2 = declined
     status: {type: String, default: 1},
 	votes: {type: Number, default: 0},
     votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Audience'}],
