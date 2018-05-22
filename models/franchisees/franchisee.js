@@ -220,6 +220,9 @@ var CampaignSchema = new mongoose.Schema({
     'date_uploaded':Date,
     'key':String,
     'meta': Object,
+    'campaign_file_attachment_file_name': String,
+    'campaign_file_attachment_file_url': String,
+    'campaign_file_attachment_file_type': String,
     'campaign_files': Array
 });
 

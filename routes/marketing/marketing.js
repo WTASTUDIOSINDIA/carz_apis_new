@@ -73,9 +73,9 @@ router.post('/create_campaign', fileupload, function(req, res) {
                 campaign.franchisor_id = campaignForm.franchisor_id;
                 if (req.file){
                     console.log(req.file);
-                    campaign.link = req.file.location;
-                    campaign.name = req.file.key;
-                    campaign.file_type = req.file.contentType;
+                    campaign.campaign_file_attachment_file_url = req.file.location;
+                    campaign.campaign_file_attachment_file_name = req.file.key;
+                    campaign.campaign_file_attachment_file_type = req.file.contentType;
                 }
                 campaign.save(function(err,campaign23){
                    if(err){
