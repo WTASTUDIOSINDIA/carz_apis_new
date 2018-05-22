@@ -113,8 +113,10 @@ router.post('/create_campaign', fileupload, function(req, res) {
 // To update campaign
 router.put('/update_campaign', function(req,res){
     var campaignEditForm = req.body;
+    console.log(req.body);
     try{
         Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
+            console.log(campaign);
             if(err){
                 return res.send({
                     state:"err",
@@ -131,8 +133,8 @@ router.put('/update_campaign', function(req,res){
                 campaign.color = campaignEditForm.color;
                 campaign.medium = campaignEditForm.medium;
                 campaign.budget = campaignEditForm.budget;
-                campaign.feedback = campaignEditForm.feedback
-                campaign.franchisor_id = campaignEditForm.franchisor_id
+                campaign.feedback = campaignEditForm.feedback;
+                campaign.franchisor_id = campaignEditForm.franchisor_id;
                 campaign.save(function(err,campaign){
                     if(err){
                         res.send({
