@@ -8,7 +8,7 @@ var setupTaskSchema = new mongoose.Schema({
   setup_checklist_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
   task_name_EN: String,
   task_name: String,
-  task_status: {type:Boolean,default:false},
+  // task_status: {type:Boolean,default:false},
   task_type: String,
   franchisee_file_upload_required: {type:Boolean,default:false},
   franchisor_task_file_attachment_file_name: String,
@@ -35,11 +35,15 @@ var setupChecklistSchema = new mongoose.Schema({
   setup_checklist_name_EN: String,
 
   created_at: String,
-  tasks_length: {type:Number,default:0},
-
-
+  tasks_length: {type:Number,default:0}
 
 })
+ var userSpecificChecklistSchema = new mongoose.Schema({
+   completed_task_length: {type:Number, default:0},
+   franchisee_id:{type: Schema.Types.ObjectId, ref:'Franchisee'},
+   setup_checklist_id:  {type: Schema.Types.ObjectId, ref: 'SetupChecklist'},
+   setup_department_id: {type: Schema.Types.ObjectId, ref: 'SetupDepartment'}
+ })
 
 var userAnswersOfTaskSchema = new mongoose.Schema({
   task_id: {type: Schema.Types.ObjectId, ref: 'SetupTask'},
@@ -58,4 +62,5 @@ mongoose.model('SetupDepartment', setupDepartmentSchema);
 mongoose.model('SetupChecklist', setupChecklistSchema);
 
 mongoose.model('UserAnswersOfTask', userAnswersOfTaskSchema);
+mongoose.model('UserSpecificChecklist', userSpecificChecklistSchema);
 //mongoose.model('')

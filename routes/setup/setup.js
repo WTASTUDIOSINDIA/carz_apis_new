@@ -8,6 +8,7 @@ var Partner = mongoose.model('Partner');
 var SetupTask = mongoose.model('SetupTask');
 var SetupDepartment = mongoose.model('SetupDepartment');
 var UserAnswersOfTask = mongoose.model('UserAnswersOfTask');
+var UserSpecificChecklist = mongoose.model('UserSpecificChecklist');
 var SetupChecklist = mongoose.model('SetupChecklist');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
@@ -614,15 +615,27 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
   })
 })
 
-router.post('/complete_task_checklist', function(req, res){
-
+router.post('/complete_task_checklist',upload.single('task_file'), function(req, res){
+  
+  var completeTask = JSON.parse(req.body.task);
+  UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
+    
+  if (!task){
   task = new UserAnswersOfTask();
-  task.task_id = req.body.task_id;
-  task.task_status = true;
-  task.task_answer = req.body.task_answer;
-  task.setup_checklist_id = req.body.setup_checklist_id;
-  task.franchisee_id = req.body.franchisee_id;
+  }
+
+  task.task_id = completeTask.task_id;
+  task.task_status = completeTask.task_status;
+  task.task_answer = completeTask.task_answer;
+  task.setup_checklist_id = completeTask.setup_checklist_id;
+  task.franchisee_id = completeTask.franchisee_id;
   task.completed_at = new Date();
+  if (req.file) {
+    var task_file = {};
+    task.task_franchisee_submitted_file_url = req.file.location;
+    task.task_franchisee_submitted_file_name = req.file.key;
+    task.task_franchisee_submitted_file_type = req.file.contentType;
+  }
   task.save(function(err, task){
     if(err){
       return res.send({
@@ -630,7 +643,15 @@ router.post('/complete_task_checklist', function(req, res){
         data: data
       },400);
     }
+    
     else {
+      
+      if(task.task_status == true){
+       
+        saveUserSpecifiedChecklist(req.body);
+        
+        
+    }
       return res.send({
         status: 'success',
         message: 'Task completed successfully',
@@ -639,7 +660,20 @@ router.post('/complete_task_checklist', function(req, res){
     }
   })
 
+  })
 });
+ function saveUserSpecifiedChecklist(data){
+   userSpecificChecklist = new UserSpecificChecklist();
+  console.log(data.task, "667");
+userSpecificChecklist.completed_task_length = 1;
+userSpecificChecklist.setup_checklist_id = "5afd506b0cf84223a0e1e193";
+userSpecificChecklist.franchisee_id = data.task.franchisee_id;
+userSpecificChecklist.setup_department_id = data.task.setup_department_id;
+console.log(data.task, "672");
+ userSpecificChecklist.save(function(err, userSpecificChecklist){        
+  console.log(userSpecificChecklist);
+})
+}
 router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, res) {
   UserAnswersOfTask.find({setup_checklist_id: req.params.checklist_id, franchisee_id: req.params.franchisee_id }, function (err, tasks) {
     if (err) {
@@ -665,6 +699,26 @@ router.delete('/delete_completed_tasks', function(req, res){
       status: 'success',
       message: 'Tasks deleted successfully!'
     },200);
+  })
+})
+
+router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id', function (req, res) {
+  UserSpecificChecklist.find({setup_department_id: req.params.setup_department_id, franchisee_id: req.params.franchisee_id }, function (err, userSpecificChecklist) {
+    if (err) {
+      return res.send(err);
+    }
+    if (userSpecificChecklist.length == 0) {
+      return res.send({
+        status: 'failure',
+        message: "Checklist not found"
+      },400);
+    }
+    if (userSpecificChecklist.length > 0) {
+      return res.send({
+        status: 'success',
+        data: userSpecificChecklist
+      },200);
+    }
   })
 })
 
