@@ -71,6 +71,7 @@ router.post('/create_campaign', fileupload, function(req, res) {
                 campaign.budget = campaignForm.budget;
                 campaign.meta = campaignForm.meta;
                 campaign.franchisor_id = campaignForm.franchisor_id;
+                console.log(req.file, "74");
                 if (req.file){
                     console.log(req.file);
                     campaign.campaign_file_attachment_file_url = req.file.location;
