@@ -40,9 +40,9 @@ var setupChecklistSchema = new mongoose.Schema({
 })
  var userSpecificChecklistSchema = new mongoose.Schema({
    completed_task_length: {type:Number, default:0},
-   franchisee_id:{type: Schema.Types.ObjectId, ref:'Franchisee'},
-   setup_checklist_id:  {type: Schema.Types.ObjectId, ref: 'SetupChecklist'},
-   setup_department_id: {type: Schema.Types.ObjectId, ref: 'SetupDepartment'}
+   franchisee_id: String,
+   setup_checklist_id:  String,
+   setup_department_id: String
  })
 
 var userAnswersOfTaskSchema = new mongoose.Schema({

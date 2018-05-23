@@ -616,14 +616,14 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
 })
 
 router.post('/complete_task_checklist',upload.single('task_file'), function(req, res){
-  
+
   var completeTask = JSON.parse(req.body.task);
   UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
-    
+
   if (!task){
   task = new UserAnswersOfTask();
   }
-
+saveUserSpecifiedChecklist(req.body);
   task.task_id = completeTask.task_id;
   task.task_status = completeTask.task_status;
   task.task_answer = completeTask.task_answer;
@@ -643,14 +643,14 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
         data: data
       },400);
     }
-    
+
     else {
-      
+
       if(task.task_status == true){
-       
-        saveUserSpecifiedChecklist(req.body);
-        
-        
+        console.log(req.body);
+
+
+
     }
       return res.send({
         status: 'success',
@@ -670,8 +670,8 @@ userSpecificChecklist.setup_checklist_id = "5afd506b0cf84223a0e1e193";
 userSpecificChecklist.franchisee_id = data.task.franchisee_id;
 userSpecificChecklist.setup_department_id = data.task.setup_department_id;
 console.log(data.task, "672");
- userSpecificChecklist.save(function(err, userSpecificChecklist){        
-  console.log(userSpecificChecklist);
+ userSpecificChecklist.save(function(err, userSpecificChecklist23){
+  console.log(userSpecificChecklist23);
 })
 }
 router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, res) {
