@@ -31,6 +31,7 @@ var upload = multer({
 
 router.post('/create_discussion_question', upload.single('discussion_question_img'), function (req, res) {
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
+    console.log(req.body.discussinquestion)
     try {
         DiscussionQuestion.find({}, function (err, discussionquestion) {
             console.log(discussionquestion);
@@ -228,7 +229,7 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
 })
 
 //To add comments
-router.put('/discussion_question/addcomments', function (req, res) {
+router.post('/discussion_question/addcomments', function (req, res) {
     try {
         DiscussionQuestion.findOne({ _id: req.body.question_id }, function (err, discussionquestion) {
             if (err) {
@@ -266,17 +267,17 @@ router.get('/getComments/:question_id',function(req,res){
             if(err){
                 return res.send(err);
             }
-            if(discussionquestion.comments.length>0){
+            if(discussionquestion_comments.length>0){
                 res.send({
                     state:'success',
                     data:discussionquestion.comments
-                });
+                },200);
             }
-            if(discussionquestion.comments.length==0){
+            if(discussionquestion_comments.length==0){
                 res.send({
                     state:'failure',
                     messgae:'No comments'
-                });
+                },400);
             }
         });
     }
@@ -284,8 +285,7 @@ router.get('/getComments/:question_id',function(req,res){
         res.send({
             state:"error",
             message:"Something went wrong"
-        });
+        },500);
     }
 });
-
 module.exports = router;
