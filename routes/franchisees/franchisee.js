@@ -309,6 +309,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
                     partner.partner_age=franchiseeForm.partner_age,
                     partner.partner_address = franchiseeForm.partner_address,
+                    partner.partner_house_number=franchiseeForm.partner_house_number,
                     partner.partner_city = franchiseeForm.partner_city,
                     partner.partner_state = franchiseeForm.partner_state,
                     partner.partner_pincode = franchiseeForm.partner_pincode,
