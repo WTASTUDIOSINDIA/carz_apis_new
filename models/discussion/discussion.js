@@ -14,13 +14,19 @@ var DiscussionQuestionSchema = new mongoose.Schema({
 	votes: {type: Number, default: 0},
     votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Audience'}],
     commentsCount: {type: Number, default: 0},
-    discussion_comments: [{'franchisee_id':String, 'comment_text' :String}],
+    discussion_comments: [{'franchisee_id':String, 'franchisee_name':String, 'franchisee_city': String, 'franchisee_profile_pic':{type: Schema.Types.Mixed, default : {}}, 'comment_text' :String}],
     isVoted:{type:Boolean,default:false},
     franchisor_question_file_attachment_file_name: String,
     franchisor_question_file_attachment_file_url: String,
     franchisor_question_file_attachment_file_type: String,
-    franchisee_id: { type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    franchisee_name: String
+    comment_file_attachment_file_name: String,
+    comment_file_attachment_file_url: String,
+    comment_file_attachment_file_type: String,
+    user_id: String,
+    user_name: String,
+    franchisee_name: String,
+    franchisee_address: String,
+    user_profile_pic:{type: Schema.Types.Mixed, default : {}},
 });
 // var questionSchema = new mongoose.Schema({
 // 	created_by: String,		//should be changed to ObjectId, ref "User"

@@ -31,10 +31,10 @@ var upload = multer({
 
 router.post('/create_discussion_question', upload.single('discussion_question_img'), function (req, res) {
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
-    console.log(req.body.discussinquestion)
+    console.log('34',req.body.discussionquestion);
     try {
         DiscussionQuestion.find({}, function (err, discussionquestion) {
-            console.log(discussionquestion);
+            console.log('37',discussionquestion);
             if (err) {
                 res.send({
                     state: "failure",
@@ -52,8 +52,11 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                 discussionquestion.discussion_question = discussinQuestionForm.discussion_question;
                 discussionquestion.created_by = discussinQuestionForm.created_by;
                 discussionquestion.created_at = discussinQuestionForm.created_at;
-                discussionquestion.franchisee_id = discussinQuestionForm.franchisee_id;
-                discussionquestion.franchisee_name = discussinQuestionForm.franchisee_name
+                discussionquestion.user_id = discussinQuestionForm.user_id;
+                discussionquestion.franchisee_name = discussinQuestionForm.franchisee_name;
+                discussionquestion.user_name = discussinQuestionForm.user_name;
+                discussionquestion.franchisee_address = discussinQuestionForm.franchisee_address;
+                discussionquestion.franchisee_profic_pic = discussinQuestionForm.franchisee_profile_pic;
                 if (req.file) {
                     console.log(req.file);
                     var discussion_question_img = {};
@@ -233,7 +236,8 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
 })
 
 //To add comments
-router.post('/discussion_question/addcomments', function (req, res) {
+router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req, res) {
+    var discussionComment = JSON.parse(req.body.discussionquestion);
     try {
         DiscussionQuestion.findOne({ _id: req.body.question_id }, function (err, discussionquestion) {
             console.log(discussionquestion, '239')
@@ -244,7 +248,12 @@ router.post('/discussion_question/addcomments', function (req, res) {
             else {
                 discussionquestion.commentsCount = discussionquestion.commentsCount + 1;
                 discussionquestion.discussion_comments.push(req.body.comment);
-                
+                if(req.file){
+                    var comment_img = {};
+                    discussionquestion.comment_file_attachment_file_url = req.file.location;
+                    discussionquestion.comment_file_attachment_file_name = req.file.key;
+                    discussionquestion.comment_file_attachment_file_type = req.file.contentType;
+                } 
                 discussionquestion.save(function (err, discussionquestion) {
                     if (err) {
                         res.send(err);
