@@ -53,6 +53,7 @@ var userAnswersOfTaskSchema = new mongoose.Schema({
   task_franchisee_submitted_file_url: String,
   task_answer:String,
   completed_at: Date,
+  setup_department_id: String,
   setup_checklist_id:  {type: Schema.Types.ObjectId, ref: 'SetupChecklist'},
   franchisee_id:  {type: Schema.Types.ObjectId, ref: 'Franchisee'}
 })
