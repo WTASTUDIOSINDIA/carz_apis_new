@@ -114,6 +114,7 @@ router.post('/create_setup_checklist', function (req, res) {
           else {
             res.send({
               state: "success",
+              data: checklist,
               message: "Checklist created successfully"
             }, 200);
           }
