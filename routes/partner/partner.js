@@ -171,6 +171,7 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
                 partner.partner_state = partnerForm.partner_state;
                 partner.partner_country = partnerForm.partner_country;
                 partner.partner_pincode = partnerForm.partner_pincode;
+                partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type = partnerForm.bussiness_type;
                 partner.bussiness_type_id = partnerForm.bussiness_type_id;
 
@@ -320,6 +321,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                 partner.partner_preferred_date = partnerEditForm.partner_preferred_date;
                 partner.partner_preferred_time = partnerEditForm.partner_preferred_time;
                 partner.bussiness_type = partnerEditForm.bussiness_type;
+                partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 if (req.file) {
 

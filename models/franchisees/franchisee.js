@@ -42,7 +42,9 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_state":String,
     "partner_pincode":String,
     "partner_country":String,
-    "bussiness_type_id":String
+    "partner_house_number": String,
+    "bussiness_type_id":String,
+
 
 });
 
@@ -66,6 +68,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_state": String,
     "partner_country": String,
     "partner_pincode": String,
+    "partner_house_number": String,
     "partner_mobile_number": Number,
     "partner_age": String,
     "main_partner": {type:Boolean,default:false},

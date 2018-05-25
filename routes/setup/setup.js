@@ -114,6 +114,7 @@ router.post('/create_setup_checklist', function (req, res) {
           else {
             res.send({
               state: "success",
+              data: checklist,
               message: "Checklist created successfully"
             }, 200);
           }
@@ -616,10 +617,10 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
 })
 
 router.post('/complete_task_checklist',upload.single('task_file'), function(req, res){
-  
+
   var completeTask = JSON.parse(req.body.task);
   UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
-    
+
   if (!task){
   task = new UserAnswersOfTask();
   }
@@ -629,6 +630,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
   task.task_answer = completeTask.task_answer;
   task.setup_checklist_id = completeTask.setup_checklist_id;
   task.franchisee_id = completeTask.franchisee_id;
+  task.setup_department_id = completeTask.setup_department_id;
   task.completed_at = new Date();
   if (req.file) {
     var task_file = {};
@@ -643,14 +645,14 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
         data: data
       },400);
     }
-    
+
     else {
-      
+
       if(task.task_status == true){
-       
-        saveUserSpecifiedChecklist(req.body);
-        
-        
+        console.log(req.body);
+        saveUserSpecifiedChecklist(task);
+
+
     }
       return res.send({
         status: 'success',
@@ -663,16 +665,31 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
   })
 });
  function saveUserSpecifiedChecklist(data){
-   userSpecificChecklist = new UserSpecificChecklist();
-  console.log(data.task, "667");
-userSpecificChecklist.completed_task_length = 1;
-userSpecificChecklist.setup_checklist_id = "5afd506b0cf84223a0e1e193";
-userSpecificChecklist.franchisee_id = data.task.franchisee_id;
-userSpecificChecklist.setup_department_id = data.task.setup_department_id;
-console.log(data.task, "672");
- userSpecificChecklist.save(function(err, userSpecificChecklist){        
-  console.log(userSpecificChecklist);
-})
+   UserSpecificChecklist.findOne({setup_checklist_id: data.setup_checklist_id, franchisee_id: data.franchisee_id, setup_department_id: data.setup_department_id}, function(err, checklist){
+     if(!checklist){
+       userSpecificChecklist = new UserSpecificChecklist();
+      console.log(data, "667");
+    userSpecificChecklist.completed_task_length = 1;
+    userSpecificChecklist.setup_checklist_id = data.setup_checklist_id;
+    userSpecificChecklist.franchisee_id = data.franchisee_id;
+    userSpecificChecklist.setup_department_id = data.setup_department_id;
+    console.log(data.task, "672");
+     userSpecificChecklist.save(function(err, userSpecificChecklist23){
+      console.log(userSpecificChecklist23);
+    })
+     }
+     if(checklist){
+       checklist.completed_task_length = checklist.completed_task_length+1;
+       checklist.setup_checklist_id = data.setup_checklist_id;
+       checklist.franchisee_id = data.franchisee_id;
+       checklist.setup_department_id = data.setup_department_id;
+
+        checklist.save(function(err, userSpecificChecklist23){
+         console.log(userSpecificChecklist23);
+       })
+     }
+   })
+
 }
 router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, res) {
   UserAnswersOfTask.find({setup_checklist_id: req.params.checklist_id, franchisee_id: req.params.franchisee_id }, function (err, tasks) {
@@ -707,7 +724,8 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
     if (err) {
       return res.send(err);
     }
-    if (userSpecificChecklist.length == 0) {
+    console.log(userSpecificChecklist, "726");
+    if (!userSpecificChecklist) {
       return res.send({
         status: 'failure',
         message: "Checklist not found"
