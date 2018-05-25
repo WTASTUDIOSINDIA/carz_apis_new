@@ -1238,6 +1238,7 @@ var request = require("request"),
                                   franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
                                   franchisee.partner_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
                                   franchisee.partner_age = franchiseeMultipleForm[i].partner_age;
+                                  franchisee.partner_house_number = franchiseeMultipleForm[i].partner_house_number;
                                   franchisee.partner_address = franchiseeMultipleForm[i].partner_address;
                                   franchisee.partner_city = franchiseeMultipleForm[i].partner_city;
                                   franchisee.franchisee_pass = createHash('mypassword');
@@ -1265,6 +1266,7 @@ console.log(franchisee);
                                               partner.partner_email=franchisee.franchisee_email;
                                               partner.partner_mobile_number=franchisee.partner_mobile_number;
                                               partner.partner_age=franchisee.partner_age;
+                                              partner.partner_house_number = franchisee.partner_house_number;
                                               partner.partner_address = franchisee.partner_address;
                                               partner.partner_city = franchisee.partner_city;
                                               partner.partner_state = franchisee.partner_state;
