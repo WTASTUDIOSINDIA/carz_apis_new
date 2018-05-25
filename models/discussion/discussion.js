@@ -26,7 +26,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     user_name: String,
     franchisee_name: String,
     franchisee_address: String,
-    user_profile_pic:{type: Schema.Types.Mixed, default : {}},
+    franchisee_profile_pic:{type: Schema.Types.Mixed, default : {}},
 });
 // var questionSchema = new mongoose.Schema({
 // 	created_by: String,		//should be changed to ObjectId, ref "User"
