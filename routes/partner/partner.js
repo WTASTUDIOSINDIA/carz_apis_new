@@ -321,7 +321,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                 partner.partner_preferred_date = partnerEditForm.partner_preferred_date;
                 partner.partner_preferred_time = partnerEditForm.partner_preferred_time;
                 partner.bussiness_type = partnerEditForm.bussiness_type;
-                partner.partner_house_number = partnerForm.partner_house_number;
+                partner.partner_house_number = partnerEditForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 if (req.file) {
 
