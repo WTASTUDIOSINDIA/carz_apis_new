@@ -39,7 +39,7 @@ var fileupload = upload.fields([{
     maxCount: 20
   }])
 // To create campaign
-router.post('/create_campaign', fileupload, function(req, res) {
+router.post('/create_campaign', upload.single('campaign_file'), function(req, res) {
     console.log('43',req,res);
     var campaignForm = JSON.parse(req.body.campaign);
     console.log('45',req.body.campaign);
@@ -52,12 +52,12 @@ router.post('/create_campaign', fileupload, function(req, res) {
                         message:"Something went wrong.We are looking into it."
                     },500);
             }
-            if(campaign){
-                return res.send({
-                    state:"failure",
-                    message:"This campaign already exists!"
-                },200); 
-            }
+            // if(campaign){
+            //     return res.send({
+            //         state:"failure",
+            //         message:"This campaign already exists!"
+            //     },400); 
+            // }
             if(!campaign){
                var campaign = new Campaign();
                 campaign.title = campaignForm.title;
@@ -253,8 +253,13 @@ router.delete('/delete_campaign/:campaign_id', function(req,res){
         });
     }
 });
-
-
+// var fileupload = upload.fields([{
+//     name: 'files_upload',
+//     maxCount: 50
+//   }, {
+//     name: 'imgFields',
+//     maxCount: 20
+//   }])
 // To upload files
 router.post('/upload_campaign_file',  fileupload, function  (req,res){
     var file_details = JSON.parse(req.body.file_details);
@@ -267,8 +272,8 @@ router.post('/upload_campaign_file',  fileupload, function  (req,res){
         else {
             var file = [];
             var getNumber = 0;
-            var length = req.files.file_upload.length;
-            file = req.files.file_upload;
+            var length = req.files.files_upload.length;
+            file = req.files.files_upload;
             for (var i = 0; i < file.length; i++){
                 var document = new Campaign();
                 document.link = file[i].location;
