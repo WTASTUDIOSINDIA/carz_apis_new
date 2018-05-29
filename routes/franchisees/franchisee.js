@@ -256,10 +256,17 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 });
             }
             if(!franchisee){
+              if(franchiseeForm.franchisee_name || franchiseeForm.partner_name){
+                return res.send({
+                        status:500,
+                        state:"err",
+                        message:"Please specify Partner Name."
+                    });
+              }
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
-                franchisee.franchisee_name=franchiseeForm.franchisee_name,
-                if(!franchisee.franchisee_name){
+                franchisee.franchisee_name=franchiseeForm.franchisee_name;
+                if(!franchiseeForm.franchisee_name){
                   franchisee.franchisee_name=franchiseeForm.partner_name;
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email,
@@ -274,7 +281,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
                 franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
                 franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
-                franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
+                franchisee.franchisee_remarks=frfgfgfgfanchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
                 franchisee.bussiness_type_id = franchiseeForm.bussiness_type_id,
                 franchisee.franchisee_pincode=franchiseeForm.franchisee_pincode,
@@ -1220,6 +1227,13 @@ var request = require("request"),
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
 
                         var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+                        if(franchiseeMultipleForm[i].franchisee_name || franchiseeMultipleForm[i].partner_name){
+                          return res.send({
+                                  status:500,
+                                  state:"err",
+                                  message:"Empty data is fetching."
+                              });
+                        }
 
 
                                   var franchisee = new Franchisee();
