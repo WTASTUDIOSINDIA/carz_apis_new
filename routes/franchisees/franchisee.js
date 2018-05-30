@@ -256,13 +256,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 });
             }
             if(!franchisee){
-              if(franchiseeForm.franchisee_name || franchiseeForm.partner_name){
-                return res.send({
-                        status:500,
-                        state:"err",
-                        message:"Please specify Partner Name."
-                    });
-              }
+              
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
@@ -346,7 +340,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     });
                 }
                 });
-            }
+
         });
     }
     catch(err){
