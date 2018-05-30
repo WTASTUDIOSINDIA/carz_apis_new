@@ -538,6 +538,143 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
     });
   }
 })
+
+// To delete agreement payment
+router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next) {
+
+  try {
+    Stages.find({
+      'franchisee_id': req.params.franchisee_id
+    }, function (err, file) {
+      if (err) {
+        return res.send({
+          status: 500,
+          state: "err",
+          message: "Something went wrong.We are looking into it."
+        });
+      }
+
+      if (file) {
+
+        file[0].stage_agreenent.final_agreement_file_name = '';
+        file[0].stage_agreenent.final_agreement_file = '';
+        file[0].save(function (err, file) {
+          if (err) {
+            res.send({
+              status: 500,
+              state: "err",
+              message: "Something went wrong."
+            });
+          } else {
+            res.send({
+              status: 200,
+              state: "success",
+              message: "Agreement deleted successfully!"
+            });
+          }
+        });
+
+      }
+
+    })
+  } catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+})
+
+// To delete kyc background file
+router.delete('/delete_kyc_bg_files/:file_id', function (req, res, next) {
+
+  try {
+    ThirdPartyFiles.findByIdAndRemove({'_id': req.params.file_id}, function (err, file) {
+      if (err) {
+        return res.send({
+          status: 500,
+          state: "err",
+          message: "Something went wrong.We are looking into it."
+        });
+      }
+
+      if (file) {
+        if (err) {
+          res.send({
+            status: 500,
+            state: "err",
+            message: "Something went wrong."
+          });
+        } else {
+          res.send({
+            status: 200,
+            state: "success",
+            message: "Background verification file deleted successfully!"
+          });
+        }
+
+      }
+
+    })
+  } catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+})
+
+
+// To delete final agreement
+router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, next) {
+
+  try {
+    Stages.find({
+      'franchisee_id': req.params.franchisee_id
+    }, function (err, file) {
+      if (err) {
+        return res.send({
+          status: 500,
+          state: "err",
+          message: "Something went wrong.We are looking into it."
+        });
+      }
+
+      if (file) {
+
+        file[0].stage_agreenent.agreement_file_name = '';
+        file[0].stage_agreenent.agreement_file = '';
+        file[0].save(function (err, file) {
+          if (err) {
+            res.send({
+              status: 500,
+              state: "err",
+              message: "Something went wrong."
+            });
+          } else {
+            res.send({
+              status: 200,
+              state: "success",
+              message: "Agreement payment file deleted successfully!"
+            });
+          }
+        });
+
+      }
+
+    })
+  } catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+})
+
+
+
+
+
 //Edit discussion payment file name
 router.put('/edit_discussion_payment_file_name', function (req, res, next) {
 
