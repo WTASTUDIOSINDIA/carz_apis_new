@@ -359,7 +359,7 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
 function notify_user(req,res,message,reason, kyc_data){
     var fromName = "CARZ";
                     var mailOptions={
-                    to: 'saivishnu.edala@gmail.com',
+                    to: 'vishnu@wtastudios.com',
                     subject: 'notify',
                     from: "ikshitnodemailer@gmail.com",
                     headers: {
@@ -367,7 +367,7 @@ function notify_user(req,res,message,reason, kyc_data){
                         "charset" : 'UTF-8'
                     },
 
-                    html: 'file got rejected'
+                    html: 'File rejected.'
                 }
                 var transporter = nodemailer.createTransport({
                     service: 'Gmail',
