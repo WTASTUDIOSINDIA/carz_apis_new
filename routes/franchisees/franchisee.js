@@ -281,7 +281,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
                 franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
                 franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
-                franchisee.franchisee_remarks=frfgfgfgfanchiseeForm.franchisee_remarks,
+                franchisee.franchisee_remarks=fanchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
                 franchisee.bussiness_type_id = franchiseeForm.bussiness_type_id,
                 franchisee.franchisee_pincode=franchiseeForm.franchisee_pincode,
@@ -327,7 +327,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.main_partner = true,
                     partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
                     partner.franchisee_id=franchisee._id;
-                    partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                    partner.partner_profile_pic = franchisee.franchisee_profile_pic;
                     partner.save(function(err,partner){
                         if(err){
                             res.send({
