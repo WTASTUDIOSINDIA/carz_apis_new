@@ -13,6 +13,8 @@ var Reasons = mongoose.model('Reasons');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
+var fs = require('fs');
+var pdf = require('dynamic-html-pdf');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
   signatureVersion: 'v4'
@@ -231,6 +233,7 @@ var cpUpload = upload.fields([{
 }])
 
 router.put('/submit_application', cpUpload, function (req, res) {
+  // console.log(req.body);
   var application_form = JSON.parse(req.body.data);
   try {
     ApplicationSubmitted.findOne({
@@ -275,10 +278,40 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
-            return res.send({
-              state: "success",
-              message: "application submitted."
-            }, 200);
+            // console.log(application.answers)
+            var html = fs.readFileSync('./templates/userForm.html', 'utf8');
+
+            var options = {
+              format: "A4",
+              orientation: "portrait",
+              border: "10nm"
+            };
+
+            var document = {
+              type: 'file',
+              template: html,
+              context: {
+                application: application
+              },
+              path: "./output.pdf"
+            }
+
+            pdf.create(document, options)
+              .then(file => {
+                res.header('content-type', 'application/pdf');
+                res.send(file)
+              })
+              .catch(error => {
+                console.error(error)
+              });
+
+              // var file = __dirname + './output.pdf';
+              // res.download(file);
+
+            // return res.send({
+            //   state: "success",
+            //   message: "application submitted."
+            // }, 200);
           }
         })
       }
@@ -378,6 +411,8 @@ router.post('/background_verification', docupload, function (req, res) {
     }
   });
 });
+
+router.get('/ApplicationFormPdf', )
 
 router.get('/get_third_party_files/:id', function (req, res) {
   ThirdPartyFiles.find({

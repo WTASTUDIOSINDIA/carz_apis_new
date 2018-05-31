@@ -258,7 +258,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
             if(!franchisee){
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
-                franchisee.franchisee_name=franchiseeForm.franchisee_name,
+                franchisee.franchisee_name=franchiseeForm.franchisee_name;
                 if(!franchisee.franchisee_name){
                   franchisee.franchisee_name=franchiseeForm.partner_name;
                 };
