@@ -236,45 +236,46 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
 })
 
 //To add comments
-router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req, res) {
-    var discussionComment = JSON.parse(req.body.discussionquestion);
-    try {
-        DiscussionQuestion.findOne({ _id: req.body.question_id }, function (err, discussionquestion) {
-            console.log(discussionquestion, '239')
-            console.log('240',req.body);
-            if (err) {
-                return res.send(500, err);
-            }
-            else {
-                discussionquestion.commentsCount = discussionquestion.commentsCount + 1;
-                discussionquestion.discussion_comments.push(req.body.comment);
-                if(req.file){
-                    var comment_img = {};
-                    discussionquestion.comment_file_attachment_file_url = req.file.location;
-                    discussionquestion.comment_file_attachment_file_name = req.file.key;
-                    discussionquestion.comment_file_attachment_file_type = req.file.contentType;
-                } 
-                discussionquestion.save(function (err, discussionquestion) {
-                    if (err) {
-                        res.send(err);
-                    }
-                    else {
-                        res.send({
-                            state: "success",
-                            data: discussionquestion
-                        }, 200);
-                    }
-                });
-            }
-        });
-    }
-    catch (err) {
-        res.send({
-            state: "error",
-            message: "Something went wrong"
-        }, 500);
-    }
-});
+// router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req, res) {
+//     var discussionComment = JSON.parse(req.body.discussionquestion);
+//     try {
+//         DiscussionQuestion.findOne({ _id: discussionComment.question_id }, function (err, discussionquestion) {
+//             console.log(discussionquestion, '239')
+//             console.log('240',req.body);
+//             if (err) {
+//                 return res.send(500, err);
+//             }
+//             else {
+//                 discussionquestion.commentsCount = discussionComment.commentsCount + 1;
+//                 discussionquestion.discussion_comments.push(req.body.comment);
+//                 if(req.file){
+//                     var comment_img = {};
+//                     discussionquestion.comment_file_attachment_file_url = req.file.location;
+//                     discussionquestion.comment_file_attachment_file_name = req.file.key;
+//                     discussionquestion.comment_file_attachment_file_type = req.file.contentType;
+//                 } 
+//                 discussionquestion.save(function (err, discussionquestion) {
+//                     if (err) {
+//                         res.send(err);
+//                     }
+//                     else {
+//                         res.send({
+//                             state: "success",
+//                             data: discussionquestion
+//                         }, 200);
+//                     }
+//                 });
+//             }
+//         });
+//     }
+//     catch (err) {
+//         res.send({
+//             state: "error",
+//             message: "Something went wrong"
+//         }, 500);
+//     }
+// });
+
 
 //To get comments based on question id
 router.get('/getComments/:question_id',function(req,res){
@@ -312,7 +313,9 @@ router.put('/change_question_status',function(req,res){
             if(err){
                 return res.send(500, err);
             }   if(discussionquestion) {
+                console.log('discussionquestion',discussionquestion);
                 discussionquestion.status=req.body.status;
+                console.log('status',req.body.status);
                 discussionquestion.save(function(err,discussionquestion){
                     if (err) {
                         res.send({

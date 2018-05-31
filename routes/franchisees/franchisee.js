@@ -256,23 +256,34 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 });
             }
             if(!franchisee){
+              // if(franchiseeForm.franchisee_name || franchiseeForm.partner_name){
+              //   return res.send({
+              //           status:500,
+              //           state:"err",
+              //           message:"Please specify Partner Name."
+              //       });
+              // }
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
+<<<<<<< HEAD
                 if(!franchisee.franchisee_name){
+=======
+                if(!franchiseeForm.franchisee_name){
+>>>>>>> 7f363a2ed9883a848b75cce6c1c5bbf1df5e7bd4
                   franchisee.franchisee_name=franchiseeForm.partner_name;
                 };
-                franchisee.franchisee_email=franchiseeForm.franchisee_email,
-                franchisee.franchisee_occupation=franchiseeForm.partner_occupation,
-                franchisee.franchisee_city=franchiseeForm.franchisee_city,
-                franchisee.franchisee_state=franchiseeForm.franchisee_state,
-                franchisee.franchisee_address=franchiseeForm.franchisee_address,
-                franchisee.franchisee_mobile_number=franchiseeForm.partner_mobile_number,
-                franchisee.franchisee_investment=franchiseeForm.franchisee_investment,
-                franchisee.franchisee_preferred_date=franchiseeForm.franchisee_preferred_date,
-                franchisee.franchisee_preferred_time=franchiseeForm.franchisee_preferred_time,
-                franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start,
-                franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model,
+                franchisee.franchisee_email=franchiseeForm.franchisee_email;
+                franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
+                franchisee.franchisee_city=franchiseeForm.franchisee_city;
+                franchisee.franchisee_state=franchiseeForm.franchisee_state;
+                franchisee.franchisee_address=franchiseeForm.franchisee_address;
+                franchisee.franchisee_mobile_number=franchiseeForm.partner_mobile_number;
+                franchisee.franchisee_investment=franchiseeForm.franchisee_investment;
+                franchisee.franchisee_preferred_date=franchiseeForm.franchisee_preferred_date;
+                franchisee.franchisee_preferred_time=franchiseeForm.franchisee_preferred_time;
+                franchisee.franchisee_how_soon_to_start=franchiseeForm.franchisee_how_soon_to_start;
+                franchisee.franchisee_franchise_model=franchiseeForm.franchisee_franchise_model;
                 franchisee.franchisee_franchise_type=franchiseeForm.franchisee_franchise_type,
                 franchisee.franchisee_remarks=franchiseeForm.franchisee_remarks,
                 franchisee.franchisee_country=franchiseeForm.franchisee_country,
@@ -1220,6 +1231,13 @@ var request = require("request"),
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
 
                         var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+                        if(franchiseeMultipleForm[i].franchisee_name || franchiseeMultipleForm[i].partner_name){
+                          return res.send({
+                                  status:500,
+                                  state:"err",
+                                  message:"Empty data is fetching."
+                              });
+                        }
 
 
                                   var franchisee = new Franchisee();
