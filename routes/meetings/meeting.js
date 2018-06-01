@@ -37,6 +37,7 @@ router.post('/create_meeting',  function(req, res) {
                meeting.meeting_assigned_people = meetingForm.meeting_assigned_people,
                meeting.meeting_additional_services = meetingForm.meeting_additional_services,
                meeting.meeting_remarks = meetingForm.meeting_remarks
+               meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks,
                meeting.franchisor_id = meetingForm.franchisor_id,
                meeting.franchisee_id = meetingForm.franchisee_id,
                meeting.stage_id = meetingForm.stage_id
@@ -94,7 +95,9 @@ router.put('/edit_meeting', function(req, res, next) {
                 meeting.meeting_additional_services = meetingEditForm.meeting_additional_services,
                 meeting.franchisor_id = meetingEditForm.franchisor_id,
                 meeting.franchisee_id = meetingEditForm.franchisee_id,
-                meeting.stage_id = meetingEditForm.stage_id
+                meeting.stage_id = meetingEditForm.stage_id,
+                meeting.meeting_remarks = meetingEditForm.meeting_remarks,
+                meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
 
                 meeting.save(function(err,meeting){
                    if(err){
