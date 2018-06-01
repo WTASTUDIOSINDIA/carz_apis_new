@@ -1227,7 +1227,7 @@ var request = require("request"),
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
 
                         var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
-                        if(franchiseeMultipleForm[i].franchisee_name || franchiseeMultipleForm[i].partner_name){
+                        if(!franchiseeMultipleForm[i].partner_name){
                           return res.send({
                                   status:500,
                                   state:"err",
@@ -1251,6 +1251,7 @@ var request = require("request"),
                                   franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model;
                                   franchisee.franchisee_preferred_date = franchiseeMultipleForm[i].franchisee_date;
                                   franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email;
+                                  franchisee.partner_name = franchiseeMultipleForm[i].partner_name;
                                   franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment;
                                   franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
                                   franchisee.partner_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
@@ -1278,7 +1279,7 @@ var request = require("request"),
                                               var partner = new Partner();
 console.log(franchisee);
 
-                                              partner.partner_name=franchisee.franchisee_name;
+                                              partner.partner_name=franchisee.partner_name;
                                               partner.partner_occupation=franchisee.partner_occupation;
                                               partner.partner_email=franchisee.franchisee_email;
                                               partner.partner_mobile_number=franchisee.partner_mobile_number;
