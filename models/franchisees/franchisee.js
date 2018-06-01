@@ -44,6 +44,7 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_country":String,
     "partner_house_number": String,
     "bussiness_type_id":String,
+    "partner_occupation_others": String
 
 
 });
@@ -84,7 +85,8 @@ var partnerSchema = new mongoose.Schema({
     "bussiness_type_id": String,
     "bussiness_type": String,
     "test_completed":{type:Boolean,default:false},
-    "business_type": String
+    "business_type": String,
+    "partner_occupation_others": String
 });
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
