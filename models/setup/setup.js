@@ -10,6 +10,7 @@ var setupTaskSchema = new mongoose.Schema({
   task_name: String,
   // task_status: {type:Boolean,default:false},
   task_type: String,
+  task_due_date: String,
   franchisee_file_upload_required: {type:Boolean,default:false},
   franchisor_task_file_attachment_file_name: String,
   franchisor_task_file_attachment_file_url: String,
