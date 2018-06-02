@@ -331,7 +331,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.main_partner = true,
                     partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
                     partner.franchisee_id=franchisee._id;
-                    partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                    partner.partner_profile_pic = franchisee.franchisee_profile_pic;
+                    partner.partner_occupation_others = franchisee.partner_occupation_others;
                     partner.save(function(err,partner){
                         if(err){
                             res.send({

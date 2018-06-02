@@ -17,7 +17,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_preferred_date":String,
     "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
-    "franchisee_franchise_model":String,
+    "franchisee_franchise_model": String,
     "franchisee_franchise_type": String,
     "franchisee_stage_completed": {type:Number, default:1},
     "franchisee_remarks":String,
@@ -44,6 +44,7 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_country":String,
     "partner_house_number": String,
     "bussiness_type_id":String,
+    "partner_occupation_others": String
 
 
 });
@@ -84,7 +85,8 @@ var partnerSchema = new mongoose.Schema({
     "bussiness_type_id": String,
     "bussiness_type": String,
     "test_completed":{type:Boolean,default:false},
-    "business_type": String
+    "business_type": String,
+    "partner_occupation_others": String
 });
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
