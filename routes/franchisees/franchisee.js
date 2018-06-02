@@ -1470,5 +1470,44 @@ console.log(franchisee);
         }
     });
 
+// To approve or decline
+router.put('/change_franchisee_status',function(req,res){
+    try{
+        Franchisee.findById({_id:req.body._id},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }   if(franchisee) {
+                franchisee.archieve_franchisee=req.body.archieve_franchisee;
+                franchisee.save(function(err,franchisee){
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Franchisee status updated.",
+                            data: franchisee
+                        }, 200);
+                    }
+                });
+            }
+            if (!franchisee) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update status."
+                }, 400);
+            }      
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        },500);
+    }
+});
 
 module.exports = router;
