@@ -81,7 +81,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({},function(err,franchiees){
+        Franchisee.find({archieve_franchisee: false},function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -1472,14 +1472,15 @@ console.log(franchisee);
     });
 
 // To approve or decline
-router.put('/change_franchisee_status',function(req,res){
+router.put('/archieve_franchisee',function(req,res){
     try{
         Franchisee.findById({_id:req.body._id},function(err,franchisee){
             if(err){
                 return res.send(500, err);
             }   if(franchisee) {
-                franchisee.archieve_franchisee=req.body.archieve_franchisee;
+                franchisee.archieve_franchisee=true;
                 franchisee.save(function(err,franchisee){
+                    console.log('1482', franchisee);
                     if (err) {
                         res.send({
                             state: "err",
