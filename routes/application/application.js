@@ -279,39 +279,10 @@ router.put('/submit_application', cpUpload, function (req, res) {
             }, 500);
           } else {
             // console.log(application.answers)
-            var html = fs.readFileSync('./templates/userForm.html', 'utf8');
-
-            var options = {
-              format: "A4",
-              orientation: "portrait",
-              border: "10nm"
-            };
-
-            var document = {
-              type: 'file',
-              template: html,
-              context: {
-                application: application
-              },
-              path: "./output.pdf"
-            }
-
-            pdf.create(document, options)
-              .then(file => {
-                res.header('content-type', 'application/pdf');
-                res.send(file)
-              })
-              .catch(error => {
-                console.error(error)
-              });
-
-              // var file = __dirname + './output.pdf';
-              // res.download(file);
-
-            // return res.send({
-            //   state: "success",
-            //   message: "application submitted."
-            // }, 200);
+            return res.send({
+              state: "success",
+              message: "application submitted."
+            }, 200);
           }
         })
       }

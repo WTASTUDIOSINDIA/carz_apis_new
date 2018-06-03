@@ -266,9 +266,14 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
+<<<<<<< HEAD
 
                 if(!franchiseeForm.franchisee_name){
                   // franchisee.franchisee_name=franchiseeForm.partner_name;
+=======
+                if(!franchiseeForm.franchisee_name){
+                  franchisee.franchisee_name=franchiseeForm.partner_name;
+>>>>>>> 2c4dc936d940d8b3ef9e60a033212666f632a441
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
@@ -1471,5 +1476,44 @@ console.log(franchisee);
         }
     });
 
+// To approve or decline
+router.put('/change_franchisee_status',function(req,res){
+    try{
+        Franchisee.findById({_id:req.body._id},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }   if(franchisee) {
+                franchisee.archieve_franchisee=req.body.archieve_franchisee;
+                franchisee.save(function(err,franchisee){
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Franchisee status updated.",
+                            data: franchisee
+                        }, 200);
+                    }
+                });
+            }
+            if (!franchisee) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update status."
+                }, 400);
+            }      
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        },500);
+    }
+});
 
 module.exports = router;
