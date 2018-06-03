@@ -266,14 +266,9 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
-<<<<<<< HEAD
 
                 if(!franchiseeForm.franchisee_name){
                   // franchisee.franchisee_name=franchiseeForm.partner_name;
-=======
-                if(!franchiseeForm.franchisee_name){
-                  franchisee.franchisee_name=franchiseeForm.partner_name;
->>>>>>> 2c4dc936d940d8b3ef9e60a033212666f632a441
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
@@ -1505,7 +1500,7 @@ router.put('/change_franchisee_status',function(req,res){
                     state: "failure",
                     message: "Failed to update status."
                 }, 400);
-            }      
+            }
         });
     }
     catch(err){
