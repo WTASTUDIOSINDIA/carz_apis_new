@@ -266,12 +266,9 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
-<<<<<<< HEAD
-                if(!franchisee.franchisee_name){
-=======
+
                 if(!franchiseeForm.franchisee_name){
->>>>>>> 7f363a2ed9883a848b75cce6c1c5bbf1df5e7bd4
-                  franchisee.franchisee_name=franchiseeForm.partner_name;
+                  // franchisee.franchisee_name=franchiseeForm.partner_name;
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
