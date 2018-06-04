@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Info</title>
+</head>
+<body>
+    <ul>
+        {{#each application.answers}}
+        <br>
+                <b>ID</b>
+            <br>
+            {{this._id}}
+            <br>
+                <b>question: </b>
+            <br>
+                {{this.question_EN}}
+            <br>
+            <b>Question Type</b>
+            <br>
+                {{this.question_type}}
+            <br>
+            <b>User Answer:</b>
+            <br>
+                {{this.answer}}
+            <br>
+        {{/each}}     
+    </ul>
+</body>
+</html>
