@@ -45,7 +45,8 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_house_number": String,
     "bussiness_type_id":String,
     "partner_occupation_others": String,
-    "archieve_franchisee": {type:Boolean, default:false}
+    "archieve_franchisee": {type:Boolean, default:false},
+    "sub_franchisee_count":{type: Number, default:0}
 
 });
 
