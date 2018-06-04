@@ -19,11 +19,13 @@ var assessment = require('./routes/assessment/assessment');
 var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
+var saveMeetingNotification = meeting.saveMeetingNotification;
 var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
 var marketing = require('./routes/marketing/marketing');
 var discussion = require('./routes/discussion/discussion');
+
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
@@ -33,6 +35,14 @@ var mongoose = require('mongoose');      //add for Mongo support
 mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 var app = express();
 var http = require('http').Server(app);
+var io = require('socket.io')(http); 
+io.on('connection', function(socket) {
+    socket.emit('news', {hello: 'world'});
+    socket.on('message', function (data) {
+        console.log("tesds");
+        saveMeetingNotification(data);
+    })
+})
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

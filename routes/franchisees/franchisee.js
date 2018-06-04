@@ -240,7 +240,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
     var franchiseeForm =JSON.parse(req.body.franchisee);
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
+        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email, 'franchisee_pincode': franchiseeForm.frachisee_pincode},function(err,franchisee, pincode){
             if(err){
                 return res.send({
                         status:500,
@@ -249,6 +249,13 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     });
             }
             if(franchisee){
+                res.send({
+                    status:200,
+                    state:"failure",
+                    message:"This franchisee already exists!"
+                });
+            }
+            if(pincode){
                 res.send({
                     status:200,
                     state:"failure",
@@ -269,6 +276,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
 
                 if(!franchiseeForm.franchisee_name){
                   // franchisee.franchisee_name=franchiseeForm.partner_name;
+
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;

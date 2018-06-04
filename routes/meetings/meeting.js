@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var Meeting = mongoose.model('Meeting');
+var Notification = mongoose.model('Notification');
 var Stages = mongoose.model('Stages');
 var nodemailer = require('nodemailer');
 // to create meeting
@@ -14,7 +15,7 @@ router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
     try{
         Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'meeting_date':meetingForm.meeting_date,'meeting_time':meetingForm.meeting_time},function(err,meeting){
-            console.log("meeting",meeting);
+            console.log(meetingForm);
             if(err){
                 return res.send({
                         state:"err",
@@ -216,6 +217,63 @@ router.get('/get_all_meetings',function(req,res){
 			message:err
 		});
 	}
+});
+function saveMeetingNotification(data){
+    
+}
+router.post('/notifications', function(req, res){
+    var getNotifications = req.query;
+    console.log(getNotifications);
+    // try{
+        Notification.findOne({
+            franchisor_id: getNotifications.franchisor_id
+        }, function (err, notif) {
+            if(err) {
+                return res.send({
+                    state: "error1",
+                    message: err
+                }, 500);
+            }
+            // if(notif) {
+            //     return res.send({
+            //         state: "Success",
+            //         message: "User already exists"
+            //     }, 200);
+            // } 
+            else {
+                
+                var notific = new Notification();
+                notific.franchisor_id = getNotifications.franchisor_id;
+                notific.franchisee_id = getNotifications.franchisee_id;
+                notific.created_at = getNotifications.created_at;
+                notific.meeting_date = getNotifications.meeting_date;
+                notific.meeting_time = getNotifications.meeting_time;
+                notific.meeting_location = getNotifications.meeting_location;
+                notific.Status = getNotifications.Status;
+                notific.save(function (err, application) {
+                        console.log(application);
+                        if(err) {
+                            return res.send({
+                                state: "error2",
+                                message: err
+                            }, 500);
+                        }
+                        else {
+                            return res.send({
+                                state: "Success",
+                                message: "Notification sent.",
+                                data: application
+                            }, 200)
+                        }
+                    })
+            }
+        });
+    // } catch (err) {
+    //     return res.send({
+    //         state: "error3",
+    //         message: err
+    //     }, 500);
+    // }
 });
 
 function update_stage_table(req, res,meeting){
