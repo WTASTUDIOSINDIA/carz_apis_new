@@ -1249,8 +1249,8 @@ var request = require("request"),
                         if(franchiseeMultipleForm[i].franchisee_name || franchiseeMultipleForm[i].partner_name){
                           return res.send({
                                   status:500,
-                                  state:"err",
-                                  message:"Empty data is fetching."
+                                  state:"failure",
+                                  message:"Looks like franchisee name or partner name is missing in list"
                               });
                         }
 
