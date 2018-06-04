@@ -1505,7 +1505,7 @@ router.put('/archieve_franchisee',function(req,res){
                         }, 500);
                     }
                     else {
-                        Franchisee.findById({_id:franchiseeForm.master_franchisee_id},function(err, franchisee){
+                        Franchisee.findById({_id:req.body.master_franchisee_id},function(err, franchisee){
                           console.log(franchisee, "1501");
                           franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count-1;
                           franchisee.save(function (err, franchisee){
