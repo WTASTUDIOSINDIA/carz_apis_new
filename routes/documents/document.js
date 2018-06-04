@@ -199,6 +199,53 @@ router.post('/set_business_type',function(req,res){
         },500);
     }
 });
+router.put('/update_franchisee_type', function(req, res, next) {
+    var franchiseeTypeEdit = req.body;
+    console.log(req.body);
+    try{
+        FranchiseeType.findOne({_id:franchiseeTypeEdit.businessType_id},function(err,type){
+            console.log('franchiseeTypeEdit', franchiseeTypeEdit);
+            if(err){
+                return res.send({
+                        state:"err",
+                        message:"Something went wrong.We are looking into it."
+                    },500);
+            }
+            if(type){
+                document_list.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
+                document_list.businessType_id = franchiseeTypeEdit.businessType_id;
+                document_list.save(function(err,document_list){
+                   if(err){
+                     res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                   }
+                else{
+                    res.send({
+                        state:"success",
+                        message:"FranchiseeType Updated."
+                    },200);
+                }
+                });
+            }
+            if(!type){
+                res.send({
+                    state:"failure",
+                    message:"Failed to edit."
+                },400);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
+
 router.post('/create_business_type',function(req,res){
     try{
         FranchiseeTypeList.findOne({doc_name:req.body.doc_name,businessType_id:req.body.businessType_id},function(err,type){
@@ -244,6 +291,7 @@ router.post('/create_business_type',function(req,res){
         },500);
     }
 });
+
 router.delete('/delete/business_type/:id',function(req,res){
     try{
         FranchiseeTypeList.findByIdAndRemove({_id:req.params.id},function(err,type){
@@ -328,6 +376,8 @@ router.delete('/delete/franchiseeType/:id',function(req,res){
         },500);
     }
 });
+
+
 function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
     var library = new Library();
     library.path = obj.location;
