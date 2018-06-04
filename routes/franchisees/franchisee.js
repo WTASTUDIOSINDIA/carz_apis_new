@@ -81,7 +81,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({},function(err,franchiees){
+        Franchisee.find({archieve_franchisee: false},function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -273,8 +273,10 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
+
                 if(!franchiseeForm.franchisee_name){
-                  franchisee.franchisee_name=franchiseeForm.partner_name;
+                  // franchisee.franchisee_name=franchiseeForm.partner_name;
+
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
@@ -344,6 +346,15 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                             },500);
                         }
                         else{
+                            if(franchiseeForm.master_franchisee_id){
+                            Franchisee.findById({_id:franchiseeForm.master_franchisee_id},function(err, franchisee){
+                                console.log(franchisee, "342");
+                                franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count+1;
+                                franchisee.save(function (err, franchisee){
+                                  console.log(franchisee, "345");
+                                })
+                              })
+                            }
                             kyc_Upload(req, res,partner,franchisee,franchiseeForm);
                             res.send({
                                 state:"success",
@@ -1087,7 +1098,7 @@ router.get('/master_franchisee_list',function(req,res){
 
 router.get('/master_franchisee/franchisee_list/:id',function(req,res){
     try{
-        Franchisee.find( { $or:[{master_franchisee_id:req.params.id}, {_id: req.params.id} ]},function(err,franchisee){
+        Franchisee.find( { $or:[{master_franchisee_id:req.params.id}, {_id: req.params.id} ],archieve_franchisee: false},function(err,franchisee){
             if(err){
                 return res.send({
                     status:500,
@@ -1477,5 +1488,52 @@ console.log(franchisee);
         }
     });
 
+// To approve or decline
+router.put('/archieve_franchisee',function(req,res){
+    try{
+        Franchisee.findById({_id:req.body._id},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }   if(franchisee) {
+                franchisee.archieve_franchisee=true;
+                franchisee.save(function(err,franchisee){
+                    console.log('1482', franchisee);
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        Franchisee.findById({_id:franchiseeForm.master_franchisee_id},function(err, franchisee){
+                          console.log(franchisee, "1501");
+                          franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count-1;
+                          franchisee.save(function (err, franchisee){
+                            console.log(franchisee, "1504");
+                          })
+                        })
+                        res.send({
+                            state: "success",
+                            message: "Franchisee status updated.",
+                            data: franchisee
+                        }, 200);
+                    }
+                });
+            }
+            if (!franchisee) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update status."
+                }, 400);
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        },500);
+    }
+});
 
 module.exports = router;
