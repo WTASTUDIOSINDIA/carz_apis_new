@@ -83,7 +83,7 @@ router.post('/create_setup_department', function (req, res) {
 //To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {
-    SetupChecklist.findOne({ setup_checklist_name: req.body.setup_checklist_name, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
+    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
       if (err) {
         res.send({
           state: "failure",
@@ -276,6 +276,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
         task.task_name_EN = checklistTaskForm.task_name_EN;
         task.task_radio_options = checklistTaskForm.task_radio_options;
         task.task_type = checklistTaskForm.task_type;
+        task.task_due_date = checklistTaskForm.task_due_date;
         task.franchisee_file_upload_required = checklistTaskForm.franchisee_file_upload_required;
         task.setup_checklist_id = checklistTaskForm.setup_checklist_id;
         if (req.file) {
@@ -620,7 +621,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
 
   var completeTask = JSON.parse(req.body.task);
   UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
-
+    console.log('completeTask', completeTask);
   if (!task){
   task = new UserAnswersOfTask();
   }
@@ -638,6 +639,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
     task.task_franchisee_submitted_file_name = req.file.key;
     task.task_franchisee_submitted_file_type = req.file.contentType;
   }
+  console.log('task',task);
   task.save(function(err, task){
     if(err){
       return res.send({
@@ -647,7 +649,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
     }
 
     else {
-
+      console.log('task652', task);
       if(task.task_status == true){
         console.log(req.body);
         saveUserSpecifiedChecklist(task);

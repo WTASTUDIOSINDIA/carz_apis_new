@@ -81,7 +81,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({},function(err,franchiees){
+        Franchisee.find({archieve_franchisee: false},function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -240,7 +240,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
     var franchiseeForm =JSON.parse(req.body.franchisee);
     try{
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email},function(err,franchisee){
+        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email, 'franchisee_pincode': franchiseeForm.frachisee_pincode},function(err,franchisee, pincode){
             if(err){
                 return res.send({
                         status:500,
@@ -249,6 +249,13 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     });
             }
             if(franchisee){
+                res.send({
+                    status:200,
+                    state:"failure",
+                    message:"This franchisee already exists!"
+                });
+            }
+            if(pincode){
                 res.send({
                     status:200,
                     state:"failure",
@@ -266,12 +273,10 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                var franchisee = new Franchisee();
               //  franchisee.franchisee_code = franchiseeForm.franchisee_code,
                 franchisee.franchisee_name=franchiseeForm.franchisee_name;
-<<<<<<< HEAD
-                if(!franchisee.franchisee_name){
-=======
+
                 if(!franchiseeForm.franchisee_name){
->>>>>>> 7f363a2ed9883a848b75cce6c1c5bbf1df5e7bd4
-                  franchisee.franchisee_name=franchiseeForm.partner_name;
+                  // franchisee.franchisee_name=franchiseeForm.partner_name;
+
                 };
                 franchisee.franchisee_email=franchiseeForm.franchisee_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
@@ -331,7 +336,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.main_partner = true,
                     partner.bussiness_type_id=franchiseeForm.bussiness_type_id;
                     partner.franchisee_id=franchisee._id;
-                    partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                    partner.partner_profile_pic = franchisee.franchisee_profile_pic;
+                    partner.partner_occupation_others = franchisee.partner_occupation_others;
                     partner.save(function(err,partner){
                         if(err){
                             res.send({
@@ -340,6 +346,15 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                             },500);
                         }
                         else{
+                            if(franchiseeForm.master_franchisee_id){
+                            Franchisee.findById({_id:franchiseeForm.master_franchisee_id},function(err, franchisee){
+                                console.log(franchisee, "342");
+                                franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count+1;
+                                franchisee.save(function (err, franchisee){
+                                  console.log(franchisee, "345");
+                                })
+                              })
+                            }
                             kyc_Upload(req, res,partner,franchisee,franchiseeForm);
                             res.send({
                                 state:"success",
@@ -1083,7 +1098,7 @@ router.get('/master_franchisee_list',function(req,res){
 
 router.get('/master_franchisee/franchisee_list/:id',function(req,res){
     try{
-        Franchisee.find( { $or:[{master_franchisee_id:req.params.id}, {_id: req.params.id} ]},function(err,franchisee){
+        Franchisee.find( { $or:[{master_franchisee_id:req.params.id}, {_id: req.params.id} ],archieve_franchisee: false},function(err,franchisee){
             if(err){
                 return res.send({
                     status:500,
@@ -1234,8 +1249,8 @@ var request = require("request"),
                         if(!franchiseeMultipleForm[i].partner_name){
                           return res.send({
                                   status:500,
-                                  state:"err",
-                                  message:"Empty data is fetching."
+                                  state:"failure",
+                                  message:"Looks like franchisee name or partner name is missing in list"
                               });
                         }
 
@@ -1474,5 +1489,52 @@ console.log(franchisee);
         }
     });
 
+// To approve or decline
+router.put('/archieve_franchisee',function(req,res){
+    try{
+        Franchisee.findById({_id:req.body._id},function(err,franchisee){
+            if(err){
+                return res.send(500, err);
+            }   if(franchisee) {
+                franchisee.archieve_franchisee=true;
+                franchisee.save(function(err,franchisee){
+                    console.log('1482', franchisee);
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        Franchisee.findById({_id:req.body.master_franchisee_id},function(err, franchisee){
+                          console.log(franchisee, "1501");
+                          franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count-1;
+                          franchisee.save(function (err, franchisee){
+                            console.log(franchisee, "1504");
+                          })
+                        })
+                        res.send({
+                            state: "success",
+                            message: "Franchisee status updated.",
+                            data: franchisee
+                        }, 200);
+                    }
+                });
+            }
+            if (!franchisee) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update status."
+                }, 400);
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        },500);
+    }
+});
 
 module.exports = router;

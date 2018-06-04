@@ -17,7 +17,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_preferred_date":String,
     "franchisee_preferred_time":String,
     "franchisee_how_soon_to_start":String,
-    "franchisee_franchise_model":String,
+    "franchisee_franchise_model": String,
     "franchisee_franchise_type": String,
     "franchisee_stage_completed": {type:Number, default:1},
     "franchisee_remarks":String,
@@ -44,7 +44,9 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_country":String,
     "partner_house_number": String,
     "bussiness_type_id":String,
-
+    "partner_occupation_others": String,
+    "archieve_franchisee": {type:Boolean, default:false},
+    "sub_franchisee_count":{type: Number, default:0}
 
 });
 
@@ -84,7 +86,9 @@ var partnerSchema = new mongoose.Schema({
     "bussiness_type_id": String,
     "bussiness_type": String,
     "test_completed":{type:Boolean,default:false},
-    "business_type": String
+    "business_type": String,
+    "partner_occupation_others": String,
+    
 });
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
@@ -96,8 +100,20 @@ var meetingSchema = new mongoose.Schema({
    "meeting_remarks": String,
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-   "stage_id": String
+   "stage_id": String,
+   "meeting_franchisor_remarks":String
 
+});
+
+var notificationSchema = new mongoose.Schema({
+    "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "created_at" : { type: Date, default: Date.now },
+    "meeting_date" : String,
+    "meeting_time" : String,
+    "meeting_location" : String,
+    "notification_type": String,
+    "Status" : Boolean
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
@@ -248,3 +264,4 @@ mongoose.model('Application', ApplicationSchema);
 mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
 mongoose.model('ThirdPartyFiles', thirdPartyFileSchema);
 mongoose.model('Campaign', CampaignSchema);
+mongoose.model('Notification', notificationSchema);

@@ -174,7 +174,7 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
                 partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type = partnerForm.bussiness_type;
                 partner.bussiness_type_id = partnerForm.bussiness_type_id;
-
+                partner.partner_occupation_others = partnerForm.partner_occupation_others;
                 partner.save(function (err, partner) {
                     if (err) {
                         res.send({
@@ -323,6 +323,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                 partner.bussiness_type = partnerEditForm.bussiness_type;
                 partner.partner_house_number = partnerEditForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
+                partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
                 if (req.file) {
 
                     var partner_pic = {};
