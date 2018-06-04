@@ -621,7 +621,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
 
   var completeTask = JSON.parse(req.body.task);
   UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
-
+    console.log('completeTask', completeTask);
   if (!task){
   task = new UserAnswersOfTask();
   }
@@ -639,6 +639,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
     task.task_franchisee_submitted_file_name = req.file.key;
     task.task_franchisee_submitted_file_type = req.file.contentType;
   }
+  console.log('task',task);
   task.save(function(err, task){
     if(err){
       return res.send({
@@ -648,7 +649,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
     }
 
     else {
-
+      console.log('task652', task);
       if(task.task_status == true){
         console.log(req.body);
         saveUserSpecifiedChecklist(task);
