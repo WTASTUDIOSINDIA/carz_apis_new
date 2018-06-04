@@ -106,12 +106,12 @@ var notificationSchema = new mongoose.Schema({
     "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "created_at" : { type: Date, default: Date.now },
-    "meeting_date" : { type: Schema.Types.ObjectId, ref: 'Meeting'},
-    "meeting_time" : { type: Schema.Types.ObjectId, ref: 'Meeting'},
-    "meeting_location" : { type: Schema.Types.ObjectId, ref: 'Meeting'},
+    "meeting_date" : String,
+    "meeting_time" : String,
+    "meeting_location" : String,
     "notification_type": String,
     "Status" : Boolean
-})
+});
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
 //     "uploaded_status":{type:'Number',default:0},//0 or 1

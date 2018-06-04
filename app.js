@@ -39,7 +39,7 @@ var io = require('socket.io')(http);
 io.on('connection', function(socket) {
     socket.emit('news', {hello: 'world'});
     socket.on('message', function (data) {
-        console.log("tesds");
+        // console.log(data);
         saveMeetingNotification(data);
     })
 })

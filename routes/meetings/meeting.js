@@ -15,7 +15,7 @@ router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
     try{
         Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'meeting_date':meetingForm.meeting_date,'meeting_time':meetingForm.meeting_time},function(err,meeting){
-            console.log(meetingForm);
+            // console.log(meetingForm);
             if(err){
                 return res.send({
                         state:"err",
@@ -216,62 +216,49 @@ router.get('/get_all_meetings',function(req,res){
 	}
 });
 function saveMeetingNotification(data){
-    
-}
-router.post('/notifications', function(req, res){
-    var getNotifications = req.query;
-    console.log(getNotifications);
-    // try{
-        Notification.findOne({
-            franchisor_id: getNotifications.franchisor_id
-        }, function (err, notif) {
+    var getNotifications = data;
+    // console.log(getNotifications);
+    // console.log(data);
+    var notific = new Notification();
+    notific.franchisor_id = getNotifications.franchisor_id;
+    notific.franchisee_id = getNotifications.franchisee_id;
+    notific.created_at = getNotifications.created_at;
+    notific.meeting_date = getNotifications.meeting_date;
+    notific.meeting_time = getNotifications.meeting_time;
+    notific.meeting_location = getNotifications.meeting_location;
+    notific.Status = getNotifications.Status;
+    notific.save(function (err, application) {
+            console.log(application);
             if(err) {
-                return res.send({
-                    state: "error1",
-                    message: err
-                }, 500);
+                console.log(err);
             }
-            // if(notif) {
-            //     return res.send({
-            //         state: "Success",
-            //         message: "User already exists"
-            //     }, 200);
-            // } 
             else {
-                
-                var notific = new Notification();
-                notific.franchisor_id = getNotifications.franchisor_id;
-                notific.franchisee_id = getNotifications.franchisee_id;
-                notific.created_at = getNotifications.created_at;
-                notific.meeting_date = getNotifications.meeting_date;
-                notific.meeting_time = getNotifications.meeting_time;
-                notific.meeting_location = getNotifications.meeting_location;
-                notific.Status = getNotifications.Status;
-                notific.save(function (err, application) {
-                        console.log(application);
-                        if(err) {
-                            return res.send({
-                                state: "error2",
-                                message: err
-                            }, 500);
-                        }
-                        else {
-                            return res.send({
-                                state: "Success",
-                                message: "Notification sent.",
-                                data: application
-                            }, 200)
-                        }
-                    })
+                console.log("Successss");
             }
-        });
-    // } catch (err) {
-    //     return res.send({
-    //         state: "error3",
-    //         message: err
-    //     }, 500);
-    // }
-});
+        })
+}
+
+router.get('/get_notifications', function(req, res){
+    try{
+        Notification.find({},function(err,meeting){
+            if(err){
+                return res.send(500, err);
+            }
+            else{
+                res.send({
+                    "state":"success",
+                    "meetings":meeting
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+})
 
 function update_stage_table(req, res,meeting){
     try{
@@ -362,3 +349,4 @@ router.get('/get_meeting_franchisee/:franchisee_id',function(req,res){
 });
 
 module.exports = router;
+module.exports.saveMeetingNotification = saveMeetingNotification;
