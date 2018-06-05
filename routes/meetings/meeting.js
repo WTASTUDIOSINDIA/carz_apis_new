@@ -41,7 +41,8 @@ router.post('/create_meeting',  function(req, res) {
                meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks,
                meeting.franchisor_id = meetingForm.franchisor_id,
                meeting.franchisee_id = meetingForm.franchisee_id,
-               meeting.stage_id = meetingForm.stage_id
+               meeting.stage_id = meetingForm.stage_id,
+               meeting.notification_to = meetingForm.notification_to
                 meeting.save(function(err,meeting){
                    if(err){
                      res.send({
@@ -99,6 +100,7 @@ router.put('/edit_meeting', function(req, res, next) {
                 meeting.stage_id = meetingEditForm.stage_id,
                 meeting.meeting_remarks = meetingEditForm.meeting_remarks,
                 meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
+                meeting.notification_to - meetingEditForm.notification_to
 
                 meeting.save(function(err,meeting){
                    if(err){
@@ -230,6 +232,7 @@ function saveMeetingNotification(data){
     notific.meeting_time = getNotifications.meeting_time;
     notific.meeting_location = getNotifications.meeting_location;
     notific.Status = getNotifications.Status;
+    notific.notification_to = getNotifications.notification_to;
     notific.save(function (err, application) {
             console.log(application);
             if(err) {
@@ -261,6 +264,37 @@ router.get('/get_notifications', function(req, res){
 			message:err
 		});
 	}
+})
+
+//to get franchisee notification
+router.get('/get_franchisee_notification', function(req, res){
+    try{
+        Notification.findById({_id:req.params.franchisee_id}, function (err, meeting){
+            if(err){
+                return 
+                res.send(500,err);
+            }
+            if(!notification){
+                res.send({
+                    state:"failure",
+                    data:[]
+                },400)
+            }
+            else {
+                res.send({
+
+                    state:"success",
+                    data:notification
+                },200)
+            }
+        });
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message: err
+        },500)
+    }
 })
 
 function update_stage_table(req, res,meeting){
