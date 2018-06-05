@@ -141,11 +141,12 @@ router.delete('/delete_meeting/:id',function(req,res){
             if(!meeting){
                 res.send({
                     "message":"Unsucessfull",
-                    "data":"failure"
+                    state:"failure"
                 },400);
             }
             else{
                 res.send({
+                    state: 'success',
                     "message":"Meeting deleted sucessfully",
                 },200);
             }
