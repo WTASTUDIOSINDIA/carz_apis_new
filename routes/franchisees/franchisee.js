@@ -1537,4 +1537,40 @@ router.put('/archieve_franchisee',function(req,res){
     }
 });
 
+router.put('/disable_onboarding', function (req,res){
+    try{
+        Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.show_kt_popup_first_time = false;
+                franchisee.save(function(err,franchisee){
+
+                })
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                    
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"Onboarding disabled.",
+                        data: farnchisee
+                    },200)
+                }
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
+
 module.exports = router;
