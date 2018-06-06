@@ -261,7 +261,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 res.send({
                     status:200,
                     state:"failure",
-                    message:"This franchisee already exists!"
+                    message:"This email already exists!"
                 });
             }
 
@@ -1545,14 +1545,17 @@ router.put('/archieve_franchisee',function(req,res){
 router.put('/disable_onboarding', function (req,res){
     try{
         Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
+            console.log(franchisee, "1548");
             if(err){
                 return res.send(500, err);
             }
             if(franchisee){
                 franchisee.show_kt_popup_first_time = false;
+                franchisee.franchisee_id = req.body.franchisee_id;
                 franchisee.save(function(err,franchisee){
-
+                    console.log(franchisee, "1555");
                 })
+                console.log(franchisee.show_kt_popup_first_time);
                 if(err){
                     res.send({
                         state:"err",
@@ -1564,7 +1567,7 @@ router.put('/disable_onboarding', function (req,res){
                     res.send({
                         state:"success",
                         message:"Onboarding disabled.",
-                        data: farnchisee
+                        data: franchisee
                     },200)
                 }
             }
