@@ -238,9 +238,18 @@ router.post('/validate_mobile_number',  function(req, res) {
 //create franchisee
 router.post('/create_franchisee',upload.single('franchisee_img'),function(req, res) {
     var franchiseeForm =JSON.parse(req.body.franchisee);
-    try{
+    try{//'franchisee_pincode':franchiseeForm.franchisee_pincode
+        Franchisee.findOne({ $and: [ { franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
+          if(franchisee){
+            return res.send({
+                status:500,
+                state:"failure",
+                message:"This franchisee pincode already exists!"
+            });
+          }
+        });
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
-        Franchisee.findOne({'franchisee_email':franchiseeForm.franchisee_email, 'franchisee_pincode': franchiseeForm.frachisee_pincode},function(err,franchisee, pincode){
+        Franchisee.findOne({'franchisee_email':franchiseeForm.partner_email},function(err,franchisee){
             if(err){
                 return res.send({
                         status:500,
@@ -255,13 +264,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     message:"This franchisee already exists!"
                 });
             }
-            if(pincode){
-                res.send({
-                    status:200,
-                    state:"failure",
-                    message:"This franchisee already exists!"
-                });
-            }
+
+
             if(!franchisee){
               // if(franchiseeForm.franchisee_name || franchiseeForm.partner_name){
               //   return res.send({
@@ -278,7 +282,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                   // franchisee.franchisee_name=franchiseeForm.partner_name;
 
                 };
-                franchisee.franchisee_email=franchiseeForm.franchisee_email;
+                franchisee.franchisee_email=franchiseeForm.partner_email;
                 franchisee.franchisee_occupation=franchiseeForm.partner_occupation;
                 franchisee.franchisee_city=franchiseeForm.franchisee_city;
                 franchisee.franchisee_state=franchiseeForm.franchisee_state;
@@ -302,6 +306,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_pass = createHash('mypassword');
                 franchisee.bussiness_type = franchiseeForm.bussiness_type_id;
                 franchisee.partners_list = 1;
+                franchisee.partner_name = franchiseeForm.partner_name;
 
                 if(req.file){
                     var franchisee_pic = {};

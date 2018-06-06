@@ -35,13 +35,17 @@ var mongoose = require('mongoose');      //add for Mongo support
 mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http); 
+var io = require('socket.io')(http);
 io.on('connection', function(socket) {
     socket.emit('news', {hello: 'world'});
-    socket.on('message', function (data) {
-        // console.log(data);
-        saveMeetingNotification(data);
-    })
+    socket.on('message', function (data, response) {
+         console.log(data, "42");
+        var meeting_data = saveMeetingNotification(data);
+        console.log(meeting_data, "44");
+        io.emit('message', { type: 'new-message', text: meeting_data });
+        // Function above that stores the message in the database
+
+    });
 })
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

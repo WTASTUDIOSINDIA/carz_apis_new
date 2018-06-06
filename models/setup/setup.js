@@ -52,6 +52,11 @@ var userAnswersOfTaskSchema = new mongoose.Schema({
   task_franchisee_submitted_file_name: String,
   task_franchisee_submitted_file_type: String,
   task_franchisee_submitted_file_url: String,
+  task_franchisee_submitter_file: {
+    name: String,
+    type: String,
+    url: String
+  },
   task_answer:String,
   completed_at: Date,
   setup_department_id: String,

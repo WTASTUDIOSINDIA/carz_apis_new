@@ -499,6 +499,7 @@ router.put('/edit_setup_checklists_tasks', upload.single('checklist_task_img'), 
     task.task_name_EN = checklistTaskEditForm.task_name_EN;
     task.task_radio_options = checklistTaskEditForm.task_radio_options;
     task.task_type = checklistTaskEditForm.task_type;
+    task.task_due_date = checklistTaskEditForm.task_due_date;
     task.franchisee_file_upload_required = checklistTaskEditForm.franchisee_file_upload_required;
     task.setup_checklist_id = checklistTaskEditForm.setup_checklist_id;
     if (req.file) {
@@ -618,7 +619,7 @@ router.get('/get_setup_checklist_task_file/:id', function (req, res) {
 })
 
 router.post('/complete_task_checklist',upload.single('task_file'), function(req, res){
-
+  console.log(req.body.task);
   var completeTask = JSON.parse(req.body.task);
   UserAnswersOfTask.findOne({'task_id':completeTask.task_id}, function (err, task){
     console.log('completeTask', completeTask);
@@ -641,6 +642,7 @@ router.post('/complete_task_checklist',upload.single('task_file'), function(req,
   }
   console.log('task',task);
   task.save(function(err, task){
+      console.log('task651', task);
     if(err){
       return res.send({
         status: 'error',

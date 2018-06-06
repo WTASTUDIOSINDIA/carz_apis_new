@@ -9,6 +9,10 @@ var Meeting = mongoose.model('Meeting');
 var Notification = mongoose.model('Notification');
 var Stages = mongoose.model('Stages');
 var nodemailer = require('nodemailer');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
 // to create meeting
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting',  function(req, res) {
@@ -56,6 +60,17 @@ router.post('/create_meeting',  function(req, res) {
                     //     update_stage_table(req, res,meeting);
                     // }
                     //else{
+                    io.on('connection', function(socket) {
+                        socket.emit('news', {hello: 'world'});
+                        socket.on('message', function (data, response) {
+                             console.log(data, "42");
+                            var meeting_data = saveMeetingNotification(data, res);
+                            console.log(meeting_data, "44");
+                            io.emit('message', { type: 'new-message', text: meeting_data });
+                            // Function above that stores the message in the database
+
+                        });
+                    })
                         return res.send({
                             state:"success",
                             message:"Meeting Scheduled .",
@@ -143,11 +158,12 @@ router.delete('/delete_meeting/:id',function(req,res){
             if(!meeting){
                 res.send({
                     "message":"Unsucessfull",
-                    "data":"failure"
+                    state:"failure"
                 },400);
             }
             else{
                 res.send({
+                    state: 'success',
                     "message":"Meeting deleted sucessfully",
                 },200);
             }
@@ -220,10 +236,17 @@ router.get('/get_all_meetings',function(req,res){
 		});
 	}
 });
-function saveMeetingNotification(data){
-    var getNotifications = data;
+/**
+ * Creates an access token with VoiceGrant using your Twilio credentials.
+ *
+ * @param {Object} request - POST or GET request that provides the recipient of the call, a phone number or a client
+ * @param {Object} response - The Response Object for the http request
+ * @returns {string} - The Access Token string
+ */
+function saveMeetingNotification(request, response){
+    var getNotifications = request;
     // console.log(getNotifications);
-    // console.log(data);
+     console.log(request, "225");
     var notific = new Notification();
     notific.franchisor_id = getNotifications.franchisor_id;
     notific.franchisee_id = getNotifications.franchisee_id;
@@ -234,13 +257,16 @@ function saveMeetingNotification(data){
     notific.Status = getNotifications.Status;
     notific.notification_to = getNotifications.notification_to;
     notific.save(function (err, application) {
-            console.log(application);
+            console.log(application, "235");
             if(err) {
                 console.log(err);
             }
             else {
+
                 console.log("Successss");
+                return "Test sdsds";
             }
+            return "Test sdsds";
         })
 }
 
