@@ -263,7 +263,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 res.send({
                     status:200,
                     state:"failure",
-                    message:"This franchisee already exists!"
+                    message:"This email already exists!"
                 });
             }
 
@@ -1545,5 +1545,44 @@ router.put('/archieve_franchisee',function(req,res){
         },500);
     }
 });
+
+router.put('/disable_onboarding', function (req,res){
+    try{
+        Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
+            console.log(franchisee, "1548");
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.show_kt_popup_first_time = false;
+                franchisee.franchisee_id = req.body.franchisee_id;
+                franchisee.save(function(err,franchisee){
+                    console.log(franchisee, "1555");
+                })
+                console.log(franchisee.show_kt_popup_first_time);
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                    
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"Onboarding disabled.",
+                        data: franchisee
+                    },200)
+                }
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
 
 module.exports = router;
