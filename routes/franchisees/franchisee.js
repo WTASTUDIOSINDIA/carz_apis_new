@@ -259,9 +259,10 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 res.send({
                     status:200,
                     state:"failure",
-                    message:"This franchisee already exists!"
+                    message:"This pincode already exists!"
                 });
             }
+
             if(!franchisee){
               // if(franchiseeForm.franchisee_name || franchiseeForm.partner_name){
               //   return res.send({
