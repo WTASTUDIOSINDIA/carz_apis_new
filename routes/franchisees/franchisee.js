@@ -247,7 +247,9 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 message:"This franchisee pincode already exists!"
             });
           }
-        });
+          else {
+
+
         //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
         Franchisee.findOne({'franchisee_email':franchiseeForm.partner_email},function(err,franchisee){
             if(err){
@@ -372,6 +374,8 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 });
             }
         });
+      }
+    });
     }
     catch(err){
 		return res.send({
