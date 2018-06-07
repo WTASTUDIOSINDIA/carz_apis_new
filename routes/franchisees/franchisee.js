@@ -820,14 +820,14 @@ router.put('/edit_stage', cpUpload, function(req, res){
             if(stage){
                 console.log(stageForm);
                 //'payment'
-                if(stageForm.sub_stage == 'payment'){
+                if(stageForm.sub_stage === 'payment'){
                    // stage.stage_discussion.status = false;
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file =  req.file.location;
                     stage.stage_discussion.payment_file_name =  req.file.originalname;
                 }
                 //'nda'
-                if(stageForm.sub_stage == 'nda'){
+                if(stageForm.sub_stage === 'nda'){
                    // stage.stage_discussion.status = false;
                     stage.stage_discussion.nda_file =  req.file.location;
                     stage.stage_discussion.nda_file_name =  req.file.originalname;
@@ -933,16 +933,16 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 stage.franchisee_id = stageForm.franchisee_id;
                 stage.folder_id = stageForm.folder_Id;
                 stage.stage_discussion.status = false;
-                stage.stage_discussion.payment_value = 100000;
-                stage.stage_discussion.payment_file =  req.file.location;
-                stage.stage_discussion.payment_file_name =  req.file.originalname;
+              //  stage.stage_discussion.payment_value = 100000;
+                stage.stage_discussion.nda_file =  req.file.location;
+                stage.stage_discussion.nda_file_name =  req.file.originalname;
                 if(req.file.mimetype == "application/pdf"){
-                    stage.stage_discussion.payment_file_type = "pdf";
+                    stage.stage_discussion.nda_file_type = "pdf";
                 }
                 if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
-                    stage.stage_discussion.payment_file_type = "image";
+                    stage.stage_discussion.nda_file_type = "image";
                 }
-                stage.stage_discussion.payment_file_uploaded = Date.now();
+                stage.stage_discussion.nda_file_uploaded = Date.now();
                 stage.save(function(err, stage){
                     upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
                     if(err){
@@ -1050,6 +1050,10 @@ router.put('/update_stage',function(req,res){
                 stage_Completed = 1;
                 stage.stage_assessment.status = true;
                 stage.stage_assessment.franchisee_id = req.body.franchisee_id;
+            }
+            if(req.body.stage_name == 'setup'){
+                stage_Completed = 1; 
+                stage.stage_setup.status = true;
             }
             stage.save(function(err,stage){
                 if(err){
@@ -1565,7 +1569,7 @@ router.put('/disable_onboarding', function (req,res){
                         state:"err",
                         message:"Something went wrong."
                     },500);
-                    
+
                 }
                 else {
                     res.send({

@@ -13,7 +13,7 @@ var Schema = mongoose.Schema;
 // });
 var stagesSchema = new mongoose.Schema({
     "franchisee_id": String,
-    "folder_id": String,    
+    "folder_id": String,
     "stage_profile": {type: Schema.Types.ObjectId, ref: 'Franchisee', status: "completed"},
     "stage_discussion":  {
       "status": Boolean,
@@ -50,7 +50,11 @@ var stagesSchema = new mongoose.Schema({
       "final_agreement_file_name":String,
       "final_agreement_file":String,
       "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'}
-    }
+    },
+    "stage_setup": {
+      "status": {type: Boolean, default: false},
+      "franchisee_id": String
+    },
 });
 // var discussionSchema = new mongoose.Schema({
 //   "status": Boolean,

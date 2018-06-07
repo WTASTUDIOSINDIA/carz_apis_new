@@ -144,7 +144,7 @@ router.get('/get_common_files/:uploaded_status',function(req,res){
                 state: "failure"
             });
         }
-        if(file){
+        else{
             res.send ({
                 status: 200,
                 file: file,

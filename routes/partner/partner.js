@@ -228,7 +228,7 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
     }, function (err, type) {
         if (err) {
             return res.send({
-                state: "error",
+                state: "failure",
                 message: err
             }, 500);
         } else {
@@ -237,7 +237,7 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
             }, function (err, kyc) {
                 if (err) {
                     return res.send({
-                        state: "error",
+                        state: "failure",
                         message: err
                     }, 500);
                 }
@@ -250,13 +250,14 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
                     kyc.save(function (err, kyc) {
                         if (err) {
                             return res.send({
-                                state: "error",
+                                state: "failure",
                                 message: err
                             }, 500);
                         } else {
                             res.send({
-                                state: "Success",
-                                message: message
+                                state: "success",
+                                message: message,
+                                data: partner
                             }, 200);
                         }
                     })
@@ -270,13 +271,14 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
                     kyc.save(function (err, kyc) {
                         if (err) {
                             return res.send({
-                                state: "error",
+                                state: "failure",
                                 message: err
                             }, 500);
                         } else {
                             res.send({
-                                state: "Success",
-                                message: message
+                                state: "success",
+                                message: message,
+                                data: partner
                             }, 200);
                         }
                     })
@@ -361,7 +363,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                                 franchiees.save(function (err, franchiees) {
                                     if (err) {
                                         return res.send({
-                                            state: "err",
+                                            state: "failure",
                                             message: "Updation in franchisee got wrong"
                                         }, 500);
                                     } else {
