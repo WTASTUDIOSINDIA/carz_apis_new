@@ -254,7 +254,7 @@ function saveMeetingNotification(request, response){
     notific.meeting_date = getNotifications.meeting_date;
     notific.meeting_time = getNotifications.meeting_time;
     notific.meeting_location = getNotifications.meeting_location;
-    notific.Status = getNotifications.Status;
+    notific.status = getNotifications.status;
     notific.notification_to = getNotifications.notification_to;
     notific.save(function (err, application) {
             console.log(application, "235");
@@ -278,8 +278,8 @@ router.get('/get_notifications', function(req, res){
             }
             else{
                 res.send({
-                    "state":"success",
-                    "meetings":meeting
+                    state:"success",
+                    data:meeting
                 },200);
             }
         })
@@ -331,14 +331,15 @@ router.get('/get_franchisor_notifications/:franchisor_id', function(req, res){
                 return  res.send(500,err);
             }
             if(!meeting){
+                
                 res.send({
                     state:"failure",
                     data:[]
                 },400)
+                console.log(meeting);
             }
             else {
                 res.send({
-
                     state:"success",
                     data:meeting
                 },200)
