@@ -46,6 +46,17 @@ io.on('connection', function(socket) {
         // Function above that stores the message in the database
 
     });
+
+    socket.on('join', (params, callback) => {
+        // if(!isRealString(params.name) || !isRealString(params.room)) {
+        //     callback('Name and room are required.');
+        // }
+
+        socket.join(params.room);
+        socket.emit('newNotification'. generateMessage('You have a new notification'));
+        socket.broadcast.to(params.room).emit('newNotification');
+        io.emit('newNotification', {type: 'new-notification', text: meeting_data});
+    })
 })
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
