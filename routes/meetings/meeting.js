@@ -293,12 +293,42 @@ router.get('/get_notifications', function(req, res){
 })
 
 //to get franchisee notification
-router.get('/get_franchisee_notification/id', function(req, res){
+router.get('/get_franchisee_notifications/:franchisee_id', function(req, res){
     try{
-        Notification.findById({_id:req.params.franchisee_id}, function (err, meeting){
+
+        Notification.find({franchisee_id:req.params.franchisee_id}, function (err, meeting){
             if(err){
-                return 
-                res.send(500,err);
+                return  res.send(500,err);
+            }
+            if(!meeting){
+                res.send({
+                    state:"failure",
+                    data:[]
+                },400)
+            }
+            else {
+                res.send({
+
+                    state:"success",
+                    data:meeting
+                },200)
+            }
+        });
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message: err
+        },500)
+    }
+})
+
+router.get('/get_franchisor_notifications/:franchisor_id', function(req, res){
+    try{
+
+        Notification.find({franchisor_id:req.params.franchisor_id}, function (err, meeting){
+            if(err){
+                return  res.send(500,err);
             }
             if(!meeting){
                 

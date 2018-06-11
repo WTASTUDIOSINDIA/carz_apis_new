@@ -379,7 +379,7 @@ router.put('/question/vote',function(req,res){
                         else{
                             res.send({
                                 state:'success',
-                                data: discussionquestion
+                                data: discussinquestion
                             },200);
                         }
                     });
@@ -398,8 +398,9 @@ router.put('/question/vote',function(req,res){
 //To add Comments by question id
 router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req,res){
     var discussionComments = JSON.parse(req.body.discussionquestion);
+    console.log('401',req.body);
     try{
-        DiscussionQuestion.findOne({_id: discussionComment.question_id}, function (err, discussinquestion){
+        DiscussionQuestion.find({_id: discussionComments.question_id}, function (err, discussionquestion){
             if(err){
                 return res.send({
                     state:"err",
@@ -416,11 +417,11 @@ router.post('/discussion_question/addcomments', upload.single('comment_img'), fu
                 discussionquestion.commentCount = discussionComments.commentCount +1;
                 discussionquestion.discussion_comments.push(req.body.comment);
                 if(req.file){
-                    discussionquestion.comment_file_attachment_file_url = req.file.location;
-                    discussionquestion.comment_file_attachment_file_name = req.file.key;
-                    discussionquestion.comment_file_attachment_file_type = req.file.contentType;
+                    discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
+                    discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
+                    discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;
                 }
-                discussionquestion.save(function( err, discussionqiuestion){
+                discussionquestion.save(function( err, discussionquestion){
                     if(err){
                         res.send({
                             state:"failure",
