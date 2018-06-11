@@ -334,6 +334,8 @@ router.get('/get_franchisee_notifications/:franchisee_id/:franchisor_id', functi
 })
 
 router.get('/get_franchisor_notifications/:franchisee_id', function(req, res){
+
+
     try{
 
         Notification.find({franchisee_id:req.params.franchisee_id}, function (err, meeting){
@@ -341,15 +343,17 @@ router.get('/get_franchisor_notifications/:franchisee_id', function(req, res){
                 return  res.send(500,err);
             }
             if(!meeting){
-                
+
                 res.send({
                     state:"failure",
                     data:[]
                 },400)
+
                 console.log(meeting);
             }
             else {
                 res.send({
+
                     state:"success",
                     data:meeting
                 },200)
