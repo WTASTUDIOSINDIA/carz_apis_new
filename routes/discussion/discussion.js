@@ -396,32 +396,40 @@ router.put('/question/vote',function(req,res){
 });
 
 //To add Comments by question id
-router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req,res){
+router.put('/discussion_question/addcomments', upload.single('comment_img'), function (req,res){
     var discussionComments = JSON.parse(req.body.discussionquestion);
-    console.log('401',req.body);
+    console.log('401',discussionComments);
     try{
-        DiscussionQuestion.find({_id: discussionComments.question_id}, function (err, discussionquestion){
+        DiscussionQuestion.findById({_id: discussionComments.question_id}, function (err, discussionquestion){
+            console.log('404', discussionquestion);
             if(err){
                 return res.send({
                     state:"err",
                     message:"Something went wrong."
                 },500)
             }
-            // if (discussionqiuestion) {
-            //     res.send({
-            //       state: "failure",
-            //       message: "This name already exists."
-            //     }, 400);
-            //   }
             else{
-                discussionquestion.commentCount = discussionComments.commentCount +1;
-                discussionquestion.discussion_comments.push(req.body.comment);
+                discussionquestion.commentsCount = discussionquestion.commentsCount +1;
                 if(req.file){
-                    discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
-                    discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
-                    discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;
+                    var comment_img = {};
+                    discussionComments.comment.comment_file_attachment_file_url = req.file.location;
+                    discussionComments.comment.comment_file_attachment_file_name = req.file.key;
+                    discussionComments.comment.comment_file_attachment_file_type = req.file.contentType;
                 }
+                if(!discussionquestion.discussion_comments){
+                    discussionquestion.discussion_comments = [];
+                }
+                discussionquestion.discussion_comments.push(discussionComments.comment);
+                console.log('423', discussionquestion.discussion_comments);
+                console.log('424', discussionquestion);
                 discussionquestion.save(function( err, discussionquestion){
+               
+                // if(req.file){
+                   
+                //     discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
+                //     discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
+                //     discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;
+                // }
                     if(err){
                         res.send({
                             state:"failure",
@@ -431,7 +439,8 @@ router.post('/discussion_question/addcomments', upload.single('comment_img'), fu
                     else{
                     res.send({
                         state: "success",
-                        message: "Comment posted."
+                        message: "Comment posted.",
+                        data: discussionquestion
                       }, 200);
                     }
                 });
@@ -445,4 +454,5 @@ router.post('/discussion_question/addcomments', upload.single('comment_img'), fu
         }, 500);
     }
 })
+
 module.exports = router;
