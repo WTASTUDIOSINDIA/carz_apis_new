@@ -63,14 +63,24 @@ router.post('/create_meeting',  function(req, res) {
                     io.on('connection', function(socket) {
                         socket.emit('news', {hello: 'world'});
                         socket.on('message', function (data, response) {
-                             console.log(data, "42");
+                             console.log(data, "42_meeting.js");
                             var meeting_data = saveMeetingNotification(data, res);
-                            console.log(meeting_data, "44");
+                            console.log(meeting_data, "44_meeting.js");
                             io.emit('message', { type: 'new-message', text: meeting_data });
                             // Function above that stores the message in the database
 
                         });
-                    })
+
+                        socket.on('join', (params, callback) => {
+                            // if(!isRealString(params.name) || !isRealString(params.room)) {
+                            //     callback('Name and room are required.');
+                            // }
+                            socket.join(params.id);
+                            socket.emit('newNotification'. generateMessage('You have a new notification'));
+                            socket.broadcast.to(params.id).emit('newNotification', params);
+                            io.emit.to(params.id).to('newNotification', {type: 'new-notification', text: meeting_data});
+                        });
+                    });
                         return res.send({
                             state:"success",
                             message:"Meeting Scheduled .",
@@ -293,10 +303,10 @@ router.get('/get_notifications', function(req, res){
 })
 
 //to get franchisee notification
-router.get('/get_franchisee_notifications/:franchisee_id', function(req, res){
+router.get('/get_franchisee_notifications/:franchisee_id/:franchisor_id', function(req, res){
     try{
 
-        Notification.find({franchisee_id:req.params.franchisee_id}, function (err, meeting){
+        Notification.find({franchisee_id:req.params.franchisee_id, franchisor_id:req.params.franchisor_id}, function (err, meeting){
             if(err){
                 return  res.send(500,err);
             }
@@ -305,6 +315,41 @@ router.get('/get_franchisee_notifications/:franchisee_id', function(req, res){
                     state:"failure",
                     data:[]
                 },400)
+            }
+            else {
+                res.send({
+
+                    state:"success",
+                    data:meeting
+                },200)
+            }
+        });
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message: err
+        },500)
+    }
+})
+
+router.get('/get_franchisor_notifications/:franchisee_id', function(req, res){
+
+
+    try{
+
+        Notification.find({franchisee_id:req.params.franchisee_id}, function (err, meeting){
+            if(err){
+                return  res.send(500,err);
+            }
+            if(!meeting){
+
+                res.send({
+                    state:"failure",
+                    data:[]
+                },400)
+
+                console.log(meeting);
             }
             else {
                 res.send({
