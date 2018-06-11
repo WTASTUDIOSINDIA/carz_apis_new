@@ -63,9 +63,9 @@ router.post('/create_meeting',  function(req, res) {
                     io.on('connection', function(socket) {
                         socket.emit('news', {hello: 'world'});
                         socket.on('message', function (data, response) {
-                             console.log(data, "42");
+                             console.log(data, "42_meeting.js");
                             var meeting_data = saveMeetingNotification(data, res);
-                            console.log(meeting_data, "44");
+                            console.log(meeting_data, "44_meeting.js");
                             io.emit('message', { type: 'new-message', text: meeting_data });
                             // Function above that stores the message in the database
 
