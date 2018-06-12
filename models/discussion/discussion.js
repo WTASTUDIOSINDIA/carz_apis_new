@@ -16,7 +16,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     commentsCount: {type: Number, default: 0},
     discussion_comments: [{'franchisee_id':String,
      'franchisee_name':String, 
-     'franchisee_city': String,
+     'franchisee_address': String,
       'franchisee_profile_pic':{type: Schema.Types.Mixed, default : {}},
        'comment_text' :String,
        'comment_file_attachment_file_name': String,
