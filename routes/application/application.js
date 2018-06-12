@@ -89,21 +89,21 @@ router.post('/application_form', function (req, res) {
 // get questions by franchisee id
 router.get('/get_questions_list/:franchisee_id', function (req, res) {
   try {
-    ApplicationSubmitted.findOne({
-      franchisee_Id: req.params.franchisee_id
-    }, function (err, questions) {
+    ApplicationSubmitted.findOne({franchisee_Id: req.params.franchisee_id}, function (err, questions) {
       if (err) {
         return res.send({
           state: "error",
           message: err
         }, 500);
-      } else if (questions && questions.application_status == 'Submitted') {
+      } else 
+      if (questions && questions.application_status == 'Submitted') {
         return res.send({
           state: 'success',
           // message:"Questions not created",
           questions_list: questions
         }, 200);
-      } else {
+      } 
+      else {
         get_all_questions(req, res);
       }
     })
