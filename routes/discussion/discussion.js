@@ -349,16 +349,16 @@ router.put('/change_question_status',function(req,res){
 //To vote
 router.put('/question/vote',function(req,res){
     try{
-        DiscussionQuestion.findOne({_id:req.body.question_id},function(err,discussinquestion){
+        DiscussionQuestion.findOne({_id:req.body.question_id},function(err,discussionquestion){
             if(err){
                 return res.send(err);
             }
             else{
                 var flag = false;
                 var id = req.body.votedBy;
-                if(discussinquestion.votedBy.length>0){
-                    for(var i=0;i<discussinquestion.votedBy.length;i++){
-                        if(discussinquestion.votedBy[i] == id){
+                if(discussionquestion.votedBy.length>0){
+                    for(var i=0;i<discussionquestion.votedBy.length;i++){
+                        if(discussionquestion.votedBy[i] == id){
                             flag = true;
                         }
                     }
@@ -370,16 +370,16 @@ router.put('/question/vote',function(req,res){
                     },400);
                 }
                 else{
-                    discussinquestion.votes=discussinquestion.votes + 1;
-                    discussinquestion.votedBy.push(id);
-                    discussinquestion.save(function(err, discussinquestion){
+                    discussionquestion.votes=discussionquestion.votes + 1;
+                    discussionquestion.votedBy.push(id);
+                    discussionquestion.save(function(err, discussionquestion){
                         if(err){
                             res.send(err);
                         }
                         else{
                             res.send({
                                 state:'success',
-                                data: discussinquestion
+                                data: discussionquestion
                             },200);
                         }
                     });
