@@ -61,12 +61,13 @@ router.post('/create_meeting',  function(req, res) {
                     // }
                     //else{
                     io.on('connection', function(socket) {
+                      console.log(socket);
                         socket.emit('news', {hello: 'world'});
                         socket.on('message', function (data, response) {
                              console.log(data, "42_meeting.js");
                             var meeting_data = saveMeetingNotification(data, res);
                             console.log(meeting_data, "44_meeting.js");
-                            io.emit('message', { type: 'new-message', text: meeting_data });
+                            io.emit('message', { type: 'new-message-23', text: meeting_data });
                             // Function above that stores the message in the database
 
                         });
@@ -301,6 +302,27 @@ router.get('/get_notifications', function(req, res){
 		});
 	}
 })
+router.delete('/delete_notifications', function(req, res){
+    try{
+        Notification.remove({},function(err,notifications){
+            if(err){
+                return res.send(500, err);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message: "notifications deleted successfully"
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+})
 
 //to get franchisee notification
 router.get('/get_franchisee_notifications/:franchisee_id/:franchisor_id', function(req, res){
@@ -376,7 +398,7 @@ router.get('/get_franchisor_notifications/:franchisor_id', function(req, res){
                 return  res.send(500,err);
             }
             if(!meeting){
-                
+
                 res.send({
                     state:"failure",
                     data:[]

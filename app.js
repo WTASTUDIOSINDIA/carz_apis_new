@@ -37,20 +37,19 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 io.on('connection', function(socket) {
+  console.log("stwa");
     socket.emit('news', {hello: 'world'});
     socket.on('message', function (data, response) {
          console.log(data, "42");
         var meeting_data = saveMeetingNotification(data);
         console.log(meeting_data, "44");
-        io.emit('message', { type: 'new-message', text: meeting_data });
-        // Function above that stores the message in the database
+        io.emit('message', { type: 'new-message', text: data });
+
 
     });
 
     socket.on('join', (params, callback) => {
-        // if(!isRealString(params.name) || !isRealString(params.room)) {
-        //     callback('Name and room are required.');
-        // }
+
 
         socket.join(params.room);
         socket.emit('newNotification'. generateMessage('You have a new notification'));
