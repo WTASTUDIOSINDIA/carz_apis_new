@@ -292,6 +292,53 @@ router.post('/create_business_type',function(req,res){
     }
 });
 
+router.put('/update_business_type', function(req, res) {
+    var franchiseeTypeListEdit = req.body;
+    console.log(req.body);
+    try{
+        FranchiseeTypeList.findById({_id:franchiseeTypeListEdit._id},function(err,type){
+            console.log('franchiseeTypeListEdit', franchiseeTypeListEdit);
+            if(err){
+                return res.send({
+                        state:"err",
+                        message:"Something went wrong.We are looking into it."
+                    },500);
+            }
+            if(type){
+                type.doc_name = franchiseeTypeListEdit.doc_name;
+                type.businessType_id = franchiseeTypeListEdit.businessType_id;
+                type.doc_link="";
+                type.save(function(err,type){
+                   if(err){
+                     res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+                   }
+                else{
+                    res.send({
+                        state:"success",
+                        message:"Business type Updated."
+                    },200);
+                }
+                });
+            }
+            if(!type){
+                res.send({
+                    state:"failure",
+                    message:"Failed to edit."
+                },400);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
+
 router.delete('/delete/business_type/:id',function(req,res){
     try{
         FranchiseeTypeList.findByIdAndRemove({_id:req.params.id},function(err,type){
