@@ -157,7 +157,7 @@ var thirdPartyFileSchema =new mongoose.Schema({
     "date_uploaded":Date,
     "key":String
 });
-
+    
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
 });

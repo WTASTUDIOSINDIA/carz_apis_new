@@ -34,7 +34,7 @@ var upload = multer({
     })
 });
 
-router.post('/franchisee_assessment', function (req, res) {
+router.post('/create_franchisee_assessment', function (req, res) {
     var franchiseeAssessmentForm = req.body;
     try {
         FranchiseeAssessment.findOne({ question_EN: franchiseeAssessmentForm.question_EN }, function (err, question) {
@@ -90,7 +90,7 @@ router.get('/get_all_franchisee_assessment_questions', function (req, res) {
             }
             if (!question) {
                 res.send({
-                    message: "Partner franchiees not found",
+                    message: "Questions not found",
                     state: "failure",
                     data: []
                 }, 201);
@@ -175,7 +175,7 @@ router.delete('/delete_franchisee_assessent_question/:id', function (req, res) {
 router.put('/edit_franchisee_assessment_question', function (req, res) {
     var franchiseeAssessmentForm = req.body;
     try {
-        FranchiseeAssessment.findOne({ _id: franchiseeAssessmentForm._id }, function (err, question) {
+        FranchiseeAssessment.findOne({ _id: franchiseeAssessmentForm.question_id }, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
