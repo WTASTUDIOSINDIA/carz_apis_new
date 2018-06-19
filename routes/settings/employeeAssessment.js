@@ -39,60 +39,6 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
-// To create employee assessment
-//   router.post('/create_employee_assessment_question',fileupload, function (req, res) {
-//     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
-//     try {
-//         EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN }, function (err, question) {
-//             if (err) {
-//                 return res.send({
-//                     state: 'error',
-//                     message: err
-//                 }, 500);
-//             }
-//             if (question) {
-//                 return res.send({
-//                     state: 'failure',
-//                     message: "Question already exists"
-//                 }, 400);
-//             }
-//             else {
-//                 var employeeAssessment = new EmployeeAssessment();
-//                 employeeAssessment.question_EN = employeeAssessmentForm.question_EN;
-//                 employeeAssessment.question_type = employeeAssessmentForm.question_type;
-//                 employeeAssessment.options = employeeAssessmentForm.options;
-//                 // employeeAssessment.franchisee_id = employeeAssessmentForm.franchisee_id;
-//                 if (req.file){
-//                     console.log(req.file);
-//                     employeeAssessment.employee_assessment_file_attachment_file_url = req.file.location;
-//                     employeeAssessment.employee_assessment_file_attachment_file_name = req.file.key;
-//                     employeeAssessment.employee_assessment_file_attachment_file_type = req.file.contentType;
-//                 }
-//                 employeeAssessment.save(function (err, employeeAssessment) {
-//                     if (err) {
-//                         return res.send({
-//                             state: 'error',
-//                             message: err
-//                         }, 500);
-//                     }
-//                     else {
-//                         return res.send({
-//                             state: 'success',
-//                             message: 'Question created'
-//                         }, 200)
-//                     }
-//                 })
-//             }
-//         });
-//     }
-//     catch (err) {
-//         return res.send({
-//             state: 'error',
-//             message: err
-//         }, 500);
-//     }
-// })
-
 
 router.post('/create_employee_assessment_question', fileupload, function (req, res) {
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
@@ -186,7 +132,7 @@ router.get('/get_all_employee_assessment_question', function (req, res) {
 });
 
 router.put('/update_employee_assessment_question', fileupload, function (req, res) {
-    var employeeAssessmentEditForm = JSON.parse(req.body.question);
+    var employeeAssessmentEditForm = JSON.parse(req.body.employeeAssessment);
     console.log('190',employeeAssessmentEditForm);
     // try {
         EmployeeAssessment.findOne({ _id: employeeAssessmentEditForm.question_id }, function (err, question) {
@@ -212,7 +158,8 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
                             }
                         }
                     }
-                    console.log('215', question);
+                }
+                    console.log('215', employeeAssessmentEditForm.question);
                     question.question_EN = employeeAssessmentEditForm.question_EN;
                     question.question_type = employeeAssessmentEditForm.question_type;
                     question.options = employeeAssessmentEditForm.options;
@@ -231,7 +178,7 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
                             }, 200);
                         }
                     });
-                }
+                
             }
 
         })
