@@ -87,7 +87,7 @@ router.get('/question_types',function(req,res){
 
 router.post('/question_list',function(req,res){
     try{
-        Question.findOne({'question_EN':req.body.question,'question_type_id':req.body.question_type_id},function(err,ques){
+        Question.findOne({'question_EN':req.body.question,'question_type':req.body.question_type},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
@@ -197,7 +197,7 @@ router.get('/get_question_by_id/:id',function(req,res){
 
 router.put('/update_question',function(req,res){
     try{
-        Question.findOne({_id:req.body.ques_id},function(err,ques){
+        Question.findOne({_id:req.body.question_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
@@ -214,7 +214,6 @@ router.put('/update_question',function(req,res){
                 ques.question_EN = req.body.question_EN;
                 ques.options = req.body.options;
                 ques.correct_answer = req.body.correct_answer;
-                ques.question_type_id = req.body.question_type_id;
                 ques.question_type = req.body.question_type;
                 ques.save(function(err,ques){
                     if(err){
@@ -537,5 +536,32 @@ router.delete('/delete_question_types',function(req,res){
         });
     }
 });
+
+//To delete question by question id
+router.delete('/delete_franchisee_assessent_question/:id', function (req, res) {
+    try {
+        Question.findByIdAndRemove({ _id: req.params.id }, function (err, question) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong. We are looking into it'
+                }, 500);
+            }
+            else {
+                return res.send({
+                    state: 'success',
+                    message: 'Question removed'
+                }, 200);
+            }
+        });
+    }
+    catch (err) {
+        res.send({
+            state: 'error',
+            message: err
+        }, 500);
+    }
+});
+
 
 module.exports = router;

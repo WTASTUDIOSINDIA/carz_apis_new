@@ -14,6 +14,7 @@ require('./models/setup/setup');
 require('./models/crm/stages');
 require('./models/discussion/discussion');
 require('./models/settings/franchiseeAssessment');
+require('./models/settings/employeeAssessment');
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var assessment = require('./routes/assessment/assessment');
@@ -27,6 +28,7 @@ var application = require('./routes/application/application');
 var marketing = require('./routes/marketing/marketing');
 var discussion = require('./routes/discussion/discussion');
 var settings = require('./routes/settings/franchiseeAssessment');
+var settings = require('./routes/settings/employeeAssessment');
 
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
