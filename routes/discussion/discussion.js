@@ -349,7 +349,7 @@ router.put('/change_question_status',function(req,res){
 //To vote
 router.put('/question/vote',function(req,res){
     try{
-        DiscussionQuestion.findOne({_id:req.body.question_id},function(err,discussionquestion){
+        DiscussionQuestion.findById({_id:req.body.question_id},function(err,discussionquestion){
             if(err){
                 return res.send(err);
             }
