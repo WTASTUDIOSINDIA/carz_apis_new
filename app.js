@@ -40,17 +40,51 @@ mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxr
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var connectedSocketUsers = [];
 io.on('connection', function(socket) {
   console.log("stwa");
     socket.emit('news', {hello: 'world'});
+    socket.on('add-user', function(data, response){
+      connectedSocketUsers.push(data);
+      console.log(data, "57");
+      for (var i = 0; i < connectedSocketUsers.length; i++) {
+        if (connectedSocketUsers[i].user_id === data.user_id) { // modify whatever property you need
+          return;
+        //  connectedSocketUsers.push(data);
+        }
+        else {
+          connectedSocketUsers.push(data);
+        }
+  }
+    //  if (connectedUsers.indexOf(data.user_id) == -1) {
+  //  connectedSocketUsers.push(data);
+
+
+    })
+  //   socket.on('disconnect', function() {
+  //   connectedSocketUsers = [];
+  // });
     socket.on('message', function (data, response) {
          console.log(data, "42");
+         for(var i=0; i<connectedSocketUsers.length; i++){
+           if(connectedSocketUsers[i].user_id == data.franchisee_id){
+             var socketId = connectedSocketUsers[i].socket_id;
+             console.log(socketId, "60");
+      //       connectedUsers[socketId].socket.emit('message', { type: 'new-message', text: data });
+             socket.broadcast.to(socketId).emit('message', { type: 'new-message', text: data });
+            // io.emit('message', { type: 'new-message', text: data });
+          socket.to(socketId).emit('message', { type: 'new-message', text: data });
+          io.to(socketId).emit('message', { type: 'new-message', text: data });
+          }
+         }
         var meeting_data = saveMeetingNotification(data);
         console.log(meeting_data, "44");
-        io.emit('message', { type: 'new-message', text: data });
+      //  io.emit('message', { type: 'new-message', text: data });
 
 
     });
+
+    console.log(connectedSocketUsers, "59");
 
     socket.on('join', (params, callback) => {
 
