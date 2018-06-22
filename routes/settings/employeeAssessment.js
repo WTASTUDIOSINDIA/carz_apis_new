@@ -8,6 +8,7 @@ var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
+var CreateEmployee = mongoose.model('CreateEmployee')
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -61,10 +62,11 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 if (req.files.file_upload) {
                     console.log(req.files.file_upload);
                     for (var i = 0; i < req.files.file_upload.length; i++) {
-                        for (var j = 0; j < employeeAssessmentForm.employee_list.length; j++) {
-                            if (employeeAssessmentForm.employee_list[j].question_type === 'Multiple Choice') {
-                                employeeAssessmentForm.employee_list[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
-                                employeeAssessmentForm.employee_list[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
+                        console.log('64', employeeAssessmentForm);
+                        for (var j = 0; j < employeeAssessmentForm.length; j++) {
+                            if (employeeAssessmentForm[j].question_type = 'Multiple Choice') {
+                                employeeAssessmentForm[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
+                                employeeAssessmentForm[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
                             }
                         }
                     }
@@ -77,6 +79,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 question.options = employeeAssessmentForm.options;
                 question.correct_answer = employeeAssessmentForm.correct_answer;
                 question.franchisee_id = employeeAssessmentForm.franchisee_id;
+                question.employee_answers = employeeAssessmentForm.employee_list;
                 question.save(function (err, question) {
                     console.log('131', question);
                     if (err) {
@@ -133,55 +136,55 @@ router.get('/get_all_employee_assessment_question', function (req, res) {
 
 router.put('/update_employee_assessment_question', fileupload, function (req, res) {
     var employeeAssessmentEditForm = JSON.parse(req.body.employeeAssessment);
-    console.log('190',employeeAssessmentEditForm);
+    console.log('190', employeeAssessmentEditForm);
     // try {
-        EmployeeAssessment.findOne({ _id: employeeAssessmentEditForm.question_id }, function (err, question) {
-            if (err) {
-                return res.send({
-                    state: "err",
-                    message: "Something went wrong.We are looking into it."
-                }, 500);
-            }
-            if (!question) {
-                res.send({
-                    state: "failure",
-                    message: "Failed to update"
-                }, 400);
-            }
-            else {
-                if (req.files.file_upload) {
-                    for (var i = 0; i < req.files.file_upload.length; i++) {
-                        for (var j = 0; j < employeeAssessmentEditForm.employee_list.length; j++) {
-                            if (employeeAssessmentEditForm.employee_list[j].question_type === 'Multiple Choose') {
-                                employeeAssessmentEditForm.employee_list[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
-                                employeeAssessmentEditForm.employee_list[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
-                            }
+    EmployeeAssessment.findOne({ _id: employeeAssessmentEditForm.question_id }, function (err, question) {
+        if (err) {
+            return res.send({
+                state: "err",
+                message: "Something went wrong.We are looking into it."
+            }, 500);
+        }
+        if (!question) {
+            res.send({
+                state: "failure",
+                message: "Failed to update"
+            }, 400);
+        }
+        else {
+            if (req.files.file_upload) {
+                for (var i = 0; i < req.files.file_upload.length; i++) {
+                    for (var j = 0; j < employeeAssessmentEditForm.employee_list.length; j++) {
+                        if (employeeAssessmentEditForm.employee_list[j].question_type === 'Multiple Choose') {
+                            employeeAssessmentEditForm.employee_list[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
+                            employeeAssessmentEditForm.employee_list[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
                         }
                     }
                 }
-                    console.log('215', employeeAssessmentEditForm.question);
-                    question.question_EN = employeeAssessmentEditForm.question_EN;
-                    question.question_type = employeeAssessmentEditForm.question_type;
-                    question.options = employeeAssessmentEditForm.options;
-                    question.correct_answer = employeeAssessmentEditForm.correct_answer;
-                    question.save(function (err, question) {
-                        if (err) {
-                            res.send({
-                                state: "err",
-                                message: "Something went wrong."
-                            }, 500);
-                        }
-                        else {
-                            res.send({
-                                state: "success",
-                                message: "Question Updated."
-                            }, 200);
-                        }
-                    });
-                
             }
+            console.log('215', employeeAssessmentEditForm.question_EN);
+            question.question_EN = employeeAssessmentEditForm.question_EN;
+            question.question_type = employeeAssessmentEditForm.question_type;
+            question.options = employeeAssessmentEditForm.options;
+            question.correct_answer = employeeAssessmentEditForm.correct_answer;
+            question.save(function (err, question) {
+                if (err) {
+                    res.send({
+                        state: "err",
+                        message: "Something went wrong."
+                    }, 500);
+                }
+                else {
+                    res.send({
+                        state: "success",
+                        message: "Question Updated."
+                    }, 200);
+                }
+            });
 
-        })
+        }
+
+    })
     // }
     // catch (err) {
     //     return res.send({
@@ -257,7 +260,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                     else {
                         return res.send({
                             state: "success",
-                            message: "Test Completed"
+                            message: "Employee Assessment Completed"
                         }, 200);
                     }
                 })
@@ -271,5 +274,180 @@ router.put('/employee_assessment_answer', function (req, res) {
         }, 500);
     }
 });
+
+//To create employee fileds
+router.post('/create_employee_details', function (req, res) {
+    try {
+        CreateEmployee.findOne({ _id: employeeDetails.franchisee_id }, function (err, createEmployeeDetails) {
+            if (err) {
+                res.send({
+                    state: 'failure',
+                    message: 'Something went wrong',
+                }, 500)
+            }
+            if (createEmployeeDetails) {
+                res.send({
+                    state: "failure",
+                    message: "This Employee already exists."
+                }, 400);
+            }
+            else {
+                createEmployeeDetails = new CreateEmployee();
+                createEmployeeDetails.employee_name = req.body.employee_name;
+                createEmployeeDetails.employee_occupation = req.body.employee_occupation;
+                createEmployeeDetails.employee_email = req.body.employee_email;
+                createEmployeeDetails.employee_city = req.body.employee_city;
+                createEmployeeDetails.employee_state = req.body.employee_state;
+                createEmployeeDetails.employee_address = req.body.employee_address;
+                createEmployeeDetails.employee_mobile_number = req.body.employee_mobile_number;
+                createEmployeeDetails.employee_age = req.body.employee_age;
+                createEmployeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
+                createEmployeeDetails.employee_experience_in = req.body.employee_experience_in;
+                createEmployeeDetails.employee_vertical = req.body.employee_vertical;
+                createEmployeeDetails.employee_days_experience = req.body.employee_days_experience;
+                createEmployeeDetails.save(function (err, createEmployeeDetails) {
+                    if (err) {
+                        res.send({
+                            state: 'failure',
+                            message: 'Something went wrong, we are looking into it.'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Employee created successfully'
+                        }, 200)
+                    }
+                })
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+//To get create employee details
+router.get('/get_all_employee', function (req, res) {
+    try {
+        CreateEmployee.find({}, function (err, createEmployeeDetails) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!createEmployeeDetails) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    createEmployeeDetails: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: createEmployeeDetails
+                }, 200)
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+// To get employee details by id
+router.get('/get_employee_details/:id', function (req,res){
+    try {
+        CreateEmployee.findById({_id:req.body.employee_id}, function (err,createEmployeeDetails){
+            if(err){
+                return res.send({
+                    state:'error',
+                    message:err
+                },500);
+            }
+            if(!createEmployeeDetails){
+                return res.send({
+                    state:'failure',
+                    createEmployeeDetails:[]
+                },400)
+            }
+            else{
+                return res.send({
+                    state:'success',
+                    daat:createEmployeeDetails
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'err',
+            message:err
+        })
+    }
+})
+
+//To edit employee details
+router.put('/update_employee_details', function (req, res){
+    try{
+        CreateEmployee.findOne({_id:req.body.employee_id}, function (err,createEmployeeDetails){
+            if(err){
+                return res.send({
+                    state:'err',
+                    message:'Something went wrong'
+                },500)
+            }
+            if(createEmployeeDetails){
+                createEmployeeDetails.employee_name = req.body.employee_name;
+                createEmployeeDetails.employee_occupation = req.body.employee_occupation;
+                createEmployeeDetails.employee_email = req.body.employee_email;
+                createEmployeeDetails.employee_city = req.body.employee_city;
+                createEmployeeDetails.employee_state = req.body.employee_state;
+                createEmployeeDetails.employee_address = req.body.employee_address;
+                createEmployeeDetails.employee_mobile_number = req.body.employee_mobile_number;
+                createEmployeeDetails.employee_age = req.body.employee_age;
+                createEmployeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
+                createEmployeeDetails.employee_experience_in = req.body.employee_experience_in;
+                createEmployeeDetails.employee_vertical = req.body.employee_vertical;
+                createEmployeeDetails.employee_days_experience = req.body.employee_days_experience;
+                createEmployeeDetails.franchisee_id = req.body.frachisee_id;              
+                createEmployeeDetails.save(function(err,createEmployeeDetails){
+                    if(err){
+                        res.send({
+                            state:'err',
+                            message:'Something went wrong'
+                        },500)
+                    }
+                    else{
+                        res.send({
+                            state:'success',
+                            message:'Employee updated'
+                        },200)
+                    }
+                })
+            }
+            if(!createEmployeeDetails){
+                res.send({
+                    state:"failure",
+                    message:"Failed to update."
+                },400);
+            }
+        })
+    }
+    catch(err){
+        res.send({
+            state:'err',
+            message:'err'
+        })
+    }
+})
 
 module.exports = router;

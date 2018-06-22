@@ -21,5 +21,23 @@ var employeeAssementSubmittedSchema = new mongoose.Schema({
     'franchisee_id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "employee_assessment_status":{type:String,default:'Pending'}
 });
+
+var createEmployeeSchema = new mongoose.Schema({
+    'employee_name': String,
+    'employee_occupation': String,
+    'employee_email': String,
+    'employee_city': String,
+    'employee_state': String,
+    'employee_address': String,
+    'employee_mobile_number': String,
+    'employee_age': String,
+    'employee_company_of_experience': String,
+    'employee_experience_in': String,
+    'employee_vertical': String,
+    'employee_days_experience': String,
+    'franchisee_id':{type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'employee_id':{type: Schema.Types.ObjectId, ref: 'Employee'}
+})
+mongoose.model('CreateEmployee', createEmployeeSchema);
 mongoose.model('EmployeeAssessment', employeeAssessmentSchema);
 mongoose.model('EmployeeAssessmentSubmitted', employeeAssementSubmittedSchema);
