@@ -262,6 +262,7 @@ function saveMeetingNotification(request, response){
     notific.franchisor_id = getNotifications.franchisor_id;
     notific.franchisee_id = getNotifications.franchisee_id;
     notific.created_at = getNotifications.created_at;
+    notific.meeting_title = getNotifications.meeting_title;
     notific.meeting_date = getNotifications.meeting_date;
     notific.meeting_time = getNotifications.meeting_time;
     notific.meeting_location = getNotifications.meeting_location;

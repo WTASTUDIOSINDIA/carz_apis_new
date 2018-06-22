@@ -110,6 +110,7 @@ var notificationSchema = new mongoose.Schema({
     "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "created_at" : { type: Date, default: Date.now },
+    "meeting_title" : String,
     "meeting_date" : String,
     "meeting_time" : String,
     "meeting_location" : String,
@@ -157,7 +158,7 @@ var thirdPartyFileSchema =new mongoose.Schema({
     "date_uploaded":Date,
     "key":String
 });
-    
+
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
 });
