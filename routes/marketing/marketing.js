@@ -71,6 +71,8 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 campaign.budget = campaignForm.budget;
                 campaign.meta = campaignForm.meta;
                 campaign.franchisor_id = campaignForm.franchisor_id;
+                campaign.franchisee_id = campaignForm.franchisee_id;
+                campaign.visible_to = campaignForm.visible_to;
                 console.log(req.file, "74");
                 if (req.file){
                     console.log(req.file);
@@ -136,6 +138,8 @@ router.put('/update_campaign', function(req,res){
                 campaign.budget = campaignEditForm.budget;
                 campaign.feedback = campaignEditForm.feedback;
                 campaign.franchisor_id = campaignEditForm.franchisor_id;
+                campaign.franchisee_id = campaignEditForm.franchisee_id;
+                campaign.visible_to = campaignEditForm.visible_to;
                 campaign.save(function(err,campaign){
                     if(err){
                         res.send({

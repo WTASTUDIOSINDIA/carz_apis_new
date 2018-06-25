@@ -235,6 +235,7 @@ var CampaignSchema = new mongoose.Schema({
     'feedback': String,
     // 'campaign_file':{type: Schema.Types.Mixed, default : {}},
     'franchisor_id':{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    'franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'doc_name': String,
     'link': {type: Schema.Types.Mixed, default : {}},
     'file_type': String,

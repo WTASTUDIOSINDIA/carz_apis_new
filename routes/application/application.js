@@ -6,7 +6,8 @@ var path = require('path');
 var Application = mongoose.model('Application');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
 var Stages = mongoose.model('Stages');
-var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');;
+var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');
+var ActivityTracker = mongoose.model('ActivityTracker');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
 var Reasons = mongoose.model('Reasons');
@@ -898,5 +899,51 @@ router.put('/update_order', function (req, res) {
     }, 500);
   }
 });
+
+router.post('/activity_tracker', function (req, res) {
+  try {
+    ActivityTracker.findOne({_id: req.body.franchisee_id}, function (err, activityTracker) {
+      if (err) {
+        return res.send({
+          state: "error",
+          message: err
+        }, 500);
+      }
+      if (activityTracker) {
+        return res.send({
+          state: "failure",
+          message: "Failed"
+        }, 200);
+      } else {
+        var activityTracker = new ActivityTracker();
+        activityTracker.activity_name = req.body.activity_name;
+        activityTracker.activity_time = req.body.activity_time;
+        activityTracker.activity_date = req.body.activity_date;
+        activityTracker.activity_source = req.body.activity_source,
+          activityTracker.save(function (err, activityTracker) {
+            if (err) {
+              return res.send({
+                state: "error",
+                message: err
+              }, 500);
+            } else {
+              return res.send({
+                state: "success",
+                message: "Success",
+                data: activityTracker
+              }, 200);
+            }
+          })
+      }
+    });
+  } catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    }, 500);
+  }
+});
+
+
 
 module.exports = router;
