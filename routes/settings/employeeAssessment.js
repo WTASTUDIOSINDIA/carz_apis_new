@@ -331,7 +331,7 @@ router.post('/create_employee_details', function (req, res) {
 })
 
 //To get create employee details
-router.get('/get_all_employee', function (req, res) {
+router.get('/get_all_employees', function (req, res) {
     try {
         EmployeeDetails.find({}, function (err, employeeDetails) {
             if (err) {
@@ -364,36 +364,33 @@ router.get('/get_all_employee', function (req, res) {
 })
 
 // To get employee details by id
-router.get('/get_employee_details/:id', function (req,res){
-    try {
-        EmployeeDetails.findById({_id:req.body.employee_id}, function (err,employeeDetails){
+router.get('/get_employee_details/:id',function(req,res){
+    try{
+        EmployeeDetails.findById({_id:req.params.id},function(err,employeeDetails){
             if(err){
-                return res.send({
-                    state:'error',
-                    message:err
-                },500);
+                return res.send(500, err);
             }
             if(!employeeDetails){
-                return res.send({
-                    state:'failure',
+                res.send({
+                    state:"failure",
                     employeeDetails:[]
-                },400)
+                },400);
             }
             else{
-                return res.send({
-                    state:'success',
-                    daat:employeeDetails
-                },200)
+                res.send({
+                    state:"success",
+                    data:employeeDetails
+                },200);
             }
         })
     }
-    catch (err){
-        return res.send({
-            state:'err',
-            message:err
-        })
-    }
-})
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
 
 //To edit employee details
 router.put('/update_employee_details', function (req, res){
