@@ -8,7 +8,7 @@ var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
-var CreateEmployee = mongoose.model('CreateEmployee')
+var EmployeeDetails = mongoose.model('EmployeeDetails')
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -277,35 +277,35 @@ router.put('/employee_assessment_answer', function (req, res) {
 
 //To create employee fileds
 router.post('/create_employee_details', function (req, res) {
-    try {
-        CreateEmployee.findOne({ _id: employeeDetails.franchisee_id }, function (err, createEmployeeDetails) {
+    // try {
+        EmployeeDetails.findOne({ _id: req.body.franchisee_id }, function (err, employeeDetails) {
             if (err) {
                 res.send({
                     state: 'failure',
                     message: 'Something went wrong',
                 }, 500)
             }
-            if (createEmployeeDetails) {
+            if (employeeDetails) {
                 res.send({
                     state: "failure",
                     message: "This Employee already exists."
                 }, 400);
             }
             else {
-                createEmployeeDetails = new CreateEmployee();
-                createEmployeeDetails.employee_name = req.body.employee_name;
-                createEmployeeDetails.employee_occupation = req.body.employee_occupation;
-                createEmployeeDetails.employee_email = req.body.employee_email;
-                createEmployeeDetails.employee_city = req.body.employee_city;
-                createEmployeeDetails.employee_state = req.body.employee_state;
-                createEmployeeDetails.employee_address = req.body.employee_address;
-                createEmployeeDetails.employee_mobile_number = req.body.employee_mobile_number;
-                createEmployeeDetails.employee_age = req.body.employee_age;
-                createEmployeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
-                createEmployeeDetails.employee_experience_in = req.body.employee_experience_in;
-                createEmployeeDetails.employee_vertical = req.body.employee_vertical;
-                createEmployeeDetails.employee_days_experience = req.body.employee_days_experience;
-                createEmployeeDetails.save(function (err, createEmployeeDetails) {
+                employeeDetails = new EmployeeDetails();
+                employeeDetails.employee_name = req.body.employee_name;
+                employeeDetails.employee_occupation = req.body.employee_occupation;
+                employeeDetails.employee_email = req.body.employee_email;
+                employeeDetails.employee_city = req.body.employee_city;
+                employeeDetails.employee_state = req.body.employee_state;
+                employeeDetails.employee_address = req.body.employee_address;
+                employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
+                employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
+                employeeDetails.employee_experience_in = req.body.employee_experience_in;
+                employeeDetails.employee_vertical = req.body.employee_vertical;
+                employeeDetails.employee_days_experience = req.body.employee_days_experience;
+                employeeDetails.save(function (err, employeeDetails) {
                     if (err) {
                         res.send({
                             state: 'failure',
@@ -321,36 +321,36 @@ router.post('/create_employee_details', function (req, res) {
                 })
             }
         })
-    }
-    catch (err) {
-        res.send({
-            state: 'err',
-            message: err
-        })
-    }
+    // }
+    // catch (err) {
+    //     res.send({
+    //         state: 'err',
+    //         message: err
+    //     },500)
+    // }
 })
 
 //To get create employee details
-router.get('/get_all_employee', function (req, res) {
+router.get('/get_all_employees', function (req, res) {
     try {
-        CreateEmployee.find({}, function (err, createEmployeeDetails) {
+        EmployeeDetails.find({}, function (err, employeeDetails) {
             if (err) {
                 return res.send({
                     state: 'error',
                     message: err
                 }, 500);
             }
-            if (!createEmployeeDetails) {
+            if (!employeeDetails) {
                 res.send({
                     state: 'failure',
                     message: 'Employees not found.',
-                    createEmployeeDetails: []
+                    employeeDetails: []
                 }, 400)
             }
             else {
                 res.send({
                     state: 'success',
-                    data: createEmployeeDetails
+                    data: employeeDetails
                 }, 200)
             }
         })
@@ -364,62 +364,59 @@ router.get('/get_all_employee', function (req, res) {
 })
 
 // To get employee details by id
-router.get('/get_employee_details/:id', function (req,res){
-    try {
-        CreateEmployee.findById({_id:req.body.employee_id}, function (err,createEmployeeDetails){
+router.get('/get_employee_details/:id',function(req,res){
+    try{
+        EmployeeDetails.findById({_id:req.params.id},function(err,employeeDetails){
             if(err){
-                return res.send({
-                    state:'error',
-                    message:err
-                },500);
+                return res.send(500, err);
             }
-            if(!createEmployeeDetails){
-                return res.send({
-                    state:'failure',
-                    createEmployeeDetails:[]
-                },400)
+            if(!employeeDetails){
+                res.send({
+                    state:"failure",
+                    employeeDetails:[]
+                },400);
             }
             else{
-                return res.send({
-                    state:'success',
-                    daat:createEmployeeDetails
-                },200)
+                res.send({
+                    state:"success",
+                    data:employeeDetails
+                },200);
             }
         })
     }
-    catch (err){
-        return res.send({
-            state:'err',
-            message:err
-        })
-    }
-})
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
 
 //To edit employee details
 router.put('/update_employee_details', function (req, res){
     try{
-        CreateEmployee.findOne({_id:req.body.employee_id}, function (err,createEmployeeDetails){
+        EmployeeDetails.findOne({_id:req.body.employee_id}, function (err,employeeDetails){
             if(err){
                 return res.send({
                     state:'err',
                     message:'Something went wrong'
                 },500)
             }
-            if(createEmployeeDetails){
-                createEmployeeDetails.employee_name = req.body.employee_name;
-                createEmployeeDetails.employee_occupation = req.body.employee_occupation;
-                createEmployeeDetails.employee_email = req.body.employee_email;
-                createEmployeeDetails.employee_city = req.body.employee_city;
-                createEmployeeDetails.employee_state = req.body.employee_state;
-                createEmployeeDetails.employee_address = req.body.employee_address;
-                createEmployeeDetails.employee_mobile_number = req.body.employee_mobile_number;
-                createEmployeeDetails.employee_age = req.body.employee_age;
-                createEmployeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
-                createEmployeeDetails.employee_experience_in = req.body.employee_experience_in;
-                createEmployeeDetails.employee_vertical = req.body.employee_vertical;
-                createEmployeeDetails.employee_days_experience = req.body.employee_days_experience;
-                createEmployeeDetails.franchisee_id = req.body.frachisee_id;              
-                createEmployeeDetails.save(function(err,createEmployeeDetails){
+            if(employeeDetails){
+                employeeDetails.employee_name = req.body.employee_name;
+                employeeDetails.employee_occupation = req.body.employee_occupation;
+                employeeDetails.employee_email = req.body.employee_email;
+                employeeDetails.employee_city = req.body.employee_city;
+                employeeDetails.employee_state = req.body.employee_state;
+                employeeDetails.employee_address = req.body.employee_address;
+                employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
+                employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
+                employeeDetails.employee_experience_in = req.body.employee_experience_in;
+                employeeDetails.employee_vertical = req.body.employee_vertical;
+                employeeDetails.employee_days_experience = req.body.employee_days_experience;
+                employeeDetails.franchisee_id = req.body.frachisee_id;              
+                employeeDetails.save(function(err,employeeDetails){
                     if(err){
                         res.send({
                             state:'err',
@@ -434,7 +431,7 @@ router.put('/update_employee_details', function (req, res){
                     }
                 })
             }
-            if(!createEmployeeDetails){
+            if(!employeeDetails){
                 res.send({
                     state:"failure",
                     message:"Failed to update."
@@ -446,6 +443,38 @@ router.put('/update_employee_details', function (req, res){
         res.send({
             state:'err',
             message:'err'
+        })
+    }
+})
+
+// To delete employee details
+router.delete('/delete_employee_details/:id', function(req, res){
+    try{
+        EmployeeDetails.findByIdAndRemove({_id: req.params.id}, function(err,employeeDetails){
+            if(err){
+                return res.sendStatus({
+                    state:err,
+                    message:'Something went wrong, we are looking into it.'
+                },500);
+            }
+            if(!employeeDetails){
+                res.send({
+                    state:err,
+                    message:'Employee not found.'
+                },201);
+            }
+            else{
+                res.send({
+                    state:'success',
+                    message:'Employee deleted'
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:'err',
+            message:err
         })
     }
 })

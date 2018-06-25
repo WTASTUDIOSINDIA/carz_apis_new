@@ -15,6 +15,7 @@ require('./models/crm/stages');
 require('./models/discussion/discussion');
 require('./models/settings/franchiseeAssessment');
 require('./models/settings/employeeAssessment');
+require('./models/activity-tracker/activity-tracker');
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var assessment = require('./routes/assessment/assessment');

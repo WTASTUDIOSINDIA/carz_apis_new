@@ -17,7 +17,7 @@ router.post('/add_assessment_type',function(req,res){
             if(err){
                 return res.send({
                     state:"error",
-                    message:"err1"
+                    message:"err"
                 },500);
             }
             if(questionType){
