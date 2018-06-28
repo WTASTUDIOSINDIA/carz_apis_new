@@ -74,42 +74,31 @@ io.on('connection', function(socket) {
          //io.sockets.connected['zaJcPS-y9eYWXsxkAAAR'].emit('message', 'Hello!');
          //socket.to('DmBfj-PHgk4pMMisAAAG').emit('message', 'I just met you');
          io.emit('message', { type: 'new-message', text: data });
-         for(var i=0; i<connectedSocketUsers.length; i++){
-           if(connectedSocketUsers[i].user_id == data.franchisee_id){
-             var socketId = connectedSocketUsers[i].socket_id;
-             console.log(socketId, "60");
-             //zaJcPS-y9eYWXsxkAAAR
-      //       connectedUsers[socketId].socket.emit('message', { type: 'new-message', text: data });
-socket.to(socketId).emit('message', { type: 'new-message', text: data });
-socket.broadcast.to(socketId).emit('message', { type: 'new-message', text: data });
-io.to(socketId).emit('message', { type: 'new-message', text: data });
-            // io.emit('message', { type: 'new-message', text: data });
-        //  socket.to('62URBsbFGkapt2c6AAAI').emit('message', { type: 'new-message', text: data });
-        //  io.to('62URBsbFGkapt2c6AAAI')
-        //io.emit('message', { type: 'new-message', text: data });
-          //socketusers['62URBsbFGkapt2c6AAAI'].emit('message', { type: 'new-message', text: data });
-
-            //io.emit('message', { type: 'new-message', text: data });
-          }
-         }
+         // for(var i=0; i<connectedSocketUsers.length; i++){
+         //   if(connectedSocketUsers[i].user_id == data.franchisee_id){
+         //     var socketId = connectedSocketUsers[i].socket_id;
+         //    socket.to(socketId).emit('message', { type: 'new-message', text: data });
+         //    socket.broadcast.to(socketId).emit('message', { type: 'new-message', text: data });
+         //    io.to(socketId).emit('message', { type: 'new-message', text: data });
+         //
+         //  }
+         // }
         var meeting_data = saveMeetingNotification(data);
-        console.log(meeting_data, "44");
+        //console.log(meeting_data, "44");
 
 
 
     });
 
-    console.log(connectedSocketUsers, "59");
-
-    socket.on('join', (params, callback) => {
 
 
-        socket.join(params.room);
-        socket.emit('newNotification'. generateMessage('You have a new notification'));
-        socket.broadcast.to(params.room).emit('newNotification');
-        io.emit('newNotification', {type: 'new-notification', text: meeting_data});
-
-    })
+    // socket.on('join', (params, callback) => {
+    //     socket.join(params.room);
+    //     socket.emit('newNotification'. generateMessage('You have a new notification'));
+    //     socket.broadcast.to(params.room).emit('newNotification');
+    //     io.emit('newNotification', {type: 'new-notification', text: meeting_data});
+    //
+    // })
 })
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
