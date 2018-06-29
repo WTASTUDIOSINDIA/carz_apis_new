@@ -533,6 +533,7 @@ function update_business_type(req,res,getData,doc){
             var results=_.findIndex(kyc.docs_types, function(chr) {
                 return chr.doc_name == search;
               });
+              
             kyc.docs_types[results].doc_link = doc.link;
             kyc.docs_types[results].doc_status = 'Uploaded';
             update_kyc(req,res,kyc,"Uploaded successfully");
