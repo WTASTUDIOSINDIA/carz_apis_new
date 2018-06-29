@@ -17,6 +17,9 @@ var io = require('socket.io')(http);
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting',  function(req, res) {
     var meetingForm = req.body;
+    str = JSON.stringify(req.body);
+    str1 = JSON.parse(str);
+    console.log(str + "adsaaaa");
     try{
         Meeting.findOne({'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'meeting_time':meetingForm.meeting_time},function(err,meeting){
             // console.log(meetingForm);
