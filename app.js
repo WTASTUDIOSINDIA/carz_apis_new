@@ -73,7 +73,7 @@ io.on('connection', function(socket) {
 
          //io.sockets.connected['zaJcPS-y9eYWXsxkAAAR'].emit('message', 'Hello!');
          //socket.to('DmBfj-PHgk4pMMisAAAG').emit('message', 'I just met you');
-         io.emit('message', { type: 'new-message', text: data });
+         io.emit('message', data);
          // for(var i=0; i<connectedSocketUsers.length; i++){
          //   if(connectedSocketUsers[i].user_id == data.franchisee_id){
          //     var socketId = connectedSocketUsers[i].socket_id;
