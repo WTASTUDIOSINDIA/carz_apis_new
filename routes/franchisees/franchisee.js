@@ -87,7 +87,7 @@ router.get('/get_franchisees',function(req,res){
             }
             if(!franchiees){
                 res.send({
-                    "status":404,
+                    "status":400,
                     "message":"Franchiees not found",
                     "message":"failure",
                     "franchisees_list":[]
