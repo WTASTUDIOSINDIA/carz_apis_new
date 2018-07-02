@@ -1063,7 +1063,7 @@ router.put('/update_stage',function(req,res){
                 stage.stage_assessment.franchisee_id = req.body.franchisee_id;
             }
             if(req.body.stage_name == 'setup'){
-                stage_Completed = 1; 
+                stage_Completed = 1;
                 stage.stage_setup.status = true;
             }
             stage.save(function(err,stage){
@@ -1293,7 +1293,7 @@ var request = require("request"),
                                   franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type;
                                   franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model;
                                   franchisee.franchisee_preferred_date = franchiseeMultipleForm[i].franchisee_date;
-                                  franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email;
+                                  franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email.trim();
                                   franchisee.partner_name = franchiseeMultipleForm[i].partner_name;
                                   franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment;
                                   franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
@@ -1307,6 +1307,7 @@ var request = require("request"),
                                   franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
                                   franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
                                   franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
+                                  franchise.lead_type = franchiseeMultipleForm[i].lead_type;
                                   franchisee.save(function(err,franchisee){
 
                                       if(err){
@@ -1324,7 +1325,7 @@ console.log(franchisee);
 
                                               partner.partner_name=franchisee.partner_name;
                                               partner.partner_occupation=franchisee.partner_occupation;
-                                              partner.partner_email=franchisee.franchisee_email;
+                                              partner.partner_email=franchisee.franchisee_email.trim();
                                               partner.partner_mobile_number=franchisee.partner_mobile_number;
                                               partner.partner_age=franchisee.partner_age;
                                               partner.partner_house_number = franchisee.partner_house_number;

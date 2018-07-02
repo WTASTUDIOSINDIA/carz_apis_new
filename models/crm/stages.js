@@ -22,11 +22,14 @@ var stagesSchema = new mongoose.Schema({
       "payment_file_name": String,
       "payment_file_uploaded":Date,
       "payment_file_type":{type:String,default:'docs'},
+      "payment_status": {type: String, default: 'pending'}, //pending, rejected, approveds
       "nda_file": String,
+      "nda_status": {type: String, default: 'pending'}, //pending, rejected, approved
       "nda_file_name": String,
       "nda_file_uploaded":Date,
       "nda_file_type":{type:String,default:'docs'},
-      "franchisee_id": String
+      "franchisee_id": String,
+      "application_status": {type: String, default: 'pending'}, //pending, rejected, approved
     },
     "stage_kycupload":{
       "status": Boolean,
@@ -49,7 +52,9 @@ var stagesSchema = new mongoose.Schema({
       "agreement_file_type":{type:String,default:'docs'},
       "final_agreement_file_name":String,
       "final_agreement_file":String,
-      "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'}
+      "final_agreement_status": {type: Boolean, default: false},
+      "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+      "4lac_payment_status": {type: String, default: 'pending'}, //pending, rejected, approved
     },
     "stage_setup": {
       "status": {type: Boolean, default: false},

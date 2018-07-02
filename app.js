@@ -41,23 +41,71 @@ mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxr
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var connectedSocketUsers = [];
+var socketusers = [];
 io.on('connection', function(socket) {
+  console.log("stwa");
     socket.emit('news', {hello: 'world'});
+    socket.on('add-user', function(data, response){
+    //  connectedSocketUsers.push(data);
+      console.log(data, "57");
+      socketusers[data.socket_id] = socket;
+      for (var i = 0; i < connectedSocketUsers.length; i++) {
+        if (connectedSocketUsers[i].user_id === data.user_id) { // modify whatever property you need
+        //  return;
+        //  connectedSocketUsers.push(data);
+        connectedSocketUsers[i] = data;
+        }
+        else {
+          connectedSocketUsers.push(data);
+        }
+  }
+    //  if (connectedUsers.indexOf(data.user_id) == -1) {
+  //  connectedSocketUsers.push(data);
+
+
+    })
+  //   socket.on('disconnect', function() {
+  //   connectedSocketUsers = [];
+  // });
     socket.on('message', function (data, response) {
          console.log(data, "42");
+
+         //io.sockets.connected['zaJcPS-y9eYWXsxkAAAR'].emit('message', 'Hello!');
+         //socket.to('DmBfj-PHgk4pMMisAAAG').emit('message', 'I just met you');
+         io.emit('message', data);
+         // for(var i=0; i<connectedSocketUsers.length; i++){
+         //   if(connectedSocketUsers[i].user_id == data.franchisee_id){
+         //     var socketId = connectedSocketUsers[i].socket_id;
+         //    socket.to(socketId).emit('message', { type: 'new-message', text: data });
+         //    socket.broadcast.to(socketId).emit('message', { type: 'new-message', text: data });
+         //    io.to(socketId).emit('message', { type: 'new-message', text: data });
+         //
+         //  }
+         // }
         var meeting_data = saveMeetingNotification(data);
-        console.log(meeting_data, "44");
-        io.emit('message', { type: 'new-message', text: meeting_data });
-        // Function above that stores the message in the database
+        //console.log(meeting_data, "44");
+
+
 
     });
+
+
+
+    // socket.on('join', (params, callback) => {
+    //     socket.join(params.room);
+    //     socket.emit('newNotification'. generateMessage('You have a new notification'));
+    //     socket.broadcast.to(params.room).emit('newNotification');
+    //     io.emit('newNotification', {type: 'new-notification', text: meeting_data});
+    //
+    // })
 })
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com'];
+  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com'];
   //var origin = req.headers.origin;
   //res.setHeader('Access-Control-Allow-Origin', origin);
   var origin = req.headers.origin;
