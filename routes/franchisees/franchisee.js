@@ -88,7 +88,7 @@ router.get('/get_franchisees',function(req,res){
             }
             if(!franchiees){
                 res.send({
-                    "status":404,
+                    "status":400,
                     "message":"Franchiees not found",
                     "message":"failure",
                     "franchisees_list":[]
@@ -877,7 +877,19 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //save data in the table
                 stage.save(function(err, stage){
                     if(req.file){
-                         upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                      var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                      console.log(get_id_of_crm_file, '881');
+                      get_id_of_crm_file.then(result => {
+                        console.log(result, 883);
+                      })
+
+  //       setTimeout(function() {
+  //   /* Do something */
+  //
+  //     console.log("Result: " + get_id_of_crm_file);
+  //
+  // }, 4000);
+
                     }
                     if(err){
                         return res.send({
@@ -886,6 +898,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         },500);
                     }
                     else{
+                      console.log(get_id_of_crm_file, '890');
                         if(stage.stage_agreenent.agreement_file){
                             Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
                                 if(err){
@@ -1161,7 +1174,8 @@ function generatePassword() {
     }
     return retVal;
 }
-function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+  console.log('test', '1167');
     var library = new Library();
     library.path = obj.location;
     library.key = obj.key;
@@ -1176,7 +1190,7 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
     library.date_uploaded = Date.now();
     library.folder_Id = folder_Id;
     library.franchisee_Id = franchisee_Id;
-    library.save(function(err,library){
+    await library.save(function(err,library){
         if(err){
         res.send({
             status:500,
@@ -1184,7 +1198,14 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
             message:"Something went wrong."
         },500);
         }
-    else{
+    else{console.log(library._id, "1189");
+    //  get_id_of_crm_file = library._id;
+      //return  library._id;
+      return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('resolved');
+    }, 2000);
+  });
     }
     });
 }
@@ -1603,7 +1624,6 @@ router.put('/disable_onboarding', function (req,res){
 
 function activity_tracker(req, res) {
     try {
-      
           var activityTracker = new ActivityTracker();
           activityTracker.activity_name = req.body.activity_name,
           activityTracker.activity_time = req.body.activity_time,

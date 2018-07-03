@@ -687,14 +687,14 @@ router.get('/get_common_folder',function(req,res){
                     state: "error"
                 });
             }
-            if(folder.length==0){
+            if(!folder){
                 res.send ({
                     status: 201,
                     message: "Folder not found.",
                     state: "failure"
                 });
             }
-            if(folder.length>0){
+            if(folder){
                 res.send ({
                     status: 200,
                     folder: folder,

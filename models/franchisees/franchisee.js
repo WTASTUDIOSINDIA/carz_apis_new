@@ -102,7 +102,8 @@ var meetingSchema = new mongoose.Schema({
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
    "stage_id": String,
-   "meeting_franchisor_remarks":String
+   "meeting_franchisor_remarks":String,
+   "notification_to": String
 
 });
 
@@ -116,7 +117,7 @@ var notificationSchema = new mongoose.Schema({
     "meeting_location" : String,
     "notification_type": String,
     "status" : Boolean,
-    "notification_to": String,
+    "notification_to": String
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
