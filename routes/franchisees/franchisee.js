@@ -1624,7 +1624,6 @@ router.put('/disable_onboarding', function (req,res){
 
 function activity_tracker(req, res) {
     try {
-
           var activityTracker = new ActivityTracker();
           activityTracker.activity_name = req.body.activity_name,
           activityTracker.activity_time = req.body.activity_time,

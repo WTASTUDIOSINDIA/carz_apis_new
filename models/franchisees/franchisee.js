@@ -247,7 +247,8 @@ var CampaignSchema = new mongoose.Schema({
     'campaign_file_attachment_file_name': String,
     'campaign_file_attachment_file_url': String,
     'campaign_file_attachment_file_type': String,
-    'campaign_files': Array
+    'campaign_files': Array,
+    'visible_to':String
 });
 
 

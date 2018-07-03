@@ -232,48 +232,6 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
     }
 })
 
-//To add comments
-// router.post('/discussion_question/addcomments', upload.single('comment_img'), function (req, res) {
-//     var discussionComment = JSON.parse(req.body.discussionquestion);
-//     try {
-//         DiscussionQuestion.findOne({ _id: discussionComment.question_id }, function (err, discussionquestion) {
-//             console.log( 'discussionqiuestion',discussionquestion)
-//             console.log('req.body',req.body);
-//             if (err) {
-//                 return res.send(500, err);
-//             }
-//             else {
-//                 discussionquestion.commentsCount = discussionComment.commentsCount + 1;
-//                 discussionquestion.discussion_comments.push(req.body.comment);
-//                 if(req.file){
-//                     var comment_img = {};
-//                     discussionquestion.comment_file_attachment_file_url = req.file.location;
-//                     discussionquestion.comment_file_attachment_file_name = req.file.key;
-//                     discussionquestion.comment_file_attachment_file_type = req.file.contentType;
-//                 }
-//                 console.log('req.file', req.file);
-//                 discussionquestion.save(function (err, discussionquestion) {
-//                     if (err) {
-//                         res.send(err);
-//                     }
-//                     else {
-//                         res.send({
-//                             state: "success",
-//                             data: discussionquestion
-//                         }, 200);
-//                     }
-//                 });
-//             }
-//         });
-//     }
-//     catch (err) {
-//         res.send({
-//             state: "error",
-//             message: "Something went wrong"
-//         }, 500);
-//     }
-// });
-
 
 //To get comments based on question id
 router.get('/getComments/:question_id',function(req,res){
