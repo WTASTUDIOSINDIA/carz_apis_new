@@ -16,6 +16,7 @@ var nodemailer = require('nodemailer');
 var _ = require('lodash');
 // var Discussion = mongoose.model('Discussion');
 var Stages = mongoose.model('Stages');
+var ActivityTracker = mongoose.model('ActivityTracker');
 var Partner = mongoose.model('Partner');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -917,6 +918,14 @@ router.put('/edit_stage', cpUpload, function(req, res){
                             })
                         }
                         else{
+                            // console.log('activity', activity_object);
+                            // var activity_object = {
+                            //     activity_name: 'nda',
+                            //     activity_time : new Date()
+                            // };
+                            // console.log('activity', activity_tracker);
+
+                            // activity_tracker(activity_object, res)
                             return res.send({
                                 state:"success",
                                 message:"Stage Updated",
@@ -1591,5 +1600,39 @@ router.put('/disable_onboarding', function (req,res){
         },500);
     }
 })
+
+function activity_tracker(req, res) {
+    try {
+      
+          var activityTracker = new ActivityTracker();
+          activityTracker.activity_name = req.body.activity_name,
+          activityTracker.activity_time = req.body.activity_time,
+          activityTracker.activity_date = req.body.activity_date,
+          activityTracker.activity_source = req.body.activity_source,
+          activityTracker.franchisor_id = req.body.franchisor_id,
+          activityTracker.franchisee_id = req.body.franchisee_id,
+            activityTracker.save(function (err, activityTracker) {
+              if (err) {
+                return res.send({
+                  state: "error",
+                  message: err
+                }, 500);
+              } else {
+                return res.send({
+                  state: "success",
+                  message: "Success",
+                  data: activityTracker
+                }, 200);
+              }
+            })
+        }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      }, 500);
+    }
+  };
+
 
 module.exports = router;
