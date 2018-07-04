@@ -115,7 +115,9 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 
 // To update campaign
 router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
-    var campaignEditForm = JSON.parse(req.body.campaign);
+    console.log('campaign', campaignEditForm);
+    // var campaignEditForm = JSON.parse(req.body);
+    var campaignEditForm = req.body;
     console.log(req.body.campaign);
     // try{
         Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
@@ -136,7 +138,7 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                 campaign.campaign_color = campaignEditForm.campaign_color;
                 campaign.medium = campaignEditForm.medium;
                 campaign.budget = campaignEditForm.budget;
-                campaign.meta = campaignForm.meta;
+                campaign.meta = campaignEditForm.meta;
                 campaign.franchisor_id = campaignEditForm.franchisor_id;
                 campaign.franchisee_id = campaignEditForm.franchisee_id;
                 campaign.visible_to = campaignEditForm.visible_to;
@@ -148,23 +150,23 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                     campaign.campaign_file_attachment_file_type = req.file.contentType;
                 }
                 campaign.save(function(err,campaign23){
-                    if(err){
-                        res.send({
-                            state:"err",
-                            message:"Something went wrong."
-                        },500);
-                    }
-                    else{
-                        console.log(campaign);
-                        campaign23.meta.campaign_id = campaign23._id;
-                        campaign23.save(function(err,campaign24){
-                            console.log(campaign);
+                    // if(err){
+                    //     res.send({
+                    //         state:"err",
+                    //         message:"Something went wrong."
+                    //     },500);
+                    // }
+                    {
+                        // console.log(campaign23);
+                        // campaign23.meta.campaign_id = campaign23._id;
+                        // campaign23.save(function(err,campaign24){
+                        //     console.log(campaign);
                         res.send({
                             state:"success",
                             message:"Campaign updated.",
-                            data:campaign24
+                            // data:campaign24
                         },200);
-                    });
+                    // });
                     }
                 });
                 
