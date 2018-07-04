@@ -56,7 +56,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
             //     return res.send({
             //         state:"failure",
             //         message:"This campaign already exists!"
-            //     },400); 
+            //     },400);
             // }
             if(!campaign){
                var campaign = new Campaign();
@@ -99,7 +99,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                     },200);
                 });
 
-            
+
                 }
                 });
             }
