@@ -117,7 +117,12 @@ var notificationSchema = new mongoose.Schema({
     "meeting_location" : String,
     "notification_type": String,
     "status" : Boolean,
+<<<<<<< HEAD
+    "notification_to": String,
+    "discussion_notification": String
+=======
     "notification_to": String
+>>>>>>> 08aec9a6b18a94ea71921f6bbdec3ebc13528296
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],

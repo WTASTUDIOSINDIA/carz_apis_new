@@ -114,11 +114,13 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 });
 
 // To update campaign
-router.put('/update_campaign', function(req,res){
+router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
+    console.log('campaign', campaignEditForm);
+    // var campaignEditForm = JSON.parse(req.body);
     var campaignEditForm = req.body;
-    console.log(req.body);
-    try{
-        Campaign.findById({'_id':campaignEditForm._id},function(err,campaign){
+    console.log(req.body.campaign);
+    // try{
+        Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
             console.log(campaign);
             if(err){
                 return res.send({
@@ -133,28 +135,41 @@ router.put('/update_campaign', function(req,res){
                 campaign.end = campaignEditForm.end;
                 campaign.type = campaignEditForm.type;
                 campaign.notes = campaignEditForm.notes;
-                campaign.color = campaignEditForm.color;
+                campaign.campaign_color = campaignEditForm.campaign_color;
                 campaign.medium = campaignEditForm.medium;
                 campaign.budget = campaignEditForm.budget;
-                campaign.feedback = campaignEditForm.feedback;
+                campaign.meta = campaignEditForm.meta;
                 campaign.franchisor_id = campaignEditForm.franchisor_id;
                 campaign.franchisee_id = campaignEditForm.franchisee_id;
                 campaign.visible_to = campaignEditForm.visible_to;
-                campaign.save(function(err,campaign){
-                    if(err){
-                        res.send({
-                            state:"err",
-                            message:"Something went wrong.",
-                            data: err
-                        },500);
-                    }
-                    else{
+                // console.log(req.file, "143");
+                if (req.file){
+                    console.log(req.file);
+                    campaign.campaign_file_attachment_file_url = req.file.location;
+                    campaign.campaign_file_attachment_file_name = req.file.key;
+                    campaign.campaign_file_attachment_file_type = req.file.contentType;
+                }
+                campaign.save(function(err,campaign23){
+                    // if(err){
+                    //     res.send({
+                    //         state:"err",
+                    //         message:"Something went wrong."
+                    //     },500);
+                    // }
+                    {
+                        // console.log(campaign23);
+                        // campaign23.meta.campaign_id = campaign23._id;
+                        // campaign23.save(function(err,campaign24){
+                        //     console.log(campaign);
                         res.send({
                             state:"success",
-                            message:"Campaign updated."
+                            message:"Campaign updated.",
+                            // data:campaign24
                         },200);
+                    // });
                     }
                 });
+                
             }
             if(!campaign){
                 res.send({
@@ -163,13 +178,13 @@ router.put('/update_campaign', function(req,res){
                 },400);
             }
         })
-    }
-    catch(err){
-        return res.send({
-            state:"error",
-            message:err
-        });
-    }
+    // }
+    // catch(err){
+    //     return res.send({
+    //         state:"error",
+    //         message:err
+    //     });
+    // }
 });
 
 //To get all campaign
@@ -204,6 +219,26 @@ router.get('/get_all_campaigns', function(req,res){
         });
     }
 })
+
+router.get('/get_campaign/:id', function (req, res) {
+    Campaign.findById({_id: req.params.id}, function (err, campaign) {
+      if (err) {
+        return res.send(err);
+      }
+      if (campaign.length == 0) {
+        return res.send({
+          status: 'failure',
+          message: "file not found!"
+        },400);
+      }
+      if (campaign.length > 0) {
+        return res.send({
+          status: 'success',
+          data: campaign
+        },200);
+      }
+    })
+  })
 // To delete campaigns
 router.delete('/delete_campaigns', function(req,res){
     try{
