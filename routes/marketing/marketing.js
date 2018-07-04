@@ -114,10 +114,10 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 });
 
 // To update campaign
-router.put('/update_campaign', function(req,res){
-    var campaignEditForm = req.body;
-    console.log(req.body);
-    try{
+router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
+    var campaignEditForm = JSON.parse(req.body.campaign);
+    console.log(req.body.campaign);
+    // try{
         Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
             console.log(campaign);
             if(err){
@@ -133,14 +133,21 @@ router.put('/update_campaign', function(req,res){
                 campaign.end = campaignEditForm.end;
                 campaign.type = campaignEditForm.type;
                 campaign.notes = campaignEditForm.notes;
-                campaign.color = campaignEditForm.color;
+                campaign.campaign_color = campaignEditForm.campaign_color;
                 campaign.medium = campaignEditForm.medium;
                 campaign.budget = campaignEditForm.budget;
-                campaign.feedback = campaignEditForm.feedback;
+                campaign.meta = campaignForm.meta;
                 campaign.franchisor_id = campaignEditForm.franchisor_id;
                 campaign.franchisee_id = campaignEditForm.franchisee_id;
                 campaign.visible_to = campaignEditForm.visible_to;
-                campaign.save(function(err,campaign){
+                // console.log(req.file, "143");
+                if (req.file){
+                    console.log(req.file);
+                    campaign.campaign_file_attachment_file_url = req.file.location;
+                    campaign.campaign_file_attachment_file_name = req.file.key;
+                    campaign.campaign_file_attachment_file_type = req.file.contentType;
+                }
+                campaign.save(function(err,campaign23){
                     if(err){
                         res.send({
                             state:"err",
@@ -148,12 +155,19 @@ router.put('/update_campaign', function(req,res){
                         },500);
                     }
                     else{
+                        console.log(campaign);
+                        campaign23.meta.campaign_id = campaign23._id;
+                        campaign23.save(function(err,campaign24){
+                            console.log(campaign);
                         res.send({
                             state:"success",
-                            message:"Campaign updated."
+                            message:"Campaign updated.",
+                            data:campaign24
                         },200);
+                    });
                     }
                 });
+                
             }
             if(!campaign){
                 res.send({
@@ -162,13 +176,13 @@ router.put('/update_campaign', function(req,res){
                 },400);
             }
         })
-    }
-    catch(err){
-        return res.send({
-            state:"error",
-            message:err
-        });
-    }
+    // }
+    // catch(err){
+    //     return res.send({
+    //         state:"error",
+    //         message:err
+    //     });
+    // }
 });
 
 //To get all campaign

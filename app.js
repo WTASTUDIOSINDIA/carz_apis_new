@@ -89,6 +89,9 @@ io.on('connection', function(socket) {
 
 
     });
+    socket.on('discussionMessage', function (data, response){
+        io.emit('discussionMessage', data);
+    })
 
 
 

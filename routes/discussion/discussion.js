@@ -6,6 +6,9 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 // var DiscussionQuestion = mongoose.model('DiscussionQuestion');
 var DiscussionQuestion = mongoose.model('DiscussionQuestion');
+var io = require('socket.io')(http);
+var http = require ('http').Server(app);
+var app = express();
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -280,6 +283,13 @@ router.put('/change_question_status',function(req,res){
                         }, 500);
                     }
                     else {
+                        io.on('connection', function (socket){
+                            socket.emit('news', {hello: 'world'});
+                            socket.on('message', function (data, response){
+                                console.log(data,'messagediscussion');
+                                io.emit('message', {type: 'discussionNotification', text:'Question posted'});
+                            })
+                        })
                         res.send({
                             state: "success",
                             message: "Question updated.",

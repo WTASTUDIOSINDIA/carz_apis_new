@@ -268,6 +268,7 @@ function saveMeetingNotification(request, response){
     notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
     notific.notification_to = getNotifications.notification_to;
+    notific.discussion_notification = getNotifications.discussion_notification;
     notific.save(function (err, application) {
             console.log(application, "235");
             if(err) {
