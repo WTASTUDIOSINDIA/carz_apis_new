@@ -219,6 +219,26 @@ router.get('/get_all_campaigns', function(req,res){
         });
     }
 })
+
+router.get('/get_campaign/:id', function (req, res) {
+    Campaign.findById({_id: req.params.id}, function (err, campaign) {
+      if (err) {
+        return res.send(err);
+      }
+      if (campaign.length == 0) {
+        return res.send({
+          status: 'failure',
+          message: "file not found!"
+        },400);
+      }
+      if (campaign.length > 0) {
+        return res.send({
+          status: 'success',
+          data: campaign
+        },200);
+      }
+    })
+  })
 // To delete campaigns
 router.delete('/delete_campaigns', function(req,res){
     try{
