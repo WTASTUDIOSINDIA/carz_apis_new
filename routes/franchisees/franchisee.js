@@ -390,7 +390,9 @@ function kyc_Upload(req,res,partner,franchisee,franchiseeForm){
 console.log(partner, "partner");
   console.log(franchisee, "franchisee");
   console.log(franchiseeForm, "franchiseeForm");
-    FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
+    //FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
+      //5aacf0e9be01b01e4456acd4
+      FranchiseeTypeList.find({businessType_id:"5aacf0e9be01b01e4456acd4"},function(err,type){
         if(err){
             return res.send({
                 state:"error",

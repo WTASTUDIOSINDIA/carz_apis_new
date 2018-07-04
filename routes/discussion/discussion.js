@@ -293,7 +293,7 @@ router.put('/change_question_status',function(req,res){
                             state: "failure",
                             message: "Failed."
                         }, 400);
-                    }      
+                    }
         });
     }
     catch(err){
@@ -325,7 +325,7 @@ router.put('/question/vote',function(req,res){
                     res.send({
                         state:'failure',
                         message:'You have already voted for this question'
-                    },400);
+                    },201);
                 }
                 else{
                     discussionquestion.votes=discussionquestion.votes + 1;
@@ -381,9 +381,9 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
                 console.log('423', discussionquestion.discussion_comments);
                 console.log('424', discussionquestion);
                 discussionquestion.save(function( err, discussionquestion){
-               
+
                 // if(req.file){
-                   
+
                 //     discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
                 //     discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
                 //     discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;

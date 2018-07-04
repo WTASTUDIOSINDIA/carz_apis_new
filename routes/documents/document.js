@@ -516,6 +516,7 @@ function update_kyc(req,res,kyc,message,reason){
 }
 function update_business_type(req,res,getData,doc){
     KycUploads.findOne({franchisee_id:doc.franchisee_id,partner_id:doc.partner_id},function(err,kyc){
+      console.log(kyc, "519")
         if(err){
             return res.send({
                 state:"error",
@@ -533,7 +534,7 @@ function update_business_type(req,res,getData,doc){
             var results=_.findIndex(kyc.docs_types, function(chr) {
                 return chr.doc_name == search;
               });
-              
+
             kyc.docs_types[results].doc_link = doc.link;
             kyc.docs_types[results].doc_status = 'Uploaded';
             update_kyc(req,res,kyc,"Uploaded successfully");
@@ -558,6 +559,8 @@ router.put('/upload_doc',upload.single('doc_file'),function(req,res){
         doc.stage_name= getData.stage_name;
         doc.date_uploaded=new Date();
         doc.save(function(err,doc){
+          console.log(doc, "561");
+
             upload_folder_file(req, res, req.file, getData.status, getData.folder_Id,getData.franchisee_id)
             if(err){
                 return res.send({

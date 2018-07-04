@@ -56,7 +56,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
             //     return res.send({
             //         state:"failure",
             //         message:"This campaign already exists!"
-            //     },400); 
+            //     },400);
             // }
             if(!campaign){
                var campaign = new Campaign();
@@ -99,7 +99,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                     },200);
                 });
 
-            
+
                 }
                 });
             }
@@ -118,7 +118,7 @@ router.put('/update_campaign', function(req,res){
     var campaignEditForm = req.body;
     console.log(req.body);
     try{
-        Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
+        Campaign.findById({'_id':campaignEditForm._id},function(err,campaign){
             console.log(campaign);
             if(err){
                 return res.send({
@@ -144,7 +144,8 @@ router.put('/update_campaign', function(req,res){
                     if(err){
                         res.send({
                             state:"err",
-                            message:"Something went wrong."
+                            message:"Something went wrong.",
+                            data: err
                         },500);
                     }
                     else{
