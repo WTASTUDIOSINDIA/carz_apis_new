@@ -116,7 +116,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 // To update campaign
 router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
     console.log('campaign', campaignEditForm);
-    // var campaignEditForm = JSON.parse(req.body);
+    // var campaignEditForm = JSON.parse(req.body.campaign);
     var campaignEditForm = req.body;
     console.log(req.body.campaign);
     // try{
@@ -125,7 +125,7 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
             if(err){
                 return res.send({
                     state:"err",
-                    message:"Something wen wrong. We are looking into it."
+                    message:"Something went wrong. We are looking into it."
                 },500);
             }
             if(campaign){
@@ -149,7 +149,8 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                     campaign.campaign_file_attachment_file_name = req.file.key;
                     campaign.campaign_file_attachment_file_type = req.file.contentType;
                 }
-                campaign.save(function(err,campaign23){
+                console.log('camp',campaign);
+                campaign.save(function(err,campaign){
                     // if(err){
                     //     res.send({
                     //         state:"err",
@@ -221,7 +222,7 @@ router.get('/get_all_campaigns', function(req,res){
 })
 
 router.get('/get_campaign/:id', function (req, res) {
-    Campaign.findById({_id: req.params.id}, function (err, campaign) {
+    Campaign.find({_id: req.params.id}, function (err, campaign) {
       if (err) {
         return res.send(err);
       }
