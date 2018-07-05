@@ -77,6 +77,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 question.question_EN = employeeAssessmentForm.question_EN;
                 question.question_type = employeeAssessmentForm.question_type;
                 question.options = employeeAssessmentForm.options;
+                question.assessment_type = employeeAssessmentForm.assessment_type;
                 question.correct_answer = employeeAssessmentForm.correct_answer;
                 question.franchisee_id = employeeAssessmentForm.franchisee_id;
                 question.employee_answers = employeeAssessmentForm.employee_list;
@@ -395,7 +396,7 @@ router.get('/get_employee_details/:id',function(req,res){
 //To edit employee details
 router.put('/update_employee_details', function (req, res){
     try{
-        EmployeeDetails.findOne({_id:req.body.employee_id}, function (err,employeeDetails){
+        EmployeeDetails.findById({_id:req.body._id}, function (err,employeeDetails){
             if(err){
                 return res.send({
                     state:'err',
@@ -419,7 +420,7 @@ router.put('/update_employee_details', function (req, res){
                 employeeDetails.save(function(err,employeeDetails){
                     if(err){
                         res.send({
-                            state:'err',
+                            state:'error',
                             message:'Something went wrong'
                         },500)
                     }
