@@ -515,6 +515,7 @@ function update_kyc(req,res,kyc,message,reason){
     });
 }
 function update_business_type(req,res,getData,doc){
+      console.log(doc, "518")
     KycUploads.findOne({franchisee_id:doc.franchisee_id,partner_id:doc.partner_id},function(err,kyc){
       console.log(kyc, "519")
         if(err){
