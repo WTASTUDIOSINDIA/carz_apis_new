@@ -41,6 +41,12 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
+router.post('/answer_question', function(req, res){
+  try {
+
+  }
+})
+
 router.post('/create_assessemnt_type', function (req, res) {
     try {
         EmployeeAssessmentType.findOne({ assessment_type_name: req.body.assessment_type_name, franchisor_id: req.body.franchisor_id  }, function (err, assessment) {
@@ -62,7 +68,7 @@ router.post('/create_assessemnt_type', function (req, res) {
           assessment.assessment_type_name = req.body.assessment_type_name;
           assessment.franchisor_id = req.body.franchisor_id;
           assessment.save(function (err, assessment) {
-            console.log('assessment65',assessment);   
+            console.log('assessment65',assessment);
             if (err) {
               res.send({
                 state: "failure",
@@ -336,26 +342,42 @@ router.put('/employee_assessment_answer', function (req, res) {
                     message: err
                 }, 500);
             }
+            var answered_questions_list = [];
+            var question_data = {
+                "question_id": req.body.question_id,
+                "answer": req.body.answer,
+                "question_type": req.body.question_type,
+                "correct_answer": req.body.correct_answer
+            };
             if (answer) {
-                return res.send({
-                    state: "failure",
-                    message: "This person has already attempt this test."
-                }, 200);
+              answer.employee_assessment_list.push(question_data);
+              answer.franchisee_id = req.body.franchisee_id;
+              answer.total_questions = req.body.total_questions;
+              answer.save(function (err, answer) {
+                  if (err) {
+                      return res.send({
+                          state: "error",
+                          message: err
+                      }, 500);
+                  }
+                  else {
+                      return res.send({
+                          state: "success",
+                          message: "Question saved successfully!";
+                      }, 200);
+                  }
+              })
+                // return res.send({
+                //     state: "failure",
+                //     message: "This person has already attempt this test."
+                // }, 200);
             }
             else {
+              answered_questions_list.push(question_data);
                 var answer = new EmployeeAssessmentSubmitted();
-                var right_answer = 0;
-                var answer_array = req.body.employee_assessment_list;
-                for (var i = 0; i < answer_array.length; i++) {
-                    if (answer_array[i].correct_answer == answer_array[i].selected_option) {
-                        right_answer = right_answer + 1;
-                    }
-                }
-                answer.employee_assessment_list = req.body.employee_assessment_list;
+                answer.employee_assessment_list = answered_questions_list;
                 answer.franchisee_id = req.body.franchisee_id;
-                answer.correct_answer = right_answer;
                 answer.total_questions = req.body.total_questions;
-                answer.employee_assessment_status = 'Completed';
                 answer.save(function (err, answer) {
                     if (err) {
                         return res.send({
@@ -366,7 +388,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                     else {
                         return res.send({
                             state: "success",
-                            message: "Employee Assessment Completed"
+                            message: "Question 01 saved successfully";
                         }, 200);
                     }
                 })
@@ -521,7 +543,7 @@ router.put('/update_employee_details', function (req, res){
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
                 employeeDetails.employee_vertical = req.body.employee_vertical;
                 employeeDetails.employee_days_experience = req.body.employee_days_experience;
-                employeeDetails.franchisee_id = req.body.frachisee_id;              
+                employeeDetails.franchisee_id = req.body.frachisee_id;
                 employeeDetails.save(function(err,employeeDetails){
                     if(err){
                         res.send({
