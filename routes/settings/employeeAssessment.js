@@ -145,6 +145,8 @@ router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
     }
   });
 
+
+
 router.post('/create_employee_assessment_question', fileupload, function (req, res) {
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
@@ -166,26 +168,26 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 if (req.files.file_upload) {
                     console.log(req.files.file_upload);
                     for (var i = 0; i < req.files.file_upload.length; i++) {
-                        console.log('64', employeeAssessmentForm);
-                        for (var j = 0; j < employeeAssessmentForm.length; j++) {
-                            if (employeeAssessmentForm[j].question_type = 'Multiple Choice') {
-                                employeeAssessmentForm[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
-                                employeeAssessmentForm[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
+                        console.log('64', employeeAssessment);
+                        for (var j = 0; j < employeeAssessment.length; j++) {
+                            if (employeeAssessment[j].question_type = 'Multiple Choice') {
+                                employeeAssessment[j].employee_assessment_file_attachment_file_url = req.files.file_upload[i].location;
+                                employeeAssessment[j].employee_assessment_file_attachment_file_name = req.files.file_upload[i].originalname;
                             }
                         }
                     }
                 }
                 console.log('126', employeeAssessmentForm.question_EN);
                 console.log('127', question);
-                var question = new EmployeeAssessment();
-                question.question_EN = employeeAssessmentForm.question_EN;
-                question.question_type = employeeAssessmentForm.question_type;
-                question.options = employeeAssessmentForm.options;
-                question.assessment_type_id = req.body.assessment_type_id;
+                var employeeAssessment = new EmployeeAssessment();
+                employeeAssessment.question_EN = employeeAssessmentForm.question_EN;
+                employeeAssessment.question_type = employeeAssessmentForm.question_type;
+                employeeAssessment.options = employeeAssessmentForm.options;
+                employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
-                question.employee_answers = employeeAssessmentForm.employee_answers;
-                question.save(function (err, question) {
-                    console.log('131', question);
+                employeeAssessment.employee_answers = employeeAssessmentForm.employee_answers;
+                employeeAssessment.save(function (err, employeeAssessment) {
+                    console.log('131', employeeAssessment);
                     if (err) {
                         return res.send({
                             state: "err",
@@ -210,6 +212,36 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
     }
 })
 
+
+  //to get assessment type questions by type iud
+  router.get('/get_assessment_questions/:assessment_type_id', function (req, res) {
+    try {
+        EmployeeAssessment.find({ assessment_type_id: req.params.assessment_type_id }, function (err, question) {
+        if (err) {
+          return res.send(500, err);
+        }
+        if (question.length == 0) {
+          res.send({
+            message: "Questions not found",
+            state: "failure",
+            data: []
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            data: question
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
 // To get all employee asessment question
 router.get('/get_all_employee_assessment_question', function (req, res) {
     try {

@@ -19,6 +19,7 @@ var employeeAssementSubmittedSchema = new mongoose.Schema({
     'employee_assessment_list': Array,
     'correct_answer': String,
     'total_questions': Number,
+    'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_assessment_status': { type: String, default: 'Pending' }
 });
