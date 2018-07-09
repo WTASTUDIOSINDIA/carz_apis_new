@@ -6,10 +6,10 @@ var employeeAssessmentSchema = new mongoose.Schema({
     'question_EN': String,
     'question_type': String,
     'options': Array,
-    'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    'correct_answer': String,
+    'employee_answers': String,
     'order': { type: Number, default: 0 },
-    'assessment_type': {type: Number, default: 1},
+    'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
+    'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_assessment_file_attachment_file_url': String,
     'employee_assessment_file_attachment_file_name': String,
     'employee_assessment_file_attachment_file_type': String
@@ -17,10 +17,15 @@ var employeeAssessmentSchema = new mongoose.Schema({
 
 var employeeAssementSubmittedSchema = new mongoose.Schema({
     'employee_assessment_list': Array,
-    'employee_answers': Number,
+    'correct_answer': String,
     'total_questions': Number,
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_assessment_status': { type: String, default: 'Pending' }
+});
+
+var employeeAssessmentTypeSchema = new mongoose.Schema({
+    'assessment_type_name': String,
+    'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
 var employeeDetailsSchema = new mongoose.Schema({
@@ -40,6 +45,8 @@ var employeeDetailsSchema = new mongoose.Schema({
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_id': { type: Schema.Types.ObjectId, ref: 'Employee' }
 })
+
+mongoose.model('EmployeeAssessmentType', employeeAssessmentTypeSchema);
 mongoose.model('EmployeeDetails', employeeDetailsSchema);
 mongoose.model('EmployeeAssessment', employeeAssessmentSchema);
 mongoose.model('EmployeeAssessmentSubmitted', employeeAssementSubmittedSchema);
