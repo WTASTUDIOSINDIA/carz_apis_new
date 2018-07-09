@@ -41,11 +41,7 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
-router.post('/answer_question', function(req, res){
-  try {
 
-  }
-})
 
 router.post('/create_assessemnt_type', function (req, res) {
     try {
@@ -383,8 +379,8 @@ router.put('/employee_assessment_answer', function (req, res) {
             };
             if (answer) {
               answer.employee_assessment_list.push(question_data);
-              answer.franchisee_id = req.body.franchisee_id;
-              answer.total_questions = req.body.total_questions;
+            //   answer.franchisee_id = req.body.franchisee_id;
+            //   answer.total_questions = req.body.total_questions;
               answer.save(function (err, answer) {
                   if (err) {
                       return res.send({
@@ -395,7 +391,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                   else {
                       return res.send({
                           state: "success",
-                          message: "Question saved successfully!";
+                          message: "Question saved successfully!"
                       }, 200);
                   }
               })
@@ -420,7 +416,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                     else {
                         return res.send({
                             state: "success",
-                            message: "Question 01 saved successfully";
+                            message: "Question 01 saved successfully"
                         }, 200);
                     }
                 })
