@@ -41,11 +41,6 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
-router.post('/answer_question', function(req, res){
-  try {
-
-  }
-})
 
 router.post('/create_assessemnt_type', function (req, res) {
     try {
