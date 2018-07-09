@@ -363,7 +363,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                   else {
                       return res.send({
                           state: "success",
-                          message: "Question saved successfully!";
+                          message: "Question saved successfully!"
                       }, 200);
                   }
               })
@@ -388,7 +388,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                     else {
                         return res.send({
                             state: "success",
-                            message: "Question 01 saved successfully";
+                            message: "Question 01 saved successfully"
                         }, 200);
                     }
                 })
