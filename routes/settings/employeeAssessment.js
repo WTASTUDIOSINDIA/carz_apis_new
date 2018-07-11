@@ -423,11 +423,68 @@ router.put('/employee_assessment_answer', function (req, res) {
         });
     }
     catch (err) {
-        return res.send({
+        return res.send({ 
             state: "error",
             message: err
         }, 500);
     }
+});
+
+//TO get reports
+router.get('/get_emp_assessment_report/:franchisee_id',function(req, res){
+    try{
+        EmployeeAssessmentSubmitted.findOne({franchisee_id:req.params.franchisee_id},function(err,report){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(!report){
+                return res.send({
+                    state:"falure",
+                    message:"Employee has not attempt the test yet."
+                },200);
+            }
+            if(report){
+                EmployeeAssessmentType.find({},function(err,list){
+                    var graph_array = [];
+                    const obj = {
+                        "correct_answer": report.correct_answer,
+                        "total_questions": report.total_questions
+                    };
+                    for(var i=0;i<list.length;i++){
+                        var question = {
+                            ques_head_val:list[i].question_type_name,
+                            correct_opt : 0,
+                            total_ques_by_type:0
+                        };
+                        for(var j=0;j<report.assessment_list.length;j++){
+                            if((question.ques_head_val == report.assessment_list[j].question_type)){
+                                    question.total_ques_by_type = question.total_ques_by_type + 1;
+                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                                    question.correct_opt = question.correct_opt + 1;
+                                }
+                            }
+                        }
+                        graph_array.push(question);
+                    }
+                    return res.send({
+                        state:"success",
+                        message:"Result is out",
+                        data:report,
+                        graph_data:graph_array
+                    },200);
+                })
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
 });
 
 //To create employee fileds
