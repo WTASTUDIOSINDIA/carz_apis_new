@@ -424,7 +424,7 @@ router.put('/employee_assessment_answer', function (req, res) {
         });
     }
     catch (err) {
-        return res.send({
+        return res.send({ 
             state: "error",
             message: err
         }, 500);
