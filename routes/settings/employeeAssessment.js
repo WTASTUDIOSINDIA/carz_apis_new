@@ -42,7 +42,6 @@ var fileupload = upload.fields([{
 }])
 
 
-
 router.post('/create_assessemnt_type', function (req, res) {
     try {
         EmployeeAssessmentType.findOne({ assessment_type_name: req.body.assessment_type_name, franchisor_id: req.body.franchisor_id  }, function (err, assessment) {
