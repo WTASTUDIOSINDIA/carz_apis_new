@@ -163,9 +163,12 @@ router.post('/save_employee_assessment_type', function (req, res) {
                 for (var i = 0; i < req.body.data.length; i++) {
                     employeeType = new EmployeeAssessmentTypeOfFranchisee();
                     employeeType.assessment_type_id = req.body.data[i]._id;
+                    console.log('166',req.body.data[i]._id);
                     employeeType.assessment_type_name = req.body.data[i].assessment_type_name;
+                    console.log('168', req.body.data[i].assessment_type_name);
                     employeeType.employee_id = req.body.employee_id;
                     employeeType.save(function (err, employeeType) {
+                        console.log('169',employeeType);
                         if (err) {
                             res.send({
                                 state: "failure",
@@ -173,7 +176,22 @@ router.post('/save_employee_assessment_type', function (req, res) {
                             }, 500);
                         }
                         else {
-                            saveEmployeeAssessmentType(req.params.employee_id, res);
+                            // saveEmployeeAssessmentType(req.params.employee_id, res);
+                            EmployeeAssessmentTypeOfFranchisee.find({ employee_id:req.body.employee_id }, function (err, employeeType) {
+                                if (!employeeType) {
+                                    res.send({
+                                        state: "failure",
+                                        employeeType: []
+                                    }, 201);
+                                }
+                                else {
+                                    res.send({
+                                        state: "success",
+                                        data: employeeType
+                                    }, 200);
+                                    console.log('data',employeeType);
+                                }
+                            })
                         }
                     });
                 }
