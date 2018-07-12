@@ -10,6 +10,7 @@ var EmployeeAssessment = mongoose.model('EmployeeAssessment');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
+var EmployeeAssessmentTypeOfFranchisee = mongoose.model('EmployeeAssessmentTypeOfFranchisee');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -41,113 +42,235 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
-
+// To create assessment types
 router.post('/create_assessemnt_type', function (req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: req.body.assessment_type_name, franchisor_id: req.body.franchisor_id  }, function (err, assessment) {
-        if (err) {
-          res.send({
-            state: "failure",
-            message: "Something went wrong."
-          }, 500);
-        }
-        if (assessment) {
-          res.send({
-            state: "failure",
-            message: "This assessment name already exists."
-          }, 200);
-        }
-        else {
-          console.log(assessment);
-          assessment = new EmployeeAssessmentType();
-          assessment.assessment_type_name = req.body.assessment_type_name;
-          assessment.franchisor_id = req.body.franchisor_id;
-          assessment.save(function (err, assessment) {
-            console.log('assessment65',assessment);
+        EmployeeAssessmentType.findOne({ assessment_type_name: req.body.assessment_type_name, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
             if (err) {
-              res.send({
-                state: "failure",
-                message: "Something went wrong."
-              }, 500);
+                res.send({
+                    state: "failure",
+                    message: "Something went wrong."
+                }, 500);
+            }
+            if (assessment) {
+                res.send({
+                    state: "failure",
+                    message: "This assessment name already exists."
+                }, 200);
             }
             else {
-              res.send({
-                state: "success",
-                message: "Assessment Type created successfully"
-              }, 200);
+                console.log(assessment);
+                assessment = new EmployeeAssessmentType();
+                assessment.assessment_type_name = req.body.assessment_type_name;
+                assessment.franchisor_id = req.body.franchisor_id;
+                assessment.save(function (err, assessment) {
+                    console.log('assessment65', assessment);
+                    if (err) {
+                        res.send({
+                            state: "failure",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Assessment Type created successfully"
+                        }, 200);
+                    }
+                });
             }
-          });
-        }
-      });
+        });
     }
     catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      });
+        return res.send({
+            state: "error",
+            message: err
+        });
     }
-  })
+})
 
 // TO get assessment type
 router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
     try {
-        EmployeeAssessmentType.find({franchisor_id: req.params.franchisor_id}, function (err, assessments) {
-        if (err) {
-          return res.send(500, err);
-        }
-        if (!assessments) {
-          res.send({
-            message: "Assessments type not found",
-            state: "failure",
-          }, 201);
-        }
-        else {
-          res.send({
-            state: "success",
-            data: assessments
-          }, 200);
-        }
-      })
+        EmployeeAssessmentType.find({ franchisor_id: req.params.franchisor_id }, function (err, assessments) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!assessments) {
+                res.send({
+                    message: "Assessments type not found",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    data: assessments
+                }, 200);
+            }
+        })
     }
     catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      });
+        return res.send({
+            state: "error",
+            message: err
+        });
     }
-  });
+});
 
-  router.delete('/delete_assessment_type_names', function (req, res) {
+router.delete('/delete_assessment_type_names', function (req, res) {
     try {
         EmployeeAssessmentType.remove({}, function (err, assessments) {
-        if (err) {
-          return res.send(500, err);
-        }
-        if (!assessments) {
-          res.send({
-            message: "Assessments are not found",
-            state: "failure",
-            partner_list: []
-          }, 201);
-        }
-        else {
-          res.send({
-            state: "success",
-            message: 'Assessments type removed'
-          }, 200);
-        }
-      })
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!assessments) {
+                res.send({
+                    message: "Assessments are not found",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    message: 'Assessments type removed'
+                }, 200);
+            }
+        })
     }
     catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      });
+        return res.send({
+            state: "error",
+            message: err
+        });
     }
-  });
+});
+//To save employee assessment type
+router.post('/save_employee_assessment_type', function (req, res) {
+    try {
+        EmployeeAssessmentTypeOfFranchisee.findOne({ 'employee_id': req.body.employee_id }, function (err, employeeType) {
+            if (err) {
+                res.send({
+                    state: "failure",
+                    message: "Something went wrong."
+                }, 500);
+            }
+            if (employeeType) {
+                saveEmployeeAssessmentType(req.params.employee_id, res);
+            }
+            else {
+                console.log('166', req.body.data);
+                for (var i = 0; i < req.body.data.length; i++) {
+                    employeeType = new EmployeeAssessmentTypeOfFranchisee();
+                    employeeType.assessment_type_id = req.body.data[i]._id;
+                    console.log('166',req.body.data[i]._id);
+                    employeeType.assessment_type_name = req.body.data[i].assessment_type_name;
+                    console.log('168', req.body.data[i].assessment_type_name);
+                    employeeType.employee_id = req.body.employee_id;
+                    employeeType.save(function (err, employeeType) {
+                        console.log('169',employeeType);
+                        if (err) {
+                            res.send({
+                                state: "failure",
+                                message: "Something went wrong."
+                            }, 500);
+                        }
+                        else {
+                            // saveEmployeeAssessmentType(req.params.employee_id, res);
+                            EmployeeAssessmentTypeOfFranchisee.find({ employee_id:req.body.employee_id }, function (err, employeeType) {
+                                if (!employeeType) {
+                                    res.send({
+                                        state: "failure",
+                                        employeeType: []
+                                    }, 201);
+                                }
+                                else {
+                                    res.send({
+                                        state: "success",
+                                        data: employeeType
+                                    }, 200);
+                                    console.log('data',employeeType);
+                                }
+                            })
+                        }
+                    });
+                }
+
+      
+            }
+        });
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+})
+
+function saveEmployeeAssessmentType(employee_id, res){
+    EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id }, function (err, employeeType) {
+        if (!employeeType) {
+            res.send({
+                state: "failure",
+                employeeType: []
+            }, 201);
+        }
+        else {
+            res.send({
+                state: "success",
+                data: employeeType
+            }, 200);
+            console.log('data',employeeType);
+        }
+    })
+}
+
+//To get  employee assessment type
+router.get('/get_save_employee_assessment_type/:employee_id', function (req, res) {
+    try {
+        saveEmployeeAssessmentType(req.params.employee_id, res);
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
+});
+//To delete saved assessment type
+router.delete('/delete_employee_assessment_type', function (req, res) {
+    try {
+        EmployeeAssessmentTypeOfFranchisee.remove({}, function (err, employeeType) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!employeeType) {
+                res.send({
+                    message: "Saved Assessments not found",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    message: ' Saved Assessments type removed'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
 
 
 
+
+//To create employee assessment questions
 router.post('/create_employee_assessment_question', fileupload, function (req, res) {
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
@@ -214,35 +337,35 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
 })
 
 
-  //to get assessment type questions by type iud
-  router.get('/get_assessment_questions/:assessment_type_id', function (req, res) {
+//to get assessment type questions by type id
+router.get('/get_assessment_questions/:assessment_type_id', function (req, res) {
     try {
         EmployeeAssessment.find({ assessment_type_id: req.params.assessment_type_id }, function (err, question) {
-        if (err) {
-          return res.send(500, err);
-        }
-        if (question.length == 0) {
-          res.send({
-            message: "Questions not found",
-            state: "failure",
-            data: []
-          }, 201);
-        }
-        else {
-          res.send({
-            state: "success",
-            data: question
-          }, 200);
-        }
-      })
+            if (err) {
+                return res.send(500, err);
+            }
+            if (question.length == 0) {
+                res.send({
+                    message: "Questions not found",
+                    state: "failure",
+                    data: []
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    data: question
+                }, 200);
+            }
+        })
     }
     catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      });
+        return res.send({
+            state: "error",
+            message: err
+        });
     }
-  });
+});
 // To get all employee asessment question
 router.get('/get_all_employee_assessment_question', function (req, res) {
     try {
@@ -377,30 +500,30 @@ router.put('/employee_assessment_answer', function (req, res) {
                 "correct_answer": req.body.correct_answer
             };
             if (answer) {
-              answer.employee_assessment_list.push(question_data);
-            //   answer.franchisee_id = req.body.franchisee_id;
-            //   answer.total_questions = req.body.total_questions;
-              answer.save(function (err, answer) {
-                  if (err) {
-                      return res.send({
-                          state: "error",
-                          message: err
-                      }, 500);
-                  }
-                  else {
-                      return res.send({
-                          state: "success",
-                          message: "Question saved successfully!"
-                      }, 200);
-                  }
-              })
+                answer.employee_assessment_list.push(question_data);
+                //   answer.franchisee_id = req.body.franchisee_id;
+                //   answer.total_questions = req.body.total_questions;
+                answer.save(function (err, answer) {
+                    if (err) {
+                        return res.send({
+                            state: "error",
+                            message: err
+                        }, 500);
+                    }
+                    else {
+                        return res.send({
+                            state: "success",
+                            message: "Question saved successfully!"
+                        }, 200);
+                    }
+                })
                 // return res.send({
                 //     state: "failure",
                 //     message: "This person has already attempt this test."
                 // }, 200);
             }
             else {
-              answered_questions_list.push(question_data);
+                answered_questions_list.push(question_data);
                 var answer = new EmployeeAssessmentSubmitted();
                 answer.employee_assessment_list = answered_questions_list;
                 answer.franchisee_id = req.body.franchisee_id;
@@ -423,46 +546,46 @@ router.put('/employee_assessment_answer', function (req, res) {
         });
     }
     catch (err) {
-        return res.send({ 
+        return res.send({
             state: "error",
             message: err
         }, 500);
     }
 });
 
-//TO get reports
-router.get('/get_emp_assessment_report/:franchisee_id',function(req, res){
-    try{
-        EmployeeAssessmentSubmitted.findOne({franchisee_id:req.params.franchisee_id},function(err,report){
-            if(err){
+//To get reports
+router.get('/get_emp_assessment_report/:franchisee_id', function (req, res) {
+    try {
+        EmployeeAssessmentSubmitted.findOne({ franchisee_id: req.params.franchisee_id }, function (err, report) {
+            if (err) {
                 return res.send({
-                    state:"error",
-                    message:err
-                },500);
+                    state: "error",
+                    message: err
+                }, 500);
             }
-            if(!report){
+            if (!report) {
                 return res.send({
-                    state:"falure",
-                    message:"Employee has not attempt the test yet."
-                },200);
+                    state: "falure",
+                    message: "Employee has not attempt the test yet."
+                }, 200);
             }
-            if(report){
-                EmployeeAssessmentType.find({},function(err,list){
+            if (report) {
+                EmployeeAssessmentType.find({}, function (err, list) {
                     var graph_array = [];
                     const obj = {
                         "correct_answer": report.correct_answer,
                         "total_questions": report.total_questions
                     };
-                    for(var i=0;i<list.length;i++){
+                    for (var i = 0; i < list.length; i++) {
                         var question = {
-                            ques_head_val:list[i].question_type_name,
-                            correct_opt : 0,
-                            total_ques_by_type:0
+                            ques_head_val: list[i].question_type_name,
+                            correct_opt: 0,
+                            total_ques_by_type: 0
                         };
-                        for(var j=0;j<report.assessment_list.length;j++){
-                            if((question.ques_head_val == report.assessment_list[j].question_type)){
-                                    question.total_ques_by_type = question.total_ques_by_type + 1;
-                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                        for (var j = 0; j < report.assessment_list.length; j++) {
+                            if ((question.ques_head_val == report.assessment_list[j].question_type)) {
+                                question.total_ques_by_type = question.total_ques_by_type + 1;
+                                if ((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)) {
                                     question.correct_opt = question.correct_opt + 1;
                                 }
                             }
@@ -470,69 +593,69 @@ router.get('/get_emp_assessment_report/:franchisee_id',function(req, res){
                         graph_array.push(question);
                     }
                     return res.send({
-                        state:"success",
-                        message:"Result is out",
-                        data:report,
-                        graph_data:graph_array
-                    },200);
+                        state: "success",
+                        message: "Result is out",
+                        data: report,
+                        graph_data: graph_array
+                    }, 200);
                 })
             }
         })
     }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		},500);
-	}
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
 });
 
 //To create employee fileds
 router.post('/create_employee_details', function (req, res) {
     // try {
-        EmployeeDetails.findOne({ _id: req.body.franchisee_id }, function (err, employeeDetails) {
-            if (err) {
-                res.send({
-                    state: 'failure',
-                    message: 'Something went wrong',
-                }, 500)
-            }
-            if (employeeDetails) {
-                res.send({
-                    state: "failure",
-                    message: "This Employee already exists."
-                }, 400);
-            }
-            else {
-                employeeDetails = new EmployeeDetails();
-                employeeDetails.employee_name = req.body.employee_name;
-                employeeDetails.employee_occupation = req.body.employee_occupation;
-                employeeDetails.employee_email = req.body.employee_email;
-                employeeDetails.employee_city = req.body.employee_city;
-                employeeDetails.employee_state = req.body.employee_state;
-                employeeDetails.employee_address = req.body.employee_address;
-                employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
-                employeeDetails.employee_age = req.body.employee_age;
-                employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
-                employeeDetails.employee_experience_in = req.body.employee_experience_in;
-                employeeDetails.employee_vertical = req.body.employee_vertical;
-                employeeDetails.employee_days_experience = req.body.employee_days_experience;
-                employeeDetails.save(function (err, employeeDetails) {
-                    if (err) {
-                        res.send({
-                            state: 'failure',
-                            message: 'Something went wrong, we are looking into it.'
-                        }, 500)
-                    }
-                    else {
-                        res.send({
-                            state: 'success',
-                            message: 'Employee created successfully'
-                        }, 200)
-                    }
-                })
-            }
-        })
+    EmployeeDetails.findOne({ _id: req.body.franchisee_id }, function (err, employeeDetails) {
+        if (err) {
+            res.send({
+                state: 'failure',
+                message: 'Something went wrong',
+            }, 500)
+        }
+        if (employeeDetails) {
+            res.send({
+                state: "failure",
+                message: "This Employee already exists."
+            }, 400);
+        }
+        else {
+            employeeDetails = new EmployeeDetails();
+            employeeDetails.employee_name = req.body.employee_name;
+            employeeDetails.employee_occupation = req.body.employee_occupation;
+            employeeDetails.employee_email = req.body.employee_email;
+            employeeDetails.employee_city = req.body.employee_city;
+            employeeDetails.employee_state = req.body.employee_state;
+            employeeDetails.employee_address = req.body.employee_address;
+            employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
+            employeeDetails.employee_age = req.body.employee_age;
+            employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
+            employeeDetails.employee_experience_in = req.body.employee_experience_in;
+            employeeDetails.employee_vertical = req.body.employee_vertical;
+            employeeDetails.employee_days_experience = req.body.employee_days_experience;
+            employeeDetails.save(function (err, employeeDetails) {
+                if (err) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500)
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        message: 'Employee created successfully'
+                    }, 200)
+                }
+            })
+        }
+    })
     // }
     // catch (err) {
     //     res.send({
@@ -576,45 +699,45 @@ router.get('/get_all_employees', function (req, res) {
 })
 
 // To get employee details by id
-router.get('/get_employee_details/:id',function(req,res){
-    try{
-        EmployeeDetails.findById({_id:req.params.id},function(err,employeeDetails){
-            if(err){
+router.get('/get_employee_details/:id', function (req, res) {
+    try {
+        EmployeeDetails.findById({ _id: req.params.id }, function (err, employeeDetails) {
+            if (err) {
                 return res.send(500, err);
             }
-            if(!employeeDetails){
+            if (!employeeDetails) {
                 res.send({
-                    state:"failure",
-                    employeeDetails:[]
-                },400);
+                    state: "failure",
+                    employeeDetails: []
+                }, 400);
             }
-            else{
+            else {
                 res.send({
-                    state:"success",
-                    data:employeeDetails
-                },200);
+                    state: "success",
+                    data: employeeDetails
+                }, 200);
             }
         })
     }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		},500);
-	}
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
 });
 
 //To edit employee details
-router.put('/update_employee_details', function (req, res){
-    try{
-        EmployeeDetails.findById({_id:req.body._id}, function (err,employeeDetails){
-            if(err){
+router.put('/update_employee_details', function (req, res) {
+    try {
+        EmployeeDetails.findById({ _id: req.body._id }, function (err, employeeDetails) {
+            if (err) {
                 return res.send({
-                    state:'err',
-                    message:'Something went wrong'
-                },500)
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
             }
-            if(employeeDetails){
+            if (employeeDetails) {
                 employeeDetails.employee_name = req.body.employee_name;
                 employeeDetails.employee_occupation = req.body.employee_occupation;
                 employeeDetails.employee_email = req.body.employee_email;
@@ -628,65 +751,65 @@ router.put('/update_employee_details', function (req, res){
                 employeeDetails.employee_vertical = req.body.employee_vertical;
                 employeeDetails.employee_days_experience = req.body.employee_days_experience;
                 employeeDetails.franchisee_id = req.body.frachisee_id;
-                employeeDetails.save(function(err,employeeDetails){
-                    if(err){
+                employeeDetails.save(function (err, employeeDetails) {
+                    if (err) {
                         res.send({
-                            state:'error',
-                            message:'Something went wrong'
-                        },500)
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
                     }
-                    else{
+                    else {
                         res.send({
-                            state:'success',
-                            message:'Employee updated'
-                        },200)
+                            state: 'success',
+                            message: 'Employee updated'
+                        }, 200)
                     }
                 })
             }
-            if(!employeeDetails){
+            if (!employeeDetails) {
                 res.send({
-                    state:"failure",
-                    message:"Failed to update."
-                },400);
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
             }
         })
     }
-    catch(err){
+    catch (err) {
         res.send({
-            state:'err',
-            message:'err'
+            state: 'err',
+            message: 'err'
         })
     }
 })
 
 // To delete employee details
-router.delete('/delete_employee_details/:id', function(req, res){
-    try{
-        EmployeeDetails.findByIdAndRemove({_id: req.params.id}, function(err,employeeDetails){
-            if(err){
+router.delete('/delete_employee_details/:id', function (req, res) {
+    try {
+        EmployeeDetails.findByIdAndRemove({ _id: req.params.id }, function (err, employeeDetails) {
+            if (err) {
                 return res.sendStatus({
-                    state:err,
-                    message:'Something went wrong, we are looking into it.'
-                },500);
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
             }
-            if(!employeeDetails){
+            if (!employeeDetails) {
                 res.send({
-                    state:err,
-                    message:'Employee not found.'
-                },201);
+                    state: err,
+                    message: 'Employee not found.'
+                }, 201);
             }
-            else{
+            else {
                 res.send({
-                    state:'success',
-                    message:'Employee deleted'
-                },200);
+                    state: 'success',
+                    message: 'Employee deleted'
+                }, 200);
             }
         })
     }
-    catch(err){
+    catch (err) {
         return res.send({
-            state:'err',
-            message:err
+            state: 'err',
+            message: err
         })
     }
 })
