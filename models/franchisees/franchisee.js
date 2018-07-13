@@ -243,6 +243,7 @@ var CampaignSchema = new mongoose.Schema({
     'link': {type: Schema.Types.Mixed, default : {}},
     'file_type': String,
     'date_uploaded':Date,
+    'created_by': {type: String, enum: ['franchisor', 'franchisee']},
     'key':String,
     'meta': Object,
     'campaign_file_attachment_file_name': String,

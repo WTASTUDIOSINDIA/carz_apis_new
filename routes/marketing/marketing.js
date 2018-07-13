@@ -73,6 +73,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 campaign.franchisor_id = campaignForm.franchisor_id;
                 campaign.franchisee_id = campaignForm.franchisee_id;
                 campaign.visible_to = campaignForm.visible_to;
+                campaign.created_by = campaignForm.created_by;
                 console.log(req.file, "74");
                 if (req.file){
                     console.log(req.file);
@@ -170,7 +171,7 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                     // });
                     }
                 });
-                
+
             }
             if(!campaign){
                 res.send({
