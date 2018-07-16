@@ -522,7 +522,8 @@ router.put('/employee_assessment_answer', function (req, res) {
                 "question_id": req.body.question_id,
                 "answer": req.body.answer,
                 "question_type": req.body.question_type,
-                "correct_answer": req.body.correct_answer
+                "correct_answer": req.body.correct_answer,
+                "employee_id":req.body.employee_id
             };
             if (answer) {
                 answer.employee_assessment_list.push(question_data);
