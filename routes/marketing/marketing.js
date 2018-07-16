@@ -72,6 +72,9 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 campaign.meta = campaignForm.meta;
                 campaign.franchisor_id = campaignForm.franchisor_id;
                 campaign.franchisee_id = campaignForm.franchisee_id;
+                if(campaignForm.visible_to == 'franchisee'){
+                  campaign.visible_to_franchisee_id = campaignForm.visible_to_franchisee_id;
+                }
                 campaign.visible_to = campaignForm.visible_to;
                 campaign.created_by = campaignForm.created_by;
                 console.log(req.file, "74");
@@ -220,6 +223,37 @@ router.get('/get_all_campaigns', function(req,res){
             message:err
         });
     }
+})
+router.get('/get_campaigns_by_franchisee/:franchisee_id', function(req, res){
+  try{
+    Campaign.find({$or: [{franchisee_id: req.params.franchisee_id}, {visible_to: 'franchisee', visible_to_franchisee_id: req.params.franchisee_id, created_by: 'franchisor'}, {visible_to: 'All', created_by: 'franchisor'}]}, function(err, campaigns){
+      if(err){
+          return res.send(500, err);
+      }
+      if(!campaigns){
+          res.send({
+              message:"Campaign not found",
+              state:"failure",
+              data:[]
+          },201);
+      }
+      else{
+          for(var i = 0; i < campaigns.length; i++){
+              campaigns[i].campaign_id = campaigns[i]._id;
+          }
+          res.send({
+              state:"success",
+              data:campaigns
+          },200);
+      }
+    })
+  }
+  catch(err){
+      return res.send({
+          state:"error",
+          message:err
+      });
+  }
 })
 
 router.get('/get_campaign/:id', function (req, res) {
