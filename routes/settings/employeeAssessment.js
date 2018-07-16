@@ -644,7 +644,39 @@ router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
         }, 500);
     }
 });
-
+//To get reports
+router.get('/get_emp_assessment_submitted_list/:employee_id', function (req, res) {
+    try {
+        EmployeeAssessmentSubmitted.findOne({ employee_id: req.params.employee_id }, function (err, list) {
+            if (err) {
+                return res.send({
+                    state: "error",
+                    message: err
+                }, 500);
+            }
+            if (!list) {
+                return res.send({
+                    state: "success",
+                    message: "Employee has not attempt the test yet.",
+                    data: []
+                }, 200);
+            }
+            if (list) {
+                return res.send({
+                    state: "success",
+                    message: "Result is out",
+                    data: list
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
+});
 //To create employee fileds
 router.post('/create_employee_details', function (req, res) {
     // try {
