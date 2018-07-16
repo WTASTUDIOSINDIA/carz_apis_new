@@ -598,8 +598,9 @@ router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
             }
             if (!report) {
                 return res.send({
-                    state: "falure",
-                    message: "Employee has not attempt the test yet."
+                    state: "success",
+                    message: "Employee has not attempt the test yet.",
+                    data: []
                 }, 200);
             }
             if (report) {
