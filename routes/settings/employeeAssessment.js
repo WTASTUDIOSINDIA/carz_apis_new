@@ -334,7 +334,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 employeeAssessment.options = employeeAssessmentForm.options;
                 employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
-                employeeAssessment.employee_answers = employeeAssessmentForm.employee_answers;
+                employeeAssessment.employee_answer = employeeAssessmentForm.employee_answer;
                 employeeAssessment.save(function (err, employeeAssessment) {
                     console.log('131', employeeAssessment);
                     if (err) {
@@ -453,7 +453,7 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             question.assessment_type = employeeAssessmentEditForm.assessment_type;
             question.franchisee_id = employeeAssessmentEditForm.franchisee_id;
             question.options = employeeAssessmentEditForm.options;
-            question.employee_answers = employeeAssessmentEditForm.employee_answers;
+            question.employee_answer = employeeAssessmentEditForm.employee_answer;
             question.save(function (err, question) {
                 if (err) {
                     res.send({
@@ -520,14 +520,14 @@ router.put('/employee_assessment_answer', function (req, res) {
             var answered_questions_list = [];
             var question_data = {
                 "question_id": req.body.question_id,
-                "answer": req.body.answer,
+                "employee_answer": req.body.employee_answer,
                 "question_type": req.body.question_type,
                 "correct_answer": req.body.correct_answer,
                 "employee_id":req.body.employee_id
             };
             if (answer) {
                 answer.employee_assessment_list.push(question_data);
-                answer.employee_answers = req.body.employee_answers;
+                answer.employee_answer = req.body.employee_answer;
                 answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
                 answer.assessment_type_id = req.body.assessment_type_id;
@@ -681,7 +681,7 @@ router.get('/get_emp_assessment_submitted_list/:employee_id', function (req, res
 
 router.delete('/delete_employee_assessment_submitted_list/:employee_id', function (req, res) {
     try {
-        EmployeeAssessmentSubmitted.findByIdAndRemove({ 'employee_id': req.params.id }, function (err, list) {
+        EmployeeAssessmentSubmitted.remove({ 'employee_id': req.params.employee_id }, function (err, list) {
             if (err) {
                 return res.sendStatus({
                     state: err,
