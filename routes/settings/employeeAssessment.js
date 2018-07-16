@@ -678,6 +678,38 @@ router.get('/get_emp_assessment_submitted_list/:employee_id', function (req, res
         }, 500);
     }
 });
+
+router.delete('/delete_employee_assessment_submitted_list/:employee_id', function (req, res) {
+    try {
+        EmployeeAssessmentSubmitted.findByIdAndRemove({ 'employee_id': req.params.id }, function (err, list) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!list) {
+                res.send({
+                    state: err,
+                    message: 'Employee list not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Employee list deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
 //To create employee fileds
 router.post('/create_employee_details', function (req, res) {
     // try {
