@@ -554,7 +554,10 @@ router.put('/employee_assessment_answer', function (req, res) {
                 answered_questions_list.push(question_data);
                 var answer = new EmployeeAssessmentSubmitted();
                 answer.employee_assessment_list = answered_questions_list;
+                answer.employee_id = req.body.employee_id
                 answer.franchisee_id = req.body.franchisee_id;
+                answer.assessment_type_id = req.body.assessment_type_id;
+                answer.employee_assessment_status = req.body.employee_assessment_status;
                 answer.total_questions = req.body.total_questions;
                 answer.save(function (err, answer) {
                     if (err) {
