@@ -117,7 +117,7 @@ router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
         });
     }
 });
-
+// To delete all assessment type names
 router.delete('/delete_assessment_type_names', function (req, res) {
     try {
         EmployeeAssessmentType.remove({}, function (err, assessments) {
@@ -143,6 +143,31 @@ router.delete('/delete_assessment_type_names', function (req, res) {
             state: "error",
             message: err
         });
+    }
+});
+//To delete assessment type name by assessment id
+router.delete('/delete_assessment_type_name_by_id/:id', function (req, res) {
+    try {
+        EmployeeAssessmentType.findByIdAndRemove({ _id: req.params.id }, function (err, assessment) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong. We are looking into it'
+                }, 500);
+            }
+            else {
+                return res.send({
+                    state: 'success',
+                    message: 'Assessment type name removed'
+                }, 200);
+            }
+        });
+    }
+    catch (err) {
+        res.send({
+            state: 'error',
+            message: err
+        }, 500);
     }
 });
 //To save employee assessment type
@@ -426,7 +451,7 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             question.question_EN = employeeAssessmentEditForm.question_EN;
             question.question_type = employeeAssessmentEditForm.question_type;
             question.assessment_type = employeeAssessmentEditForm.assessment_type;
-            question.franchisee_id = employeeAssessmentForm.franchisee_id;
+            question.franchisee_id = employeeAssessmentEditForm.franchisee_id;
             question.options = employeeAssessmentEditForm.options;
             question.employee_answers = employeeAssessmentEditForm.employee_answers;
             question.save(function (err, question) {
@@ -485,7 +510,7 @@ router.delete('/delete_employee_assessent_question/:id', function (req, res) {
 //To get answers
 router.put('/employee_assessment_answer', function (req, res) {
     try {
-        EmployeeAssessmentSubmitted.findOne({ franchisee_id: req.body.franchisee_id }, function (err, answer) {
+        EmployeeAssessmentSubmitted.findOne({ employee_id: req.body.employee_id }, function (err, answer) {
             if (err) {
                 return res.send({
                     state: "error",
@@ -501,9 +526,12 @@ router.put('/employee_assessment_answer', function (req, res) {
             };
             if (answer) {
                 answer.employee_assessment_list.push(question_data);
-                //   answer.franchisee_id = req.body.franchisee_id;
-                //   answer.total_questions = req.body.total_questions;
-                answer.save(function (err, answer) {
+                  answer.employee_id = req.body.employee_id;
+                  answer.franchisee_id = req.body.franchisee_id;
+                  answer.assessment_type_id = req.body.assessment_type_id;
+                  answer.employee_assessment_status = req.body.employee_assessment_status;
+                  answer.total_questions = req.body.total_questions;
+                  answer.save(function (err, answer) {
                     if (err) {
                         return res.send({
                             state: "error",
@@ -573,6 +601,7 @@ router.get('/get_emp_assessment_report/:franchisee_id', function (req, res) {
                 EmployeeAssessmentType.find({}, function (err, list) {
                     var graph_array = [];
                     const obj = {
+                        "employee_id": report.employee_id,
                         "correct_answer": report.correct_answer,
                         "total_questions": report.total_questions
                     };
@@ -640,6 +669,7 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_experience_in = req.body.employee_experience_in;
             employeeDetails.employee_vertical = req.body.employee_vertical;
             employeeDetails.employee_days_experience = req.body.employee_days_experience;
+            employeeDetails.franchisee_id = req.body.franchisee_id;
             employeeDetails.save(function (err, employeeDetails) {
                 if (err) {
                     res.send({
@@ -702,6 +732,35 @@ router.get('/get_all_employees', function (req, res) {
 router.get('/get_employee_details/:id', function (req, res) {
     try {
         EmployeeDetails.findById({ _id: req.params.id }, function (err, employeeDetails) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!employeeDetails) {
+                res.send({
+                    state: "failure",
+                    employeeDetails: []
+                }, 400);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    data: employeeDetails
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
+});
+
+// To get employee details by franchisee_id
+router.get('/get_employee_details/:franchisee_id', function (req, res) {
+    try {
+        EmployeeDetails.findById({ 'franchisee_id': req.params.franchisee_id }, function (err, employeeDetails) {
             if (err) {
                 return res.send(500, err);
             }
