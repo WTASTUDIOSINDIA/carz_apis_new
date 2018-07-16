@@ -567,7 +567,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                         return res.send({
                             state: "success",
                             message: "Question 01 saved successfully",
-                            data: question_data
+                            data: answer
                         }, 200);
                     }
                 })
