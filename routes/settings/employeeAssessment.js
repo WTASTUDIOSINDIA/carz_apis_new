@@ -507,7 +507,7 @@ router.delete('/delete_employee_assessent_question/:id', function (req, res) {
     }
 });
 
-//To get answers
+//To send answers
 router.put('/employee_assessment_answer', function (req, res) {
     try {
         EmployeeAssessmentSubmitted.findOne({ employee_id: req.body.employee_id }, function (err, answer) {
@@ -566,7 +566,8 @@ router.put('/employee_assessment_answer', function (req, res) {
                     else {
                         return res.send({
                             state: "success",
-                            message: "Question 01 saved successfully"
+                            message: "Question 01 saved successfully",
+                            data: question_data
                         }, 200);
                     }
                 })
