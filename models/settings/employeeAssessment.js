@@ -7,6 +7,7 @@ var employeeAssessmentSchema = new mongoose.Schema({
     'question_type': String,
     'options': Array,
     'employee_answer': String,
+    'correct_answer':String,
     'order': { type: Number, default: 0 },
     'assessment_type': {id: String, status: {type: Boolean, default: false}},
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},

@@ -332,6 +332,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 employeeAssessment.question_EN = employeeAssessmentForm.question_EN;
                 employeeAssessment.question_type = employeeAssessmentForm.question_type;
                 employeeAssessment.options = employeeAssessmentForm.options;
+                employeeAssessment.correct_answer = employeeAssessmentForm.correct_answer;
                 employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
                 employeeAssessment.employee_answer = employeeAssessmentForm.employee_answer;
@@ -454,6 +455,7 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             question.franchisee_id = employeeAssessmentEditForm.franchisee_id;
             question.options = employeeAssessmentEditForm.options;
             question.employee_answer = employeeAssessmentEditForm.employee_answer;
+            question.correct_answer = employeeAssessmentEditForm.correct_answer;
             question.save(function (err, question) {
                 if (err) {
                     res.send({
@@ -495,6 +497,32 @@ router.delete('/delete_employee_assessent_question/:id', function (req, res) {
                 return res.send({
                     state: 'success',
                     message: 'Question removed'
+                }, 200);
+            }
+        });
+    }
+    catch (err) {
+        res.send({
+            state: 'error',
+            message: err
+        }, 500);
+    }
+});
+// TO delete all questions
+//To delete question by question id
+router.delete('/delete_employee_assessent_question', function (req, res) {
+    try {
+        EmployeeAssessment.remove({ }, function (err, question) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong. We are looking into it'
+                }, 500);
+            }
+            else {
+                return res.send({
+                    state: 'success',
+                    message: 'Questions removed'
                 }, 200);
             }
         });
