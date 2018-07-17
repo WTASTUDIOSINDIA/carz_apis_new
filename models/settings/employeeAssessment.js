@@ -6,7 +6,7 @@ var employeeAssessmentSchema = new mongoose.Schema({
     'question_EN': String,
     'question_type': String,
     'options': Array,
-    'employee_answers': String,
+    'employee_answer': String,
     'order': { type: Number, default: 0 },
     'assessment_type': {id: String, status: {type: Boolean, default: false}},
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
@@ -19,11 +19,13 @@ var employeeAssessmentSchema = new mongoose.Schema({
 var employeeAssementSubmittedSchema = new mongoose.Schema({
     'employee_assessment_list': Array,
     'correct_answer': String,
+    'employee_answer': String,
     'total_questions': Number,
     'assessment_type': {id: String, status: {type: Boolean, default: false}},
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    'employee_assessment_status': { type: String, default: 'Pending' }
+    'employee_assessment_status': { type: String, default: 'Pending' },
+    'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
 });
 
 var employeeAssessmentTypeSchema = new mongoose.Schema({
