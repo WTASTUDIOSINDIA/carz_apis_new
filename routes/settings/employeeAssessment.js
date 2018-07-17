@@ -587,6 +587,8 @@ router.put('/employee_assessment_answer', function (req, res) {
         }, 500);
     }
 });
+
+//To submit employee assessment question list
 router.put('/submit_employee_assessmnent', function (req,res){
     // try{
         EmployeeAssessmentSubmitted.findOne({employee_id: req.params.employee_id}, function (err ,answer){
@@ -615,6 +617,14 @@ router.put('/submit_employee_assessmnent', function (req,res){
                 console.log('614', question_data);
                 console.log('615', answer.employee_assessment_list);
                 console.log('616', answer);
+                for(var i=0; i<answer.employee_assessment_list; i++){
+                    if(answer.employee_assessment_list[i].question_id === question_data.question_id){
+                        answer.employee_assessment_list[i] = question_data;
+                    }
+                    else {
+                        answer.employee_assessment_list.push(question_data);
+                    }
+                }
                 answer.employee_assessment_list.push(question_data);
                 answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
