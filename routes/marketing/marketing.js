@@ -40,12 +40,12 @@ var fileupload = upload.fields([{
   }])
 // To create campaign
 router.post('/create_campaign', upload.single('campaign_file'), function(req, res) {
-    console.log('43',req,res);
+
     var campaignForm = JSON.parse(req.body.campaign);
-    console.log('45',req.body.campaign);
+    console.log(campaignForm);
     try{
         Campaign.findOne({'title':campaignForm.title},function(err,campaign){
-            console.log("campaign",campaign);
+
             if(err){
                 return res.send({
                         state:"err",
@@ -77,9 +77,9 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 }
                 campaign.visible_to = campaignForm.visible_to;
                 campaign.created_by = campaignForm.created_by;
-                console.log(req.file, "74");
+
                 if (req.file){
-                    console.log(req.file);
+
                     campaign.campaign_file_attachment_file_url = req.file.location;
                     campaign.campaign_file_attachment_file_name = req.file.key;
                     campaign.campaign_file_attachment_file_type = req.file.contentType;
@@ -92,10 +92,10 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                     },500);
                    }
                 else{
-                    console.log(campaign);
+
                     campaign23.meta.campaign_id = campaign23._id;
                     campaign23.save(function(err,campaign24){
-                        console.log(campaign);
+
                     return res.send({
                         state:"success",
                         message:"Campaign Created .",
@@ -106,6 +106,12 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 
                 }
                 });
+            }
+            else {
+              return res.send({
+                  state:"failure",
+                  message:"Campaign title already exists!"
+              },200);
             }
         });
     }
@@ -119,9 +125,9 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 
 // To update campaign
 router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
-    console.log('campaign', campaignEditForm);
-    // var campaignEditForm = JSON.parse(req.body.campaign);
-    var campaignEditForm = req.body;
+    ///console.log('campaign', campaignEditForm);
+     var campaignEditForm = JSON.parse(req.body.campaign);
+    //var campaignEditForm = req.body;
     console.log(req.body.campaign);
     // try{
         Campaign.findOne({'_id':campaignEditForm._id},function(err,campaign){
@@ -145,6 +151,9 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                 campaign.meta = campaignEditForm.meta;
                 campaign.franchisor_id = campaignEditForm.franchisor_id;
                 campaign.franchisee_id = campaignEditForm.franchisee_id;
+                if(campaignEditForm.visible_to == 'franchisee'){
+                  campaign.visible_to_franchisee_id = campaignEditForm.visible_to_franchisee_id;
+                }
                 campaign.visible_to = campaignEditForm.visible_to;
                 // console.log(req.file, "143");
                 if (req.file){

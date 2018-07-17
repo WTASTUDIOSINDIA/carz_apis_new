@@ -251,7 +251,7 @@ var CampaignSchema = new mongoose.Schema({
     'campaign_file_attachment_file_type': String,
     'campaign_files': Array,
     'visible_to':String,
-    'visible_to_franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee'}
+    'visible_to_franchisee_id':String
 });
 
 
