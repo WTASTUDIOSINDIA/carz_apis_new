@@ -602,6 +602,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
                 },400);
             }
             else{
+                answered_questions_list = [];
                 var question_data = {
                     "question_id": req.body.question_id,
                     "employee_answer": req.body.employee_answer,
