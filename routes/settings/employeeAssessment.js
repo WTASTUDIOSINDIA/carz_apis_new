@@ -523,7 +523,8 @@ router.put('/employee_assessment_answer', function (req, res) {
                 "employee_answer": req.body.employee_answer,
                 "question_type": req.body.question_type,
                 "correct_answer": req.body.correct_answer,
-                "employee_id":req.body.employee_id
+                "employee_id":req.body.employee_id,
+                "assessment_type_id": req.body.assessment_type_id
             };
             if (answer) {
                 answer.employee_assessment_list.push(question_data);
@@ -607,11 +608,12 @@ router.put('/submit_employee_assessmnent', function (req,res){
                     "employee_answer": req.body.employee_answer,
                     "question_type": req.body.question_type,
                     "correct_answer": req.body.correct_answer,
-                    "employee_id":req.body.employee_id
+                    "employee_id":req.body.employee_id,
+                    "assessment_type_id": req.body.assessment_type_id
 
                 };
                 console.log('614', question_data);
-                console.log('615',answer.employee_assessment_list);
+                console.log('615', answer.employee_assessment_list);
                 console.log('616', answer);
                 answer.employee_assessment_list.push(question_data);
                 answer.employee_id = req.body.employee_id
