@@ -616,7 +616,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
                 console.log('615', answer.employee_assessment_list);
                 console.log('616', answer);
                 answer.employee_assessment_list.push(question_data);
-                answer.employee_id = req.body.employee_id
+                answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
                 answer.assessment_type_id = req.body.assessment_type_id;
                 answer.employee_assessment_status = req.body.employee_assessment_status;
