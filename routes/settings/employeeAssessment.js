@@ -586,7 +586,56 @@ router.put('/employee_assessment_answer', function (req, res) {
         }, 500);
     }
 });
-
+router.put('/submit_employee_assessmnent/:employee_id', function (req,res){
+    // try{
+        EmployeeAssessmentSubmitted.findOne({employee_id: req.params.employee_id}, function (err ,answer){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message: err,
+                },500)
+            }
+            if(!answer){
+                return res.send({
+                    state:"failure",
+                    message:"No answers found",
+                },500);
+            }
+            else{
+                var question_data = {
+                    "question_id": req.body.question_id,
+                    "employee_answer": req.body.employee_answer,
+                    "question_type": req.body.question_type,
+                    "correct_answer": req.body.correct_answer,
+                    "employee_id":req.body.employee_id
+                };
+                answer.answered_questions_list.push(question_data);
+                answer.employee_id = req.body.employee_id
+                answer.franchisee_id = req.body.franchisee_id;
+                answer.assessment_type_id = req.body.assessment_type_id;
+                answer.employee_assessment_status = req.body.employee_assessment_status;
+                answer.assessment_type.id= req.body.assessment_type.id;
+                answer.assessment_type.status = true;
+                answer.total_questions = req.body.total_questions;
+                answer.save(function (err, answer) {
+                    if (err) {
+                        return res.send({
+                            state: "error",
+                            message: err
+                        }, 500);
+                    }
+                    else {
+                        return res.send({
+                            state: "success",
+                            message: "Question saved successfully",
+                            data: answer
+                        }, 200);
+                    }
+                })
+            }
+        })
+    // }
+})
 //To get reports
 router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
     try {
