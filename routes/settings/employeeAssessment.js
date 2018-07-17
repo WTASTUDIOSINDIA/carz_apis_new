@@ -589,9 +589,9 @@ router.put('/employee_assessment_answer', function (req, res) {
 });
 
 //To submit employee assessment question list
-router.put('/submit_employee_assessmnent/:employee_id', function (req,res){
+router.put('/submit_employee_assessmnent', function (req,res){
     // try{
-        EmployeeAssessmentSubmitted.findOne({employee_id: req.params.employee_id}, function (err ,answer){
+        EmployeeAssessmentSubmitted.findOne({employee_id: req.body.employee_id}, function (err ,answer){
             if(err){
                 return res.send({
                     state:"error",
