@@ -599,7 +599,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
                 return res.send({
                     state:"failure",
                     message:"No answers found",
-                },500);
+                },400);
             }
             else{
                 var question_data = {
