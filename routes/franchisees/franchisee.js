@@ -1293,13 +1293,13 @@ var request = require("request"),
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
 
                         var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
-                        if(!franchiseeMultipleForm[i].partner_name){
-                          return res.send({
-                                  status:500,
-                                  state:"failure",
-                                  message:"Looks like franchisee name or partner name is missing in list"
-                              });
-                        }
+                        // if(!franchiseeMultipleForm[i].partner_name){
+                        //   return res.send({
+                        //           status:500,
+                        //           state:"failure",
+                        //           message:"Looks like franchisee name or partner name is missing in list"
+                        //       });
+                        // }
 
 
                                   var franchisee = new Franchisee();
@@ -1330,7 +1330,7 @@ var request = require("request"),
                                   franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
                                   franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
                                   franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
-                                  franchise.lead_type = franchiseeMultipleForm[i].lead_type;
+                                  franchisee.lead_type = franchiseeMultipleForm[i].lead_type;
                                   franchisee.save(function(err,franchisee){
 
                                       if(err){
