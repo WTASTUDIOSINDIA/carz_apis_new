@@ -25,7 +25,7 @@ var employeeAssementSubmittedSchema = new mongoose.Schema({
     'assessment_type': {id: String, status: {type: Boolean, default: false}},
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    'employee_assessment_status': { type: String, default: 'Pending' },
+    // 'employee_assessment_status': { type: String, default: 'Pending' },
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
 });
 
