@@ -117,6 +117,34 @@ router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
         });
     }
 });
+
+router.get('/get_assessments_type_name', function (req, res) {
+    try {
+        EmployeeAssessmentType.find({ }, function (err, assessments) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!assessments) {
+                res.send({
+                    message: "Assessments type not found",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    data: assessments
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
 // To delete all assessment type names
 router.delete('/delete_assessment_type_names', function (req, res) {
     try {
