@@ -14,7 +14,9 @@ var employeeAssessmentSchema = new mongoose.Schema({
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_assessment_file_attachment_file_url': String,
     'employee_assessment_file_attachment_file_name': String,
-    'employee_assessment_file_attachment_file_type': String
+    'employee_assessment_file_attachment_file_type': String,
+    'question_duration': String,
+    'question_percentage': String
 })
 
 var employeeAssementSubmittedSchema = new mongoose.Schema({

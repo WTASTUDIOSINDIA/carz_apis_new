@@ -363,6 +363,8 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 employeeAssessment.correct_answer = employeeAssessmentForm.correct_answer;
                 employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
+                employeeAssessment.question_duration = employeeAssessmentForm.question_duration,
+                employeeAssessment.question_percentage = employeeAssessmentForm.question_percentage
                 employeeAssessment.employee_answer = employeeAssessmentForm.employee_answer;
                 employeeAssessment.save(function (err, employeeAssessment) {
                     console.log('131', employeeAssessment);
@@ -484,6 +486,8 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             question.options = employeeAssessmentEditForm.options;
             question.employee_answer = employeeAssessmentEditForm.employee_answer;
             question.correct_answer = employeeAssessmentEditForm.correct_answer;
+            question.question_duration = employeeAssessmentEditForm.question_duration;
+            question.question_percentage = employeeAssessmentEditForm.question_percentage;
             question.save(function (err, question) {
                 if (err) {
                     res.send({
@@ -949,34 +953,6 @@ router.get('/get_employee_details/:id', function (req, res) {
     }
 });
 
-// To get employee details by franchisee_id
-router.get('/get_employee_details/:franchisee_id', function (req, res) {
-    try {
-        EmployeeDetails.findById({ 'franchisee_id': req.params.franchisee_id }, function (err, employeeDetails) {
-            if (err) {
-                return res.send(500, err);
-            }
-            if (!employeeDetails) {
-                res.send({
-                    state: "failure",
-                    employeeDetails: []
-                }, 400);
-            }
-            else {
-                res.send({
-                    state: "success",
-                    data: employeeDetails
-                }, 200);
-            }
-        })
-    }
-    catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        }, 500);
-    }
-});
 
 //To edit employee details
 router.put('/update_employee_details', function (req, res) {
