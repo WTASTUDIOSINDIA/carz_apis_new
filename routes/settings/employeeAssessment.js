@@ -89,6 +89,49 @@ router.post('/create_assessemnt_type', function (req, res) {
     }
 })
 
+//To update assessment type
+router.put('/update_assessment_type', function (req, res) {
+    try {
+        EmployeeAssessmentType.findById({ _id: req.body._id }, function (err, assessment) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
+            }
+            if (assessment) {
+                assessment.assessment_type_name = req.body.assessment_type_name;
+                assessment.franchisor_id = req.body.franchisor_id;
+                assessment.save(function (err, assessment) {
+                    if (err) {
+                        res.send({
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Assessment type updated'
+                        }, 200)
+                    }
+                })
+            }
+            if (!assessment) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: 'err'
+        })
+    }
+})
 // TO get assessment type
 router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
     try {
