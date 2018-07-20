@@ -1484,7 +1484,7 @@ console.log(franchisee);
       var existing_franchisees = [];
       for(var i=0;i<values.length;i++){
         var franchisee_mail = values[i].franchisee_email;
-        await  Franchisee.find({franchisee_email: values[i].franchisee_email},function(err,franchisee){
+        await  Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
               if(franchisee){
                 for(var j=0; j<franchisee.length; j++){
                   (function(j){
