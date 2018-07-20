@@ -89,6 +89,49 @@ router.post('/create_assessemnt_type', function (req, res) {
     }
 })
 
+//To update assessment type
+router.put('/update_assessment_type', function (req, res) {
+    try {
+        EmployeeAssessmentType.findById({ _id: req.body._id }, function (err, assessment) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
+            }
+            if (assessment) {
+                assessment.assessment_type_name = req.body.assessment_type_name;
+                assessment.franchisor_id = req.body.franchisor_id;
+                assessment.save(function (err, assessment) {
+                    if (err) {
+                        res.send({
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Assessment type updated'
+                        }, 200)
+                    }
+                })
+            }
+            if (!assessment) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: 'err'
+        })
+    }
+})
 // TO get assessment type
 router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
     try {
@@ -363,6 +406,8 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 employeeAssessment.correct_answer = employeeAssessmentForm.correct_answer;
                 employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
+                employeeAssessment.question_duration = employeeAssessmentForm.question_duration,
+                employeeAssessment.question_percentage = employeeAssessmentForm.question_percentage
                 employeeAssessment.employee_answer = employeeAssessmentForm.employee_answer;
                 employeeAssessment.save(function (err, employeeAssessment) {
                     console.log('131', employeeAssessment);
@@ -484,6 +529,8 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             question.options = employeeAssessmentEditForm.options;
             question.employee_answer = employeeAssessmentEditForm.employee_answer;
             question.correct_answer = employeeAssessmentEditForm.correct_answer;
+            question.question_duration = employeeAssessmentEditForm.question_duration;
+            question.question_percentage = employeeAssessmentEditForm.question_percentage;
             question.save(function (err, question) {
                 if (err) {
                     res.send({
@@ -949,34 +996,6 @@ router.get('/get_employee_details/:id', function (req, res) {
     }
 });
 
-// To get employee details by franchisee_id
-router.get('/get_employee_details/:franchisee_id', function (req, res) {
-    try {
-        EmployeeDetails.findById({ 'franchisee_id': req.params.franchisee_id }, function (err, employeeDetails) {
-            if (err) {
-                return res.send(500, err);
-            }
-            if (!employeeDetails) {
-                res.send({
-                    state: "failure",
-                    employeeDetails: []
-                }, 400);
-            }
-            else {
-                res.send({
-                    state: "success",
-                    data: employeeDetails
-                }, 200);
-            }
-        })
-    }
-    catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        }, 500);
-    }
-});
 
 //To edit employee details
 router.put('/update_employee_details', function (req, res) {
