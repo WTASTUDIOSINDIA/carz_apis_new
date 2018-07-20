@@ -5,6 +5,7 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var Partner = mongoose.model('Partner');
 var Question_Type = mongoose.model('QuestionType');
+var Sections = mongoose.model('Sections');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
 var Folder = mongoose.model('Folder');
@@ -276,7 +277,7 @@ function update_franchisee(req, res, franchisee_id){
 
             ////////////////////////////////////// need to work
                 franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + 1;
-            
+
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({
@@ -564,4 +565,124 @@ router.delete('/delete_franchisee_assessent_question/:id', function (req, res) {
 });
 
 
+//Create Section
+router.post('/create_section',function(req,res){
+    try{
+        Sections.findOne({'section_name':req.body.section_name},function(err,section){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:"err"
+                },500);
+            }
+            if(section){
+                 return res.send({
+                    state:"failure",
+                    message:"Name exist"
+                },200);
+            }
+            else{
+                var section = new Sections();
+                section.section_name = req.body.section_name;
+                section.save(function(err,section){
+                    if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:'Successfully added',
+                            data: section
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+//Create Section
+router.post('/edit_section',function(req,res){
+    try{
+        Sections.findById({_id:req.body._id},function(err,section){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:"err"
+                },500);
+            }
+            if(!section){
+                 return res.send({
+                    state:"failure",
+                    message:"Name d"
+                },200);
+            }
+            else{
+
+                section.section_name = req.body.section_name;
+                section.save(function(err,section){
+                    if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:'Successfully updated',
+                            data: section
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
+router.get('/get_sections/:franchisor_id', function(req,res){
+    try{
+        Sections.find({franchisor_id: req.params.franchisor_id},function(err,sections){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(sections.length == 0){
+                return res.send({
+                    state:"failure",
+                    message:"No sections"
+                },200);
+            }
+            if(sections.length > 0){
+                return res.send({
+                    state:"success",
+                    data:sections
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
 module.exports = router;

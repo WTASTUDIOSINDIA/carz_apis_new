@@ -59,8 +59,15 @@ var employeeDetailsSchema = new mongoose.Schema({
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_id': { type: Schema.Types.ObjectId, ref: 'Employee' }
 })
+var sectionsSchema = new mongoose.Schema({
+    "section_name":String,
+    "franchisor_id": String
+});
+
+
 mongoose.model('EmployeeAssessmentTypeOfFranchisee', employeeAssessmentTypeOfFranchiseeSchema);
 mongoose.model('EmployeeAssessmentType', employeeAssessmentTypeSchema);
 mongoose.model('EmployeeDetails', employeeDetailsSchema);
 mongoose.model('EmployeeAssessment', employeeAssessmentSchema);
 mongoose.model('EmployeeAssessmentSubmitted', employeeAssementSubmittedSchema);
+mongoose.model('Sections', sectionsSchema);
