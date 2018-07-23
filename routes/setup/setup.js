@@ -112,6 +112,13 @@ router.post('/create_setup_checklist', function (req, res) {
             }, 500);
           }
           else {
+            SetupDepartment.findById({_id:req.body.setup_department_id},function(err, department){
+              console.log(department, "116");
+              department.tasks_length =  department.tasks_length+1;
+              department.save(function (err, department){
+                console.log(department, "119");
+              })
+            })
             res.send({
               state: "success",
               data: checklist,
@@ -158,7 +165,34 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
     });
   }
 });
-
+//To delete department by id
+router.delete('/delete_department/:id', function(req,res){
+  try{
+    SetupDepartment.remove({_id: req.params._id}, function(err, department){
+      if(err){
+        return res.send(500, err);
+      }
+      if(!department){
+        res.send({
+          state:'failure',
+          message:'No departments found'
+        },400)
+      }
+      else{
+        res.send({
+          state:'success',
+          message:'Department deleted'
+        },200)
+      }
+    })
+  }
+  catch(err){
+    return res.send({
+      state:'error',
+      message:err
+    })
+  }
+})
 //To get setup checklists by department id
 router.get('/get_setup_checklists/:department_id', function (req, res) {
   try {
@@ -206,6 +240,14 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
         }, 201);
       }
       else {
+        console.log(checklist, "216");
+        SetupDepartment.findById({_id:checklist.setup_department_id},function(err, department){
+          console.log(department, "218");
+          department.tasks_length =  department.tasks_length-1;
+          department.save(function (err, department){
+            console.log(department, "221");
+          })
+        })
         res.send({
           state: "success",
           message: "Checklist deleted successfully!",
@@ -249,6 +291,8 @@ router.delete('/delete_checklists',function(req,res){
       });
   }
 });
+
+
 
 //Create Task for checklists
 router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {

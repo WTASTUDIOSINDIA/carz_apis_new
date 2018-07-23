@@ -26,7 +26,8 @@ var setupTaskSchema = new mongoose.Schema({
 var setupDepartmentSchema = new mongoose.Schema({
 
   setup_department_name_EN: String, //Language specific
-  franchisor_id:  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
+  franchisor_id:  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
+  tasks_length:{type:Number, default:0}
 })
 
 var setupChecklistSchema = new mongoose.Schema({
