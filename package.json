@@ -19,7 +19,7 @@
     "csv": "^3.0.2",
     "dynamic-html-pdf": "0.0.4",
     "ejs": "^2.5.7",
-    "express": "^4.16.2",
+    "express": "^4.16.3",
     "express-session": "^1.15.6",
     "mongoose": "^5.0.3",
     "morgan": "^1.9.0",
