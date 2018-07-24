@@ -70,4 +70,28 @@ router.get('/get_versions', function(req, res){
     }, 500);
   }
 })
+router.get('/get_version_by_id:version_id', function(req, res){
+  try {
+    Versions.find({}, function(err, versions){
+      if(err){
+        return res.send({
+            state: "failure",
+            message: err
+        }, 500);
+      }
+      if(versions){
+        return res.send({
+            state: "failure",
+            data: versions
+        }, 200);
+      }
+
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
 module.exports = router;
