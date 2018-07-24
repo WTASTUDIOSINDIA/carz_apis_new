@@ -27,6 +27,7 @@ router.post('/create_version', function(req, res){
         version.version_type = req.body.version_type;
         version.franchisor_id = req.body.franchisor_id;
         version.released_on = new Date();
+        version.default = req.body.default;
         version.save(function(err, version){
           if(version){
             return res.send({
