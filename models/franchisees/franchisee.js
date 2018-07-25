@@ -211,6 +211,7 @@ var AssessmentSchema = new mongoose.Schema({
 });
 
 var ApplicationSchema = new mongoose.Schema({
+    'version_id': String,
     'question_EN':String,
     'question_type':String,
     'options': Array,
