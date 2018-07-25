@@ -176,7 +176,7 @@ router.post('/validate_franchisee',  function(req, res) {
 router.post('/validate_franchisee_pincode',  function(req, res) {
     var FranchiseeValidateForm = req.body;
     try{
-        Franchisee.findOne({'franchisee_pincode':FranchiseeValidateForm.franchisee_pincode},function(err,franchisee){
+            Franchisee.findOne({ $and: [ { franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
             if(err){
                 return res.send({
                     state:"error",
