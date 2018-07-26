@@ -12,4 +12,6 @@ var versionsSchema = new mongoose.Schema({
   "franchisor_id": String,
   "default": {type: Boolean, default: false}
 })
+
+
 mongoose.model('Versions', versionsSchema);

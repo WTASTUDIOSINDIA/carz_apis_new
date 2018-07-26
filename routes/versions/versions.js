@@ -46,9 +46,9 @@ router.post('/create_version', function(req, res){
     }, 500);
   }
 })
-router.get('/get_versions', function(req, res){
+router.get('/get_versions/:version_type/:franchisor_id', function(req, res){
   try {
-    Versions.find({}, function(err, versions){
+    Versions.find({version_type: req.params.version_type, franchisor_id: req.params.franchisor_id}, function(err, versions){
       if(err){
         return res.send({
             state: "failure",
@@ -69,6 +69,36 @@ router.get('/get_versions', function(req, res){
       message: err
     }, 500);
   }
+})
+router.put('/make_version_default/:version_id/:version_type', function(req, res){
+  try{
+    Versions.find({version_type: req.params.version_type}, function(err, versions){
+      if(err){
+        return res.send({
+            state: "failure",
+            message: err
+        }, 500);
+      }
+      if(versions){
+        for(var i = 0; i<versions.length; i++){
+          if(versions[i].default == true){
+            versions[i].default = false;
+          }
+
+        }
+
+        return res.send({
+            state: "failure",
+            data: versions
+        }, 200);
+      }
+    })
+} catch (err){
+  return res.send({
+    state: "failure",
+    message: err
+  }, 500);
+}
 })
 router.get('/get_version_by_id/:version_id', function(req, res){
   try {
