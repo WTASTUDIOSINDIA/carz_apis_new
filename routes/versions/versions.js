@@ -72,27 +72,51 @@ router.get('/get_versions/:version_type/:franchisor_id', function(req, res){
 })
 router.put('/make_version_default/:version_id/:version_type', function(req, res){
   try{
-    Versions.find({version_type: req.params.version_type}, function(err, versions){
+    Versions.updateMany({version_type: req.params.version_type}, {$set: {'default': false}},{'multi':true}, function(err, versions){
       if(err){
-        return res.send({
-            state: "failure",
-            message: err
-        }, 500);
-      }
-      if(versions){
-        for(var i = 0; i<versions.length; i++){
-          if(versions[i].default == true){
-            versions[i].default = false;
-          }
-
+          return res.send({
+              state: "failure",
+              message: err
+          }, 500);
         }
-
-        return res.send({
-            state: "failure",
-            data: versions
-        }, 200);
+        if(versions){
+          Versions.update({_id: req.params.version_id}, {$set: {'default': true}}, function(err, version){
+            if(err){
+                return res.send({
+                    state: "failure",
+                    message: err
+                }, 500);
+              }
+              if(version){
+                return res.send({
+                    state: "success",
+                    message: "Success!"
+                }, 200);
+              }
+        })
       }
     })
+    // Versions.find({version_type: req.params.version_type}, function(err, versions){
+    //   if(err){
+    //     return res.send({
+    //         state: "failure",
+    //         message: err
+    //     }, 500);
+    //   }
+    //   if(versions){
+    //     for(var i = 0; i<versions.length; i++){
+    //       if(versions[i].default == true){
+    //         versions[i].default = false;
+    //       }
+    //
+    //     }
+    //
+    //     return res.send({
+    //         state: "failure",
+    //         data: versions
+    //     }, 200);
+    //   }
+    // })
 } catch (err){
   return res.send({
     state: "failure",
