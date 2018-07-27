@@ -4,6 +4,7 @@ var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var Application = mongoose.model('Application');
+var Versions = mongoose.model('Versions');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
 var Stages = mongoose.model('Stages');
 var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');
@@ -89,8 +90,11 @@ router.post('/application_form', function (req, res) {
   }
 });
 // get questions by franchisee id
-router.get('/get_questions_list/:franchisee_id/:version_id', function (req, res) {
+router.get('/get_questions_list/:franchisee_id/:franchisor_id', function (req, res) {
   try {
+    var version_id = '';
+
+
     ApplicationSubmitted.findOne({franchisee_Id: req.params.franchisee_id}, function (err, questions) {
       if (err) {
         return res.send({
@@ -106,7 +110,18 @@ router.get('/get_questions_list/:franchisee_id/:version_id', function (req, res)
         }, 200);
       }
       else {
-        get_all_questions(req, res);
+        Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'application_form', default: true}, function(err, version){
+            if(err){
+              return res.send({
+                state: "error",
+                message: err
+              }, 500);
+            }
+            else {
+              version_id = version._id;
+            }
+        })
+        get_all_questions(req, res, version_id);
       }
     })
   } catch (err) {
@@ -117,8 +132,8 @@ router.get('/get_questions_list/:franchisee_id/:version_id', function (req, res)
   }
 })
 
-function get_all_questions(req, res) {
-  Application.find({version_id: req.params.version_id}, function (err, ques) {
+function get_all_questions(req, res, version_id) {
+  Application.find({version_id: version_id}, function (err, ques) {
     if (err) {
       return res.send({
         state: "error",
