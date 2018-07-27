@@ -89,7 +89,7 @@ router.post('/application_form', function (req, res) {
   }
 });
 // get questions by franchisee id
-router.get('/get_questions_list/:franchisee_id', function (req, res) {
+router.get('/get_questions_list/:franchisee_id/:version_id', function (req, res) {
   try {
     ApplicationSubmitted.findOne({franchisee_Id: req.params.franchisee_id}, function (err, questions) {
       if (err) {
@@ -118,7 +118,7 @@ router.get('/get_questions_list/:franchisee_id', function (req, res) {
 })
 
 function get_all_questions(req, res) {
-  Application.find({}, function (err, ques) {
+  Application.find({version_id: req.params.version_id}, function (err, ques) {
     if (err) {
       return res.send({
         state: "error",
