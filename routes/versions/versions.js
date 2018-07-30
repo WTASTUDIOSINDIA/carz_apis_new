@@ -57,7 +57,7 @@ router.get('/get_versions/:version_type/:franchisor_id', function(req, res){
       }
       if(versions){
         return res.send({
-            state: "failure",
+            state: "success",
             data: versions
         }, 200);
       }
