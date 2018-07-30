@@ -960,8 +960,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 stage.stage_discussion.payment_value = 100000;
                 stage.stage_discussion.nda_file =  req.file.location;
                 stage.stage_discussion.nda_file_name =  req.file.originalname;
-                stage.stage_discussion.payment_file = req.file.location;
-                stage.stage_discussion.payment_file_name = req.file.originalname;
+                // stage.stage_discussion.payment_file = req.file.location;
+                // stage.stage_discussion.payment_file_name = req.file.originalname;
                 if(req.file.mimetype == "application/pdf"){
                     stage.stage_discussion.nda_file_type = "pdf";
                 }
@@ -1540,41 +1540,54 @@ console.log(franchisee);
 // To approve or decline
 router.put('/archieve_franchisee',function(req,res){
     try{
-        Franchisee.findById({_id:req.body._id},function(err,franchisee){
+        // Franchisee.findById({_id:req.body._id},function(err,franchisee){
+        //     if(err){
+        //         return res.send(500, err);
+        //     }   if(franchisee) {
+        //         franchisee.archieve_franchisee=true;
+        //         franchisee.save(function(err,franchisee){
+        //             console.log('1482', franchisee);
+        //             if (err) {
+        //                 res.send({
+        //                     state: "err",
+        //                     message: "Something went wrong."
+        //                 }, 500);
+        //             }
+        //             else {
+        //                 Franchisee.findById({_id:req.body.master_franchisee_id},function(err, franchisee){
+        //                   console.log(franchisee, "1501");
+        //                   franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count-1;
+        //                   franchisee.save(function (err, franchisee){
+        //                     console.log(franchisee, "1504");
+        //                   })
+        //                 })
+        //                 res.send({
+        //                     state: "success",
+        //                     message: "Franchisee status updated.",
+        //                     data: franchisee
+        //                 }, 200);
+        //             }
+        //         });
+        //     }
+        //     if (!franchisee) {
+        //         res.send({
+        //             state: "failure",
+        //             message: "Failed to update status."
+        //         }, 400);
+        //     }
+        // });
+        Franchisee.findByIdAndRemove({_id:req.body._id},function(err,franchisee){
             if(err){
                 return res.send(500, err);
-            }   if(franchisee) {
-                franchisee.archieve_franchisee=true;
-                franchisee.save(function(err,franchisee){
-                    console.log('1482', franchisee);
-                    if (err) {
-                        res.send({
-                            state: "err",
-                            message: "Something went wrong."
-                        }, 500);
-                    }
-                    else {
-                        Franchisee.findById({_id:req.body.master_franchisee_id},function(err, franchisee){
-                          console.log(franchisee, "1501");
-                          franchisee.sub_franchisee_count =  franchisee.sub_franchisee_count-1;
-                          franchisee.save(function (err, franchisee){
-                            console.log(franchisee, "1504");
-                          })
-                        })
-                        res.send({
-                            state: "success",
-                            message: "Franchisee status updated.",
-                            data: franchisee
-                        }, 200);
-                    }
-                });
+            }   else {
+              res.send({
+                  state: "success",
+                  message: "Franchisee status updated.",
+                  data: franchisee
+              }, 200);
             }
-            if (!franchisee) {
-                res.send({
-                    state: "failure",
-                    message: "Failed to update status."
-                }, 400);
-            }
+
+
         });
     }
     catch(err){

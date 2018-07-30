@@ -40,9 +40,9 @@ var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
 //mongoose.connect('mongodb://localhost/carz-api');
 //LIVE CARZ USING IT  from carz-api heroku
-// mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
+ //mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 
-//DEVELOPMENT // from carz-web heroku
+//DEVELOPMENT // from carz-web heroku/
 mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
 
 var app = express();
@@ -145,9 +145,11 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 

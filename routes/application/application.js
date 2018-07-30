@@ -4,6 +4,7 @@ var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var Application = mongoose.model('Application');
+var Versions = mongoose.model('Versions');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
 var Stages = mongoose.model('Stages');
 var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');
@@ -60,6 +61,7 @@ router.post('/application_form', function (req, res) {
         }, 200);
       } else {
         var application = new Application();
+        application.version_id = applicationForm.version_id;
         application.question_EN = applicationForm.question_EN;
         application.question_type = applicationForm.question_type;
         application.options = applicationForm.options;
@@ -88,24 +90,42 @@ router.post('/application_form', function (req, res) {
   }
 });
 // get questions by franchisee id
-router.get('/get_questions_list/:franchisee_id', function (req, res) {
+router.get('/get_questions_list/:franchisee_id/:franchisor_id', function (req, res) {
   try {
+    var version_id = '';
+
+
     ApplicationSubmitted.findOne({franchisee_Id: req.params.franchisee_id}, function (err, questions) {
       if (err) {
         return res.send({
           state: "error",
           message: err
         }, 500);
-      } else 
+      } else
       if (questions && questions.application_status == 'Submitted') {
         return res.send({
           state: 'success',
           // message:"Questions not created",
           questions_list: questions
         }, 200);
-      } 
+      }
       else {
-        get_all_questions(req, res);
+        Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'application_form', default: true}, function(err, version){
+console.log(version, '120');
+            if(err){
+              return res.send({
+                state: "error",
+                message: err
+              }, 500);
+            }
+
+            else {
+              version_id = version._id;
+              get_all_questions(req, res, version_id);
+            }
+
+        })
+
       }
     })
   } catch (err) {
@@ -116,8 +136,9 @@ router.get('/get_questions_list/:franchisee_id', function (req, res) {
   }
 })
 
-function get_all_questions(req, res) {
-  Application.find({}, function (err, ques) {
+function get_all_questions(req, res, version_id) {
+  console.log(version_id, "139");
+  Application.find({version_id: version_id}, function (err, ques) {
     if (err) {
       return res.send({
         state: "error",
@@ -143,9 +164,31 @@ function get_all_questions(req, res) {
 }
 
 //get all questions
-router.get('/getAll', function (req, res) {
+router.get('/getAll/:version_id', function (req, res) {
   try {
-    get_all_questions(req, res);
+    Application.find({version_id: req.params.version_id}, function (err, ques) {
+      if (err) {
+        return res.send({
+          state: "error",
+          message: err
+        }, 500);
+      }
+      if (ques.length == 0) {
+        return res.send({
+          state: 'failure',
+          message: "Questions not created"
+        }, 200);
+      }
+      if (ques.length > 0) {
+        for (var i = 0; i < ques.length; i++) {
+          ques[i].order = i;
+        }
+        return res.send({
+          state: 'success',
+          questions_list: ques
+        }, 200);
+      }
+    })
   } catch (err) {
     return res.send({
       state: "error",
