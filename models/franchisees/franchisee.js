@@ -163,6 +163,7 @@ var thirdPartyFileSchema =new mongoose.Schema({
 
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
+    "description": String
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
