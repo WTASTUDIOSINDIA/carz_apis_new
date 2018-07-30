@@ -122,7 +122,7 @@ router.get('/get_business_type/:version_id',function(req,res){
             else{
                 return res.send({
                     state:"success",
-                    FranchiseeType:type
+                    data:type
                 },200);
             }
         })
@@ -170,7 +170,7 @@ router.post('/set_business_type',function(req,res){
             if(type){
                 return res.send({
                     state:"failure",
-                    message:"Franchisee type with this name exist."
+                    message:"Business type with this name exist."
                 },400);
             }
             else{
