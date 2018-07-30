@@ -1176,41 +1176,41 @@ function generatePassword() {
     }
     return retVal;
 }
-async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
-  console.log('test', '1167');
-    var library = new Library();
-    library.path = obj.location;
-    library.key = obj.key;
-    library.file_name = obj.originalname;
-    if(obj.mimetype == "application/pdf"){
-        library.image_type = "pdf";
-    }
-    if(obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif"){
-        library.image_type = "image";
-    }
-    library.uploaded_status = status;
-    library.date_uploaded = Date.now();
-    library.folder_Id = folder_Id;
-    library.franchisee_Id = franchisee_Id;
-    await library.save(function(err,library){
-        if(err){
-        res.send({
-            status:500,
-            state:"err",
-            message:"Something went wrong."
-        },500);
-        }
-    else{console.log(library._id, "1189");
-    //  get_id_of_crm_file = library._id;
-      //return  library._id;
-      return new Promise(resolve => {
-    setTimeout(() => {
-      resolve('resolved');
-    }, 2000);
-  });
-    }
-    });
-}
+// async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+//   console.log('test', '1167');
+//     var library = new Library();
+//     library.path = obj.location;
+//     library.key = obj.key;
+//     library.file_name = obj.originalname;
+//     if(obj.mimetype == "application/pdf"){
+//         library.image_type = "pdf";
+//     }
+//     if(obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif"){
+//         library.image_type = "image";
+//     }
+//     library.uploaded_status = status;
+//     library.date_uploaded = Date.now();
+//     library.folder_Id = folder_Id;
+//     library.franchisee_Id = franchisee_Id;
+//     await library.save(function(err,library){
+//         if(err){
+//         res.send({
+//             status:500,
+//             state:"err",
+//             message:"Something went wrong."
+//         },500);
+//         }
+//     else{console.log(library._id, "1189");
+//     //  get_id_of_crm_file = library._id;
+//       //return  library._id;
+//       return new Promise(resolve => {
+//     setTimeout(() => {
+//       resolve('resolved');
+//     }, 2000);
+//   });
+//     }
+//     });
+// }
 
 var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
@@ -1480,22 +1480,22 @@ console.log(franchisee);
             });
         }
     });
-  async  function get_existing_mails(values){
-      var existing_franchisees = [];
-      for(var i=0;i<values.length;i++){
-        var franchisee_mail = values[i].franchisee_email;
-        await  Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
-              if(franchisee){
-                for(var j=0; j<franchisee.length; j++){
-                  (function(j){
-                    existing_franchisees.push(franchisee[j].franchisee_email);
-                  })(j);
-                }
-              }
-            });
-          }
-          return existing_franchisees;
-        }
+//   async  function get_existing_mails(values){
+//       var existing_franchisees = [];
+//       for(var i=0;i<values.length;i++){
+//         var franchisee_mail = values[i].franchisee_email;
+//         await  Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
+//               if(franchisee){
+//                 for(var j=0; j<franchisee.length; j++){
+//                   (function(j){
+//                     existing_franchisees.push(franchisee[j].franchisee_email);
+//                   })(j);
+//                 }
+//               }
+//             });
+//           }
+//           return existing_franchisees;
+//         }
 
 // To select lead type
     router.put('/lead_type',function(req, res) {
