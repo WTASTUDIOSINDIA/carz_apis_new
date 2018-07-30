@@ -174,7 +174,8 @@ var BussinessTypeListSchema = new mongoose.Schema({
     "doc_status":{type:String, default:'Pending'},
     "doc_link":String,
     "doc_type":{type:String,default:'docs'},
-    "version_id": String
+    "version_id": String,
+    "franchisor_id": String,
 });
 
 var KycSchema = new mongoose.Schema({
