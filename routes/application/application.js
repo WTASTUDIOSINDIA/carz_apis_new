@@ -111,17 +111,21 @@ router.get('/get_questions_list/:franchisee_id/:franchisor_id', function (req, r
       }
       else {
         Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'application_form', default: true}, function(err, version){
+console.log(version, '120');
             if(err){
               return res.send({
                 state: "error",
                 message: err
               }, 500);
             }
+
             else {
               version_id = version._id;
+              get_all_questions(req, res, version_id);
             }
+
         })
-        get_all_questions(req, res, version_id);
+
       }
     })
   } catch (err) {
@@ -133,6 +137,7 @@ router.get('/get_questions_list/:franchisee_id/:franchisor_id', function (req, r
 })
 
 function get_all_questions(req, res, version_id) {
+  console.log(version_id, "139");
   Application.find({version_id: version_id}, function (err, ques) {
     if (err) {
       return res.send({
