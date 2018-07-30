@@ -11,6 +11,7 @@ var Application = mongoose.model('Application');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
 var KycUploads = mongoose.model('KycUploads');
+var Versions = mongoose.model('Versions');
 var Reasons = mongoose.model('Reasons');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -109,9 +110,9 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
-router.get('/get_business_type',function(req,res){
+router.get('/get_business_type/:version_id',function(req,res){
     try{
-        FranchiseeType.find({},function(err,type){
+        FranchiseeType.find({version_id: req.params.version_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -133,9 +134,9 @@ router.get('/get_business_type',function(req,res){
         },500);
     }
 });
-router.get('/get_business_types_list',function(req,res){
+router.get('/get_business_types_list/:version_id',function(req,res){
     try{
-        FranchiseeTypeList.find({},function(err,type){
+        FranchiseeTypeList.find({version_id: req.params.version_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -174,6 +175,7 @@ router.post('/set_business_type',function(req,res){
             }
             else{
                 var document_list = new FranchiseeType();
+                document_list.version_id = req.body.version_id;
                 document_list.bussiness_type_name=req.body.bussiness_type_name;
                 document_list.save(function(err,document_list){
                     if(err){
@@ -264,6 +266,7 @@ router.post('/create_business_type',function(req,res){
             else{
                 var document_list_types = new FranchiseeTypeList();
                 document_list_types.businessType_id=req.body.businessType_id;
+                document_list.version_id = req.body.version_id;
                 document_list_types.doc_name=req.body.doc_name;
                 document_list_types.doc_link="";
                 document_list_types.save(function(err,document_list_types){
