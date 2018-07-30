@@ -163,7 +163,8 @@ var thirdPartyFileSchema =new mongoose.Schema({
 
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
-    "description": String
+    "description": String,
+    "version_id": String
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
@@ -171,7 +172,8 @@ var BussinessTypeListSchema = new mongoose.Schema({
     "doc_name":String,
     "doc_status":{type:String, default:'Pending'},
     "doc_link":String,
-    "doc_type":{type:String,default:'docs'}
+    "doc_type":{type:String,default:'docs'},
+    "version_id": String
 });
 
 var KycSchema = new mongoose.Schema({
