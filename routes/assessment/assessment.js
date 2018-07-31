@@ -32,7 +32,7 @@ router.post('/add_assessment_type',function(req,res){
                 var question_type = new Question_Type();
                 question_type.question_type_name = req.body.question_type_name;
                 question_type.description = req.body.description;
-                question_type.version_id = req.body.question_type;
+                question_type.version_id = req.body.version_id;
                 question_type.franchisor_id = req.body.franchisor_id;
                 question_type.save(function(err,question_type){
                     if(err){
@@ -61,7 +61,7 @@ router.post('/add_assessment_type',function(req,res){
 
 router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{
-        Question_Type.find({_id: req.params.version_id},function(err,list){
+        Question_Type.find({version_id: req.params.version_id},function(err,list){
             if(err){
                 return res.send({
                     state:"error",
@@ -142,7 +142,7 @@ router.post('/question_list',function(req,res){
 
 router.get('/get_question_list/:version_id',function(req,res){
     try{
-        Question.find({},function(err,ques){
+        Question.find({_id: req.params.version_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
