@@ -8,6 +8,7 @@ var Question_Type = mongoose.model('QuestionType');
 var Sections = mongoose.model('Sections');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
+var Versions = mongoose.model('Versions');
 var Folder = mongoose.model('Folder');
 var Stages = mongoose.model('Stages');
 var _ = require('lodash');

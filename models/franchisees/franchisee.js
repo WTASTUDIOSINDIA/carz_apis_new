@@ -165,7 +165,7 @@ var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
     "description": String,
     "version_id": String,
-    "franchisor_id": String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
@@ -175,7 +175,7 @@ var BussinessTypeListSchema = new mongoose.Schema({
     "doc_link":String,
     "doc_type":{type:String,default:'docs'},
     "version_id": String,
-    "franchisor_id": String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var KycSchema = new mongoose.Schema({
@@ -195,7 +195,9 @@ var ReasonSchema = new mongoose.Schema({
   });
 
 var QuestionTypeSchema = new mongoose.Schema({
-    'question_type_name':String
+    'question_type_name':String,
+    'version_id': String,
+    'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
 var InterviewQuestionSchema = new mongoose.Schema({
