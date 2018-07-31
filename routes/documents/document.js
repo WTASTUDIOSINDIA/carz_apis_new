@@ -134,6 +134,40 @@ router.get('/get_business_type/:version_id',function(req,res){
         },500);
     }
 });
+
+router.get('/get_bussiness_type/:version_id/:franchisor_id',function(req,res){
+    try{
+        FranchiseeType.find({version_id: req.params.version_id},function(err,type){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
+            }
+            else{
+                Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
+                    console.log(version, '125');
+                    if(err){
+                    return res.send({
+                        state: "error",
+                        message: err
+                    }, 500);
+                    }
+                })
+                return res.send({
+                    state:"success",
+                    data:type
+                },200);
+            }
+        })
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 router.get('/get_business_types_list/:version_id',function(req,res){
     try{
         FranchiseeTypeList.find({version_id: req.params.version_id},function(err,type){
@@ -390,7 +424,6 @@ router.get('/get_business_type_list/:businessType_id/:version_id/:franchisor_id'
                     data:type
                     
                 },200);
-                console.log('data', data);
             }
         })
     }
