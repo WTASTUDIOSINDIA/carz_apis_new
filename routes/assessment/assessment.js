@@ -59,7 +59,7 @@ router.post('/add_assessment_type',function(req,res){
 	}
 });
 
-router.get('/question_types/:version_id',function(req,res){
+router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{
         Question_Type.find({},function(err,list){
             if(err){
