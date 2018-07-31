@@ -544,7 +544,7 @@ router.delete('/delete_question_types',function(req,res){
     }
 });
 //delete questions Types
-router.delete('/delete_question_types/:question_type_id',function(req,res){
+router.delete('/delete_question_type/:question_type_id',function(req,res){
     try{
         Question_Type.findByIdAndRemove({_id:req.params.question_type_id},function(err,ques){
             if(err){
