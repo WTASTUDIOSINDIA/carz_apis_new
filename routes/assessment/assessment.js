@@ -114,6 +114,7 @@ router.post('/question_list',function(req,res){
                 question.version_id = req.body.version_id;
                 question_franchisor_id = req.body.franchisor_id;
                 question.question_type = req.body.question_type;
+                question.question_section_id = req.body.question_section_id;
                 question.save(function(err,question){
                     if(err){
                         return res.send({
@@ -140,9 +141,9 @@ router.post('/question_list',function(req,res){
 	}
 });
 
-router.get('/get_question_list/:version_id',function(req,res){
+router.get('/get_question_list/:question_section_id',function(req,res){
     try{
-        Question.find({_id: req.params.version_id},function(err,ques){
+        Question.find({question_section_id:req.params.question_section_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",

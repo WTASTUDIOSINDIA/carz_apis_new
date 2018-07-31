@@ -208,7 +208,8 @@ var InterviewQuestionSchema = new mongoose.Schema({
     'question_type_id':{type: Schema.Types.ObjectId, ref: 'QuestionType'},
     'question_type':String,
     'version_id': String,
-    'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'}
+    'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    'question_section_id': {type: Schema.Types.ObjectId, ref:'QuestionType'}
 });
 
 var AssessmentSchema = new mongoose.Schema({
