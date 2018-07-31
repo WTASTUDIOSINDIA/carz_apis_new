@@ -129,10 +129,6 @@ router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
                         message: err
                     }, 500);
                     }
-                    else {
-                        version_id = version._id;
-                        get_business_types(req, res, version_id);
-                      }
                 })
                 return res.send({
                     state:"success",
