@@ -543,6 +543,34 @@ router.delete('/delete_question_types',function(req,res){
         });
     }
 });
+//delete questions Types
+router.delete('/delete_question_types/:question_type_id',function(req,res){
+    try{
+        Question_Type.findByIdAndRemove({_id:req.params.question_type_id},function(err,ques){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!ques){
+                res.send({
+                    state:"failure",
+                    message:"Failed to delete"
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Question type deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
 
 //To delete question by question id
 router.delete('/delete_franchisee_assessent_question/:id', function (req, res) {
