@@ -196,6 +196,7 @@ var ReasonSchema = new mongoose.Schema({
 
 var QuestionTypeSchema = new mongoose.Schema({
     'question_type_name':String,
+    'description': String,
     'version_id': String,
     'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });

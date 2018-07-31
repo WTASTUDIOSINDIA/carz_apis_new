@@ -15,7 +15,7 @@ var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
     try{
-        Question_Type.findOne({'question_type_name':req.body.heading},function(err,questionType){
+        Question_Type.findOne({'question_type_name':req.body.question_type_name},function(err,questionType){
             if(err){
                 return res.send({
                     state:"error",
@@ -30,7 +30,8 @@ router.post('/add_assessment_type',function(req,res){
             }
             else{
                 var question_type = new Question_Type();
-                question_type.question_type_name = req.body.heading;
+                question_type.question_type_name = req.body.question_type_name;
+                question_type.description = req.body.description;
                 question_type.version_id = req.body.question_type;
                 question_type.franchisor_id = req.body.franchisor_id;
                 question_type.save(function(err,question_type){
