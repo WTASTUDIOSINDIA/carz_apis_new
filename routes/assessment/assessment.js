@@ -61,7 +61,7 @@ router.post('/add_assessment_type',function(req,res){
 
 router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{
-        Question_Type.find({},function(err,list){
+        Question_Type.find({_id:req.params.version_id},function(err,list){
             if(err){
                 return res.send({
                     state:"error",
