@@ -375,9 +375,9 @@ router.delete('/delete/business_type/:id',function(req,res){
         },500);
     }
 });
-router.get('/get_business_type_list/:id',function(req,res){
+router.get('/get_business_type_list/:id/:version_id/:franchisor_id',function(req,res){
     try{
-        FranchiseeTypeList.find({businessType_id:req.params._id},function(err,type){
+        FranchiseeTypeList.find({id:req.params._id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -388,7 +388,9 @@ router.get('/get_business_type_list/:id',function(req,res){
                 return res.send({
                     state:"success",
                     data:type
+                    
                 },200);
+                
             }
         })
     }
