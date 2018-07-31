@@ -110,7 +110,7 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
-router.get('/get_business_type/:version_id',function(req,res){
+router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
     try{
         FranchiseeType.find({version_id: req.params.version_id},function(err,type){
             if(err){
@@ -125,6 +125,19 @@ router.get('/get_business_type/:version_id',function(req,res){
                     data:type
                 },200);
             }
+            Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
+                console.log(version, '128');
+                if(err){
+                return res.send({
+                    state: "error",
+                    message: err
+                }, 500);
+                }
+                else {
+                    version_id = version._id;
+                    get_business_types(req, res, version_id);
+                }
+            })
         })
     }
     catch(err){
@@ -134,40 +147,57 @@ router.get('/get_business_type/:version_id',function(req,res){
         },500);
     }
 });
-
-router.get('/get_bussiness_type/:version_id/:franchisor_id',function(req,res){
-    try{
-        FranchiseeType.find({version_id: req.params.version_id},function(err,type){
-            if(err){
-                return res.send({
-                    state:"err",
-                    message:"Something went wrong.We are looking into it."
-                },500);
-            }
-            else{
-                Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
-                    console.log(version, '125');
-                    if(err){
-                    return res.send({
-                        state: "error",
-                        message: err
-                    }, 500);
-                    }
-                })
-                return res.send({
-                    state:"success",
-                    data:type
-                },200);
-            }
-        })
-    }
-    catch(err){
-        res.send({
-            state:"error",
-            message:err
-        },500);
-    }
-});
+//function for  business types
+function get_business_types(req, res, version_id) {
+    console.log(version_id, "139");
+    FranchiseeType.find({version_id: version_id}, function (err, ques) {
+        if(err){
+            return res.send({
+                state:"err",
+                message:"Something went wrong.We are looking into it."
+            },500);
+        }
+        else{
+            return res.send({
+                state:"success",
+                data:type
+            },200);
+        }
+    })
+  }
+// router.get('/get_bussiness_type/:version_id/:franchisor_id',function(req,res){
+//     try{
+//         FranchiseeType.find({version_id: req.params.version_id},function(err,type){
+//             if(err){
+//                 return res.send({
+//                     state:"err",
+//                     message:"Something went wrong.We are looking into it."
+//                 },500);
+//             }
+//             else{
+//                 Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
+//                     console.log(version, '125');
+//                     if(err){
+//                     return res.send({
+//                         state: "error",
+//                         message: err
+//                     }, 500);
+//                     }
+//                 })
+//                 return res.send({
+//                     state:"success",
+//                     data:type
+//                 },200);
+//             }
+//         })
+//     }
+//     catch(err){
+//         res.send({
+//             state:"error",
+//             message:err
+//         },500);
+//     }
+// });
 router.get('/get_business_types_list/:version_id',function(req,res){
     try{
         FranchiseeTypeList.find({version_id: req.params.version_id},function(err,type){
