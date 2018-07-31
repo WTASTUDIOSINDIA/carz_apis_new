@@ -135,7 +135,7 @@ router.get('/get_business_type/:version_id',function(req,res){
     }
 });
 
-router.get('/get_bussiness_type/:version_id/:franchisor_id/:franchisee_id',function(req,res){
+router.get('/get_bussiness_type/:version_id/:franchisor_id',function(req,res){
     try{
         FranchiseeType.find({version_id: req.params.version_id},function(err,type){
             if(err){
