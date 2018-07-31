@@ -268,8 +268,8 @@ router.post('/create_business_type',function(req,res){
             else{
                 var document_list_types = new FranchiseeTypeList();
                 document_list_types.businessType_id=req.body.businessType_id;
-                document_list.version_id = req.body.version_id;
-                document_list.franchisor_id = req.body.franchisor_id;
+                document_list_types.version_id = req.body.version_id;
+                document_list_types.franchisor_id = req.body.franchisor_id;
                 document_list_types.doc_name=req.body.doc_name;
                 document_list_types.doc_link="";
                 document_list_types.save(function(err,document_list_types){
