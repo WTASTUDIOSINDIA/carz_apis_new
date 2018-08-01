@@ -110,6 +110,33 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
+router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,res){
+    try{
+        var version_id = '';
+        FranchiseeType.find({franchisor_id: req.params.franchisor_id},function(err,type){
+            if(err){
+                return res.send({
+                    state:"err",
+                    message:"Something went wrong.We are looking into it."
+                },500);
+            }
+            else{
+
+                return res.send({
+                    state:"success",
+                    data:type
+                },200);
+            }
+
+        })
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:err
+        },500);
+    }
+});
 router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
     try{
         var version_id = '';
@@ -135,7 +162,7 @@ router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
                     data:type
                 },200);
             }
-          
+
         })
     }
     catch(err){
@@ -450,7 +477,7 @@ router.get('/get_business_type_list/:businessType_id/:version_id/:franchisor_id'
                 return res.send({
                     state:"success",
                     data:type
-                    
+
                 },200);
             }
         })
