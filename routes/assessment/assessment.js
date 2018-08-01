@@ -8,13 +8,14 @@ var Question_Type = mongoose.model('QuestionType');
 var Sections = mongoose.model('Sections');
 var Question = mongoose.model('Question');
 var Assessment = mongoose.model('Assessment');
+var Versions = mongoose.model('Versions');
 var Folder = mongoose.model('Folder');
 var Stages = mongoose.model('Stages');
 var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
     try{
-        Question_Type.findOne({'question_type_name':req.body.heading},function(err,questionType){
+        Question_Type.findOne({'question_type_name':req.body.question_type_name},function(err,questionType){
             if(err){
                 return res.send({
                     state:"error",
@@ -29,7 +30,10 @@ router.post('/add_assessment_type',function(req,res){
             }
             else{
                 var question_type = new Question_Type();
-                question_type.question_type_name = req.body.heading;
+                question_type.question_type_name = req.body.question_type_name;
+                question_type.description = req.body.description;
+                question_type.version_id = req.body.version_id;
+                question_type.franchisor_id = req.body.franchisor_id;
                 question_type.save(function(err,question_type){
                     if(err){
                         return res.send({
@@ -55,16 +59,16 @@ router.post('/add_assessment_type',function(req,res){
 	}
 });
 
-router.get('/question_types',function(req,res){
+router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{
-        Question_Type.find({},function(err,list){
+        Question_Type.find({version_id: req.params.version_id},function(err,list){
             if(err){
                 return res.send({
                     state:"error",
                     message:err
                 },500);
             }
-            if(list.length == 0){
+            if(!list){
                 return res.send({
                     state:"failure",
                     message:"There is no data"
@@ -107,7 +111,10 @@ router.post('/question_list',function(req,res){
                 question.options = req.body.options;
                 question.correct_answer = req.body.correct_answer;
                 question.question_type_id = req.body.question_type_id;
+                question.version_id = req.body.version_id;
+                question_franchisor_id = req.body.franchisor_id;
                 question.question_type = req.body.question_type;
+                question.question_section_id = req.body.question_section_id;
                 question.save(function(err,question){
                     if(err){
                         return res.send({
@@ -134,9 +141,9 @@ router.post('/question_list',function(req,res){
 	}
 });
 
-router.get('/get_question_list',function(req,res){
+router.get('/get_question_list/:question_section_id',function(req,res){
     try{
-        Question.find({},function(err,ques){
+        Question.find({question_section_id:req.params.question_section_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
@@ -526,6 +533,34 @@ router.delete('/delete_question_types',function(req,res){
                 res.send({
                     state:"success",
                     message:"Question Types deleted sucessfully",
+                },200);
+            }
+        })
+    }
+    catch(err){
+        return res.send({
+            state:"error",
+            message:err
+        });
+    }
+});
+//delete questions Types
+router.delete('/delete_question_type/:question_type_id',function(req,res){
+    try{
+        Question_Type.findByIdAndRemove({_id:req.params.question_type_id},function(err,ques){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!ques){
+                res.send({
+                    state:"failure",
+                    message:"Failed to delete"
+                },400);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Question type deleted sucessfully",
                 },200);
             }
         })

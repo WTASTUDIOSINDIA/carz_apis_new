@@ -163,6 +163,9 @@ var thirdPartyFileSchema =new mongoose.Schema({
 
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
+    "description": String,
+    "version_id": String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var BussinessTypeListSchema = new mongoose.Schema({
@@ -170,7 +173,9 @@ var BussinessTypeListSchema = new mongoose.Schema({
     "doc_name":String,
     "doc_status":{type:String, default:'Pending'},
     "doc_link":String,
-    "doc_type":{type:String,default:'docs'}
+    "doc_type":{type:String,default:'docs'},
+    "version_id": String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var KycSchema = new mongoose.Schema({
@@ -190,7 +195,10 @@ var ReasonSchema = new mongoose.Schema({
   });
 
 var QuestionTypeSchema = new mongoose.Schema({
-    'question_type_name':String
+    'question_type_name':String,
+    'description': String,
+    'version_id': String,
+    'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
 var InterviewQuestionSchema = new mongoose.Schema({
@@ -198,7 +206,10 @@ var InterviewQuestionSchema = new mongoose.Schema({
     'options':[{option:String,correct_answer:{type:Number,default:0}}],
     'correct_answer':String,
     'question_type_id':{type: Schema.Types.ObjectId, ref: 'QuestionType'},
-    'question_type':String
+    'question_type':String,
+    'version_id': String,
+    'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    'question_section_id': {type: Schema.Types.ObjectId, ref:'QuestionType'}
 });
 
 var AssessmentSchema = new mongoose.Schema({
