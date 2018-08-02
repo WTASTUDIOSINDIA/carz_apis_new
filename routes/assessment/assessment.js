@@ -59,6 +59,7 @@ router.post('/add_assessment_type',function(req,res){
 	}
 });
 
+//in settings to get question types (sections)
 router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{
         Question_Type.find({version_id: req.params.version_id},function(err,list){
@@ -89,6 +90,41 @@ router.get('/question_types/:version_id/:franchisor_id',function(req,res){
 		},500);
 	}
 });
+
+//Sections to get in Frontend
+router.get('/question_types_by_version/:franchisor_id',function(req,res){
+    try{
+      Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'f_assessments', default: true}, function(err, version){
+        Question_Type.find({version_id: version._id},function(err,list){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(!list){
+                return res.send({
+                    state:"failure",
+                    message:"There is no data"
+                },200);
+            }
+            else{
+                return res.send({
+                    state:"success",
+                    data:list
+                },200);
+            }
+        });
+      });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
 
 router.post('/question_list',function(req,res){
     try{
