@@ -202,7 +202,50 @@ module.exports = function(passport){
             }
         })
     );
-
+// update franchisor
+// passport.put('franchisor-update', new LocalStrategy({
+//     usernameField : 'user_mail',
+//     passwordField : 'user_pass',
+//     passReqToCallback : true // allows us to pass back the entire request to the callback
+// },
+// function(req, username, password, done) {
+//   console.log("Hello");
+//     //var email = req.body.user_mail;
+//     // find a user in mongo with provided username
+//     try{
+//         Franchisor.findOne({ '_id':id }, function(err, franchisor) {
+//             // In case of any error, return using the done method
+//             if (err){
+//                 return done(err, { message: 'Error in SignUp' });
+//             }
+          
+//             // if there is no user, create the user
+//             if (franchisor) {
+//                 var franchisor = new Franchisor();
+//                 // if(req.body.user_mail=="admin@carz.com"){
+//                 //     franchisor.user_role = req.body;
+//                 // }
+//                 franchisor.user_mail = username;
+//                 franchisor.user_pass = createHash(password);
+//                 franchisor.user_name = req.body.user_name;
+//                 franchisor.save(function(err,franchisor){
+//                     return done(null, franchisor);
+//                 })
+//             }
+//               // already exists
+//               if (franchisor) {
+//                 return done(null, false, { message: 'Failed to update user details' });
+//             }
+//         });
+//     }
+//     catch(err){
+//         res.send({
+//             state:"error",
+//             message:"Something went wrong"
+//         });
+//     }
+// })
+// )
     var isValidPassword = function(franchisor, password){
         return bCrypt.compareSync(password, franchisor.user_pass);
     };

@@ -63,6 +63,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment = new EmployeeAssessmentType();
                 assessment.assessment_type_name = req.body.assessment_type_name;
                 assessment.franchisor_id = req.body.franchisor_id;
+                assessment.version_id = req.body.version_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
@@ -133,9 +134,9 @@ router.put('/update_assessment_type', function (req, res) {
     }
 })
 // TO get assessment type
-router.get('/get_assessments_type_name/:franchisor_id', function (req, res) {
+router.get('/get_assessments_type_name/:version_id', function (req, res) {
     try {
-        EmployeeAssessmentType.find({ franchisor_id: req.params.franchisor_id }, function (err, assessments) {
+        EmployeeAssessmentType.find({ version_id: req.params.version_id }, function (err, assessments) {
             if (err) {
                 return res.send(500, err);
             }

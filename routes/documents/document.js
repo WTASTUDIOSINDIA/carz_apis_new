@@ -112,7 +112,6 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
 });
 router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
     try{
-        var version_id = '';
         FranchiseeType.find({version_id: req.params.version_id},function(err,type){
             if(err){
                 return res.send({
@@ -122,7 +121,7 @@ router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
             }
             else{
                 Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
-                    console.log(version, '128');
+                    console.log(version, '124');
                     if(err){
                     return res.send({
                         state: "error",
