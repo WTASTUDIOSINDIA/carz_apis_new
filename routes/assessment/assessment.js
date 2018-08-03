@@ -188,7 +188,7 @@ router.post('/question_list',function(req,res){
 
 router.get('/get_question_list/:question_section_id',function(req,res){
     try{
-        Question.find({question_section_id:req.params.question_section_id},function(err,ques){
+        Question.find({question_section_id: req.params.question_section_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
