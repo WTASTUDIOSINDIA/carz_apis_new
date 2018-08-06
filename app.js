@@ -17,6 +17,7 @@ require('./models/settings/franchiseeAssessment');
 require('./models/settings/employeeAssessment');
 require('./models/activity-tracker/activity-tracker');
 require('./models/versions/versions');
+require('./models/user_management/user_management');
 var franchisee = require('./routes/franchisees/franchisee');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var assessment = require('./routes/assessment/assessment');
@@ -32,6 +33,7 @@ var discussion = require('./routes/discussion/discussion');
 var settings = require('./routes/settings/franchiseeAssessment');
 var settings = require('./routes/settings/employeeAssessment');
 var versions = require('./routes/versions/versions');
+var user_management = require('./routes/user_management/user_management');
 
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
@@ -171,6 +173,7 @@ app.use('/marketing', marketing);
 app.use('/discussion', discussion);
 app.use('/settings',settings);
 app.use('/versions',versions);
+app.use('/usermanagement', user_management);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {

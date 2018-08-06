@@ -16,7 +16,9 @@ var employeeAssessmentSchema = new mongoose.Schema({
     'employee_assessment_file_attachment_file_name': String,
     'employee_assessment_file_attachment_file_type': String,
     'question_duration': String,
-    'question_percentage': String
+    'question_percentage': String,
+    'version_id': String,
+    'franchisor_id':{type: Schema.Types.ObjectId, ref: 'Franchisor'}
 })
 
 var employeeAssementSubmittedSchema = new mongoose.Schema({
@@ -29,11 +31,14 @@ var employeeAssementSubmittedSchema = new mongoose.Schema({
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     // 'employee_assessment_status': { type: String, default: 'Pending' },
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
+    'version_id': String,
+    'franchisor_id': {type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
 var employeeAssessmentTypeSchema = new mongoose.Schema({
     'assessment_type_name': String,
-    'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
+    'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    'version_id': String
 });
 
 var employeeAssessmentTypeOfFranchiseeSchema = new mongoose.Schema({
