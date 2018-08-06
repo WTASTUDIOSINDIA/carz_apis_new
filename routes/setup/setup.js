@@ -144,14 +144,13 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
       if (err) {
         return res.send(500, err);
       }
-      if (!departments) {
+      if (departments == 0) {
         res.send({
           message: "Departments are not found",
           state: "failure",
-          partner_list: []
         }, 201);
       }
-      else {
+      if(departments > 0) {
         res.send({
           state: "success",
           data: departments
@@ -818,6 +817,7 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
   })
 })
 
+// To create versions by department
 router.post('/create_version_by_department_id/:department_id', function(req, res){
   try {
     Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type, 
@@ -847,12 +847,80 @@ router.post('/create_version_by_department_id/:department_id', function(req, res
           if(version){
             return res.send({
                 state: "success",
-                message: "Version created succssfully!"
+                message: "Version created successfully!"
             }, 200);
           }
         })
 
       }
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
+
+// get versions by department id
+router.get('/get_versions_by_department_id/:department_id', function (req, res) {
+  Versions.find({'department_id': req.params.department_id}, function (err, versions) {
+    if (err) {
+      return res.send(err);
+    }
+    if (!versions) {
+      return res.send({
+        status: 'failure',
+        message: "Versions not found"
+      },400);
+    }
+    if (versions.length > 0) {
+      return res.send({
+        status: 'success',
+        data: versions
+      },200);
+    }
+  })
+})
+
+// edit version
+router.put('/edit_version', function(req, res){
+  try {
+    Versions.findById({_id: req.body._id}, function(err, version){
+      if(err){
+        return res.send({
+            state: "failure",
+            message: err
+        }, 500);
+      }
+      if(!version){
+        return res.send({
+            state: "failure",
+            message: "Incorrect Version ID!"
+        }, 200);
+      }
+      if(version){
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.default = req.body.default;
+        version.save(function(err, version){
+          if(err){
+            return res.send({
+                state: "failure",
+                message: err
+            }, 500);
+          }
+          if(version){
+            return res.send({
+                state: "success",
+                message: "Version created succssfully!"
+            }, 200);
+          }
+        })
+      }
+
     })
   } catch (err){
     return res.send({
