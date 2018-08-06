@@ -113,7 +113,7 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
 router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,res){
     try{
         var version_id = '';
-        FranchiseeType.find({franchisor_id: req.params.franchisor_id},function(err,type){
+        FranchiseeType.find({},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
