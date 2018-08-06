@@ -15,5 +15,11 @@ var userManagementSchema = new mongoose.Schema({
   "user_file_type": String,
 })
 
+var RoleSchema = new mongoose.Schema({
+  "user_role": String,
+  "user_status": {type: String, default: 'active'}
+})
+
 
 mongoose.model('UserManagement', userManagementSchema);
+mongoose.model('UserRole', RoleSchema);

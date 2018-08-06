@@ -166,13 +166,13 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
   }
 });
 //To delete department by id
-router.delete('/delete_department/:id', function(req,res){
+router.delete('/delete_department/:franchisor_id/:department_id', function(req,res){
   try{
-    SetupDepartment.remove({_id: req.params._id}, function(err, department){
+    SetupDepartment.findByIdAndRemove({_id: req.params.franchisor_id, _id:req.params.department_id}, function(err, departments){
       if(err){
         return res.send(500, err);
       }
-      if(!department){
+      if(!departments){
         res.send({
           state:'failure',
           message:'No departments found'
