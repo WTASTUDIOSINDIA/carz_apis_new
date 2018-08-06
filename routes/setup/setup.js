@@ -175,7 +175,7 @@ router.get('/get_setup_department_by_id/:id', function (req, res) {
       }
       if (!departments) {
         res.send({
-          message: "Departments are not found",
+          message: "Departments not found",
           state: "failure",
         }, 201);
       }
@@ -818,7 +818,7 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
 })
 
 // To create versions by department
-router.post('/create_version_by_department_id/:department_id', function(req, res){
+router.post('/create_version_by_department_id', function(req, res){
   try {
     Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type, 
     'version_name': req.body.version_name, 'department_id': req.body.department_id
@@ -841,6 +841,7 @@ router.post('/create_version_by_department_id/:department_id', function(req, res
         version.version_description = req.body.version_description;
         version.version_type = req.body.version_type;
         version.franchisor_id = req.body.franchisor_id;
+        version.department_id = req.body.department_id;
         version.released_on = new Date();
         version.default = req.body.default;
         version.save(function(err, version){
