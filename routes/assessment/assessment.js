@@ -76,6 +76,15 @@ router.get('/question_types/:version_id/:franchisor_id',function(req,res){
                 },200);
             }
             else{
+                Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
+                    console.log(version, '128');
+                    if(err){
+                    return res.send({
+                        state: "error",
+                        message: err
+                    }, 500);
+                    }
+                })
                 return res.send({
                     state:"success",
                     data:list
@@ -179,7 +188,7 @@ router.post('/question_list',function(req,res){
 
 router.get('/get_question_list/:question_section_id',function(req,res){
     try{
-        Question.find({question_section_id:req.params.question_section_id},function(err,ques){
+        Question.find({question_section_id: req.params.question_section_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
