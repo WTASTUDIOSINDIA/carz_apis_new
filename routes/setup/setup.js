@@ -178,7 +178,6 @@ router.get('/get_setup_department_by_id/:id', function (req, res) {
         res.send({
           message: "Departments are not found",
           state: "failure",
-          partner_list: []
         }, 201);
       }
       else {
