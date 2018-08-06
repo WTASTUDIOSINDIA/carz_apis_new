@@ -10,6 +10,7 @@ var SetupDepartment = mongoose.model('SetupDepartment');
 var UserAnswersOfTask = mongoose.model('UserAnswersOfTask');
 var UserSpecificChecklist = mongoose.model('UserSpecificChecklist');
 var SetupChecklist = mongoose.model('SetupChecklist');
+var Versions = mongoose.model('Versions');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -140,6 +141,36 @@ router.post('/create_setup_checklist', function (req, res) {
 router.get('/get_setup_departments/:franchisor_id', function (req, res) {
   try {
     SetupDepartment.find({ franchisor_id: req.params.franchisor_id }, function (err, departments) {
+      if (err) {
+        return res.send(500, err);
+      }
+      if (!departments) {
+        res.send({
+          message: "Departments are not found",
+          state: "failure",
+          partner_list: []
+        }, 201);
+      }
+      else {
+        res.send({
+          state: "success",
+          data: departments
+        }, 200);
+      }
+    })
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+});
+
+// To get department by id
+router.get('/get_setup_department_by_id/:id', function (req, res) {
+  try {
+    SetupDepartment.find({ _id: req.params.id }, function (err, departments) {
       if (err) {
         return res.send(500, err);
       }
@@ -788,4 +819,47 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
   })
 })
 
+router.post('/create_version_by_department_id/:department_id', function(req, res){
+  try {
+    Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type, 
+    'version_name': req.body.version_name, 'department_id': req.body.department_id
+    }, function(err, version){
+      if(err){
+        return res.send({
+            state: "failure",
+            message: err
+        }, 500);
+      }
+      if(version){
+        return res.send({
+            state: "failure",
+            message: "This version already exists!"
+        }, 200);
+      }
+      else {
+        var version = new Versions();
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.released_on = new Date();
+        version.default = req.body.default;
+        version.save(function(err, version){
+          if(version){
+            return res.send({
+                state: "success",
+                message: "Version created succssfully!"
+            }, 200);
+          }
+        })
+
+      }
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
 module.exports = router;
