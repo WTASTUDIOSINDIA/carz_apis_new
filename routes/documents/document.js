@@ -263,7 +263,6 @@ router.post('/set_business_type',function(req,res){
             }
             else{
                 var document_list = new FranchiseeType();
-                document_list.version_id = req.body.version_id;
                 document_list.description = req.body.description;
                 document_list.franchisor_id = req.body.franchisor_id;
                 document_list.bussiness_type_name=req.body.bussiness_type_name;
