@@ -144,14 +144,13 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
       if (err) {
         return res.send(500, err);
       }
-      if (!departments) {
+      if (departments == 0) {
         res.send({
           message: "Departments are not found",
           state: "failure",
-          partner_list: []
         }, 201);
       }
-      else {
+      if(departments > 0) {
         res.send({
           state: "success",
           data: departments
