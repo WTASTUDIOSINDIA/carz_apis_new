@@ -37,7 +37,9 @@ var setupChecklistSchema = new mongoose.Schema({
   setup_checklist_name_EN: String,
 
   created_at: String,
-  tasks_length: {type:Number,default:0}
+  tasks_length: {type:Number,default:0},
+  version_id: String,
+  franchisor_id: String
 
 })
  var userSpecificChecklistSchema = new mongoose.Schema({

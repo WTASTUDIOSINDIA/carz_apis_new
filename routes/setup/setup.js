@@ -84,7 +84,7 @@ router.post('/create_setup_department', function (req, res) {
 //To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {
-    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
+    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id, version_id:req.body.version_id }, function (err, checklist) {
       if (err) {
         res.send({
           state: "failure",
@@ -105,6 +105,8 @@ router.post('/create_setup_checklist', function (req, res) {
         checklist.visible_to = req.body.visible_to;
         checklist.created_at = new Date();
         checklist.setup_department_id = req.body.setup_department_id;
+        checklist.version_id = req.body.version_id;
+        checklist.franchisor_id = req.body.franchisor_id;
         checklist.save(function (err, checklist) {
           if (err) {
             res.send({
@@ -928,5 +930,29 @@ router.put('/edit_version', function(req, res){
       message: err
     }, 500);
   }
+})
+
+// delete version by department id
+router.delete('/delete_version_by_department_id/:department_id', function (req, res) {
+  Versions.findByIdAndRemove({'department_id': req.params.department_id}, function (err, versions) {
+    if(err){
+      return res.send({
+        state:'error',
+        message:'Something went wrong'
+      },500)
+    }
+    if(!versions){
+      res.send({
+        state:'failure',
+        message:'No version found'
+      },400)
+    }
+    if(versions){
+      res.send({
+        state:'success',
+        message:'Version  deleted!'
+      },200)
+    }
+  })
 })
 module.exports = router;
