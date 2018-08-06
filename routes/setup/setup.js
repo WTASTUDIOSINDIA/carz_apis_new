@@ -825,7 +825,7 @@ router.post('/create_version_by_department_id', function(req, res){
     }, function(err, version){
       if(err){
         return res.send({
-            state: "failure",
+            state: "error",
             message: err
         }, 500);
       }
@@ -852,7 +852,6 @@ router.post('/create_version_by_department_id', function(req, res){
             }, 200);
           }
         })
-
       }
     })
   } catch (err){
@@ -869,7 +868,7 @@ router.get('/get_versions_by_department_id/:department_id', function (req, res) 
     if (err) {
       return res.send(err);
     }
-    if (!versions) {
+    if (versions.length == 0) {
       return res.send({
         status: 'failure',
         message: "Versions not found"
@@ -890,7 +889,7 @@ router.put('/edit_version', function(req, res){
     Versions.findById({_id: req.body._id}, function(err, version){
       if(err){
         return res.send({
-            state: "failure",
+            state: "error",
             message: err
         }, 500);
       }
