@@ -225,9 +225,9 @@ router.delete('/delete_department/:franchisor_id/:department_id', function(req,r
   }
 })
 //To get setup checklists by department id
-router.get('/get_setup_checklists/:department_id', function (req, res) {
+router.get('/get_setup_checklists/:version_id', function (req, res) {
   try {
-    SetupChecklist.find({ setup_department_id: req.params.department_id }, function (err, checklists) {
+    SetupChecklist.find({ version_id: req.params.version_id }, function (err, checklists) {
       if (err) {
         return res.send(500, err);
       }
@@ -267,7 +267,6 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
         res.send({
           message: "Checklists  not found",
           state: "failure",
-          partner_list: []
         }, 201);
       }
       else {
@@ -872,13 +871,13 @@ router.get('/get_versions_by_department_id/:department_id', function (req, res) 
     }
     if (versions.length == 0) {
       return res.send({
-        status: 'failure',
+        state: 'failure',
         message: "Versions not found"
       },400);
     }
     if (versions.length > 0) {
       return res.send({
-        status: 'success',
+        state: 'success',
         data: versions
       },200);
     }
