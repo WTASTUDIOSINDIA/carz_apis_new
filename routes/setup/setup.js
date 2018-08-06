@@ -165,6 +165,36 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
     });
   }
 });
+
+// To get department by id
+router.get('/get_setup_department_by_id/:id', function (req, res) {
+  try {
+    SetupDepartment.find({ _id: req.params.id }, function (err, departments) {
+      if (err) {
+        return res.send(500, err);
+      }
+      if (!departments) {
+        res.send({
+          message: "Departments are not found",
+          state: "failure",
+          partner_list: []
+        }, 201);
+      }
+      else {
+        res.send({
+          state: "success",
+          data: departments
+        }, 200);
+      }
+    })
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+});
 //To delete department by id
 router.delete('/delete_department/:franchisor_id/:department_id', function(req,res){
   try{
