@@ -48,7 +48,8 @@ var franchiseeSchema = new mongoose.Schema({
     "partner_occupation_others": String,
     "archieve_franchisee": {type:Boolean, default:false},
     "sub_franchisee_count":{type: Number, default:0},
-    "show_kt_popup_first_time": {type: Boolean, default: true}
+    "show_kt_popup_first_time": {type: Boolean, default: true},
+    "nda_uploaded":{type:String, default:'Pending'}
 });
 
 var librarySchema = new mongoose.Schema({
