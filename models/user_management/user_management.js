@@ -17,7 +17,8 @@ var userManagementSchema = new mongoose.Schema({
 
 var RoleSchema = new mongoose.Schema({
   "user_role": String,
-  "user_status": {type: String, default: 'active'}
+  "user_status": {type: String, default: 'active'},
+  "franchisor_id": String
 })
 
 

@@ -62,6 +62,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user.user_role = userCreateForm.user_role;
           user.user_status = userCreateForm.user_status;
           user.user_phone_number = userCreateForm.user_phone_number;
+          user.franchisor_id= userCreateForm.franchisor_id;
           if (req.file) {
             user.user_file_link = req.file.location;
             user.user_file_name = req.file.key;
@@ -96,7 +97,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
   router.put('/update_user', upload.single('user_img'), function (req, res) {
     var userEditForm = JSON.parse(req.body.user);
     try {
-      Admin.findOne({ user_id:userEditForm.id }, function (err, user) {
+      Admin.findOne({ user_id:userEditForm._id }, function (err, user) {
         if (err) {
           res.send({
             state: "error",
@@ -109,6 +110,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user.user_role = userEditForm.user_role;
           user.user_status = userEditForm.user_status;
           user.user_phone_number = userEditForm.user_phone_number;
+          user.franchisor_id = userEditForm.franchisor_id;
           if (req.file) {
             user.franchisor_user_file_link = req.file.location;
             user.franchisor_user_file_name = req.file.key;
@@ -243,16 +245,17 @@ router.post('/create_role', function (req, res){
           message:'Something went wrong. We are looking into it.'
         },500)
       }
-      if(role){
-        req.send({
-          state: 'failure',
-          message:'Role exists'
-        },400)
-      }
+      // if(role){
+      //   res.send({
+      //     state: 'failure',
+      //     message:'Role exists'
+      //   },400)
+      // }
       else{
         role = new UserRole(),
         role.user_role = req.body.user_role,
-        role.user_status = req.body.user_status
+        role.user_status = req.body.user_status,
+        role.franchisor_id = req.body.franchisor_id
         role.save(function (err, role) {
           if (err) {
             res.send({
@@ -279,49 +282,48 @@ router.post('/create_role', function (req, res){
 })
 
 // To edit role
-router.put('/update_role', function( res, req){
-  try{
-    UserRole.find({_id:req.body.id}, function (err, role){
-      if(err){
-        res.send({
-          state:'error',
-          message:'Something went wrong. We are looking into it.'
-        },500)
+router.put('/update_role', function(req, res) {
+  try {
+    UserRole.findOne({_id: req.body._id}, function (err,role) {
+      if(err) {
+        return res.send({
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
       }
       if(role){
         role.user_role = req.body.user_role,
         role.user_status = req.body.user_status,
-        user.save(function (err, user) {
-          if (err) {
+        role.save(function (err, role){
+          if(err){
             res.send({
-              state: "failure",
-              message: "Something went wrong."
-            }, 500);
+              state:"err",
+              message:"Something went wrong."
+            },500);
           }
-          else {
+          else{
             res.send({
-              state: "success",
-              message: "Role updated"
-            }, 200);
+              state:"success",
+              message:"Role updated."
+            },200);
           }
         });
-        
-      if (!role) {
-          res.send({
-            state: "failure",
-            message: "User not found."
-          }, 400);
-        }
+      }
+      if(!role){
+        res.send({
+          state:"failure",
+          message:"Failed to update."
+        },400);
       }
     })
   }
   catch(err){
-    res.send({
-      state:'error',
+    return res.send({
+      state:"error",
       message:err
-    })
+    });
   }
-})
+});
 
 // to get roles
 router.get('/get_roles', function(req, res){
@@ -348,7 +350,7 @@ router.get('/get_roles', function(req, res){
     })
   }
   catch(err){
-    res.send({
+   return res.send({
       state:'error',
       message:err
     })
