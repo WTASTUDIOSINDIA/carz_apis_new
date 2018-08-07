@@ -324,7 +324,7 @@ router.put('/update_role', function( res, req){
 })
 
 // to get roles
-router.get('/get_role', function(req, res){
+router.get('/get_roles', function(req, res){
   try{
     UserRole.find({}, function(err, role){
       if(err){
