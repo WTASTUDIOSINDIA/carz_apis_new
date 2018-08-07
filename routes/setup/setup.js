@@ -224,65 +224,37 @@ router.delete('/delete_department/:franchisor_id/:department_id', function(req,r
     })
   }
 })
-//To get setup checklists by version id
-router.get('/get_setup_checklists/:version_id', function (req, res) {
-  try {
-    SetupChecklist.find({ version_id: req.params.version_id }, function (err, checklists) {
-      if (err) {
-        return res.send(500, err);
-      }
-      if (checklists.length == 0) {
-        res.send({
-          message: "Checklists are not found",
-          state: "failure",
-          data: []
-        }, 201);
-      }
-      else {
-        res.send({
-          state: "success",
-          data: checklists
-        }, 200);
-      }
-    })
+// To get checklist by id
+router.get('/get_setup_checklists/:checklist_id', function (req,res){
+  try{
+    SetupChecklist.findById({_id:req.params.checklist_id}, function (err, checklist){
+          if(err){
+              return res.send({
+                  state:'error',
+                  message:err
+              },500);
+          }
+          if(!checklist){
+              return res.send({
+                  state:'failure',
+                  message:'No checklist found'
+              },200)
+          }
+          if(checklist){
+              return res.send({
+                  state:'success',
+                  data:checklist
+              })
+          }
+      })
   }
-  catch (err) {
-    return res.send({
-      state: "error",
-      message: err
-    });
+  catch(err){
+      return res.send({
+          state:'error',
+          message:err
+      })
   }
-});
-
-//To get setup checklists by id
-router.get('/get_setup_checklist_by_id/:checklist_id', function (req, res) {
-  try {
-    SetupChecklist.find({ 'checklist_id': req.params.checklist_id }, function (err, checklists) {
-      if (err) {
-        return res.send(500, err);
-      }
-      if (checklists.length == 0) {
-        res.send({
-          message: "Checklists are not found",
-          state: "failure",
-          data: []
-        }, 201);
-      }
-      else {
-        res.send({
-          state: "success",
-          data: checklists
-        }, 200);
-      }
-    })
-  }
-  catch (err) {
-    return res.send({
-      state: "error",
-      message: err
-    });
-  }
-});
+})
 
 
 //To delete setup checklist by checklist id
