@@ -784,7 +784,6 @@ function update_franchisee(req, res, franchisee_id,val,stage){
         else{
             franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
             franchiees.first_lakh_payment = 'Submitted';
-            franchisees.nda_uploaded = 'NDA file uploaded proceed to Payment'
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({
@@ -915,7 +914,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                     franchiees.second_lakh_payment = 'Submitted';
                                     franchiees.save(function(err,franchisee){
                                         if(err){
-                                            res.send({
+                                            res.send({  
                                                 status:500,
                                                 state:"err",
                                                 message:"Something went wrong."
@@ -933,6 +932,69 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                 }
                             })
                         }
+                        // agreement file status
+                        if(stage.stage_agreenent.final_agreement_file){
+                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                                if(err){
+                                    return res.send({
+                                        state:"err",
+                                        message:"Something went wrong."
+                                    },500);
+                                }
+                                else{
+                                    franchiees.agreement_file_uploaded = 'Agreement file uploaded proceed to Setup.'
+                                    franchiees.save(function(err,franchisee){
+                                        if(err){
+                                            res.send({  
+                                                status:500,
+                                                state:"err",
+                                                message:"Something went wrong."
+                                            },500);
+                                        }
+                                        else{
+                                            return res.send({
+                                                state:"success",
+                                                message:"Stage Updated",
+                                                data: stage,
+                                                franchiees:franchiees
+                                            },200);
+                                        }
+                                    });
+                                }
+                            })
+                        }
+                        // nda file status
+                        if(stage.stage_discussion.nda_file){
+                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                                if(err){
+                                    return res.send({
+                                        state:"err",
+                                        message:"Something went wrong."
+                                    },500);
+                                }
+                                else{
+                                    franchiees.nda_uploaded = 'NDA file uploaded proceed to Payment.'
+                                    franchiees.save(function(err,franchisee){
+                                        if(err){
+                                            res.send({  
+                                                status:500,
+                                                state:"err",
+                                                message:"Something went wrong."
+                                            },500);
+                                        }
+                                        else{
+                                            return res.send({
+                                                state:"success",
+                                                message:"Stage Updated",
+                                                data: stage,
+                                                franchiees:franchiees
+                                            },200);
+                                        }
+                                    });
+                                }
+                            })
+                        }
+                        
                         else{
                             // console.log('activity', activity_object);
                             // var activity_object = {
@@ -1538,7 +1600,7 @@ console.log(franchisee);
         }
     });
 
-// To approve or decline
+// To archive
 router.put('/archieve_franchisee',function(req,res){
     try{
         // Franchisee.findById({_id:req.body._id},function(err,franchisee){
