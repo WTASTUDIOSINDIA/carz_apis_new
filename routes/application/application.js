@@ -948,7 +948,7 @@ router.put('/update_order', function (req, res) {
 // To approve or decline
 router.put('/application_form_status',function(req,res){
   try{
-      ApplicationSubmitted.findById({_id:req.body.id},function(err,application){
+      ApplicationSubmitted.findById({franchisee_Id:req.body.franchisee_Id},function(err,application){
           if(err){
               return res.send(500, err);
           }   if(application) {
