@@ -256,6 +256,27 @@ router.get('/get_setup_checklists/:checklist_id', function (req,res){
   }
 })
 
+// To get setup checklist by version id
+router.get('/get_setup_checklist_version_id/:version_id', function (req, res) {
+  SetupChecklist.find({'version_id': req.params.version_id}, function (err, checklist) {
+    if (err) {
+      return res.send(err);
+    }
+    if (checklist.length == 0) {
+      return res.send({
+        state: 'failure',
+        message: "Versions not found"
+      },400);
+    }
+    if (checklist.length > 0) {
+      return res.send({
+        state: 'success',
+        data: checklist
+      },200);
+    }
+  })
+})
+
 
 //To delete setup checklist by checklist id
 router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
