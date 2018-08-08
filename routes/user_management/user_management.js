@@ -95,9 +95,10 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
 
 // To update user
   router.put('/update_user', upload.single('user_img'), function (req, res) {
+    console.log(userEditForm);
     var userEditForm = JSON.parse(req.body.user);
     try {
-      Admin.findOne({ user_id:userEditForm._id }, function (err, user) {
+      Admin.findOne({ _id:userEditForm._id }, function (err, user) {
         if (err) {
           res.send({
             state: "error",
@@ -116,6 +117,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
             user.franchisor_user_file_name = req.file.key;
             user.franchisor_user_file_type = req.file.contentType;
           }
+          console.log(user)
           user.save(function (err, user) {
             if (err) {
               res.send({

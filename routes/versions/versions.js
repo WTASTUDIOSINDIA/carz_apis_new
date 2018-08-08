@@ -26,6 +26,7 @@ router.post('/create_version', function(req, res){
         version.version_description = req.body.version_description;
         version.version_type = req.body.version_type;
         version.franchisor_id = req.body.franchisor_id;
+        version.bussiness_type_id = req.body.bussiness_type_id;
         version.released_on = new Date();
         version.default = req.body.default;
         version.save(function(err, version){
@@ -49,6 +50,31 @@ router.post('/create_version', function(req, res){
 router.get('/get_versions/:version_type/:franchisor_id', function(req, res){
   try {
     Versions.find({version_type: req.params.version_type, franchisor_id: req.params.franchisor_id}, function(err, versions){
+      if(err){
+        return res.send({
+            state: "failure",
+            message: err
+        }, 500);
+      }
+      if(versions){
+        return res.send({
+            state: "success",
+            data: versions
+        }, 200);
+      }
+
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
+//to get the versions of KYC files based on businesss type id and version type
+router.get('/get_versions_of_kyc_files/:bussiness_type_id/:franchisor_id', function(req, res){
+  try {
+    Versions.find({bussiness_type_id: req.params.bussiness_type_id, franchisor_id: req.params.franchisor_id}, function(err, versions){
       if(err){
         return res.send({
             state: "failure",
