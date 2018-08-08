@@ -945,6 +945,48 @@ router.put('/update_order', function (req, res) {
 
 
 
+// To approve or decline
+router.put('/application_form_status',function(req,res){
+  try{
+      ApplicationSubmitted.findById({_id:req.body._id},function(err,application){
+          if(err){
+              return res.send(500, err);
+          }   if(application) {
+              console.log('application',application);
+              application.status=req.body.status;
+              console.log('status',req.body.status);
+              application.save(function(err,application){
+                  if (err) {
+                      res.send({
+                          state: "err",
+                          message: "Something went wrong."
+                      }, 500);
+                  }
+                  else {
+                   
+                      res.send({
+                          state: "success",
+                          message: "Application updated.",
+                          data: application
+                      }, 200);
+                  }
+              });
+          }
+                  if (!application) {
+                      res.send({
+                          state: "failure",
+                          message: "Failed."
+                      }, 400);
+                  }
+      });
+  }
+  catch(err){
+      res.send({
+          state:"error",
+          message:"Something went wrong"
+      },500);
+  }
+});
 
 
 module.exports = router;
