@@ -784,6 +784,7 @@ function update_franchisee(req, res, franchisee_id,val,stage){
         else{
             franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
             franchiees.first_lakh_payment = 'Submitted';
+            franchisees.nda_uploaded = 'NDA file uploaded proceed to Payment'
             franchiees.save(function(err,franchisee){
                 if(err){
                     res.send({

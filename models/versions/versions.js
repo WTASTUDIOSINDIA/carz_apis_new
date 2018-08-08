@@ -10,8 +10,9 @@ var versionsSchema = new mongoose.Schema({
   "released_on": Date,
   "version_type": { type: String,  enum: ['application_form', 'kyc_docs', 'f_assessments', 'e_assessments', 'checklists']},
   "franchisor_id": String,
-  "bussiness_type_id": String,
-  "default": {type: Boolean, default: false}
+  "default": {type: Boolean, default: false},
+  "department_id": String,
+  "bussiness_type_id": String
 })
 
 

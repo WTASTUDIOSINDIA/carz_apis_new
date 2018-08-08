@@ -3,6 +3,8 @@ var router = express.Router();
 var multer = require('multer');
 var mongoose = require('mongoose');
 var UserManagement = mongoose.model('UserManagement');
+var UserRole = mongoose.model('UserRole');
+var Admin = mongoose.model('Admin');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -40,10 +42,10 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
     var userCreateForm = JSON.parse(req.body.user);
  
     // try {
-      UserManagement.findOne({ franchisor_id:userCreateForm.franchisor_id }, function (err, user) {
+      Admin.findOne({ franchisor_id:userCreateForm.franchisor_id }, function (err, user) {
         if (err) {
           res.send({
-            state: "failure",
+            state: "error",
             message: "Something went wrong."
           }, 500);
         }
@@ -54,11 +56,13 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
         //   }, 400);
         // }
         else {
-          user = new UserManagement();
+          user = new Admin();
           user.user_name = userCreateForm.user_name;
-          user.user_email = userCreateForm.user_email;
+          user.user_mail = userCreateForm.user_mail;
           user.user_role = userCreateForm.user_role;
           user.user_status = userCreateForm.user_status;
+          user.user_phone_number = userCreateForm.user_phone_number;
+          user.franchisor_id= userCreateForm.franchisor_id;
           if (req.file) {
             user.user_file_link = req.file.location;
             user.user_file_name = req.file.key;
@@ -91,23 +95,29 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
 
 // To update user
   router.put('/update_user', upload.single('user_img'), function (req, res) {
+    console.log(userEditForm);
     var userEditForm = JSON.parse(req.body.user);
     try {
-      UserManagement.findOne({ user_id:userEditForm.id }, function (err, user) {
+      Admin.findOne({ _id:userEditForm._id }, function (err, user) {
         if (err) {
           res.send({
-            state: "failure",
+            state: "error",
             message: "Something went wrong. We are looking into it."
           }, 500);
         }
         if (user) {
           user.user_name = userEditForm.user_name;
+          user.user_mail = userEditForm.user_mail;
+          user.user_role = userEditForm.user_role;
           user.user_status = userEditForm.user_status;
+          user.user_phone_number = userEditForm.user_phone_number;
+          user.franchisor_id = userEditForm.franchisor_id;
           if (req.file) {
             user.franchisor_user_file_link = req.file.location;
             user.franchisor_user_file_name = req.file.key;
             user.franchisor_user_file_type = req.file.contentType;
           }
+          console.log(user)
           user.save(function (err, user) {
             if (err) {
               res.send({
@@ -143,7 +153,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
 //   To get user
 router.get('/get_user', function (req,res){
     try{
-        UserManagement.find({}, function (err, user){
+      Admin.find({}, function (err, user){
             if(err){
                 return res.send({
                     state:'error',
@@ -171,10 +181,10 @@ router.get('/get_user', function (req,res){
         })
     }
 })
-
+// To get user by id
 router.get('/get_user_by_id/:id', function (req,res){
   try{
-      UserManagement.findById({_id:req.params.id}, function (err, user){
+    Admin.findById({_id:req.params.id}, function (err, user){
           if(err){
               return res.send({
                   state:'error',
@@ -201,6 +211,200 @@ router.get('/get_user_by_id/:id', function (req,res){
           message:err
       })
   }
+})
+
+// To delete users by id
+router.delete('/delete_user_by_id/:id', function (res, req){
+  Admin.remove({_id:req.params.id}, function (err, user){
+    if(err){
+      return res.send({
+        state:'error',
+        message:'Something went wrong'
+      },500)
+    }
+    if(!user){
+      res.send({
+        state:'failure',
+        message:'No users found'
+      },400)
+    }
+    if(user){
+      res.send({
+        state:'success',
+        message:'User deleted!'
+      },200)
+    }
+  })
+})
+
+// To create role
+router.post('/create_role', function (req, res){
+  try{
+    UserRole.findOne({franchisor_id:req.body.franchisor_id},function (err, role){
+      if(err){
+        res.send({
+          state:'error',
+          message:'Something went wrong. We are looking into it.'
+        },500)
+      }
+      // if(role){
+      //   res.send({
+      //     state: 'failure',
+      //     message:'Role exists'
+      //   },400)
+      // }
+      else{
+        role = new UserRole(),
+        role.user_role = req.body.user_role,
+        role.user_status = req.body.user_status,
+        role.franchisor_id = req.body.franchisor_id
+        role.save(function (err, role) {
+          if (err) {
+            res.send({
+              state: "failure",
+              message: "Something went wrong."
+            }, 500);
+          }
+          else {
+            res.send({
+              state: "success",
+              message: "Role created"
+            }, 200);
+          }
+        });
+      }
+    })
+  }
+  catch(err){
+    return res.send({
+          state: "error",
+          message: err
+        });   
+  }
+})
+
+// To edit role
+router.put('/update_role', function(req, res) {
+  try {
+    UserRole.findOne({_id: req.body._id}, function (err,role) {
+      if(err) {
+        return res.send({
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
+      }
+      if(role){
+        role.user_role = req.body.user_role,
+        role.user_status = req.body.user_status,
+        role.save(function (err, role){
+          if(err){
+            res.send({
+              state:"err",
+              message:"Something went wrong."
+            },500);
+          }
+          else{
+            res.send({
+              state:"success",
+              message:"Role updated."
+            },200);
+          }
+        });
+      }
+      if(!role){
+        res.send({
+          state:"failure",
+          message:"Failed to update."
+        },400);
+      }
+    })
+  }
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
+
+// to get roles
+router.get('/get_roles', function(req, res){
+  try{
+    UserRole.find({}, function(err, role){
+      if(err){
+        res.send({
+          state:'error',
+          message:'Something went wrong'
+        },500)
+      }
+      if(role.length == 0){
+        res.send({
+          state:'failure',
+          message:'Roles not found'
+        },400)
+      }
+      if(role.length > 0){
+        res.send({
+          state:'success',
+          data:role
+        },200)
+      }
+    })
+  }
+  catch(err){
+   return res.send({
+      state:'error',
+      message:err
+    })
+  }
+})
+
+// to get roles by id
+router.get('/get_roles_by_id/:id', function(err, role){
+  UserRole.findById({_id:req.params.id}, function(err, role){
+  if(err){
+    res.send({
+      state:'error',
+      message:'Something went wrong'
+    },500)
+  }
+  if(!role){
+    res.send({
+      state:'failure',
+      message:'Failed'
+    },400)
+  }
+  if(role){
+    res.send({
+      state:'success',
+      data:role
+    },200)
+  }
+})
+})
+
+// To delete users by id
+router.delete('/delete_user_by_id/:id', function (res, req){
+  UserRole.remove({_id:req.params.id}, function (err, role){
+    if(err){
+      return res.send({
+        state:'error',
+        message:'Something went wrong'
+      },500)
+    }
+    if(!role){
+      res.send({
+        state:'failure',
+        message:'No roles found'
+      },400)
+    }
+    if(role){
+      res.send({
+        state:'success',
+        message:'Role deleted!'
+      },200)
+    }
+  })
 })
 
 module.exports = router;

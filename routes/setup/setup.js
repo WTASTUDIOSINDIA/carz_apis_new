@@ -10,6 +10,7 @@ var SetupDepartment = mongoose.model('SetupDepartment');
 var UserAnswersOfTask = mongoose.model('UserAnswersOfTask');
 var UserSpecificChecklist = mongoose.model('UserSpecificChecklist');
 var SetupChecklist = mongoose.model('SetupChecklist');
+var Versions = mongoose.model('Versions');
 var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -83,7 +84,7 @@ router.post('/create_setup_department', function (req, res) {
 //To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {
-    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id }, function (err, checklist) {
+    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id, version_id:req.body.version_id }, function (err, checklist) {
       if (err) {
         res.send({
           state: "failure",
@@ -104,6 +105,8 @@ router.post('/create_setup_checklist', function (req, res) {
         checklist.visible_to = req.body.visible_to;
         checklist.created_at = new Date();
         checklist.setup_department_id = req.body.setup_department_id;
+        checklist.version_id = req.body.version_id;
+        checklist.franchisor_id = req.body.franchisor_id;
         checklist.save(function (err, checklist) {
           if (err) {
             res.send({
@@ -147,7 +150,35 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
         res.send({
           message: "Departments are not found",
           state: "failure",
-          partner_list: []
+        }, 201);
+      }
+      else {
+        res.send({
+          state: "success",
+          data: departments
+        }, 200);
+      }
+    })
+  }
+  catch (err) {
+    return res.send({
+      state: "error",
+      message: err
+    });
+  }
+});
+
+// To get department by id
+router.get('/get_setup_department_by_id/:id', function (req, res) {
+  try {
+    SetupDepartment.find({ _id: req.params.id }, function (err, departments) {
+      if (err) {
+        return res.send(500, err);
+      }
+      if (!departments) {
+        res.send({
+          message: "Departments not found",
+          state: "failure",
         }, 201);
       }
       else {
@@ -166,13 +197,13 @@ router.get('/get_setup_departments/:franchisor_id', function (req, res) {
   }
 });
 //To delete department by id
-router.delete('/delete_department/:id', function(req,res){
+router.delete('/delete_department/:franchisor_id/:department_id', function(req,res){
   try{
-    SetupDepartment.remove({_id: req.params._id}, function(err, department){
+    SetupDepartment.findByIdAndRemove({_id: req.params.franchisor_id, _id:req.params.department_id}, function(err, departments){
       if(err){
         return res.send(500, err);
       }
-      if(!department){
+      if(!departments){
         res.send({
           state:'failure',
           message:'No departments found'
@@ -193,35 +224,37 @@ router.delete('/delete_department/:id', function(req,res){
     })
   }
 })
-//To get setup checklists by department id
-router.get('/get_setup_checklists/:department_id', function (req, res) {
-  try {
-    SetupChecklist.find({ setup_department_id: req.params.department_id }, function (err, checklists) {
-      if (err) {
-        return res.send(500, err);
-      }
-      if (checklists.length == 0) {
-        res.send({
-          message: "Checklists are not found",
-          state: "failure",
-          data: []
-        }, 201);
-      }
-      else {
-        res.send({
-          state: "success",
-          data: checklists
-        }, 200);
-      }
-    })
+// To get checklist by id
+router.get('/get_setup_checklists/:checklist_id', function (req,res){
+  try{
+    SetupChecklist.findById({_id:req.params.checklist_id}, function (err, checklist){
+          if(err){
+              return res.send({
+                  state:'error',
+                  message:err
+              },500);
+          }
+          if(!checklist){
+              return res.send({
+                  state:'failure',
+                  message:'No checklist found'
+              },200)
+          }
+          if(checklist){
+              return res.send({
+                  state:'success',
+                  data:checklist
+              })
+          }
+      })
   }
-  catch (err) {
-    return res.send({
-      state: "error",
-      message: err
-    });
+  catch(err){
+      return res.send({
+          state:'error',
+          message:err
+      })
   }
-});
+})
 
 
 //To delete setup checklist by checklist id
@@ -236,7 +269,6 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
         res.send({
           message: "Checklists  not found",
           state: "failure",
-          partner_list: []
         }, 201);
       }
       else {
@@ -788,4 +820,140 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
   })
 })
 
+// To create versions by department
+router.post('/create_version_by_department_id', function(req, res){
+  try {
+    Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type, 
+    'version_name': req.body.version_name, 'department_id': req.body.department_id
+    }, function(err, version){
+      if(err){
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+      }
+      if(version){
+        return res.send({
+            state: "failure",
+            message: "This version already exists!"
+        }, 200);
+      }
+      else {
+        var version = new Versions();
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.department_id = req.body.department_id;
+        version.released_on = new Date();
+        version.default = req.body.default;
+        version.save(function(err, version){
+          if(version){
+            return res.send({
+                state: "success",
+                message: "Version created successfully!"
+            }, 200);
+          }
+        })
+      }
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
+
+// get versions by department id
+router.get('/get_versions_by_department_id/:department_id', function (req, res) {
+  Versions.find({'department_id': req.params.department_id}, function (err, versions) {
+    if (err) {
+      return res.send(err);
+    }
+    if (versions.length == 0) {
+      return res.send({
+        state: 'failure',
+        message: "Versions not found"
+      },400);
+    }
+    if (versions.length > 0) {
+      return res.send({
+        state: 'success',
+        data: versions
+      },200);
+    }
+  })
+})
+
+// edit version
+router.put('/edit_version', function(req, res){
+  try {
+    Versions.findById({_id: req.body._id}, function(err, version){
+      if(err){
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+      }
+      if(!version){
+        return res.send({
+            state: "failure",
+            message: "Incorrect Version ID!"
+        }, 200);
+      }
+      if(version){
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.default = req.body.default;
+        version.save(function(err, version){
+          if(err){
+            return res.send({
+                state: "failure",
+                message: err
+            }, 500);
+          }
+          if(version){
+            return res.send({
+                state: "success",
+                message: "Version created succssfully!"
+            }, 200);
+          }
+        })
+      }
+
+    })
+  } catch (err){
+    return res.send({
+      state: "failure",
+      message: err
+    }, 500);
+  }
+})
+
+// delete version by department id
+router.delete('/delete_version_by_department_id/:department_id', function (req, res) {
+  Versions.findByIdAndRemove({'department_id': req.params.department_id}, function (err, versions) {
+    if(err){
+      return res.send({
+        state:'error',
+        message:'Something went wrong'
+      },500)
+    }
+    if(!versions){
+      res.send({
+        state:'failure',
+        message:'No version found'
+      },400)
+    }
+    if(versions){
+      res.send({
+        state:'success',
+        message:'Version  deleted!'
+      },200)
+    }
+  })
+})
 module.exports = router;
