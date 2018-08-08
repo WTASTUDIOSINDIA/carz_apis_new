@@ -113,7 +113,7 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
 router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,res){
     try{
         var version_id = '';
-        FranchiseeType.find({franchisor_id: req.params.franchisor_id},function(err,type){
+        FranchiseeType.find({},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -263,7 +263,6 @@ router.post('/set_business_type',function(req,res){
             }
             else{
                 var document_list = new FranchiseeType();
-                document_list.version_id = req.body.version_id;
                 document_list.description = req.body.description;
                 document_list.franchisor_id = req.body.franchisor_id;
                 document_list.bussiness_type_name=req.body.bussiness_type_name;
