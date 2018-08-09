@@ -1081,9 +1081,16 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //'nda'
                 if(stageForm.sub_stage === 'nda'){
-                    if(stageFrom.user_role == 'franchisor'){
-                      stage.stage_discussion.nda_status = "approved"
+                    if(stage.stage_discussion == 'pending' && stageFrom.user_role == 'franchisor'){
+                      stage.stage_discussion.nda_status = "approved";
                     }
+                    if(stage.stage_discussion == 'pending' && stageFrom.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = "uploaded";
+                    }
+                    if(stage.stage_discussion == 'uploded' && stageFrom.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = stageFrom.nda_status;
+                    }
+
 
                    // stage.stage_discussion.status = false;
                     stage.stage_discussion.nda_file =  req.file.location;
