@@ -806,10 +806,10 @@ function update_franchisee(req, res, franchisee_id,val,stage){
     })
 }
 
-//update_stage
+var stageForm = {};
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
-    var stageForm = JSON.parse(req.body.franchisee_id);
+     stageForm = JSON.parse(req.body.franchisee_id);
     console.log(stageForm);
     var stage_Completed = 0;
     try{
@@ -832,6 +832,18 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //'nda'
                 if(stageForm.sub_stage === 'nda'){
+                  console.log(stageForm, "stageform");
+                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.nda_status == 'pending'){
+                      stage.stage_discussion.nda_status = "approved";
+                    }
+                    if(stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = "uploaded";
+                    }
+                    if(stage.stage_discussion.nda_status == 'uploded' && stageForm.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = stageForm.nda_status;
+                    }
+
+
                    // stage.stage_discussion.status = false;
                     stage.stage_discussion.nda_file =  req.file.location;
                     stage.stage_discussion.nda_file_name =  req.file.originalname;
@@ -879,6 +891,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 };
                 //save data in the table
                 stage.save(function(err, stage){
+                  console.log('stage', stage);
                     if(req.file){
                       var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
                       console.log(get_id_of_crm_file, '881');
@@ -915,7 +928,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                     franchiees.second_lakh_payment = 'Submitted';
                                     franchiees.save(function(err,franchisee){
                                         if(err){
-                                            res.send({  
+                                            res.send({
                                                 status:500,
                                                 state:"err",
                                                 message:"Something went wrong."
@@ -946,7 +959,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                     franchiees.agreement_file_uploaded = 'Agreement file uploaded proceed to Setup.'
                                     franchiees.save(function(err,franchisee){
                                         if(err){
-                                            res.send({  
+                                            res.send({
                                                 status:500,
                                                 state:"err",
                                                 message:"Something went wrong."
@@ -977,7 +990,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                     franchiees.nda_uploaded = 'NDA file uploaded proceed to Payment.'
                                     franchiees.save(function(err,franchisee){
                                         if(err){
-                                            res.send({  
+                                            res.send({
                                                 status:500,
                                                 state:"err",
                                                 message:"Something went wrong."
@@ -995,7 +1008,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                                 }
                             })
                         }
-                        
+
                         else{
                             // console.log('activity', activity_object);
                             // var activity_object = {
@@ -1055,6 +1068,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
         });
     }
 });
+
 
 function send_mail(req,res,stageForm){
     try{
