@@ -176,10 +176,10 @@ router.post('/validate_franchisee',  function(req, res) {
 router.post('/validate_franchisee_pincode',  function(req, res) {
     var FranchiseeValidateForm = req.body;
     try{
-            Franchisee.findOne({ $and: [ { franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
+            Franchisee.findOne({ $and: [ { franchisee_pincode: FranchiseeValidateForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
             if(err){
                 return res.send({
-                    state:"error",
+                    state:"error2",
                     message:err
                 },500);
             }
@@ -199,7 +199,7 @@ router.post('/validate_franchisee_pincode',  function(req, res) {
     }
     catch(err){
 		return res.send({
-			state:"error",
+			state:"error3",
 			message:err
 		},500);
 	}
@@ -392,7 +392,7 @@ console.log(partner, "partner");
   console.log(franchiseeForm, "franchiseeForm");
     //FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
       //5aacf0e9be01b01e4456acd4
-      FranchiseeTypeList.find({businessType_id:"5aacf0e9be01b01e4456acd4"},function(err,type){
+      FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
         if(err){
             return res.send({
                 state:"error",

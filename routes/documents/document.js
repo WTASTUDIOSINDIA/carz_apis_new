@@ -462,7 +462,7 @@ router.delete('/delete/business_type/:id',function(req,res){
         },500);
     }
 });
-router.get('/get_business_type_list/:businessType_id/:version_id/:franchisor_id',function(req,res){
+router.get('/get_kyc_files/:businessType_id/:franchisor_id',function(req,res){
     try{
         FranchiseeTypeList.find({businessType_id:req.params.businessType_id},function(err,type){
             if(err){

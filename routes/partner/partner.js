@@ -228,7 +228,7 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
     // }, function (err, type) {
       //5aacf0e9be01b01e4456acd4
       FranchiseeTypeList.find({
-          businessType_id: "5aacf0e9be01b01e4456acd4"
+          businessType_id: partner.bussiness_type_id
       }, function (err, type) {
         if (err) {
             return res.send({

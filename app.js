@@ -41,11 +41,11 @@ var user_management = require('./routes/user_management/user_management');
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
 //mongoose.connect('mongodb://localhost/carz-api');
-//LIVE CARZ USING IT  from carz-api heroku
-  mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
+//\LIVE CARZ USING IT  from carz-api heroku
+//  mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 
 //DEVELOPMENT // from carz-web heroku/
-//mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
+mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
 
 var app = express();
 var http = require('http').Server(app);

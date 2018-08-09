@@ -129,6 +129,40 @@ router.put('/make_version_default/:version_id/:version_type', function(req, res)
   }, 500);
 }
 })
+router.put('/make_version_default_for_setup/:version_id/:department_id/:version_type', function(req, res){
+  try{
+    Versions.updateMany({department_id: req.params.department_id}, {$set: {'default': false}},{'multi':true}, function(err, versions){
+      if(err){
+          return res.send({
+              state: "failure",
+              message: err
+          }, 500);
+        }
+        console.log(versions);
+        if(versions){
+          Versions.update({_id: req.params.version_id}, {$set: {'default': true}}, function(err, version){
+            if(err){
+                return res.send({
+                    state: "failure",
+                    message: err
+                }, 500);
+              }
+              if(version){
+                return res.send({
+                    state: "success",
+                    message: "Success!"
+                }, 200);
+              }
+        })
+      }
+    })
+} catch (err){
+  return res.send({
+    state: "failure",
+    message: err
+  }, 500);
+}
+})
 router.get('/get_version_by_id/:version_id', function(req, res){
   try {
     Versions.findById({_id: req.params.version_id}, function(err, version){
