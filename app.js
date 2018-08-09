@@ -41,7 +41,7 @@ var user_management = require('./routes/user_management/user_management');
 var mongoose = require('mongoose');      //add for Mongo support
 //console.log(mongoose.connection.readyState);
 //mongoose.connect('mongodb://localhost/carz-api');
-//LIVE CARZ USING IT  from carz-api heroku
+//\LIVE CARZ USING IT  from carz-api heroku
 //  mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 
 //DEVELOPMENT // from carz-web heroku/

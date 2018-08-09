@@ -225,28 +225,48 @@ router.delete('/delete_department/:franchisor_id/:department_id', function(req,r
   }
 })
 // To get checklist by id
-router.get('/get_setup_checklists/:checklist_id', function (req,res){
+router.get('/get_setup_checklists/:department_id', function (req,res){
   try{
-    SetupChecklist.findById({_id:req.params.checklist_id}, function (err, checklist){
-          if(err){
-              return res.send({
-                  state:'error',
-                  message:err
-              },500);
-          }
-          if(!checklist){
-              return res.send({
-                  state:'failure',
-                  message:'No checklist found'
-              },200)
-          }
-          if(checklist){
-              return res.send({
-                  state:'success',
-                  data:checklist
-              })
-          }
-      })
+    Versions.findOne({'department_id': req.params.department_id, 'default': true}, function (err, version) {
+      if (err) {
+        return res.send(err);
+      }
+      if (!version) {
+        return res.send({
+          state: 'failure',
+          message: "Versions not found"
+        },400);
+      }
+      if (version) {
+        console.log(version, "version data");
+        // return res.send({
+        //   state: 'success',
+        //   data: versions
+        // },200);
+        SetupChecklist.find({version_id: version._id, setup_department_id:req.params.department_id}, function (err, checklist){
+              if(err){
+                  return res.send({
+                      state:'error',
+                      message:err
+                  },500);
+              }
+              if(!checklist){
+                  return res.send({
+                      state:'failure',
+                      message:'No checklist found'
+                  },200)
+              }
+              if(checklist){
+                  return res.send({
+                      state:'success',
+                      data:checklist
+                  })
+              }
+          })
+      } //end if
+
+    })
+
   }
   catch(err){
       return res.send({
@@ -401,7 +421,8 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
             })
             res.send({
               state: "success",
-              message: "Task created successfully"
+              message: "Task created successfully",
+              data: task
             }, 200);
           }
         });
@@ -844,7 +865,7 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
 // To create versions by department
 router.post('/create_version_by_department_id', function(req, res){
   try {
-    Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type, 
+    Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type,
     'version_name': req.body.version_name, 'department_id': req.body.department_id
     }, function(err, version){
       if(err){

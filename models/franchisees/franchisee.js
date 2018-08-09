@@ -50,8 +50,10 @@ var franchiseeSchema = new mongoose.Schema({
     "sub_franchisee_count":{type: Number, default:0},
     "show_kt_popup_first_time": {type: Boolean, default: true},
     "nda_uploaded":{type:String, default:'NDA Pending'},
+    "discussion_payment": {type:String, default:'Payment Pending'},
     "agreement_file_uploaded":{type: String, default:'Agreement Pending'},
-    "application_form": {type: String, default:' Application Form Pending'}
+    "application_form": {type: String, default:' Application Form Pending'},
+    "interview_status": {type: String, default:' Interview Pending'}
 });
 
 var librarySchema = new mongoose.Schema({
