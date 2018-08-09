@@ -49,7 +49,11 @@ var franchiseeSchema = new mongoose.Schema({
     "archieve_franchisee": {type:Boolean, default:false},
     "sub_franchisee_count":{type: Number, default:0},
     "show_kt_popup_first_time": {type: Boolean, default: true},
-    "nda_uploaded":{type:String, default:'Pending'}
+    "nda_uploaded":{type:String, default:'NDA Pending'},
+    "discussion_payment": {type:String, default:'Payment Pending'},
+    "agreement_file_uploaded":{type: String, default:'Agreement Pending'},
+    "application_form": {type: String, default:' Application Form Pending'},
+    "interview_status": {type: String, default:' Interview Pending'}
 });
 
 var librarySchema = new mongoose.Schema({
@@ -229,13 +233,15 @@ var ApplicationSchema = new mongoose.Schema({
     'options': Array,
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'isRequire':{type:Boolean,default:false},
-    'order': { type:Number, default:0 }
+    'order': { type:Number, default:0 },
+
 })
 
 var ApplicationSubmittedSchema = new mongoose.Schema({
     'answers': Array,
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "application_status":{type:String,default:'Submitted'}
+    "application_status":{type:String,default:'Submitted'},
+    'status': {type: String, default: 0},
 });
 
 var CampaignSchema = new mongoose.Schema({

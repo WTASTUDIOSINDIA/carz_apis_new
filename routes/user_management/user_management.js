@@ -360,7 +360,7 @@ router.get('/get_roles', function(req, res){
 })
 
 // to get roles by id
-router.get('/get_roles_by_id/:id', function(err, role){
+router.get('/get_roles_by_id/:id', function(req, res){
   UserRole.findById({_id:req.params.id}, function(err, role){
   if(err){
     res.send({
