@@ -838,22 +838,25 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     }
                     if(stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee'){
                       stage.stage_discussion.nda_status = "uploaded";
+
                     }
-                    if(stage.stage_discussion.nda_status == 'uploded' && stageForm.user_role == 'franchisee'){
+                    if(stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor'){
                       stage.stage_discussion.nda_status = stageForm.nda_status;
                     }
 
 
                    // stage.stage_discussion.status = false;
-                    stage.stage_discussion.nda_file =  req.file.location;
-                    stage.stage_discussion.nda_file_name =  req.file.originalname;
-                    if(req.file.mimetype == "application/pdf"){
-                        stage.stage_discussion.nda_file_type = "pdf";
-                    }
-                    if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
-                        stage.stage_discussion.nda_file_type = "image";
-                    }
-                    stage.stage_discussion.nda_file_uploaded = Date.now();
+                   if(req.file){
+                     stage.stage_discussion.nda_file =  req.file.location;
+                     stage.stage_discussion.nda_file_name =  req.file.originalname;
+                     if(req.file.mimetype == "application/pdf"){
+                         stage.stage_discussion.nda_file_type = "pdf";
+                     }
+                     if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
+                         stage.stage_discussion.nda_file_type = "image";
+                     }
+                     stage.stage_discussion.nda_file_uploaded = Date.now();
+                   }
                 }
                 //kyc background verification upload
                 if(stageForm.sub_stage == 'kycupload'){
@@ -1292,9 +1295,9 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
     //  get_id_of_crm_file = library._id;
       //return  library._id;
       return new Promise(resolve => {
-    setTimeout(() => {
+    
       resolve('resolved');
-    }, 2000);
+
   });
     }
     });
