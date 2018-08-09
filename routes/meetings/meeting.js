@@ -8,6 +8,7 @@ var Franchisee = mongoose.model('Franchisee');
 var Meeting = mongoose.model('Meeting');
 var Notification = mongoose.model('Notification');
 var Stages = mongoose.model('Stages');
+var Admin = mongoose.model('Admin');
 var nodemailer = require('nodemailer');
 var app = express();
 var http = require('http').Server(app);
@@ -85,11 +86,23 @@ router.post('/create_meeting', function (req, res) {
                                 io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
                             });
                         });
-                        return res.send({
-                            state: "success",
-                            message: "Meeting Scheduled .",
-                            meeting: meeting
-                        }, 200);
+                        console.log('sda', meetingForm.franchisor_id);
+                        Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
+                            if (err) {
+                                return res.json(500, err);
+                            }
+                            if (user) {
+                                console.log(user, "90");
+                                meeting.user_name = user.user_name;
+                                meeting.save();
+                                console.log(meeting, 'meeting....');
+                                return res.send({
+                                    state: "success",
+                                    message: "Meeting Scheduled .",
+                                    meeting: meeting
+                                }, 200);
+                            }
+                        })
                         //}
                     }
                 });
