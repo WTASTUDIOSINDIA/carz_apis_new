@@ -407,4 +407,82 @@ router.delete('/delete_user_by_id/:id', function (res, req){
   })
 })
 
+// to make franchisor notification hide 
+// router.post('/make_notification_franchisor_count_hide', function(req,res){
+//   Admin.findOne({'_id':req.body.user_id},function(err,user){
+//       if(err){
+//           return res.send({
+//               state:"error",
+//               message:err
+//           },500);
+//       }
+//       if(user){
+//           var user = new user();
+//           user.seen_notification = true;
+//           user.save(function(err,user){
+         
+//           if(err){
+//               res.send({
+//                   state:"err",
+//                   message:"Something went wrong."
+//               },500);
+
+//           }
+//           else {
+//               res.send({
+//                   state:"success",
+//                   message:"Notification has been viewed",
+//                   data: user
+//               },200)
+//           }
+//       });
+//       }
+//   });
+// })
+
+router.post('/make_notification_franchisor_count_hide', function (req, res) {
+ 
+    // try {
+      Admin.findOne({ _id:req.body.user_id }, function (err, user) {
+        if (err) {
+          res.send({
+            state: "error",
+            message: "Something went wrong."
+          }, 500);
+        }
+        // if (user) {
+        //   res.send({
+        //     state: "failure",
+        //     message: "This user already exists."
+        //   }, 400);
+        // }
+        else {
+          user = new Admin();
+          user.seen_notification = 1;
+          user.save(function (err, user) {
+            if (err) {
+              res.send({
+                state: "failure",
+                message: "Something went wrong."
+              }, 500);
+            }
+            else {
+              res.send({
+                state: "success",
+                message: "notification viewed",
+                data:user
+              }, 200);
+            }
+          });
+        }
+      });
+    // }
+    // catch (err) {
+    //   return res.send({
+    //     state: "error",
+    //     message: err
+    //   });
+    // }
+  })
+
 module.exports = router;

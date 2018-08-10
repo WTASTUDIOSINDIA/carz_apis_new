@@ -8,6 +8,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_occupation":String,
     "franchisee_email":String,
     "franchisee_pass":String,
+    "franchisee_comfirm_pass": String,
     "franchisee_profile_pic":{type: Schema.Types.Mixed, default : {}},
     "franchisee_city":String,
     "franchisee_state":String,
@@ -53,7 +54,10 @@ var franchiseeSchema = new mongoose.Schema({
     "discussion_payment": {type:String, default:'Payment Pending'},
     "agreement_file_uploaded":{type: String, default:'Agreement Pending'},
     "application_form": {type: String, default:' Application Form Pending'},
-    "interview_status": {type: String, default:' Interview Pending'}
+    "interview_status": {type: String, default:' Interview Pending'},
+    "seen_notification":{type: Number, default: 0},
+    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var librarySchema = new mongoose.Schema({

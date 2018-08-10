@@ -8,6 +8,7 @@ var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var Library = mongoose.model('Library');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
+var Admin = mongoose.model('Admin');
 var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
@@ -110,6 +111,8 @@ router.get('/get_franchisees',function(req,res){
 		});
 	}
 });
+
+
 //get franchisee by id
 router.get('/get_franchisee/:id',function(req,res){
     try{
@@ -138,6 +141,108 @@ router.get('/get_franchisee/:id',function(req,res){
 			state:"error",
 			message:err
 		});
+	}
+});
+
+// to make franchisee notification count hide
+router.post('/make_notification_franchisee_count_hide', function(req,res){
+    Franchisee.find({'_id':req.body.user_id},function(err,franchisee){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(franchisee){
+            var franchisee = new Franchisee();
+            franchisee.seen_notification = 1;
+            franchisee.save(function(err,franchisee){
+           
+            if(err){
+                res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+
+            }
+            else {
+                res.send({
+                    state:"success",
+                    message:"Notification has been viewed",
+                    data: franchisee
+                },200)
+            }
+        });
+        }
+    });
+})
+
+router.post('/make_user_notification_count_invisible',  function(req, res) {
+    
+    try{
+        console.log(req.body.user_role == 'franchisor');
+        //if(req.body.user_role == 'franchisor'){
+            //seen_notification = false;
+            // Admin.findById({_id:req.body.user_id}, function(err, user){
+            //     if(err){
+            //         return res.send(500, err);
+            //     }
+            //     if(user){
+            //         user.seen_notification = true;
+            //         user.save(function(err,user){
+                    
+            //         console.log(user);
+            //         if(err){
+            //             res.send({
+            //                 state:"err",
+            //                 message:"Something went wrong."
+            //             },500);
+    
+            //         }
+            //         else {
+            //             res.send({
+            //                 state:"success",
+            //                 message:"Notification has been viewed",
+            //                 data: user
+            //             },200)
+            //         }
+            //     });
+            //     }
+            // });
+       // }
+        // if(req.body.user_role == 'franchisee'){
+           Franchisee.findById({_id:req.body.user_id}, function(err, franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.seen_notification = true;
+                franchisee.save(function(err,franchisee){
+               
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"Notification has been viewed",
+                        data: franchisee
+                    },200)
+                }
+            });
+            }
+        });
+        // }
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
 	}
 });
 //validate franchisee by email
@@ -1786,6 +1891,84 @@ function activity_tracker(req, res) {
       }, 500);
     }
   };
+
+//   edit  franchisee my profile
+router.put('/edit_my profile', function (req,res){
+    try{
+        Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.franchisee_name = req.body.franchisee_name;
+                franchisee.franchisee_email = req.body.franchisee_email;
+                franchisee.franchisee_pass = req.body.franchisee_pass;
+                franchisee.franchisee_confirm_pass = req.body.franchisee_confirm_password;
+                franchisee.save(function(err,franchisee){
+                })
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"My profile updated.",
+                        data: franchisee
+                    },200)
+                }
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
+
+//   edit  franchisor my profile
+router.put('/edit_franchisor_profile', function (req,res){
+    try{
+        Admin.findById({_id:req.body.user_id}, function(err, user){
+            if(err){
+                return res.send(500, err);
+            }
+            if(user){
+                user.user_name = req.body.user_name;
+                user.user_mail = req.body.user_mail;
+                user.user_pass = req.body.user_pass;
+                user.user_confirm_pass = req.body.user_confirm_pass;
+                user.save(function(err,user){
+                })
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"My profile updated.",
+                        data: user
+                    },200)
+                }
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
 
 
 module.exports = router;
