@@ -870,14 +870,14 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
 
-                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.discussion_application_form_status == 'pending'){
-                        stage.stage_discussion.discussion_application_form_status = "approved";
+                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.application_status == 'pending'){
+                        stage.stage_discussion.application_status = "approved";
                       }
-                      if(stage.stage_discussion.discussion_application_form_status == 'pending' && stageForm.user_role == 'franchisee'){
-                        stage.stage_discussion.discussion_application_form_status = "uploaded";
+                      if(stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.application_status = "Submitted";
                       }
-                      if(stage.stage_discussion.discussion_application_form_status == 'uploded' && stageForm.user_role == 'franchisee'){
-                        stage.stage_discussion.discussion_application_form_status = stageForm.discussion_application_form_status;
+                      if(stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.application_status = stageForm.application_status;
                       }
                     send_mail(req,res,stageForm);
                     // stage_Completed = 1;
