@@ -8,6 +8,7 @@ var Application = mongoose.model('Application');
 var Versions = mongoose.model('Versions');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
 var Stages = mongoose.model('Stages');
+var Franchisee = mongoose.model('Franchisee');
 var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');
 var ActivityTracker = mongoose.model('ActivityTracker');
 var _ = require('lodash');
@@ -314,7 +315,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
           }
         }
         application.franchisee_Id = application_form.franchisee_Id;
-        application.application_status = 'Submitted';
+        application.application_status = application_form.application_status;
         application.answers = application_form.application_list;
         application.save(function (err, application) {
           if (err) {
@@ -323,6 +324,12 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
+            Stages.findOne({franchisee_id: application.franchisee_Id}, function(err, stage){
+              stage.stage_discussion.application_status = application_form.application_status;
+              stage.save(function(err, stage){
+                console.log(stage);
+              })
+            })
             // console.log(application.answers)
             return res.send({
               state: "success",
@@ -348,7 +355,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
 
         }
         application_stats.franchisee_Id = application_form.franchisee_Id;
-        application_stats.application_status = 'Submitted';
+        application_stats.application_status = application_form.application_status;
         application_stats.answers = application_form.application_list;
         application_stats.save(function (err, application_stats) {
           if (err) {
@@ -357,6 +364,12 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
+            Stages.findOne({franchisee_id: application_stats.franchisee_Id}, function(err, stage){
+              stage.stage_discussion.application_status = application_form.application_status;
+              stage.save(function(err, stage){
+                console.log(stage);
+              })
+            })
             return res.send({
               state: "success",
               message: "application submitted."

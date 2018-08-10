@@ -31,7 +31,7 @@ var franchiseeSchema = new mongoose.Schema({
     "sub_stage":String,
     "user_role": {type:String, default:'franchisee'},
     "bussiness_type": String,
-    "unread_notifications_count": {type: Number, default: 0},
+    "seen_notifications": {type: Boolean, default: false},
     "first_lakh_payment":{type:String,default:'Pending'},
     "second_lakh_payment":{type:String,default:'Pending'},
     "lead_type": {type:String,default:'Unassigned'},
