@@ -176,7 +176,7 @@ router.post('/validate_franchisee',  function(req, res) {
 router.post('/validate_franchisee_pincode',  function(req, res) {
     var FranchiseeValidateForm = req.body;
     try{
-            Franchisee.findOne({ $and: [ { franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
+            Franchisee.findOne({ $and: [ { franchisee_pincode: FranchiseeValidateForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
             if(err){
                 return res.send({
                     state:"error",
@@ -824,6 +824,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
             if(stage){
                 console.log(stageForm);
                 //'payment'
+
+                //payment, nda, aggrement, aggrement_Copy
                 if(stageForm.sub_stage === 'payment'){
                    // stage.stage_discussion.status = false;
                     stage.stage_discussion.payment_value = 100000;
@@ -906,7 +908,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 stage.save(function(err, stage){
                   console.log('stage', stage);
                     if(req.file){
-                      var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                      var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                       console.log(get_id_of_crm_file, '881');
                       get_id_of_crm_file.then(result => {
                         console.log(result, 883);
@@ -1060,7 +1062,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 stage.stage_discussion.nda_file_uploaded = Date.now();
                 stage.save(function(err, stage){
-                    upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                    upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                     if(err){
                         return res.send({
                             state:"err",
@@ -1267,7 +1269,7 @@ function generatePassword() {
     }
     return retVal;
 }
-async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id,sub_stage_name){
   console.log('test', '1167');
     var library = new Library();
     library.path = obj.location;
@@ -1291,14 +1293,39 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
             message:"Something went wrong."
         },500);
         }
-    else{console.log(library._id, "1189");
-    //  get_id_of_crm_file = library._id;
-      //return  library._id;
-      return new Promise(resolve => {
-    
-      resolve('resolved');
+    else{
+      console.log(library._id, "1189");
+      Stages.findOne({franchisee_id: franchisee_Id}, function(err, stage){
+        //payment, nda, aggrement, aggrement_Copy
+        if(sub_stage_name == 'payment'){
+          stage.stage_discussion.first_payment_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'nda'){
+          stage.stage_discussion.nda_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'aggrement'){
+          stage.stage_agreenent.second_payment_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'aggrement_Copy'){
+          stage.stage_agreenent.final_agreement_library_file_id = library._id;
+        }
+        stage.save(function(err, stage){
+          if(err){
+            console.log(err, "error while saving stage files");
+          }
+          if(stage){
+            console.log(stage, "library file attached to files");
+          }
+        })
 
-  });
+      })
+    //  get_id_of_crm_file = library._id;
+      return  library._id;
+  //     return new Promise(resolve => {
+  //
+  //     resolve('resolved');
+  //
+  // });
     }
     });
 }
