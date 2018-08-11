@@ -158,7 +158,7 @@ router.post('/make_notification_franchisee_count_hide', function(req,res){
             var franchisee = new Franchisee();
             franchisee.seen_notification = 1;
             franchisee.save(function(err,franchisee){
-           
+
             if(err){
                 res.send({
                     state:"err",
@@ -179,7 +179,7 @@ router.post('/make_notification_franchisee_count_hide', function(req,res){
 })
 
 router.post('/make_user_notification_count_invisible',  function(req, res) {
-    
+
     try{
         console.log(req.body.user_role == 'franchisor');
         //if(req.body.user_role == 'franchisor'){
@@ -191,14 +191,14 @@ router.post('/make_user_notification_count_invisible',  function(req, res) {
             //     if(user){
             //         user.seen_notification = true;
             //         user.save(function(err,user){
-                    
+
             //         console.log(user);
             //         if(err){
             //             res.send({
             //                 state:"err",
             //                 message:"Something went wrong."
             //             },500);
-    
+
             //         }
             //         else {
             //             res.send({
@@ -219,7 +219,7 @@ router.post('/make_user_notification_count_invisible',  function(req, res) {
             if(franchisee){
                 franchisee.seen_notification = true;
                 franchisee.save(function(err,franchisee){
-               
+
                 if(err){
                     res.send({
                         state:"err",
@@ -1005,6 +1005,9 @@ router.put('/edit_stage', cpUpload, function(req, res){
                       if(stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor'){
                         stage.stage_discussion.application_status = stageForm.application_status;
                       }
+                      if(stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor'){
+                        stage.stage_discussion.status = true;
+                      }
                       if(stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor'){
                         stage.stage_discussion.application_status = stageForm.application_status;
                       }
@@ -1577,6 +1580,9 @@ var request = require("request"),
                     }
                     else {
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
+                        if(!franchiseeMultipleForm[i].partner_name){
+                          franchiseeMultipleForm[i].partner_name = franchiseeMultipleForm[i].franchisee_name
+                        };
                         if(!franchiseeMultipleForm[i].franchisee_name && !franchiseeMultipleForm[i].franchisee_pincode && !franchiseeMultipleForm[i].franchisee_email && !franchiseeMultipleForm[i].partner_mobile_number){
 
                         }
