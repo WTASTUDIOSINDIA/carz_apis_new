@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var authenticateSchema = new mongoose.Schema({
     "user_mail":String,
     "user_pass":String,
+    "user_confirm_pass": String,
     "user_name":String,
     "user_pic":{type: Schema.Types.Mixed, default : {}},
     "user_status":String,

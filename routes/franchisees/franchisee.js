@@ -1980,7 +1980,7 @@ function activity_tracker(req, res) {
   };
 
 //   edit  franchisee my profile
-router.put('/edit_my profile', function (req,res){
+router.put('/edit_my_profile', function (req,res){
     try{
         Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
             if(err){
@@ -1992,7 +1992,7 @@ router.put('/edit_my profile', function (req,res){
                 franchisee.franchisee_pass = req.body.franchisee_pass;
                 franchisee.franchisee_confirm_pass = req.body.franchisee_confirm_password;
                 franchisee.save(function(err,franchisee){
-                })
+                
                 if(err){
                     res.send({
                         state:"err",
@@ -2007,6 +2007,7 @@ router.put('/edit_my profile', function (req,res){
                         data: franchisee
                     },200)
                 }
+            })
             }
         });
     }
@@ -2031,7 +2032,7 @@ router.put('/edit_franchisor_profile', function (req,res){
                 user.user_pass = req.body.user_pass;
                 user.user_confirm_pass = req.body.user_confirm_pass;
                 user.save(function(err,user){
-                })
+              
                 if(err){
                     res.send({
                         state:"err",
@@ -2046,6 +2047,7 @@ router.put('/edit_franchisor_profile', function (req,res){
                         data: user
                     },200)
                 }
+            })
             }
         });
     }
