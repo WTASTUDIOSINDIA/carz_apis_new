@@ -108,7 +108,8 @@ var meetingSchema = new mongoose.Schema({
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
    "stage_id": String,
    "meeting_franchisor_remarks":String,
-   "notification_to": String
+   "notification_to": String,
+   "user_name": String
 
 });
 

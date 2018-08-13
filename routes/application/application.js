@@ -562,6 +562,7 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
 
         file[0].stage_discussion.nda_file_name = '';
         file[0].stage_discussion.nda_file = '';
+        file[0].stage_discussion.nda_status = 'pending';
         file[0].save(function (err, file) {
           if (err) {
             res.send({
@@ -963,7 +964,7 @@ router.put('/application_form_status',function(req,res){
                       }, 500);
                   }
                   else {
-                   
+
                       res.send({
                           state: "success",
                           message: "Application updated.",

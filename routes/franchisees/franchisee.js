@@ -176,10 +176,10 @@ router.post('/validate_franchisee',  function(req, res) {
 router.post('/validate_franchisee_pincode',  function(req, res) {
     var FranchiseeValidateForm = req.body;
     try{
-            Franchisee.findOne({ $and: [ { franchisee_pincode: FranchiseeValidateForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
+            Franchisee.findOne({ $and: [ { franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' } ] },function(err,franchisee){
             if(err){
                 return res.send({
-                    state:"error2",
+                    state:"error",
                     message:err
                 },500);
             }
@@ -199,7 +199,7 @@ router.post('/validate_franchisee_pincode',  function(req, res) {
     }
     catch(err){
 		return res.send({
-			state:"error3",
+			state:"error",
 			message:err
 		},500);
 	}
@@ -392,7 +392,7 @@ console.log(partner, "partner");
   console.log(franchiseeForm, "franchiseeForm");
     //FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
       //5aacf0e9be01b01e4456acd4
-      FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
+      FranchiseeTypeList.find({businessType_id:"5aacf0e9be01b01e4456acd4"},function(err,type){
         if(err){
             return res.send({
                 state:"error",
@@ -838,6 +838,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     }
                     if(stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee'){
                       stage.stage_discussion.nda_status = "uploaded";
+
                     }
                     if(stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor'){
                       stage.stage_discussion.nda_status = stageForm.nda_status;
@@ -846,16 +847,16 @@ router.put('/edit_stage', cpUpload, function(req, res){
 
                    // stage.stage_discussion.status = false;
                    if(req.file){
-                    stage.stage_discussion.nda_file =  req.file.location;
-                    stage.stage_discussion.nda_file_name =  req.file.originalname;
-                    if(req.file.mimetype == "application/pdf"){
-                        stage.stage_discussion.nda_file_type = "pdf";
-                    }
-                    if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
-                        stage.stage_discussion.nda_file_type = "image";
-                    }
-                    stage.stage_discussion.nda_file_uploaded = Date.now(); 
-                  } 
+                     stage.stage_discussion.nda_file =  req.file.location;
+                     stage.stage_discussion.nda_file_name =  req.file.originalname;
+                     if(req.file.mimetype == "application/pdf"){
+                         stage.stage_discussion.nda_file_type = "pdf";
+                     }
+                     if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
+                         stage.stage_discussion.nda_file_type = "image";
+                     }
+                     stage.stage_discussion.nda_file_uploaded = Date.now();
+                   }
                 }
                 //kyc background verification upload
                 if(stageForm.sub_stage == 'kycupload'){
@@ -866,6 +867,16 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
+
+                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.discussion_application_form_status == 'pending'){
+                        stage.stage_discussion.discussion_application_form_status = "approved";
+                      }
+                      if(stage.stage_discussion.discussion_application_form_status == 'pending' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.discussion_application_form_status = "uploaded";
+                      }
+                      if(stage.stage_discussion.discussion_application_form_status == 'uploded' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.discussion_application_form_status = stageForm.discussion_application_form_status;
+                      }
                     send_mail(req,res,stageForm);
                     // stage_Completed = 1;
                     // stage.stage_discussion.status = true;
@@ -1284,9 +1295,9 @@ function generatePassword() {
     //  get_id_of_crm_file = library._id;
       //return  library._id;
       return new Promise(resolve => {
-    setTimeout(() => {
+    
       resolve('resolved');
-    }, 2000);
+
   });
     }
     });
