@@ -527,5 +527,57 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
     }
 });
 
+
+// To approve or decline
+router.put('/change_meeting_status',function(req,res){
+    try{
+        Meeting.findById({_id:req.body.meeting_id},function(err,meeting){
+            if(err){
+                return res.send(500, err);
+            }   
+            if(meeting) {
+                if(meeting.meeting_status === 'approved'){
+                    meeting.meeting_status= req.body.meeting_status,
+                    meeting.approved_by = req.body.approved_by
+                }
+                if(meeting.meeting_status === 'declined'){
+                    meeting.meeting_status= req.body.meeting_status,
+                    meeting.approved_by = req.body.approved_by,
+                    meeting.meeting_reason = req.body.meeting_reason
+                }
+                    meeting.save(function(err,meeting){
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Meeting updated.",
+                            data: meeting
+                        }, 200);
+                    }
+                });
+            
+            }
+                    if (!meeting) {
+                        res.send({
+                            state: "failure",
+                            message: "Failed."
+                        }, 400);
+                    }
+                
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong"
+        },500);
+    }
+});
+
 module.exports = router;
 module.exports.saveMeetingNotification = saveMeetingNotification;

@@ -9,7 +9,9 @@ var Library = mongoose.model('Library');
 var Folder = mongoose.model('Folder');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
+var Franchisor = mongoose.model('Franchisor');
 var Admin = mongoose.model('Admin');
+var Auth = mongoose.model('Auth');
 var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
@@ -2016,17 +2018,18 @@ router.put('/edit_my_profile', function (req,res){
 //   edit  franchisor my profile
 router.put('/edit_franchisor_profile', function (req,res){
     try{
-        Admin.findById({_id:req.body.user_id}, function(err, user){
+        Franchisor.findById({_id:req.body.franchisor_id}, function(err, user){
             if(err){
                 return res.send(500, err);
             }
+            console.log(user);
             if(user){
                 user.user_name = req.body.user_name;
                 user.user_mail = req.body.user_mail;
                 user.user_pass = req.body.user_pass;
                 user.user_confirm_pass = req.body.user_confirm_pass;
                 user.save(function(err,user){
-              
+              console.log(user);
                 if(err){
                     res.send({
                         state:"err",
@@ -2052,6 +2055,35 @@ router.put('/edit_franchisor_profile', function (req,res){
         },500);
     }
 })
+
+
+router.get('/get_admins',function(req,res){
+    try{
+        Franchisor.find({},function(err,user){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!user){
+                res.send({
+                    state:'failure',
+                    user:[]
+                },400);
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:user
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
 
 
 module.exports = router;
