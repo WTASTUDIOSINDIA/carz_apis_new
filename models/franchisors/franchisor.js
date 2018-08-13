@@ -6,6 +6,7 @@ var franchisorSchema = new mongoose.Schema({
     "user_name":String,
     "user_pass":String,
     "user_mail":String,
+    "seen_notifications": {type: Boolean, default: false},
     "user_role":{type:String, default:'franchisor'}
 });
 

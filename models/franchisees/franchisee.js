@@ -8,6 +8,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_occupation":String,
     "franchisee_email":String,
     "franchisee_pass":String,
+    "franchisee_comfirm_pass": String,
     "franchisee_profile_pic":{type: Schema.Types.Mixed, default : {}},
     "franchisee_city":String,
     "franchisee_state":String,
@@ -31,6 +32,7 @@ var franchiseeSchema = new mongoose.Schema({
     "sub_stage":String,
     "user_role": {type:String, default:'franchisee'},
     "bussiness_type": String,
+    "seen_notifications": {type: Boolean, default: false},
     "first_lakh_payment":{type:String,default:'Pending'},
     "second_lakh_payment":{type:String,default:'Pending'},
     "lead_type": {type:String,default:'Unassigned'},
@@ -53,7 +55,10 @@ var franchiseeSchema = new mongoose.Schema({
     "discussion_payment": {type:String, default:'Payment Pending'},
     "agreement_file_uploaded":{type: String, default:'Agreement Pending'},
     "application_form": {type: String, default:' Application Form Pending'},
-    "interview_status": {type: String, default:' Interview Pending'}
+    "interview_status": {type: String, default:' Interview Pending'},
+    "seen_notification":{type: Number, default: 0},
+    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
 var librarySchema = new mongoose.Schema({
@@ -109,7 +114,11 @@ var meetingSchema = new mongoose.Schema({
    "stage_id": String,
    "meeting_franchisor_remarks":String,
    "notification_to": String,
-   "user_name": String
+   "user_name": String,
+   "meeting_status": {type: String, default: 'pending'}, //pending, rejected, approved
+   "created_by": {type: String, enum: ['franchisor', 'franchisee']},
+   "meeting_reason":String,
+   "approved_by":{type: String, enum: ['franchisor', 'franchisee']}
 
 });
 

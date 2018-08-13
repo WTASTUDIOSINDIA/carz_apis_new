@@ -3,10 +3,12 @@ var router = express.Router();
 var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
+var Library = mongoose.model('Library');
 var Application = mongoose.model('Application');
 var Versions = mongoose.model('Versions');
 var ThirdPartyFiles = mongoose.model('ThirdPartyFiles');
 var Stages = mongoose.model('Stages');
+var Franchisee = mongoose.model('Franchisee');
 var ApplicationSubmitted = mongoose.model('ApplicationSubmitted');
 var ActivityTracker = mongoose.model('ActivityTracker');
 var _ = require('lodash');
@@ -313,7 +315,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
           }
         }
         application.franchisee_Id = application_form.franchisee_Id;
-        application.application_status = 'Submitted';
+        application.application_status = application_form.application_status;
         application.answers = application_form.application_list;
         application.save(function (err, application) {
           if (err) {
@@ -322,6 +324,12 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
+            Stages.findOne({franchisee_id: application.franchisee_Id}, function(err, stage){
+              stage.stage_discussion.application_status = application_form.application_status;
+              stage.save(function(err, stage){
+                console.log(stage);
+              })
+            })
             // console.log(application.answers)
             return res.send({
               state: "success",
@@ -347,7 +355,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
 
         }
         application_stats.franchisee_Id = application_form.franchisee_Id;
-        application_stats.application_status = 'Submitted';
+        application_stats.application_status = application_form.application_status;
         application_stats.answers = application_form.application_list;
         application_stats.save(function (err, application_stats) {
           if (err) {
@@ -356,6 +364,12 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
+            Stages.findOne({franchisee_id: application_stats.franchisee_Id}, function(err, stage){
+              stage.stage_discussion.application_status = application_form.application_status;
+              stage.save(function(err, stage){
+                console.log(stage);
+              })
+            })
             return res.send({
               state: "success",
               message: "application submitted."
@@ -526,11 +540,24 @@ router.delete('/delete_discussion_payment_file/:franchisee_id', function (req, r
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "Payment file deleted successfully!"
-            });
+            Library.findByIdAndRemove({_id: file.stage_discussion.first_payment_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+
+                res.send({
+                  status: 200,
+                  state: "success",
+                  message: "Payment file deleted successfully!"
+                });
+              }
+            })
+
           }
         });
 
@@ -547,7 +574,7 @@ router.delete('/delete_discussion_payment_file/:franchisee_id', function (req, r
 router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, next) {
 
   try {
-    Stages.find({
+    Stages.findOne({
       'franchisee_id': req.params.franchisee_id
     }, function (err, file) {
       if (err) {
@@ -560,10 +587,10 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
 
       if (file) {
 
-        file[0].stage_discussion.nda_file_name = '';
-        file[0].stage_discussion.nda_file = '';
-        file[0].stage_discussion.nda_status = 'pending';
-        file[0].save(function (err, file) {
+        file.stage_discussion.nda_file_name = '';
+        file.stage_discussion.nda_file = '';
+        file.stage_discussion.nda_status = 'pending';
+        file.save(function (err, deleted_file) {
           if (err) {
             res.send({
               status: 500,
@@ -571,11 +598,24 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "NDA file deleted successfully!"
-            });
+            Library.findByIdAndRemove({_id: file.stage_discussion.nda_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+
+                  res.send({
+                    status: 200,
+                    state: "success",
+                    message: "NDA file deleted successfully!"
+                  });
+              }
+            })
+
           }
         });
 
@@ -594,7 +634,7 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
 router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next) {
 
   try {
-    Stages.find({
+    Stages.findOne({
       'franchisee_id': req.params.franchisee_id
     }, function (err, file) {
       if (err) {
@@ -607,9 +647,9 @@ router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next
 
       if (file) {
 
-        file[0].stage_agreenent.final_agreement_file_name = '';
-        file[0].stage_agreenent.final_agreement_file = '';
-        file[0].save(function (err, file) {
+        file.stage_agreenent.final_agreement_file_name = '';
+        file.stage_agreenent.final_agreement_file = '';
+        file.save(function (err, file_final_agreement) {
           if (err) {
             res.send({
               status: 500,
@@ -617,11 +657,24 @@ router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "Agreement deleted successfully!"
-            });
+            Library.findByIdAndRemove({_id: file.stage_agreenent.final_agreement_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+
+                res.send({
+                  status: 200,
+                  state: "success",
+                  message: "Agreement deleted successfully!"
+                });
+              }
+            })
+
           }
         });
 
@@ -680,7 +733,7 @@ router.delete('/delete_kyc_bg_files/:file_id', function (req, res, next) {
 router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, next) {
 
   try {
-    Stages.find({
+    Stages.findOne({
       'franchisee_id': req.params.franchisee_id
     }, function (err, file) {
       if (err) {
@@ -693,9 +746,9 @@ router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, ne
 
       if (file) {
 
-        file[0].stage_agreenent.agreement_file_name = '';
-        file[0].stage_agreenent.agreement_file = '';
-        file[0].save(function (err, file) {
+        file.stage_agreenent.agreement_file_name = '';
+        file.stage_agreenent.agreement_file = '';
+        file.save(function (err, file_agreement_payment) {
           if (err) {
             res.send({
               status: 500,
@@ -703,11 +756,24 @@ router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, ne
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "Agreement payment file deleted successfully!"
-            });
+            Library.findByIdAndRemove({_id: file.stage_agreenent.second_payment_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+
+                res.send({
+                  status: 200,
+                  state: "success",
+                  message: "Agreement payment file deleted successfully!"
+                });
+              }
+            })
+
           }
         });
 
@@ -754,11 +820,26 @@ router.put('/edit_discussion_payment_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "Payment file updated successfully!"
-            });
+            Library.findById({_id: file.stage_discussion.first_payment_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+                library.file_name = file.stage_discussion.payment_file_name;
+                library.save(function(err, library){
+                  res.send({
+                    status: 200,
+                    state: "success",
+                    message: "Payment file updated successfully!"
+                  });
+                })
+              }
+            })
+
           }
         });
 
@@ -801,11 +882,29 @@ router.put('/edit_nda_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "NDA file edited successfully!"
-            });
+            console.log(file, 'while editing nda file name');
+            Library.findById({_id: file.stage_discussion.nda_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+                library.file_name = file.stage_discussion.nda_file_name;
+                library.save(function(err, library){
+                  res.send({
+                    status: 200,
+                    state: "success",
+                    message: "NDA file edited successfully!"
+                  });
+                })
+              }
+            })
+
+
+
           }
         });
 
@@ -847,11 +946,26 @@ router.put('/edit_agreement_payment_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "4 Lac payment updated successfully!"
-            });
+            Library.findById({_id: file.stage_agreenent.second_payment_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+                library.file_name = file.stage_agreenent.agreement_file_name;
+                library.save(function(err, library){
+                  res.send({
+                    status: 200,
+                    state: "success",
+                    message: "4 Lac payment updated successfully!"
+                  });
+                })
+              }
+            })
+
           }
         });
 
@@ -893,11 +1007,26 @@ router.put('/edit_final_agreement_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            res.send({
-              status: 200,
-              state: "success",
-              message: "Final Agreement file updated successfully"
-            });
+            Library.findById({_id: file.stage_agreenent.final_agreement_library_file_id}, function(err, library){
+              if(err){
+                res.send({
+                  status: 500,
+                  state: "error",
+                  message: err
+                });
+              }
+              if(library){
+                library.file_name = file.stage_agreenent.final_agreement_file_name;
+                library.save(function(err, library){
+                  res.send({
+                    status: 200,
+                    state: "success",
+                    message: "Final Agreement file updated successfully"
+                  });
+                })
+              }
+            })
+
           }
         });
 

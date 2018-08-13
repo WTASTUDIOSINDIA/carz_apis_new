@@ -6,8 +6,12 @@ var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var Library = mongoose.model('Library');
+var Folder = mongoose.model('Folder');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
+var Franchisor = mongoose.model('Franchisor');
+var Admin = mongoose.model('Admin');
+var Auth = mongoose.model('Auth');
 var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
@@ -82,7 +86,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({archieve_franchisee: false}, {'_id':1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_model': 1}).lean().exec(function(err,franchiees){
+        Franchisee.find({archieve_franchisee: false}, {'_id':1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_type': 1, 'franchisee_franchise_model': 1}).lean().exec(function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -110,6 +114,8 @@ router.get('/get_franchisees',function(req,res){
 		});
 	}
 });
+
+
 //get franchisee by id
 router.get('/get_franchisee/:id',function(req,res){
     try{
@@ -138,6 +144,108 @@ router.get('/get_franchisee/:id',function(req,res){
 			state:"error",
 			message:err
 		});
+	}
+});
+
+// to make franchisee notification count hide
+router.post('/make_notification_franchisee_count_hide', function(req,res){
+    Franchisee.find({'_id':req.body.user_id},function(err,franchisee){
+        if(err){
+            return res.send({
+                state:"error",
+                message:err
+            },500);
+        }
+        if(franchisee){
+            var franchisee = new Franchisee();
+            franchisee.seen_notification = 1;
+            franchisee.save(function(err,franchisee){
+           
+            if(err){
+                res.send({
+                    state:"err",
+                    message:"Something went wrong."
+                },500);
+
+            }
+            else {
+                res.send({
+                    state:"success",
+                    message:"Notification has been viewed",
+                    data: franchisee
+                },200)
+            }
+        });
+        }
+    });
+})
+
+router.post('/make_user_notification_count_invisible',  function(req, res) {
+    
+    try{
+        console.log(req.body.user_role == 'franchisor');
+        //if(req.body.user_role == 'franchisor'){
+            //seen_notification = false;
+            // Admin.findById({_id:req.body.user_id}, function(err, user){
+            //     if(err){
+            //         return res.send(500, err);
+            //     }
+            //     if(user){
+            //         user.seen_notification = true;
+            //         user.save(function(err,user){
+                    
+            //         console.log(user);
+            //         if(err){
+            //             res.send({
+            //                 state:"err",
+            //                 message:"Something went wrong."
+            //             },500);
+    
+            //         }
+            //         else {
+            //             res.send({
+            //                 state:"success",
+            //                 message:"Notification has been viewed",
+            //                 data: user
+            //             },200)
+            //         }
+            //     });
+            //     }
+            // });
+       // }
+        // if(req.body.user_role == 'franchisee'){
+           Franchisee.findById({_id:req.body.user_id}, function(err, franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.seen_notification = true;
+                franchisee.save(function(err,franchisee){
+               
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"Notification has been viewed",
+                        data: franchisee
+                    },200)
+                }
+            });
+            }
+        });
+        // }
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
 	}
 });
 //validate franchisee by email
@@ -364,6 +472,21 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                               })
                             }
                             kyc_Upload(req, res,partner,franchisee,franchiseeForm);
+
+
+                            // Library.findOne({franchisee_Id:franchisee._id,folder_name: 'Discussion'}, function(err, folder){
+                            //   if(folder){
+                            //     console.log("folder already exists");
+                            //   }
+                            //   else {
+                                var library = new Library();
+                                library.franchisee_Id = franchisee._id;
+                                library.folder_name = 'Discussion';
+                                library.save(function(err, library){
+                                  console.log("discussion folder created");
+                                });
+                            //   }
+                            // })
                             res.send({
                                 state:"success",
                                 message:"Franchisee created successfully.",
@@ -825,7 +948,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 console.log(stageForm);
                 //'payment'
                 if(stageForm.sub_stage === 'payment'){
-                   // stage.stage_discussion.status = false;
+                  //  stage.stage_discussion.status = false;
+                  stage.stage_discussion.payment_status = 'uploaded';
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file =  req.file.location;
                     stage.stage_discussion.payment_file_name =  req.file.originalname;
@@ -842,6 +966,12 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     }
                     if(stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor'){
                       stage.stage_discussion.nda_status = stageForm.nda_status;
+                    }
+                    if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = 'uploaded';
+                    }
+                    if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor'){
+                      stage.stage_discussion.nda_status = 'approved';
                     }
 
 
@@ -868,16 +998,22 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
 
-                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.discussion_application_form_status == 'pending'){
-                        stage.stage_discussion.discussion_application_form_status = "approved";
+                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.application_status == 'pending'){
+                        stage.stage_discussion.application_status = "approved";
                       }
-                      if(stage.stage_discussion.discussion_application_form_status == 'pending' && stageForm.user_role == 'franchisee'){
-                        stage.stage_discussion.discussion_application_form_status = "uploaded";
+                      if(stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.application_status = "Submitted";
                       }
-                      if(stage.stage_discussion.discussion_application_form_status == 'uploded' && stageForm.user_role == 'franchisee'){
-                        stage.stage_discussion.discussion_application_form_status = stageForm.discussion_application_form_status;
+                      if(stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor'){
+                        stage.stage_discussion.application_status = stageForm.application_status;
                       }
-                    send_mail(req,res,stageForm);
+                      if(stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor'){
+                        stage.stage_discussion.application_status = stageForm.application_status;
+                      }
+                      if(stage.stage_discussion.application_status == 'declined' && stageForm.user_role == 'franchisee'){
+                        stage.stage_discussion.application_status = 'Submitted';
+                      }
+                  //  send_mail(req,res,stageForm);
                     // stage_Completed = 1;
                     // stage.stage_discussion.status = true;
                 }
@@ -906,7 +1042,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 stage.save(function(err, stage){
                   console.log('stage', stage);
                     if(req.file){
-                      var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                      var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                       console.log(get_id_of_crm_file, '881');
                       get_id_of_crm_file.then(result => {
                         console.log(result, 883);
@@ -1044,6 +1180,39 @@ router.put('/edit_stage', cpUpload, function(req, res){
             //If requesting it for first time
             if(!stage){
                 var stage = new Stages();
+                if(stageForm.sub_stage === 'nda'){
+                  console.log(stageForm, "stageform");
+                    if(stageForm.user_role == 'franchisor' && stage.stage_discussion.nda_status == 'pending'){
+                      stage.stage_discussion.nda_status = "approved";
+                    }
+                    if(stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = "uploaded";
+
+                    }
+                    if(stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor'){
+                      stage.stage_discussion.nda_status = stageForm.nda_status;
+                    }
+                    if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisee'){
+                      stage.stage_discussion.nda_status = 'uploaded';
+                    }
+                    if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor'){
+                      stage.stage_discussion.nda_status = 'approved';
+                    }
+
+
+                   // stage.stage_discussion.status = false;
+                   if(req.file){
+                     stage.stage_discussion.nda_file =  req.file.location;
+                     stage.stage_discussion.nda_file_name =  req.file.originalname;
+                     if(req.file.mimetype == "application/pdf"){
+                         stage.stage_discussion.nda_file_type = "pdf";
+                     }
+                     if(req.file.mimetype == "image/png" || req.file.mimetype == "image/jpg" || req.file.mimetype == "image/jpeg" || req.file.mimetype == "image/gif"){
+                         stage.stage_discussion.nda_file_type = "image";
+                     }
+                     stage.stage_discussion.nda_file_uploaded = Date.now();
+                   }
+                }
                 stage.franchisee_id = stageForm.franchisee_id;
                 stage.folder_id = stageForm.folder_Id;
                 stage.stage_discussion.status = false;
@@ -1060,7 +1229,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 stage.stage_discussion.nda_file_uploaded = Date.now();
                 stage.save(function(err, stage){
-                    upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id);
+                    upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                     if(err){
                         return res.send({
                             state:"err",
@@ -1267,7 +1436,7 @@ function generatePassword() {
     }
     return retVal;
 };
- function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
+ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id, sub_stage_name){
   console.log('test', '1167');
     var library = new Library();
     library.path = obj.location;
@@ -1291,17 +1460,45 @@ function generatePassword() {
             message:"Something went wrong."
         },500);
         }
-    else{console.log(library._id, "1189");
-    //  get_id_of_crm_file = library._id;
-      //return  library._id;
-      return new Promise(resolve => {
-    
-      resolve('resolved');
+
+      else{
+      console.log(library._id, "1189");
+      Stages.findOne({franchisee_id: franchisee_Id}, function(err, stage){
+        //payment, nda, aggrement, aggrement_Copy
+        if(sub_stage_name == 'payment'){
+          stage.stage_discussion.first_payment_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'nda'){
+          stage.stage_discussion.nda_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'aggrement'){
+          stage.stage_agreenent.second_payment_library_file_id = library._id;
+        }
+        if(sub_stage_name == 'aggrement_Copy'){
+          stage.stage_agreenent.final_agreement_library_file_id = library._id;
+        }
+        stage.save(function(err, stage){
+          if(err){
+            console.log(err, "error while saving stage files");
+          }
+          if(stage){
+            console.log(stage, "library file attached to files");
+          }
+        })
+
+  //  get_id_of_crm_file = library._id;
+    return  library._id;
+//     return new Promise(resolve => {
+//
+//     resolve('resolved');
+//
+// });
+})
+  }
 
   });
     }
-    });
-}
+
 
 var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
@@ -1382,95 +1579,113 @@ var request = require("request"),
                     }
                     else {
                       for(var i=0;i<franchiseeMultipleForm.length;i++){
+                        if(!franchiseeMultipleForm[i].franchisee_name && !franchiseeMultipleForm[i].franchisee_pincode && !franchiseeMultipleForm[i].franchisee_email && !franchiseeMultipleForm[i].partner_mobile_number){
 
-                        var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
-                        // if(!franchiseeMultipleForm[i].partner_name){
-                        //   return res.send({
-                        //           status:500,
-                        //           state:"failure",
-                        //           message:"Looks like franchisee name or partner name is missing in list"
-                        //       });
-                        // }
+                        }
+                        else {
+                          var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+                          // if(!franchiseeMultipleForm[i].partner_name){
+                          //   return res.send({
+                          //           status:500,
+                          //           state:"failure",
+                          //           message:"Looks like franchisee name or partner name is missing in list"
+                          //       });
+                          // }
 
 
-                                  var franchisee = new Franchisee();
-                                  franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name;
-                                  franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address;
-                                  franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city;
-                                  franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state;
-                                  franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode;
-                                  franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country;
-                                  franchisee.lead_source = franchiseeMultipleForm[i].lead_source;
-                                  franchisee.lead_age = franchiseeMultipleForm[i].partner_age;
-                                  franchisee.franchisee_occupation = franchiseeMultipleForm[i].partner_occupation;
-                                  franchisee.franchisee_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
-                                  franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type;
-                                  franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model;
-                                  franchisee.franchisee_preferred_date = franchiseeMultipleForm[i].franchisee_date;
-                                  franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email.trim();
-                                  franchisee.partner_name = franchiseeMultipleForm[i].partner_name;
-                                  franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment;
-                                  franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
-                                  franchisee.partner_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
-                                  franchisee.partner_age = franchiseeMultipleForm[i].partner_age;
-                                  franchisee.partner_house_number = franchiseeMultipleForm[i].partner_house_number;
-                                  franchisee.partner_address = franchiseeMultipleForm[i].partner_address;
-                                  franchisee.partner_city = franchiseeMultipleForm[i].partner_city;
-                                  franchisee.franchisee_pass = createHash('mypassword');
-                                  franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
-                                  franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
-                                  franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
-                                  franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
-                                  franchisee.lead_type = franchiseeMultipleForm[i].lead_type;
-                                  franchisee.save(function(err,franchisee){
+                                    var franchisee = new Franchisee();
+                                    franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name;
+                                    franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address;
+                                    franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city;
+                                    franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state;
+                                    franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode;
+                                    franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country;
+                                    franchisee.lead_source = franchiseeMultipleForm[i].lead_source;
+                                    franchisee.lead_age = franchiseeMultipleForm[i].partner_age;
+                                    franchisee.franchisee_occupation = franchiseeMultipleForm[i].partner_occupation;
+                                    franchisee.franchisee_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
+                                    franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type;
+                                    franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model;
+                                    franchisee.franchisee_preferred_date = franchiseeMultipleForm[i].franchisee_date;
+                                    franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email.trim();
+                                    franchisee.partner_name = franchiseeMultipleForm[i].partner_name;
+                                    franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment;
+                                    franchisee.partner_occupation = franchiseeMultipleForm[i].partner_occupation;
+                                    franchisee.partner_mobile_number = franchiseeMultipleForm[i].partner_mobile_number;
+                                    franchisee.partner_age = franchiseeMultipleForm[i].partner_age;
+                                    franchisee.partner_house_number = franchiseeMultipleForm[i].partner_house_number;
+                                    franchisee.partner_address = franchiseeMultipleForm[i].partner_address;
+                                    franchisee.partner_city = franchiseeMultipleForm[i].partner_city;
+                                    franchisee.franchisee_pass = createHash('mypassword');
+                                    franchisee.partner_state = franchiseeMultipleForm[i].partner_state;
+                                    franchisee.partner_pincode = franchiseeMultipleForm[i].partner_pincode;
+                                    franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
+                                    franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
+                                    franchisee.lead_type = franchiseeMultipleForm[i].lead_type;
+                                    franchisee.save(function(err,franchisee){
 
-                                      if(err){
-                                        console.log(err, "error 1188");
-                                          return res.send({
-                                              state:"err",
-                                              message:"Something went wrong."
-                                          },500);
-                                      }
-                                      else{
-                                        //  if(franchisee_length==i){
+                                        if(err){
+                                          console.log(err, "error 1188");
+                                            return res.send({
+                                                state:"err",
+                                                message:"Something went wrong."
+                                            },500);
+                                        }
+                                        else{
+                                          //  if(franchisee_length==i){
 
-                                              var partner = new Partner();
-console.log(franchisee);
+                                                var partner = new Partner();
+                                                console.log(franchisee);
 
-                                              partner.partner_name=franchisee.partner_name;
-                                              partner.partner_occupation=franchisee.partner_occupation;
-                                              partner.partner_email=franchisee.franchisee_email.trim();
-                                              partner.partner_mobile_number=franchisee.partner_mobile_number;
-                                              partner.partner_age=franchisee.partner_age;
-                                              partner.partner_house_number = franchisee.partner_house_number;
-                                              partner.partner_address = franchisee.partner_address;
-                                              partner.partner_city = franchisee.partner_city;
-                                              partner.partner_state = franchisee.partner_state;
-                                              partner.partner_pincode = franchisee.partner_pincode;
-                                              partner.partner_country = franchisee.partner_country;
-                                              partner.main_partner = true;
-                                              partner.bussiness_type_id = franchisee.bussiness_type_id;
-                                              partner.franchisee_id=franchisee._id;
-                                              partner.partner_profile_pic = franchisee.franchisee_profile_pic
-                                              partner.save(function(err,partner){
-                                                  if(err){
-                                                      res.send({
-                                                          state:"err",
-                                                          message:"Something went wrong."
-                                                      },500);
-                                                  }
-                                                  else{
-                                                    res.status(200).send({
-                                                       state:"success",
-                                                       message:"Franchisee Created."
-                                                   });
-                                                   console.log(partner);
-                                                   console.log(franchisee);
-                                                      kyc_Upload(req, res,partner,franchisee,franchisee);
-                                                  }
-                                              });
-                                          }// Else statement after franchisee created
-                                      });
+                                                partner.partner_name=franchisee.partner_name;
+                                                partner.partner_occupation=franchisee.partner_occupation;
+                                                partner.partner_email=franchisee.franchisee_email.trim();
+                                                partner.partner_mobile_number=franchisee.partner_mobile_number;
+                                                partner.partner_age=franchisee.partner_age;
+                                                partner.partner_house_number = franchisee.partner_house_number;
+                                                partner.partner_address = franchisee.partner_address;
+                                                partner.partner_city = franchisee.partner_city;
+                                                partner.partner_state = franchisee.partner_state;
+                                                partner.partner_pincode = franchisee.partner_pincode;
+                                                partner.partner_country = franchisee.partner_country;
+                                                partner.main_partner = true;
+                                                partner.bussiness_type_id = franchisee.bussiness_type_id;
+                                                partner.franchisee_id=franchisee._id;
+                                                partner.partner_profile_pic = franchisee.franchisee_profile_pic
+                                                partner.save(function(err,partner){
+                                                    if(err){
+                                                        res.send({
+                                                            state:"err",
+                                                            message:"Something went wrong."
+                                                        },500);
+                                                    }
+                                                    else{
+                                                      res.status(200).send({
+                                                         state:"success",
+                                                         message:"Franchisee Created."
+                                                     });
+                                                     console.log(partner);
+                                                     console.log(franchisee);
+                                                     var folder = new Folder();
+                                                     folder.crm_folder = true;
+                                                     folder.franchisee_Id = franchisee._id;
+                                                     folder.folder_name = 'Discussion';
+                                                     folder.save(function(err, folder){
+                                                       if(err){
+                                                          console.log(err, 'folder_error');
+                                                       }
+                                                       if(folder){
+                                                          console.log(folder, 'folderdata');
+                                                       }
+
+                                                     })
+                                                        kyc_Upload(req, res,partner,franchisee,franchisee);
+                                                    }
+                                                });
+                                            }// Else statement after franchisee created
+                                        });
+                        }
+
                                   };
                           } //else statement of list length
                         })
@@ -1759,6 +1974,116 @@ function activity_tracker(req, res) {
       }, 500);
     }
   };
+
+//   edit  franchisee my profile
+router.put('/edit_my_profile', function (req,res){
+    try{
+        Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
+            if(err){
+                return res.send(500, err);
+            }
+            if(franchisee){
+                franchisee.franchisee_name = req.body.franchisee_name;
+                franchisee.franchisee_email = req.body.franchisee_email;
+                franchisee.franchisee_pass = req.body.franchisee_pass;
+                franchisee.franchisee_confirm_pass = req.body.franchisee_confirm_password;
+                franchisee.save(function(err,franchisee){
+                
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"My profile updated.",
+                        data: franchisee
+                    },200)
+                }
+            })
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
+
+//   edit  franchisor my profile
+router.put('/edit_franchisor_profile', function (req,res){
+    try{
+        Franchisor.findById({_id:req.body.franchisor_id}, function(err, user){
+            if(err){
+                return res.send(500, err);
+            }
+            console.log(user);
+            if(user){
+                user.user_name = req.body.user_name;
+                user.user_mail = req.body.user_mail;
+                user.user_pass = req.body.user_pass;
+                user.user_confirm_pass = req.body.user_confirm_pass;
+                user.save(function(err,user){
+              console.log(user);
+                if(err){
+                    res.send({
+                        state:"err",
+                        message:"Something went wrong."
+                    },500);
+
+                }
+                else {
+                    res.send({
+                        state:"success",
+                        message:"My profile updated.",
+                        data: user
+                    },200)
+                }
+            })
+            }
+        });
+    }
+    catch(err){
+        res.send({
+            state:"error",
+            message:"Something went wrong."
+        },500);
+    }
+})
+
+
+router.get('/get_admins',function(req,res){
+    try{
+        Franchisor.find({},function(err,user){
+            if(err){
+                return res.send(500, err);
+            }
+            if(!user){
+                res.send({
+                    state:'failure',
+                    user:[]
+                },400);
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:user
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+});
 
 
 module.exports = router;

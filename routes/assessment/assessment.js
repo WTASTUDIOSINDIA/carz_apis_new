@@ -157,7 +157,7 @@ router.post('/question_list',function(req,res){
                 question.correct_answer = req.body.correct_answer;
                 question.question_type_id = req.body.question_type_id;
                 question.version_id = req.body.version_id;
-                question_franchisor_id = req.body.franchisor_id;
+                question.franchisor_id = req.body.franchisor_id;
                 question.question_type = req.body.question_type;
                 question.question_section_id = req.body.question_section_id;
                 question.save(function(err,question){
@@ -188,6 +188,36 @@ router.post('/question_list',function(req,res){
 
 // router.get('/get_question_list/:question_section_id',function(req,res){
     router.get('/get_question_list',function(req,res){
+    try{
+        Question.find({},function(err,ques){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(ques.length == 0){
+                return res.send({
+                    state:"failure",
+                    message:"No questions"
+                },200);
+            }
+            if(ques.length > 0){
+                return res.send({
+                    state:"success",
+                    data:ques
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+router.get('/get_question_list',function(req,res){
     try{
         Question.find({},function(err,ques){
             if(err){
