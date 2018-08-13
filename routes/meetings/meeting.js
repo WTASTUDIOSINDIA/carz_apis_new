@@ -145,8 +145,8 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_remarks = meetingEditForm.meeting_remarks,
                     meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
                     meeting.notification_to - meetingEditForm.notification_to,
-                    meeting.meeting_status = req.body.meeting_status,
-                    meeting.created_by = req.body.created_by
+                    meeting.meeting_status = meetingEditForm.meeting_status,
+                    meeting.created_by = meetingEditForm.created_by
 
                 meeting.save(function (err, meeting) {
                     if (err) {
