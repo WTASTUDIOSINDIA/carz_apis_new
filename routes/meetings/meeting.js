@@ -527,5 +527,42 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
     }
 });
 
+
+router.get('/change_read_status/:id', (req, res) => {
+    console.log(req.params.id);
+        Notification.find( {$or: [{ franchisor_id: req.params.id }, {franchisee_id: req.params.id}]},(err, data) => {
+            if (err) {
+                return res.json(500, err);
+            }
+            if (data) {
+                console.log(data, 'data');
+                for(i = 0; i < data.length; i++) {
+                    data[i].read_status = true;
+                    data[i].save();
+                }
+            }
+        })
+        // Notification.find({ franchisee_id: req.body.franchisee_id }, (err, data) => {
+        //     if (err) {
+        //         return res.json(500, err);
+        //     }
+        //     if (data) {
+        //         data.read_status = true;
+        //         data.save((err, success) => {
+        //             if (err) {
+        //                 return res.json(500, err);
+        //             }
+        //             if (success) {
+        //                 return res.json({
+        //                     state: 'success',
+        //                     message: 'Successfully changed read status',
+        //                     data: data 
+        //                 })
+        //             }
+        //         })
+        //     }
+        // })
+})
+
 module.exports = router;
 module.exports.saveMeetingNotification = saveMeetingNotification;
