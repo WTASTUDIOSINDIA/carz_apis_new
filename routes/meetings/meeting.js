@@ -39,19 +39,21 @@ router.post('/create_meeting', function (req, res) {
             if (!meeting) {
                 var meeting = new Meeting();
 
-                meeting.meeting_title = meetingForm.meeting_title,
-                    meeting.meeting_location = meetingForm.meeting_location,
-                    meeting.meeting_date = meetingForm.meeting_date,
-                    meeting.meeting_time = meetingForm.meeting_time,
-                    meeting.meeting_assigned_people = meetingForm.meeting_assigned_people,
-                    meeting.meeting_additional_services = meetingForm.meeting_additional_services,
+                    meeting.meeting_title = meetingForm.meeting_title;
+                    meeting.meeting_location = meetingForm.meeting_location;
+                    meeting.meeting_date = meetingForm.meeting_date;
+                    meeting.meeting_time = meetingForm.meeting_time;
+                    meeting.meeting_assigned_people = meetingForm.meeting_assigned_people;
+                    meeting.meeting_additional_services = meetingForm.meeting_additional_services;
                     meeting.meeting_remarks = meetingForm.meeting_remarks
-                meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks,
-                    meeting.franchisor_id = meetingForm.franchisor_id,
-                    meeting.franchisee_id = meetingForm.franchisee_id,
-                    meeting.stage_id = meetingForm.stage_id,
-                    meeting.notification_to = meetingForm.notification_to
-                meeting.save(function (err, meeting) {
+                    meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
+                    meeting.franchisor_id = meetingForm.franchisor_id;
+                    meeting.franchisee_id = meetingForm.franchisee_id;
+                    meeting.stage_id = meetingForm.stage_id;
+                    meeting.notification_to = meetingForm.notification_to;
+                    meeting.meeting_status = meetingForm.meeting_status;
+                    meeting.created_by = meetingForm.created_by;
+                    meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
                             state: "err",
@@ -142,7 +144,9 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.stage_id = meetingEditForm.stage_id,
                     meeting.meeting_remarks = meetingEditForm.meeting_remarks,
                     meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
-                    meeting.notification_to - meetingEditForm.notification_to
+                    meeting.notification_to - meetingEditForm.notification_to,
+                    // meeting.meeting_status = meetingEditForm.meeting_status,
+                    // meeting.created_by = meetingEditForm.created_by
 
                 meeting.save(function (err, meeting) {
                     if (err) {
@@ -524,6 +528,59 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
             state: "error",
             message: err
         });
+    }
+});
+
+
+// To approve or decline
+router.put('/change_meeting_status', function (req, res) {
+    try {
+        Meeting.findById({ _id: req.body.meeting_id }, function (err, meeting) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (meeting) {
+                console.log('meet', req.body.meeting_status);
+                if (req.body.meeting_status === 'approved') {
+                    meeting.meeting_status = req.body.meeting_status;
+                        meeting.approved_by = req.body.approved_by;
+                }
+                if (req.body.meeting_status === 'declined' && req.body.meeting_reason != null) {
+                    meeting.meeting_status = req.body.meeting_status;
+                        meeting.approved_by = req.body.approved_by;
+                        meeting.meeting_reason = req.body.meeting_reason;
+                }
+                meeting.save(function (err, meeting) {
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Meeting updated.",
+                            data: meeting
+                        }, 200);
+                    }
+                });
+
+            }
+            if (!meeting) {
+                res.send({
+                    state: "failure",
+                    message: "Failed."
+                }, 400);
+            }
+
+        });
+    }
+    catch (err) {
+        res.send({
+            state: "error",
+            message: "Something went wrong"
+        }, 500);
     }
 });
 
