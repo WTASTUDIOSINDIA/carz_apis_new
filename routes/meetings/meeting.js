@@ -545,7 +545,7 @@ router.put('/change_meeting_status', function (req, res) {
                     meeting.meeting_status = req.body.meeting_status;
                         meeting.approved_by = req.body.approved_by;
                 }
-                if (req.body.meeting_status === 'declined') {
+                if (req.body.meeting_status === 'declined' && req.body.meeting_reason != null) {
                     meeting.meeting_status = req.body.meeting_status;
                         meeting.approved_by = req.body.approved_by;
                         meeting.meeting_reason = req.body.meeting_reason;

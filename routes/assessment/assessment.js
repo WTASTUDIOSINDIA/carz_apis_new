@@ -523,6 +523,7 @@ router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
                     message:"Franchisee has not attempt the test yet."
                 },200);
             }
+            console.log(report, 'report data');
             if(report){
                 Question_Type.find({},function(err,list){
                     var graph_array = [];
