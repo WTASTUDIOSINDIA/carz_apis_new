@@ -19,6 +19,7 @@ require('./models/activity_tracker/activity_tracker');
 require('./models/versions/versions');
 require('./models/user_management/user_management');
 var franchisee = require('./routes/franchisees/franchisee');
+var franchisor = require('./routes/franchisor/franchisor');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
 var assessment = require('./routes/assessment/assessment');
 var library = require('./routes/digital_library/library');
@@ -162,6 +163,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(flash());
 
 app.use('/franchisee', franchisee);
+app.use('/franchisor', franchisor);
 app.use('/authenticate',authenticate);
 app.use('/library',library);
 app.use('/partner', partner);
