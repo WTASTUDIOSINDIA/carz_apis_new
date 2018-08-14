@@ -1870,6 +1870,9 @@ var request = require("request"),
                         },500);
                 }
                 if(franchisee){
+                    if (req.body.lead_type === 'rejected' && req.body.rejected_franchisee_reason != null) {
+                        franchisee.rejected_franchisee_reason = req.body.rejected_franchisee_reason;
+                    }
                     franchisee.lead_type = req.body.lead_type
                     franchisee.save(function(err,franchisee){
                        if(err){
