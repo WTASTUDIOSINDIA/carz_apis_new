@@ -928,9 +928,20 @@ function update_franchisee(req, res, franchisee_id,val,stage){
 }
 
 var stageForm = {};
+var activity_data = {
+  name: '',
+  source: '',
+  activity_of: '',
+  franchisee_id: '',
+  franchisor_id: ''
+}
+//name, source, activity_of, franchisee_id, franchisor_id
 var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function(req, res){
+
      stageForm = JSON.parse(req.body.franchisee_id);
+     activity_data.franchisor_id = stageForm.franchisor_id;
+     activity_data.franchisee_id = stageForm.franchisee_id;
     console.log(stageForm);
     var stage_Completed = 0;
     try{
@@ -951,26 +962,35 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file =  req.file.location;
                     stage.stage_discussion.payment_file_name =  req.file.originalname;
+                    activity_data.name = '1 Lac Payment updated!';
+                    activity_data.activity_of = 'franchisor';
+
                 }
                 //'nda'
                 if(stageForm.sub_stage === 'nda'){
                   console.log(stageForm, "stageform");
+                  activity_data.activity_of = stageForm.user_role;
                     if(stageForm.user_role == 'franchisor' && stage.stage_discussion.nda_status == 'pending'){
                       stage.stage_discussion.nda_status = "approved";
+                      activity_data.name = 'NDA Uploaded';
                     }
                     if(stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee'){
                       stage.stage_discussion.nda_status = "uploaded";
+                      activity_data.name = 'NDA Uploaded';
 
                     }
                     if(stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor'){
                       stage.stage_discussion.nda_status = stageForm.nda_status;
+                      activity_data.name = 'NDA ' + stageForm.nda_status;
                     }
                     if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisee'){
                       stage.stage_discussion.nda_status = 'uploaded';
+                      activity_data.name = 'NDA Reuploaded';
                     }
-                    if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor'){
-                      stage.stage_discussion.nda_status = 'approved';
-                    }
+                    // if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor'){
+                    //   stage.stage_discussion.nda_status = 'approved';
+                    //   activity_data.name = 'NDA Reuploaded';
+                    // }
 
 
                    // stage.stage_discussion.status = false;
@@ -992,6 +1012,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     // stage.stage_kycupload = false;
                     stage.stage_kycupload.bgverification_file_link = req.file.location;
                     stage.stage_kycupload.bgverification_file_name = req.file.originalname;
+
                 }
                 //'application_form
                 if(stageForm.sub_stage == 'application_form'){
@@ -1031,6 +1052,8 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     stage.stage_agreenent.agreement_file =  req.file.location;
                     stage.stage_agreenent.agreement_file_name =  req.file.originalname;
                     franchisee_id = stageForm.franchisee_id;
+                    activity_data.activity_of = 'franchisor';
+                    activity_data.name = '4 Lac payment Uploaded';
                 }
                 //aggrement copy
                 if(stageForm.sub_stage == 'aggrement_Copy'){
@@ -1038,23 +1061,20 @@ router.put('/edit_stage', cpUpload, function(req, res){
                     // stage.stage_agreenent.status = true;
                     stage.stage_agreenent.final_agreement_file = req.file.location;
                     stage.stage_agreenent.final_agreement_file_name=req.file.originalname;
+                    activity_data.activity_of = 'franchisor';
+                    activity_data.name = 'Agreement Uploaded';
                 };
                 //save data in the table
                 stage.save(function(err, stage){
                   console.log('stage', stage);
+
+                  saveActivity(activity_data);
                     if(req.file){
                       var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                       console.log(get_id_of_crm_file, '881');
                       get_id_of_crm_file.then(result => {
                         console.log(result, 883);
                       })
-
-  //       setTimeout(function() {
-  //   /* Do something */
-  //
-  //     console.log("Result: " + get_id_of_crm_file);
-  //
-  // }, 4000);
 
                     }
                     if(err){
@@ -1064,102 +1084,102 @@ router.put('/edit_stage', cpUpload, function(req, res){
                         },500);
                     }
                     else{
-                      console.log(get_id_of_crm_file, '890');
-                        if(stage.stage_agreenent.agreement_file){
-                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
-                                if(err){
-                                    return res.send({
-                                        state:"err",
-                                        message:"Something went wrong."
-                                    },500);
-                                }
-                                else{
-                                    //franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
-                                    franchiees.second_lakh_payment = 'Submitted';
-                                    franchiees.save(function(err,franchisee){
-                                        if(err){
-                                            res.send({
-                                                status:500,
-                                                state:"err",
-                                                message:"Something went wrong."
-                                            },500);
-                                        }
-                                        else{
-                                            return res.send({
-                                                state:"success",
-                                                message:"Stage Updated",
-                                                data: stage,
-                                                franchiees:franchiees
-                                            },200);
-                                        }
-                                    });
-                                }
-                            })
-                        }
-                        // agreement file status
-                        if(stage.stage_agreenent.final_agreement_file){
-                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
-                                if(err){
-                                    return res.send({
-                                        state:"err",
-                                        message:"Something went wrong."
-                                    },500);
-                                }
-                                else{
-                                    franchiees.agreement_file_uploaded = 'Agreement file uploaded proceed to Setup.'
-                                    franchiees.save(function(err,franchisee){
-                                        if(err){
-                                            res.send({
-                                                status:500,
-                                                state:"err",
-                                                message:"Something went wrong."
-                                            },500);
-                                        }
-                                        else{
-                                            return res.send({
-                                                state:"success",
-                                                message:"Stage Updated",
-                                                data: stage,
-                                                franchiees:franchiees
-                                            },200);
-                                        }
-                                    });
-                                }
-                            })
-                        }
-                        // nda file status
-                        if(stage.stage_discussion.nda_file){
-                            Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
-                                if(err){
-                                    return res.send({
-                                        state:"err",
-                                        message:"Something went wrong."
-                                    },500);
-                                }
-                                else{
-                                    franchiees.nda_uploaded = 'NDA file uploaded proceed to Payment.'
-                                    franchiees.save(function(err,franchisee){
-                                        if(err){
-                                            res.send({
-                                                status:500,
-                                                state:"err",
-                                                message:"Something went wrong."
-                                            },500);
-                                        }
-                                        else{
-                                            return res.send({
-                                                state:"success",
-                                                message:"Stage Updated",
-                                                data: stage,
-                                                franchiees:franchiees
-                                            },200);
-                                        }
-                                    });
-                                }
-                            })
-                        }
+                      console.log(activity_data);
 
-                        else{
+
+                        //
+                        // if(stage.stage_agreenent.agreement_file){
+                        //     Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                        //         if(err){
+                        //             return res.send({
+                        //                 state:"err",
+                        //                 message:"Something went wrong."
+                        //             },500);
+                        //         }
+                        //         else{
+                        //             franchiees.second_lakh_payment = 'Submitted';
+                        //             franchiees.save(function(err,franchisee){
+                        //                 if(err){
+                        //                     res.send({
+                        //                         status:500,
+                        //                         state:"err",
+                        //                         message:"Something went wrong."
+                        //                     },500);
+                        //                 }
+                        //                 else{
+                        //                     return res.send({
+                        //                         state:"success",
+                        //                         message:"Stage Updated",
+                        //                         data: stage,
+                        //                         franchiees:franchiees
+                        //                     },200);
+                        //                 }
+                        //             });
+                        //         }
+                        //     })
+                        // }
+                        // if(stage.stage_agreenent.final_agreement_file){
+                        //     Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                        //         if(err){
+                        //             return res.send({
+                        //                 state:"err",
+                        //                 message:"Something went wrong."
+                        //             },500);
+                        //         }
+                        //         else{
+                        //             franchiees.agreement_file_uploaded = 'Agreement file uploaded proceed to Setup.'
+                        //             franchiees.save(function(err,franchisee){
+                        //                 if(err){
+                        //                     res.send({
+                        //                         status:500,
+                        //                         state:"err",
+                        //                         message:"Something went wrong."
+                        //                     },500);
+                        //                 }
+                        //                 else{
+                        //                     return res.send({
+                        //                         state:"success",
+                        //                         message:"Stage Updated",
+                        //                         data: stage,
+                        //                         franchiees:franchiees
+                        //                     },200);
+                        //                 }
+                        //             });
+                        //         }
+                        //     })
+                        // }
+                        // if(stage.stage_discussion.nda_file){
+                        //     Franchisee.findOne({_id:stageForm.franchisee_id},function(err,franchiees){
+                        //         if(err){
+                        //             return res.send({
+                        //                 state:"err",
+                        //                 message:"Something went wrong."
+                        //             },500);
+                        //         }
+                        //         else{
+                        //             franchiees.nda_uploaded = 'NDA file uploaded proceed to Payment.'
+                        //             franchiees.save(function(err,franchisee){
+                        //                 if(err){
+                        //                     res.send({
+                        //                         status:500,
+                        //                         state:"err",
+                        //                         message:"Something went wrong."
+                        //                     },500);
+                        //                 }
+                        //                 else{
+                        //                     return res.send({
+                        //                         state:"success",
+                        //                         message:"Stage Updated",
+                        //                         data: stage,
+                        //                         franchiees:franchiees
+                        //                     },200);
+                        //                 }
+                        //             });
+                        //         }
+                        //     })
+                        // }
+
+
                             // console.log('activity', activity_object);
                             // var activity_object = {
                             //     activity_name: 'nda',
@@ -1175,7 +1195,7 @@ router.put('/edit_stage', cpUpload, function(req, res){
                             },200);
                         }
                         //update_franchisee(req, res, stageForm.franchisee_id,stage_Completed,stage);
-                    }
+
                 })
             }
             //If requesting it for first time
@@ -1252,7 +1272,36 @@ router.put('/edit_stage', cpUpload, function(req, res){
     }
 });
 
+function saveActivity(data){
+  try {
+    console.log(data, '1284');
+    var activitytracker = new ActivityTracker();
+    activitytracker.activity_name = data.name;
+    console.log(data, '1285');
+    activitytracker.activity_source = data.source;
+    console.log(data, '1286');
+    activitytracker.activity_of = data.activity_of;
+    console.log(data, '1287');
+    activitytracker.franchisee_id = data.franchisee_id;
+    console.log(data, '1288');
+    activitytracker.franchisor_id = data.franchisor_id;
+    console.log(data, '1289');
+    activitytracker.save(function(err, activitytracker){
+      console.log(err, '1289 swamy');
+      if(err){
+        console.log(err, 'activitytracker creation error');
+      }
+      else {
+        console.log(activitytracker, 'activitytracker');
+      }
+      return ;
+    });
+  } catch (e) {
 
+  } finally {
+
+  }
+}
 function send_mail(req,res,stageForm){
     try{
         Meeting.findOne({franchisee_id:stageForm.franchisee_id},function(err,franchise){
@@ -1947,40 +1996,9 @@ router.put('/disable_onboarding', function (req,res){
     }
 })
 
-function activity_tracker(req, res) {
-    try {
-          var activityTracker = new ActivityTracker();
-          activityTracker.activity_name = req.body.activity_name,
-          activityTracker.activity_time = req.body.activity_time,
-          activityTracker.activity_date = req.body.activity_date,
-          activityTracker.activity_source = req.body.activity_source,
-          activityTracker.franchisor_id = req.body.franchisor_id,
-          activityTracker.franchisee_id = req.body.franchisee_id,
-            activityTracker.save(function (err, activityTracker) {
-              if (err) {
-                return res.send({
-                  state: "error",
-                  message: err
-                }, 500);
-              } else {
-                return res.send({
-                  state: "success",
-                  message: "Success",
-                  data: activityTracker
-                }, 200);
-              }
-            })
-        }
-    catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      }, 500);
-    }
-  };
 
 //   edit  franchisee my profile
-router.put('/edit_my_profile', function (req,res){
+router.put('/edit_my profile', function (req,res){
     try{
         Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
             if(err){
@@ -1992,7 +2010,7 @@ router.put('/edit_my_profile', function (req,res){
                 franchisee.franchisee_pass = req.body.franchisee_pass;
                 franchisee.franchisee_confirm_pass = req.body.franchisee_confirm_password;
                 franchisee.save(function(err,franchisee){
-                
+                })
                 if(err){
                     res.send({
                         state:"err",
@@ -2007,7 +2025,6 @@ router.put('/edit_my_profile', function (req,res){
                         data: franchisee
                     },200)
                 }
-            })
             }
         });
     }
@@ -2032,7 +2049,7 @@ router.put('/edit_franchisor_profile', function (req,res){
                 user.user_pass = req.body.user_pass;
                 user.user_confirm_pass = req.body.user_confirm_pass;
                 user.save(function(err,user){
-              
+                })
                 if(err){
                     res.send({
                         state:"err",
@@ -2047,7 +2064,6 @@ router.put('/edit_franchisor_profile', function (req,res){
                         data: user
                     },200)
                 }
-            })
             }
         });
     }
