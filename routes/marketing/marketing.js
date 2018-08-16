@@ -415,4 +415,14 @@ router.get('/get_campaign_files/:id', function (req, res) {
       }
     })
   })
+
+
+  async function upload_marketing_files_to_library(req, res, obj, status,folder_id, campaign_id, franchisee_id){
+      if(!folder_id){
+          var folder = new folder();
+          franchisee_id = franchisee_id;
+
+      }
+      
+  }
 module.exports = router;

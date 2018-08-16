@@ -2116,5 +2116,40 @@ router.get('/get_admins',function(req,res){
 	}
 });
 
+function notify_user(req,res,message,reason, rejected_franchisee_reason){
+    var fromName = "CARZ";
+                    var mailOptions={
+                    to: 'vishnu@wtastudios.com',
+                    subject: 'notify',
+                    from: "ikshitnodemailer@gmail.com",
+                    headers: {
+                        "X-Laziness-level": 1000,
+                        "charset" : 'UTF-8'
+                    },
+
+                    html: 'File rejected.'
+                }
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    secure: false, // use SSL
+                    port: 25, // port for secure SMTP
+                    auth: {
+                        user: 'ikshitnodemailer@gmail.com',
+                        pass: 'ikshit1007007'
+                    }
+                });
+                transporter.sendMail(mailOptions, function(error, response){
+                    if(error){
+                        return res.send(error);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:message,
+                            data: kyc_data
+                        },200);
+                    }
+                });
+}
 
 module.exports = router;

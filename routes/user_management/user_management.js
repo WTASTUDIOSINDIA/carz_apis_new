@@ -212,31 +212,34 @@ router.get('/get_user_by_id/:id', function (req,res){
       })
   }
 })
-
-// To delete users by id
-router.delete('/delete_user_by_id/:id', function (res, req){
-  Admin.remove({_id:req.params.id}, function (err, user){
-    if(err){
+// to delete user
+router.delete('/delete_user_by_id/:id', function (req, res) {
+  try {
+    Admin.findByIdAndRemove({ _id: req.params.id }, function (err, user) {
+          if (err) {
+              return res.send(500, err);
+          }
+          if (!user) {
+              res.send({
+                  message: "Unsucessfull",
+                  state: "failure"
+              }, 400);
+          }
+          else {
+              res.send({
+                  state: 'success',
+                  message: "User deleted sucessfully",
+              }, 200);
+          }
+      })
+  }
+  catch (err) {
       return res.send({
-        state:'error',
-        message:'Something went wrong'
-      },500)
-    }
-    if(!user){
-      res.send({
-        state:'failure',
-        message:'No users found'
-      },400)
-    }
-    if(user){
-      res.send({
-        state:'success',
-        message:'User deleted!'
-      },200)
-    }
-  })
-})
-
+          state: "error",
+          message: err
+      });
+  }
+});
 // To create role
 router.post('/create_role', function (req, res){
   try{
@@ -384,29 +387,34 @@ router.get('/get_roles_by_id/:id', function(req, res){
 })
 
 // To delete role by id
-router.delete('/delete_role_by_id/:id', function (res, req){
-  UserRole.remove({_id:req.params.id}, function (err, role){
-    if(err){
-      return res.send({
-        state:'error',
-        message:'Something went wrong'
-      },500)
-    }
-    if(!role){
-      res.send({
-        state:'failure',
-        message:'No roles found'
-      },400)
-    }
-    if(role){
-      res.send({
-        state:'success',
-        message:'Role deleted!'
-      },200)
-    }
-  })
-})
 
+router.delete('/delete_role_by_id/:id', function (req, res) {
+  try {
+    UserRole.findByIdAndRemove({ _id: req.params.id }, function (err, role) {
+          if (err) {
+              return res.send(500, err);
+          }
+          if (!role) {
+              res.send({
+                  message: "Unsucessfull",
+                  state: "failure"
+              }, 400);
+          }
+          else {
+              res.send({
+                  state: 'success',
+                  message: "Role deleted sucessfully",
+              }, 200);
+          }
+      })
+  }
+  catch (err) {
+      return res.send({
+          state: "error",
+          message: err
+      });
+  }
+});
 // to make franchisor notification hide 
 // router.post('/make_notification_franchisor_count_hide', function(req,res){
 //   Admin.findOne({'_id':req.body.user_id},function(err,user){
