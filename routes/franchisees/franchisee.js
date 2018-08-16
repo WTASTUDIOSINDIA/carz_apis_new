@@ -944,7 +944,6 @@ router.put('/edit_stage', cpUpload, function(req, res){
      stageForm = JSON.parse(req.body.franchisee_id);
      activity_data.franchisor_id = stageForm.franchisor_id;
      activity_data.franchisee_id = stageForm.franchisee_id;
-    console.log(stageForm);
     var stage_Completed = 0;
     try{
         Stages.findOne({franchisee_id: stageForm.franchisee_id}, function(err, stage){
@@ -956,7 +955,6 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 },500);
             }
             if(stage){
-                console.log(stageForm);
                 //'payment'
                 if(stageForm.sub_stage === 'payment'){
                   //  stage.stage_discussion.status = false;
@@ -970,7 +968,6 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //'nda'
                 if(stageForm.sub_stage === 'nda'){
-                  console.log(stageForm, "stageform");
                   activity_data.activity_of = stageForm.user_role;
                     if(stageForm.user_role == 'franchisor' && stage.stage_discussion.nda_status == 'pending'){
                       stage.stage_discussion.nda_status = "approved";
@@ -1010,7 +1007,6 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 }
                 //kyc background verification upload
                 if(stageForm.sub_stage == 'kycupload'){
-                    console.log(req.file);
                     // stage.stage_kycupload = false;
                     stage.stage_kycupload.bgverification_file_link = req.file.location;
                     stage.stage_kycupload.bgverification_file_name = req.file.originalname;
@@ -1068,12 +1064,10 @@ router.put('/edit_stage', cpUpload, function(req, res){
                 };
                 //save data in the table
                 stage.save(function(err, stage){
-                  console.log('stage', stage);
 
                   saveActivity(activity_data);
                     if(req.file){
                       var get_id_of_crm_file = upload_folder_file(req, res,req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
-                      console.log(get_id_of_crm_file, '881');
                       get_id_of_crm_file.then(result => {
                         console.log(result, 883);
                       })
@@ -1489,7 +1483,27 @@ function generatePassword() {
     return retVal;
 }
 async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id, sub_stage_name){
-  console.log('test', '1167');
+  console.log(folder_Id, '1167');
+
+    if(!folder_Id ){
+      var folder = new Folder();
+      folder.crm_folder = true;
+      folder.franchisee_Id = franchisee_Id;
+      if(sub_stage_name == 'nda' || sub_stage_name == 'payment'){
+        folder.folder_name = 'Discussion';
+      }
+      folder.save(function(err, folder){
+        if(err){
+           console.log(err, 'folder_error');
+        }
+        if(folder){
+//            console.log(folder, 'folderdata');
+          folder_Id = folder._id;
+        }
+
+      })
+    }
+    console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
     library.key = obj.key;
