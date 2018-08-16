@@ -61,7 +61,7 @@ router.get('/get_activities_tracker/:franchisee_id/:franchisor_id', function(req
           data: activity_tracker
         });
       }
-      if(activity_tracker.length > 0){
+      else if (activity_tracker.length > 0){
         res.send({
           status: 200,
           state: "success",
@@ -71,6 +71,39 @@ router.get('/get_activities_tracker/:franchisee_id/:franchisor_id', function(req
     })
   } catch (e) {
 
+  }
+});
+router.post('/save_activity', function(req, res){
+  try {
+    var activitytracker = new ActivityTracker();
+    activitytracker.activity_name = req.body.name;
+    activitytracker.activity_source = req.body.source;
+    activitytracker.activity_of = req.body.activity_of;
+    activitytracker.franchisee_id = req.body.franchisee_id;
+    activitytracker.franchisor_id = req.body.franchisor_id;
+    activitytracker.save(function(err, activitytracker){
+      if(err){
+        res.send({
+          status: 500,
+          state: "failure",
+          error: err
+        });
+      }
+      if(activitytracker) {
+        res.send({
+          status: 200,
+          state: "success",
+          data: activitytracker
+        });
+      }
+
+    });
+  } catch (e) {
+    res.send({
+      status: 500,
+      state: "failure",
+      error: e
+    });
   }
 });
 module.exports = router;
