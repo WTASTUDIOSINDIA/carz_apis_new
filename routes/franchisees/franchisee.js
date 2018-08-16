@@ -2052,23 +2052,20 @@ router.put('/edit_my profile', function (req,res){
     }
 })
 
-//   edit  franchisor my profile
-router.put('/edit_franchisor_profile', function (req,res){
+
+router.put('/edit_franchisee_profile', function (req,res){
+    if(req.body.franchisee_name && req.body.franchisee_pass){
     try{
-        Franchisor.findById({_id:req.body.franchisor_id}, function(err, user){
+        
+        Franchisee.findById({_id:req.body.user_id}, function(err, user){
             if(err){
                 return res.send(500, err);
             }
-            console.log(user);
             if(user){
-                user.user_name = req.body.user_name;
-                user.user_mail = req.body.user_mail;
-                user.user_pass = req.body.user_pass;
-                user.user_confirm_pass = req.body.user_confirm_pass;
+                user.franchisee_name = req.body.franchisee_name;
+                user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
                 user.save(function(err,user){
-
-
-
+                })
                 if(err){
                     res.send({
                         state:"err",
@@ -2079,11 +2076,10 @@ router.put('/edit_franchisor_profile', function (req,res){
                 else {
                     res.send({
                         state:"success",
-                        message:"My profile updated.",
+                        message:"Profile updated successfully!",
                         data: user
                     },200)
                 }
-                                  })
             }
         });
     }
@@ -2093,8 +2089,15 @@ router.put('/edit_franchisor_profile', function (req,res){
             message:"Something went wrong."
         },500);
     }
+}else{
+    
+        res.send({
+            state:"error",
+            message:"Missing required parameters."
+        },400);
+    
+}
 })
-
 
 router.get('/get_admins',function(req,res){
     try{
