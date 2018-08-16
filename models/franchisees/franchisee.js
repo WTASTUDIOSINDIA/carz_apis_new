@@ -114,7 +114,11 @@ var meetingSchema = new mongoose.Schema({
    "stage_id": String,
    "meeting_franchisor_remarks":String,
    "notification_to": String,
-   "user_name": String
+   "user_name": String,
+   "meeting_status": {type: String, default: 'pending'}, //pending, rejected, approved
+   "created_by": {type: String, enum: ['franchisor', 'franchisee']},
+   "meeting_reason":String,
+   "approved_by":{type: String, enum: ['franchisor', 'franchisee']}
 
 });
 
