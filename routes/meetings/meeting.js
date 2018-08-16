@@ -5,6 +5,7 @@ var multer = require('multer');
 var fs = require('fs');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+var Franchisor = mongoose.model('Franchisor');
 var Meeting = mongoose.model('Meeting');
 var Notification = mongoose.model('Notification');
 var Stages = mongoose.model('Stages');
@@ -13,6 +14,35 @@ var nodemailer = require('nodemailer');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var ical = require("ical-generator");
+const {google} = require('googleapis');
+
+const {GoogleAuth} = require('google-auth-library');
+const auth = new GoogleAuth();
+
+const calendar = google.calendar("v3");
+
+function createGmailCalenderEVent(options) {
+    let cal = ical();
+    cal.createEvent({
+        start: new Date(options.start),
+        end: new Date(options.start),
+        summary: options.summary || options.subject,
+        description: options.description || "",
+        location: options.location
+    });
+    return {
+        from: "sasirekhachinthas@gmail.com",//options.from,
+        to: options.mail,//options.to.required,
+        subject: "Test calander",//options.subject,
+        //html: "test",//options.html,
+        alternatives: [{
+            contentType: "text/calendar",
+            content: new Buffer(cal.toString())
+        }]
+    }
+}
+
 
 // to create meeting
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
@@ -20,9 +50,9 @@ router.post('/create_meeting', function (req, res) {
     var meetingForm = req.body;
     str = JSON.stringify(req.body);
     str1 = JSON.parse(str);
-    console.log(str + "adsaaaa");
+    var attendies = [];
     try {
-        Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id, 'franchisor_id': meetingForm.franchisor_id, 'meeting_time': meetingForm.meeting_time }, function (err, meeting) {
+        Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id,'meeting_date':meetingForm.meeting_date,'meeting_time':meetingForm.meeting_time}, function (err, meeting) {
             // console.log(meetingForm);
             if (err) {
                 return res.send({
@@ -39,6 +69,8 @@ router.post('/create_meeting', function (req, res) {
             if (!meeting) {
                 var meeting = new Meeting();
 
+                   
+
                     meeting.meeting_title = meetingForm.meeting_title;
                     meeting.meeting_location = meetingForm.meeting_location;
                     meeting.meeting_date = meetingForm.meeting_date;
@@ -53,6 +85,25 @@ router.post('/create_meeting', function (req, res) {
                     meeting.notification_to = meetingForm.notification_to;
                     meeting.meeting_status = meetingForm.meeting_status;
                     meeting.created_by = meetingForm.created_by;
+
+                    meetingForm.meeting_assigned_people.forEach(function(element){
+                         
+                            attendies.push(element['user_mail'])     
+                    
+                    });
+
+                    Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
+                        if (err) {
+                            console.log(err);
+                        }else{
+                            attendies.push(franchisor.user_mail);
+
+                            Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
+                                if (err) {
+                                    console.log(err);
+                                }else{
+                                    attendies.push(franchisee.franchisee_email);
+
                     meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
@@ -62,17 +113,13 @@ router.post('/create_meeting', function (req, res) {
                     }
                     else {
 
-                        // if(meeting.stage_id == 'Kyc'){
-                        //     update_stage_table(req, res,meeting);
-                        // }
-                        //else{
                         io.on('connection', function (socket) {
-                            console.log(socket);
+                            //console.log(socket);
                             socket.emit('news', { hello: 'world' });
                             socket.on('message', function (data, response) {
-                                console.log(data, "42_meeting.js");
+                                //console.log(data, "42_meeting.js");
                                 var meeting_data = saveMeetingNotification(data, res);
-                                console.log(meeting_data, "44_meeting.js");
+                                //console.log(meeting_data, "44_meeting.js");
                                 io.emit('message', { type: 'new-message-23', text: meeting_data });
                                 // Function above that stores the message in the database
 
@@ -88,26 +135,116 @@ router.post('/create_meeting', function (req, res) {
                                 io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
                             });
                         });
-                        console.log('sda', meetingForm.franchisor_id);
+                        //console.log('sda', meetingForm.franchisor_id);
                         Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
                             if (err) {
                                 return res.json(500, err);
                             }
                             if (user) {
-                                console.log(user, "90");
+                                //console.log(user, "90");
                                 meeting.user_name = user.user_name;
                                 meeting.save();
-                                console.log(meeting, 'meeting....');
-                                return res.send({
-                                    state: "success",
-                                    message: "Meeting Scheduled .",
-                                    meeting: meeting
-                                }, 200);
+                                let i = 0;
+                                
+                                var time = meeting.meeting_time;
+                                var hours = Number(time.match(/^(\d+)/)[1]);
+                                var minutes = Number(time.match(/:(\d+)/)[1]);
+                                var AMPM = time.match(/\s(.*)$/)[1];
+                                if (AMPM == "PM" && hours < 12) hours = hours + 12;
+                                if (AMPM == "AM" && hours == 12) hours = hours - 12;
+                                var sHours = hours.toString();
+                                var sMinutes = minutes.toString();
+
+                                if (hours < 10) sHours = "0" + sHours;
+                                if (minutes < 10) sMinutes = "0" + sMinutes;
+
+                                var d = new Date(meeting.meeting_date);
+                                d.setHours(d.getHours() + sHours);
+                                d.setMinutes(d.getMinutes() + sMinutes);
+                                
+                                attendies.forEach(function(mail){
+                                i++;
+                                var options = {
+                                    'summary': meeting.meeting_title,
+                                    'location': meeting.meeting_location,
+                                    'description': 'A test calandar.',
+                                    'start': d,
+                                    'hours' : sHours,
+                                    'minutes': sMinutes,
+                                    'mail' : mail,
+                                    'end': {
+                                      'dateTime': '2015-05-28T17:00:00-07:00',
+                                      'timeZone': 'America/Los_Angeles',
+                                    },
+                                    'recurrence': [
+                                      'RRULE:FREQ=DAILY;COUNT=2'
+                                    ],
+                                    'attendees': [
+                                      {'email': 'lpage@example.com'},
+                                      {'email': 'sbrin@example.com'},
+                                    ],
+                                    'reminders': {
+                                      'useDefault': false,
+                                      'overrides': [
+                                        {'method': 'email', 'minutes': 24 * 60},
+                                        {'method': 'popup', 'minutes': 10},
+                                      ],
+                                    },
+                                  };
+                                  
+                                  calendar.events.insert({
+                                    auth: auth,
+                                    calendarId: 'primary',
+                                    resource: options,
+                                  }, function(err, event) {
+                                    if (err) {
+                                      console.log('There was an error contacting the Calendar service: ' + err);
+                                      return;
+                                    }
+                                    console.log('Event created: %s', event.htmlLink);
+                                  });
+        
+                                var transporter = nodemailer.createTransport({
+                                    service: 'Gmail',
+                                    secure: false, // use SSL
+                                    port: 25, // port for secure SMTP
+                                    auth: {
+                                        user: 'ikshitnodemailer@gmail.com',
+                                        pass: 'ikshit1007007'
+                                    }
+                                });
+                                transporter.sendMail(createGmailCalenderEVent(options), (err, info) => {
+                                    if(err){
+                                        console.log(err);
+                                    }else{
+                                        console.log(info);
+                                    }
+                                })
+                                if(i == attendies.length){
+                                    return res.send({
+                                        state: "success",
+                                        message: "Meeting Scheduled .",
+                                        meeting: meeting
+                                    }, 200);
+                                }
+                            });
+
+                                
                             }
                         })
                         //}
                     }
                 });
+
+                                }
+        
+                            });
+                        }
+
+                    });
+
+                    
+
             }
         });
     }
@@ -118,6 +255,8 @@ router.post('/create_meeting', function (req, res) {
         });
     }
 });
+
+
 
 //update meeting
 router.put('/edit_meeting', function (req, res, next) {
