@@ -383,8 +383,8 @@ router.get('/get_roles_by_id/:id', function(req, res){
 })
 })
 
-// To delete users by id
-router.delete('/delete_user_by_id/:id', function (res, req){
+// To delete role by id
+router.delete('/delete_role_by_id/:id', function (res, req){
   UserRole.remove({_id:req.params.id}, function (err, role){
     if(err){
       return res.send({
