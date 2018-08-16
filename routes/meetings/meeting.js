@@ -671,57 +671,41 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
 });
 
 
-// To approve or decline
-router.put('/change_meeting_status', function (req, res) {
-    try {
-        Meeting.findById({ _id: req.body.meeting_id }, function (err, meeting) {
+router.get('/change_read_status/:id', (req, res) => {
+    console.log(req.params.id);
+        Notification.find( {$or: [{ franchisor_id: req.params.id }, {franchisee_id: req.params.id}]},(err, data) => {
             if (err) {
-                return res.send(500, err);
+                return res.json(500, err);
             }
-            if (meeting) {
-                console.log('meet', req.body.meeting_status);
-                if (req.body.meeting_status === 'approved') {
-                    meeting.meeting_status = req.body.meeting_status;
-                        meeting.approved_by = req.body.approved_by;
+            if (data) {
+                console.log(data, 'data');
+                for(i = 0; i < data.length; i++) {
+                    data[i].read_status = true;
+                    data[i].save();
                 }
-                if (req.body.meeting_status === 'declined' && req.body.meeting_reason != null) {
-                    meeting.meeting_status = req.body.meeting_status;
-                        meeting.approved_by = req.body.approved_by;
-                        meeting.meeting_reason = req.body.meeting_reason;
-                }
-                meeting.save(function (err, meeting) {
-                    if (err) {
-                        res.send({
-                            state: "err",
-                            message: "Something went wrong."
-                        }, 500);
-                    }
-                    else {
-                        res.send({
-                            state: "success",
-                            message: "Meeting updated.",
-                            data: meeting
-                        }, 200);
-                    }
-                });
-
             }
-            if (!meeting) {
-                res.send({
-                    state: "failure",
-                    message: "Failed."
-                }, 400);
-            }
-
-        });
-    }
-    catch (err) {
-        res.send({
-            state: "error",
-            message: "Something went wrong"
-        }, 500);
-    }
-});
+        })
+        // Notification.find({ franchisee_id: req.body.franchisee_id }, (err, data) => {
+        //     if (err) {
+        //         return res.json(500, err);
+        //     }
+        //     if (data) {
+        //         data.read_status = true;
+        //         data.save((err, success) => {
+        //             if (err) {
+        //                 return res.json(500, err);
+        //             }
+        //             if (success) {
+        //                 return res.json({
+        //                     state: 'success',
+        //                     message: 'Successfully changed read status',
+        //                     data: data 
+        //                 })
+        //             }
+        //         })
+        //     }
+        // })
+})
 
 module.exports = router;
 module.exports.saveMeetingNotification = saveMeetingNotification;
