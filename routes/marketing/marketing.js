@@ -458,6 +458,7 @@ router.put('/after_campaign',fileupload, function(req,res){
                 campaign.leads_generated = campaignDetailsForm.leads_generated;
                 campaign.footfalls = campaignDetailsForm.footfalls;
                 campaign.campaign_duration = campaignDetailsForm.campaign_duration;
+                campaign.campaign_id = campaignDetailsForm.campaign_id;
                 if (req.file){
                     console.log(req.file);
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
