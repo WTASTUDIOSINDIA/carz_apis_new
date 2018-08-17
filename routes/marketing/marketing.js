@@ -440,67 +440,48 @@ router.get('/get_campaign_files/:id', function (req, res) {
     maxCount: 20
   }])
 // after campaign details
-router.post('/after_campaign_details', fileupload, function(req, res) {
+// To update campaign
+router.put('/after_campaign',fileupload, function(req,res){
+    //  var campaignDetailsForm = JSON.parse(req.body.campaign);
+    console.log(req.body.campaign);
     // try{
-    var campaignDetailsForm = JSON.parse(req.body.campaign);
- 
-        Campaign.findOne({_id:campaignDetailsForm.id},function(err,campaign){
-
+        Campaign.findOne({'_id':req.body._id},function(err,campaign){
+            console.log(campaign);
             if(err){
                 return res.send({
-                        state:"err",
-                        message:"Something went wrong.We are looking into it."
-                    },500);
+                    state:"err",
+                    message:"Something went wrong. We are looking into it."
+                },500);
             }
-            // if(campaign){
-            //     return res.send({
-            //         state:"failure",
-            //         message:"This campaign already exists!"
-            //     },400);
-            // }
-            if(!campaign){
-               var campaign = new Campaign();
-                campaign.amount_spent = campaignDetailsForm.amount_spent;
-                campaign.leads_generated = campaignDetailsForm.leads_generated;
-                campaign.footfalls = campaignDetailsForm.footfalls;
-                campaign.campaign_duration = campaignDetailsForm.campaign_duration;
-                campaign.franchisor_id = campaignDetailsForm.franchisor_id;
-                campaign.franchisee_id = campaignDetailsForm.franchisee_id;
+            if(campaign){
+                campaign.amount_spent = req.body.amount_spent;
+                campaign.leads_generated = req.body.leads_generated;
+                campaign.footfalls = req.body.footfalls;
+                campaign.campaign_duration = req.body.campaign_duration;
                 if (req.file){
+                    console.log(req.file);
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
                     campaign.after_campaign_file_attachment_file_type = req.file.contentType;
                 }
+                console.log('camp',campaign);
                 campaign.save(function(err,campaign){
-                   if(err){
-                     res.send({
-                        state:"err",
-                        message:"Something went wrong."
-                    },500);
-                   }
-                else{
-
-                    return res.send({
-                        state:"success",
-                        message:"Campaign details updated.",
-                        data:campaign
-                    },200);
-                }
+                    {
+                        res.send({
+                            state:"success",
+                            message:"Campaign updated.",
+                            data:campaign
+                        },200);
+                    }
                 });
+
             }
-            else {
-              return res.send({
-                  state:"failure",
-                  message:"failed to update"
-              },200);
+            if(!campaign){
+                res.send({
+                    state:"failure",
+                    message:"Failed to update."
+                },400);
             }
-        });
-    // }
-    // catch(err){
-	// 	return res.send({
-	// 		state:"error",
-	// 		message:err
-	// 	});
-	// }
+        })
 });
 module.exports = router;
