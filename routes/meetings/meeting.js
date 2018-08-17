@@ -39,21 +39,21 @@ router.post('/create_meeting', function (req, res) {
             if (!meeting) {
                 var meeting = new Meeting();
 
-                    meeting.meeting_title = meetingForm.meeting_title;
-                    meeting.meeting_location = meetingForm.meeting_location;
-                    meeting.meeting_date = meetingForm.meeting_date;
-                    meeting.meeting_time = meetingForm.meeting_time;
-                    meeting.meeting_assigned_people = meetingForm.meeting_assigned_people;
-                    meeting.meeting_additional_services = meetingForm.meeting_additional_services;
-                    meeting.meeting_remarks = meetingForm.meeting_remarks
-                    meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
-                    meeting.franchisor_id = meetingForm.franchisor_id;
-                    meeting.franchisee_id = meetingForm.franchisee_id;
-                    meeting.stage_id = meetingForm.stage_id;
-                    meeting.notification_to = meetingForm.notification_to;
-                    meeting.meeting_status = meetingForm.meeting_status;
-                    meeting.created_by = meetingForm.created_by;
-                    meeting.save(function (err, meeting) {
+                meeting.meeting_title = meetingForm.meeting_title;
+                meeting.meeting_location = meetingForm.meeting_location;
+                meeting.meeting_date = meetingForm.meeting_date;
+                meeting.meeting_time = meetingForm.meeting_time;
+                meeting.meeting_assigned_people = meetingForm.meeting_assigned_people;
+                meeting.meeting_additional_services = meetingForm.meeting_additional_services;
+                meeting.meeting_remarks = meetingForm.meeting_remarks
+                meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
+                meeting.franchisor_id = meetingForm.franchisor_id;
+                meeting.franchisee_id = meetingForm.franchisee_id;
+                meeting.stage_id = meetingForm.stage_id;
+                meeting.notification_to = meetingForm.notification_to;
+                meeting.meeting_status = meetingForm.meeting_status;
+                meeting.created_by = meetingForm.created_by;
+                meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
                             state: "err",
@@ -148,20 +148,20 @@ router.put('/edit_meeting', function (req, res, next) {
                     // meeting.meeting_status = meetingEditForm.meeting_status,
                     // meeting.created_by = meetingEditForm.created_by
 
-                meeting.save(function (err, meeting) {
-                    if (err) {
-                        res.send({
-                            state: "err",
-                            message: "Something went wrong."
-                        }, 500);
-                    }
-                    else {
-                        res.send({
-                            state: "success",
-                            message: "Meeting Updated."
-                        }, 200);
-                    }
-                });
+                    meeting.save(function (err, meeting) {
+                        if (err) {
+                            res.send({
+                                state: "err",
+                                message: "Something went wrong."
+                            }, 500);
+                        }
+                        else {
+                            res.send({
+                                state: "success",
+                                message: "Meeting Updated."
+                            }, 200);
+                        }
+                    });
             }
             if (!meeting) {
                 res.send({
@@ -534,38 +534,62 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
 
 router.get('/change_read_status/:id', (req, res) => {
     console.log(req.params.id);
-        Notification.find( {$or: [{ franchisor_id: req.params.id }, {franchisee_id: req.params.id}]},(err, data) => {
-            if (err) {
-                return res.json(500, err);
+    var id_array = [];
+    Notification.find({ $or: [{ franchisor_id: req.params.id }, { franchisee_id: req.params.id }] }, (err, data) => {
+        if (err) {
+            return res.json(500, err);
+        }
+        if (data) {
+            console.log(data, 'data');
+            for (i = 0; i < data.length; i++) {
+                // data[i].read_status = true;
+                // data[i].save();
+                id_array.push(data[i]._id);
             }
-            if (data) {
-                console.log(data, 'data');
-                for(i = 0; i < data.length; i++) {
-                    data[i].read_status = true;
-                    data[i].save();
+            Notification.update({ _id: { $in: id_array } }, { $set: { read_status: true } }, (err, success) => {
+                if (err) {
+                    return res.json(err);
                 }
-            }
-        })
-        // Notification.find({ franchisee_id: req.body.franchisee_id }, (err, data) => {
-        //     if (err) {
-        //         return res.json(500, err);
-        //     }
-        //     if (data) {
-        //         data.read_status = true;
-        //         data.save((err, success) => {
-        //             if (err) {
-        //                 return res.json(500, err);
-        //             }
-        //             if (success) {
-        //                 return res.json({
-        //                     state: 'success',
-        //                     message: 'Successfully changed read status',
-        //                     data: data 
-        //                 })
-        //             }
-        //         })
-        //     }
-        // })
+                if (success) {
+                    return res.json({
+                        state: 'success',
+                        message: 'Successfully changed notification read status'
+                    })
+                }
+            })
+            // data.save((err, success) => {
+            //     if (err) {
+            //         return res.json(err);
+            //     }
+            //     if (success) {
+            //         return res.json({
+            //             state: 'success',
+            //             message: 'Successfully changed notification read status'
+            //         })
+            //     }
+            // })
+        }
+    })
+    // Notification.find({ franchisee_id: req.body.franchisee_id }, (err, data) => {
+    //     if (err) {
+    //         return res.json(500, err);
+    //     }
+    //     if (data) {
+    //         data.read_status = true;
+    //         data.save((err, success) => {
+    //             if (err) {
+    //                 return res.json(500, err);
+    //             }
+    //             if (success) {
+    //                 return res.json({
+    //                     state: 'success',
+    //                     message: 'Successfully changed read status',
+    //                     data: data 
+    //                 })
+    //             }
+    //         })
+    //     }
+    // })
 })
 
 module.exports = router;
