@@ -134,7 +134,8 @@ var notificationSchema = new mongoose.Schema({
     "notification_type": String,
     "status" : Boolean,
     "notification_to": String,
-    "discussion_notification": String
+    "discussion_notification": String,
+    "read_status": { type: Boolean, default: false}
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
@@ -281,7 +282,14 @@ var CampaignSchema = new mongoose.Schema({
     'campaign_file_attachment_file_type': String,
     'campaign_files': Array,
     'visible_to':String,
-    'visible_to_franchisee_id':String
+    'visible_to_franchisee_id':String,
+    'amount_spent':String,
+    'leads_generated': String,
+    'footfalls':String,
+    'campaign_duration': String,
+    'after_campaign_file_attachment_file_name': String,
+    'after_campaign_file_attachment_file_url': String,
+    'after_campaign_file_attachment_file_type': String,
 });
 
 
