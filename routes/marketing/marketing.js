@@ -442,10 +442,10 @@ router.get('/get_campaign_files/:id', function (req, res) {
 // after campaign details
 // To update campaign
 router.put('/after_campaign',fileupload, function(req,res){
-    //  var campaignDetailsForm = JSON.parse(req.body.campaign);
+     var campaignDetailsForm = JSON.parse(req.body.campaign);
     console.log(req.body.campaign);
     // try{
-        Campaign.findOne({'_id':req.body._id},function(err,campaign){
+        Campaign.findOne({'_id':campaignDetailsForm._id},function(err,campaign){
             console.log(campaign);
             if(err){
                 return res.send({
@@ -454,10 +454,10 @@ router.put('/after_campaign',fileupload, function(req,res){
                 },500);
             }
             if(campaign){
-                campaign.amount_spent = req.body.amount_spent;
-                campaign.leads_generated = req.body.leads_generated;
-                campaign.footfalls = req.body.footfalls;
-                campaign.campaign_duration = req.body.campaign_duration;
+                campaign.amount_spent = campaignDetailsForm.amount_spent;
+                campaign.leads_generated = campaignDetailsForm.leads_generated;
+                campaign.footfalls = campaignDetailsForm.footfalls;
+                campaign.campaign_duration = campaignDetailsForm.campaign_duration;
                 if (req.file){
                     console.log(req.file);
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
