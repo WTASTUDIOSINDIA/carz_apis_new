@@ -441,9 +441,9 @@ router.get('/get_campaign_files/:id', function (req, res) {
   }])
 // after campaign details
 router.post('/after_campaign_details', fileupload, function(req, res) {
-
+    // try{
     var campaignDetailsForm = JSON.parse(req.body.campaign);
-    try{
+ 
         Campaign.findOne({_id:campaignDetailsForm.id},function(err,campaign){
 
             if(err){
@@ -495,12 +495,12 @@ router.post('/after_campaign_details', fileupload, function(req, res) {
               },200);
             }
         });
-    }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		});
-	}
+    // }
+    // catch(err){
+	// 	return res.send({
+	// 		state:"error",
+	// 		message:err
+	// 	});
+	// }
 });
 module.exports = router;
