@@ -444,7 +444,7 @@ router.post('/after_campaign_details', fileupload, function(req, res) {
 
     var campaignDetailsForm = JSON.parse(req.body.campaign);
     try{
-        Campaign.findOne({_id:req.body.id},function(err,campaign){
+        Campaign.findOne({_id:campaignDetailsForm.id},function(err,campaign){
 
             if(err){
                 return res.send({
@@ -460,12 +460,12 @@ router.post('/after_campaign_details', fileupload, function(req, res) {
             // }
             if(!campaign){
                var campaign = new Campaign();
-                campaign.amount_spent = req.body.amount_spent;
-                campaign.leads_generated = req.body.leads_generated;
-                campaign.footfalls = req.body.footfalls;
-                campaign.campaign_duration = req.body.campaign_duration;
-                campaign.franchisor_id = req.body.franchisor_id;
-                campaign.franchisee_id = req.body.franchisee_id;
+                campaign.amount_spent = campaignDetailsForm.amount_spent;
+                campaign.leads_generated = campaignDetailsForm.leads_generated;
+                campaign.footfalls = campaignDetailsForm.footfalls;
+                campaign.campaign_duration = campaignDetailsForm.campaign_duration;
+                campaign.franchisor_id = campaignDetailsForm.franchisor_id;
+                campaign.franchisee_id = campaignDetailsForm.franchisee_id;
                 if (req.file){
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
