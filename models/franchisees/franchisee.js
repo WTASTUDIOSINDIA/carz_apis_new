@@ -290,7 +290,8 @@ var CampaignSchema = new mongoose.Schema({
     'after_campaign_file_attachment_file_name': String,
     'after_campaign_file_attachment_file_url': String,
     'after_campaign_file_attachment_file_type': String,
-    'campaign_id': String
+    // 'campaign_id': String,
+    'campaign_status': String
 });
 
 
