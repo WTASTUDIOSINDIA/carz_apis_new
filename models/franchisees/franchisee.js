@@ -59,6 +59,7 @@ var franchiseeSchema = new mongoose.Schema({
     "seen_notification":{type: Number, default: 0},
     "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    "rejected_franchisee_reason": String
 });
 
 var librarySchema = new mongoose.Schema({

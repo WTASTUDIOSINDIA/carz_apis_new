@@ -32,8 +32,9 @@ var upload = multer({
 });
 
 function deleteFile(key){
+  console.log(key, 'test dsdsds');
     try{
-        var params = {Bucket: 'carztesting', Key : key};
+        var params = {Bucket: 'celebappfiles', Key : key};
         s0.deleteObject(params, function (err, response) {
             if (err) {
                 return res.send({ "error": err });
@@ -43,10 +44,10 @@ function deleteFile(key){
         });
     }
     catch(err){
-        res.send({
-            state:"error",
-            message:err
-        });
+        // res.send({
+        //     state:"error",
+        //     message:err
+        // });
     }
 }
 
