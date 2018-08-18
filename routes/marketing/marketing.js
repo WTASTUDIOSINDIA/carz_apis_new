@@ -466,6 +466,7 @@ router.post('/after_campaign_details', fileupload, function(req, res) {
                 campaign.campaign_duration = campaignDetailsForm.campaign_duration;
                 campaign.franchisor_id = campaignDetailsForm.franchisor_id;
                 campaign.franchisee_id = campaignDetailsForm.franchisee_id;
+                campaign.campaign_id = campaignDetailsForm.campaign_id;
                 if (req.file){
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
