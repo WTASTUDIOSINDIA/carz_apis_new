@@ -8,6 +8,7 @@ var ForgotPassword = mongoose.model('ForgotPassword');
 var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var nodemailer = require('nodemailer');
+var otpGenerator = require("otp-generator");
 
 module.exports = function(passport){
     //sends successful login state back to angular
@@ -31,13 +32,107 @@ module.exports = function(passport){
         });
     });
     //sends successful login state back to angular
-    router.get('/success-franchisee', function(req, res){
 
+
+    router.post('/verify', function(req, res){
+        console.log(req.body);
+        Franchisee.findById(req.body.id,function(err,franchisee){
+            if(err){
+                res.send({
+                    status:500,
+                    state:"error",
+                    message:"Something went wrong.We are looking into it."
+                });
+            }
+            if(!franchisee){
+                res.send({
+                    status:201,
+                    state:"failure",
+                    message:"User not found."
+                });
+            }
+            if(franchisee){
+
+                if(franchisee.verification  && franchisee.verification.otp && franchisee.verification.otp == req.body.otp){
+                    //verified
+                    franchisee.verified = true;
+                    franchisee.verification.status = true;
+                    franchisee.verification.verifiedDate = Date.now();
+                    franchisee.save();
+                    res.send({
+                        state: 'success',
+                        user: franchisee,
+                        status:200
+                    });
+                }else{
+                    res.send({
+                        status:501,
+                        state:"failure",
+                        message:"OTP doesn't matched."
+                    });
+                }
+               
+            }
+        })
+    });
+
+    router.get('/success-franchisee', function(req, res){
+        
+    if(req.user.verified == false){
+        //console.log(req.user)
+        var otp = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
+        var mailOptions={
+            to: req.user.franchisee_email,
+            subject: 'OTP',
+            from: "ikshitnodemailer@gmail.com",
+            headers: {
+                "X-Laziness-level": 1000,
+                "charset" : 'UTF-8'
+            },
+
+            html: "<p>Your one time password is <b>"+otp+"</b>. Please enter this to verify your account.</p><div><p>Best,</p><p>Carz.</p></div>"
+        }
+        var transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            secure: false, // use SSL
+            port: 25, // port for secure SMTP
+            auth: {
+                user: 'ikshitnodemailer@gmail.com',
+                pass: 'ikshit1007007'
+            }
+        });
+        transporter.sendMail(mailOptions, function(error, response){
+            if(error){
+                return res.send(error);
+            }
+            else{
+                return res.send(response);
+            }
+        });
+
+        req.user.verification = {
+              otp: otp,
+              status: false
+          }
+
+          req.user.save();
+          let data = {};
+          data.franchisee_email = req.user.franchisee_email;
+          data.id = req.user._id;
+          res.send({
+            state: 'otp',
+            user: data,
+            status:200
+        });
+
+    }else{
         res.send({
             state: 'success',
             user: req.user ? req.user : null,
             status:200
         });
+    }
+        /*r*/
     });
 
     //sends failure login state back to angular
