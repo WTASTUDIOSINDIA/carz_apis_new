@@ -16,6 +16,7 @@ var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
 var Meeting = mongoose.model('Meeting');
+var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
 // var Discussion = mongoose.model('Discussion');
@@ -1503,6 +1504,24 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
 
       })
     }
+    // if(!folder_Id){
+    //     var folder = new Folder();
+    //     folder.campaign_folder = true;
+    //     folder.franchisee_Id = franchisee_Id;
+    //     folder.campaign_id = campaign_id;
+    //     for (let folder = 0; folder < array.length; folder++) {
+    //         const element = array[index];
+            
+    //     }
+    //     folder.save(function(err, folder){
+    //         if(err){
+    //             res.send(err,500);
+    //         }
+    //         if(folder){
+    //             folder_Id = folder._id
+    //         }
+    //     })
+    // }
     console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
@@ -2130,5 +2149,40 @@ router.get('/get_admins',function(req,res){
 	}
 });
 
+function notify_user(req,res,message,reason, rejected_franchisee_reason){
+    var fromName = "CARZ";
+                    var mailOptions={
+                    to: 'vishnu@wtastudios.com',
+                    subject: 'notify',
+                    from: "ikshitnodemailer@gmail.com",
+                    headers: {
+                        "X-Laziness-level": 1000,
+                        "charset" : 'UTF-8'
+                    },
+
+                    html: 'File rejected.'
+                }
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    secure: false, // use SSL
+                    port: 25, // port for secure SMTP
+                    auth: {
+                        user: 'ikshitnodemailer@gmail.com',
+                        pass: 'ikshit1007007'
+                    }
+                });
+                transporter.sendMail(mailOptions, function(error, response){
+                    if(error){
+                        return res.send(error);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:message,
+                            data: kyc_data
+                        },200);
+                    }
+                });
+}
 
 module.exports = router;

@@ -81,6 +81,52 @@ router.post('/create_setup_department', function (req, res) {
   }
 })
 
+// To update setup department
+router.put('/update_setup_department', function(req, res){
+  try{
+    SetupDepartment.findById({_id: req.body._id},function(err,department){
+  if(err){
+    return res.send({
+      state:"err",
+      message:"Something went wrong.We are looking into it."
+    },500);
+  }
+  if (department){
+    department.setup_department_name_EN = req.body.setup_department_name_EN;
+    department.franchisor_id = req.body.franchisor_id;
+    department.save(function(err, department){
+      if(err){
+        res.send({
+           state:"err",
+           message:"Something went wrong."
+       },500);
+      }
+   else{
+       res.send({
+           state:"success",
+           message:"Department Updated.",
+           data: department
+       },200);
+   }
+    });
+  }
+  if(!department){
+    res.send({
+        state:"failure",
+        message:"Failed to update"
+    },400);
+}
+    })
+  }
+  catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+})
+
+
 //To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {

@@ -77,7 +77,8 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                     else {
                         res.send({
                             state: "success",
-                            message: "Question created successfully"
+                            message: "Question created successfully",
+                            data:discussionquestion
                         }, 200);
                     }
                 });
