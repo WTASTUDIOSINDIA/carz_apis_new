@@ -1504,24 +1504,6 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
 
       })
     }
-    // if(!folder_Id){
-    //     var folder = new Folder();
-    //     folder.campaign_folder = true;
-    //     folder.franchisee_Id = franchisee_Id;
-    //     folder.campaign_id = campaign_id;
-    //     for (let folder = 0; folder < array.length; folder++) {
-    //         const element = array[index];
-            
-    //     }
-    //     folder.save(function(err, folder){
-    //         if(err){
-    //             res.send(err,500);
-    //         }
-    //         if(folder){
-    //             folder_Id = folder._id
-    //         }
-    //     })
-    // }
     console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
@@ -2076,7 +2058,7 @@ router.put('/edit_my profile', function (req,res){
 
 
 router.put('/edit_franchisee_profile', function (req,res){
-    if(req.body.franchisee_name && req.body.franchisee_pass){
+    if(req.body.franchisee_name ){
     try{
         
         Franchisee.findById({_id:req.body.user_id}, function(err, user){
@@ -2085,7 +2067,9 @@ router.put('/edit_franchisee_profile', function (req,res){
             }
             if(user){
                 user.franchisee_name = req.body.franchisee_name;
-                user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                if(req.body.franchisee_pass){
+                    user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                }
                 user.save(function(err,user){
                 })
                 if(err){
