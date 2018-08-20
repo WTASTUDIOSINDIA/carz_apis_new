@@ -387,6 +387,28 @@ router.get('/get_roles_by_id/:id', function(req, res){
 })
 
 // To delete role by id
+router.delete('/delete_role_by_id/:id', function (res, req){
+  UserRole.remove({_id:req.params.id}, function (err, role){
+    if(err){
+      return res.send({
+        state:'error',
+        message:'Something went wrong'
+      },500)
+    }
+    if(!role){
+      res.send({
+        state:'failure',
+        message:'No roles found'
+      },400)
+    }
+    if(role){
+      res.send({
+        state:'success',
+        message:'Role deleted!'
+      },200)
+    }
+  })
+})
 
 router.delete('/delete_role_by_id/:id', function (req, res) {
   try {
