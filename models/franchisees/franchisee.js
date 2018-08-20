@@ -59,6 +59,7 @@ var franchiseeSchema = new mongoose.Schema({
     "seen_notification":{type: Number, default: 0},
     "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+    "rejected_franchisee_reason": String
 });
 
 var librarySchema = new mongoose.Schema({
@@ -133,7 +134,8 @@ var notificationSchema = new mongoose.Schema({
     "notification_type": String,
     "status" : Boolean,
     "notification_to": String,
-    "discussion_notification": String
+    "discussion_notification": String,
+    "read_status": { type: Boolean, default: false}
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
