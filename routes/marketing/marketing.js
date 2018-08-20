@@ -97,7 +97,41 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 
                     campaign23.meta.campaign_id = campaign23._id;
                     campaign23.save(function(err,campaign24){
-
+                    
+                    var folder = new Folder();
+                    folder.marketing_folder = true;
+                    folder.campaign_id = campaign._id;
+                    folder.franchisee_Id = campaignForm.franchisee_id;
+                    folder.franchisor_Id = campaignForm.franchisor_id;
+                    folder.folder_name = campaignForm.title;
+                    folder.save(function(err, folder){
+                        console.log("campaign folder created");
+                        console.log('folder----------------',folder);
+                    });
+                  
+                    if(folder){
+                    var library = new Library();
+                    library.path = campaign.campaign_file_attachment_file_url;
+                    library.key = campaign.campaign_file_attachment_file_type;
+                    library.file_name = campaign.campaign_file_attachment_file_name;
+                    if(campaign.mimetype == "application/pdf"){
+                        library.image_type = "pdf";
+                    }
+                    if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
+                        campaign.image_type = "image";
+                    }
+                    // library.uploaded_status = status;
+                    library.date_uploaded = Date.now();
+                    library.folder_Id = folder._id;
+                    library.campaign_id = campaign._id;
+                    library.franchisee_Id = campaignForm.franchisee_id;;
+                    library.save(function(err, library){
+                        console.log("campaign file created");
+                        console.log('library++++++++++', library);
+                        // console.log('folder_id++++++++++', folder_Id);
+                    });
+                        }
+                        console.log('library', library);
                     return res.send({
                         state:"success",
                         message:"Campaign Created .",
