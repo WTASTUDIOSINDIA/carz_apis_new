@@ -293,27 +293,24 @@ router.get('/get_folders_by_folder_id/:parent_folder_id',function(req,res){
     });
 });
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
-    Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_Id},function(err,file){
+    Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_id},function(err,file){
         if(err){
             res.send ({
-                status: 500,
-                message: "File deleted successfully.",
+                message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(!file){
             res.send ({
-                status: 201,
                 message: "File not found.",
                 state: "failure"
-            });
+            },201);
         }
         if(file){
             res.send ({
-                status: 200,
-                file: file,
-                state: "failure"
-            });
+                state: "success",
+                data:file
+            },200);
         }
     });
 });
@@ -342,6 +339,9 @@ router.post('/create_Folder',function(req,res){
 
            if(req.body.crm_folder){
                 folder.crm_folder = req.body.crm_folder;
+           }
+               if(req.body.marketing_folder){
+                folder.marketing_folder = req.body.marketing_folder;
            }
            if(req.body.parent_folder_id){
              folder.parent_folder_id = req.body.parent_folder_id;
@@ -443,6 +443,34 @@ router.get('/get_crm_folders/:franchisee_id', function(req, res){
               "status":201,
               "state":"failure",
               "data":[]
+          });
+        }
+      })
+    }
+       catch(err){
+        return res.send({
+          state:"error",
+          message:err
+        });
+        }
+});
+
+router.get('/get_marketing_folders/:franchisee_id', function(req, res){
+    try{
+     Folder.find({franchisee_Id:req.params.franchisee_id, marketing_folder:true}, function(err, folder){
+        if(err){
+          return res.send(500, err);
+        }
+        if(folder){
+          res.send({
+              state:"success",
+              data:folder
+          },200);
+        }
+        else {
+          res.send({
+              state:"failure",
+              data:[]
           });
         }
       })
@@ -680,7 +708,7 @@ router.post('/create_common_sub_folder',function(req,res){
 router.get('/get_common_folder',function(req,res){
     try{
     //  var franchisee_Id = 'franchisee_Id';
-        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }},function(err,folder){
+        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }, marketing_folder: false},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,

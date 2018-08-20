@@ -153,7 +153,8 @@ var FolderSchema = new mongoose.Schema({
     "crm_folder": {
         type:Boolean,
         default:false
-    }
+    },
+    "marketing_folder":{type:Boolean, default:false}
 });
 
 var DocSchema = new mongoose.Schema({
