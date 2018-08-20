@@ -2076,7 +2076,7 @@ router.put('/edit_my profile', function (req,res){
 
 
 router.put('/edit_franchisee_profile', function (req,res){
-    if(req.body.franchisee_name && req.body.franchisee_pass){
+    if(req.body.franchisee_name ){
     try{
         
         Franchisee.findById({_id:req.body.user_id}, function(err, user){
@@ -2085,7 +2085,9 @@ router.put('/edit_franchisee_profile', function (req,res){
             }
             if(user){
                 user.franchisee_name = req.body.franchisee_name;
-                user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                if(req.body.franchisee_pass){
+                    user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                }
                 user.save(function(err,user){
                 })
                 if(err){
