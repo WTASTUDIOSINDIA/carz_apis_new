@@ -433,7 +433,6 @@ router.get('/get_campaign_files/:id', function (req, res) {
     maxCount: 20
   }])
 // after campaign details
-// To update campaign
 router.put('/after_campaign_details',upload.single('after_campaign_files'), function(req,res){
      var campaignDetails = JSON.parse(req.body.campaign);
     console.log(req.body.campaign);
