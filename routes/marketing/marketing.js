@@ -485,6 +485,8 @@ router.put('/after_campaign_details',upload.single('after_campaign_files'), func
                 campaign.footfalls = campaignDetails.footfalls;
                 campaign.campaign_duration = campaignDetails.campaign_duration;
                 campaign.campaign_status = campaignDetails.campaign_status;
+                campaign.franchisor_id = campaignDetails.franchisor_id;
+                campaign.franchisee_id = campaignDetails.franchisee_id;
                 if (req.file){
                     console.log(req.file);
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
@@ -493,6 +495,40 @@ router.put('/after_campaign_details',upload.single('after_campaign_files'), func
                 }
                 campaign.save(function(err,campaign){
                     {
+                        var folder = new Folder();
+                    folder.marketing_folder = true;
+                    folder.campaign_id = campaign._id;
+                    folder.franchisee_Id = campaignDetails.franchisee_id;
+                    folder.franchisor_Id = campaignDetails.franchisor_id;
+                    folder.folder_name = 'Campaign Images';
+                    folder.save(function(err, folder){
+                        console.log("campaign folder created");
+                        console.log('folder----------------',folder);
+                    });
+                  
+                    if(folder){
+                    var library = new Library();
+                    library.path = campaign.campaign_file_attachment_file_url;
+                    library.key = campaign.campaign_file_attachment_file_type;
+                    library.file_name = campaign.campaign_file_attachment_file_name;
+                    if(campaign.mimetype == "application/pdf"){
+                        library.image_type = "pdf";
+                    }
+                    if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
+                        campaign.image_type = "image";
+                    }
+                    // library.uploaded_status = status;
+                    library.date_uploaded = Date.now();
+                    library.folder_Id = folder._id;
+                    library.campaign_id = campaign._id;
+                    library.franchisee_Id = campaignDetails.franchisee_id;;
+                    library.save(function(err, library){
+                        console.log("campaign file created");
+                        console.log('library++++++++++', library);
+                        // console.log('folder_id++++++++++', folder_Id);
+                    });
+                        }
+                        console.log('library', library);
                         res.send({
                             state:"success",
                             message:"Campaign updated.",
