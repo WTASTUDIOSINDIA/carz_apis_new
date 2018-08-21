@@ -18,7 +18,9 @@ router.put('/edit_franchisor_profile', function (req,res){
             }
             if(user){
                 user.user_name = req.body.user_name;
-                user.user_pass = createHash(req.body.user_pass);//req.body.user_pass;
+                if(req.body.user_pass){
+                    user.user_pass = createHash(req.body.user_pass);//req.body.user_pass;
+                }
                 user.save(function(err,user){
                 })
                 if(err){

@@ -97,7 +97,41 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 
                     campaign23.meta.campaign_id = campaign23._id;
                     campaign23.save(function(err,campaign24){
-
+                    
+                    var folder = new Folder();
+                    folder.marketing_folder = true;
+                    folder.campaign_id = campaign._id;
+                    folder.franchisee_Id = campaignForm.franchisee_id;
+                    folder.franchisor_Id = campaignForm.franchisor_id;
+                    folder.folder_name = campaignForm.title;
+                    folder.save(function(err, folder){
+                        console.log("campaign folder created");
+                        console.log('folder----------------',folder);
+                    });
+                  
+                    if(folder){
+                    var library = new Library();
+                    library.path = campaign.campaign_file_attachment_file_url;
+                    library.key = campaign.campaign_file_attachment_file_type;
+                    library.file_name = campaign.campaign_file_attachment_file_name;
+                    if(campaign.mimetype == "application/pdf"){
+                        library.image_type = "pdf";
+                    }
+                    if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
+                        campaign.image_type = "image";
+                    }
+                    // library.uploaded_status = status;
+                    library.date_uploaded = Date.now();
+                    library.folder_Id = folder._id;
+                    library.campaign_id = campaign._id;
+                    library.franchisee_Id = campaignForm.franchisee_id;;
+                    library.save(function(err, library){
+                        console.log("campaign file created");
+                        console.log('library++++++++++', library);
+                        // console.log('folder_id++++++++++', folder_Id);
+                    });
+                        }
+                        console.log('library', library);
                     return res.send({
                         state:"success",
                         message:"Campaign Created .",
@@ -157,6 +191,11 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                   campaign.visible_to_franchisee_id = campaignEditForm.visible_to_franchisee_id;
                 }
                 campaign.visible_to = campaignEditForm.visible_to;
+                campaign.amount_spent = campaignEditForm.amount_spent;
+                campaign.leads_generated = campaignEditForm.leads_generated;
+                campaign.footfalls = campaignEditForm.footfalls;
+                campaign.campaign_duration = campaignEditForm.campaign_duration;
+                campaign.campaign_status = campaignEditForm.campaign_status;
                 // console.log(req.file, "143");
                 if (req.file){
                     console.log(req.file);
@@ -419,18 +458,6 @@ router.get('/get_campaign_files/:id', function (req, res) {
   })
 
 
-  function upload_marketing_files_to_library(req, res, obj, status,folder_id, campaign_id, franchisee_id){
-      if(!folder_id){
-          var folder = new Folder();
-          folder.marketing_folder = true;
-          franchisee_id = franchisee_id;
-          for(i=0;i<array.length;i++){
-
-          }
-
-      }
-      
-  }
 
   var fileupload = upload.fields([{
     name: 'file_upload',
@@ -440,33 +467,24 @@ router.get('/get_campaign_files/:id', function (req, res) {
     maxCount: 20
   }])
 // after campaign details
-router.post('/after_campaign_details', fileupload, function(req, res) {
+router.put('/after_campaign_details',upload.single('after_campaign_files'), function(req,res){
+     var campaignDetails = JSON.parse(req.body.campaign);
+    console.log(req.body.campaign);
     // try{
-    var campaignDetailsForm = JSON.parse(req.body.campaign);
- 
-        Campaign.findOne({_id:campaignDetailsForm.id},function(err,campaign){
-
+        Campaign.findOne({'_id':campaignDetails._id},function(err,campaign){
+            console.log(campaign);
             if(err){
                 return res.send({
                         state:"err",
                         message:"Something went wrong.We are looking into it."
                     },500);
             }
-            // if(campaign){
-            //     return res.send({
-            //         state:"failure",
-            //         message:"This campaign already exists!"
-            //     },400);
-            // }
-            if(!campaign){
-               var campaign = new Campaign();
-                campaign.amount_spent = campaignDetailsForm.amount_spent;
-                campaign.leads_generated = campaignDetailsForm.leads_generated;
-                campaign.footfalls = campaignDetailsForm.footfalls;
-                campaign.campaign_duration = campaignDetailsForm.campaign_duration;
-                campaign.franchisor_id = campaignDetailsForm.franchisor_id;
-                campaign.franchisee_id = campaignDetailsForm.franchisee_id;
-                campaign.campaign_id = campaignDetailsForm.campaign_id;
+            if(campaign){
+                campaign.amount_spent = campaignDetails.amount_spent;
+                campaign.leads_generated = campaignDetails.leads_generated;
+                campaign.footfalls = campaignDetails.footfalls;
+                campaign.campaign_duration = campaignDetails.campaign_duration;
+                campaign.campaign_status = campaignDetails.campaign_status;
                 if (req.file){
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
@@ -489,19 +507,19 @@ router.post('/after_campaign_details', fileupload, function(req, res) {
                 }
                 });
             }
-            else {
-              return res.send({
-                  state:"failure",
-                  message:"failed to update"
-              },200);
+            if(!campaign){
+                res.send({
+                    state:"failure",
+                    message:"Failed to update!."
+                },400);
             }
-        });
+        })
     // }
     // catch(err){
-	// 	return res.send({
-	// 		state:"error",
-	// 		message:err
-	// 	});
-	// }
+    //     return res.send({
+    //         state:"error",
+    //         message:err
+    //     });
+    // }
 });
 module.exports = router;

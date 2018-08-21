@@ -59,7 +59,13 @@ var franchiseeSchema = new mongoose.Schema({
     "seen_notification":{type: Number, default: 0},
     "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
-    "rejected_franchisee_reason": String
+    "rejected_franchisee_reason": String,
+    "verified": {type:Boolean, default:false},
+    "verification": {
+          "otp": String,
+          "status": { type: Boolean, default: false }, //verification status
+          "verifiedDate": Date
+      }
 });
 
 var librarySchema = new mongoose.Schema({
@@ -153,7 +159,8 @@ var FolderSchema = new mongoose.Schema({
     "crm_folder": {
         type:Boolean,
         default:false
-    }
+    },
+    "marketing_folder":{type:Boolean, default:false}
 });
 
 var DocSchema = new mongoose.Schema({
@@ -290,7 +297,8 @@ var CampaignSchema = new mongoose.Schema({
     'after_campaign_file_attachment_file_name': String,
     'after_campaign_file_attachment_file_url': String,
     'after_campaign_file_attachment_file_type': String,
-    'campaign_id': String
+    // 'campaign_id': String,
+    'campaign_status': String
 });
 
 
