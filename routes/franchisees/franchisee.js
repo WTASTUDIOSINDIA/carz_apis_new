@@ -87,7 +87,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees',function(req,res){
     try{
-        Franchisee.find({archieve_franchisee: false}, {'_id':1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_type': 1, 'franchisee_franchise_model': 1}).lean().exec(function(err,franchiees){
+        Franchisee.find({archieve_franchisee: false}, {'_id':1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_type': 1, 'franchisee_franchise_model': 1, 'franchisee_profile_pic': 1}).lean().exec(function(err,franchiees){
             if(err){
                 return res.send(500, err);
             }
@@ -516,7 +516,15 @@ console.log(partner, "partner");
   console.log(franchiseeForm, "franchiseeForm");
     //FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
       //5aacf0e9be01b01e4456acd4
-      FranchiseeTypeList.find({businessType_id:"5aacf0e9be01b01e4456acd4"},function(err,type){
+      var business_type_id = '';
+      if(partner.bussiness_type_id){
+        business_type_id = partner.bussiness_type_id;
+
+      }
+      else {
+        business_type_id = '5aacf0e9be01b01e4456acd4';
+      }
+      FranchiseeTypeList.find({businessType_id:business_type_id},function(err,type){
         if(err){
             return res.send({
                 state:"error",
@@ -2058,16 +2066,18 @@ router.put('/edit_my profile', function (req,res){
 
 
 router.put('/edit_franchisee_profile', function (req,res){
-    if(req.body.franchisee_name && req.body.franchisee_pass){
+    if(req.body.franchisee_name ){
     try{
-        
+
         Franchisee.findById({_id:req.body.user_id}, function(err, user){
             if(err){
                 return res.send(500, err);
             }
             if(user){
                 user.franchisee_name = req.body.franchisee_name;
-                user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                if(req.body.franchisee_pass){
+                    user.franchisee_pass = createHash(req.body.franchisee_pass);//req.body.user_pass;
+                }
                 user.save(function(err,user){
                 })
                 if(err){
@@ -2094,12 +2104,12 @@ router.put('/edit_franchisee_profile', function (req,res){
         },500);
     }
 }else{
-    
+
         res.send({
             state:"error",
             message:"Missing required parameters."
         },400);
-    
+
 }
 })
 
