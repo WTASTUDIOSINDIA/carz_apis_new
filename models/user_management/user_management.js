@@ -7,7 +7,7 @@ var userManagementSchema = new mongoose.Schema({
   "user_email": String,
   "user_role": String,
   "created_on": Date,
-  "country_code": String,
+  "user_country_code": String,
   "user_phone_number": String,
   "franchisor_id": String,
   "user_status": {type: String, default: 'active'},
