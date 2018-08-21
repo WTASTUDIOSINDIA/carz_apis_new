@@ -430,7 +430,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
         res.send({
           state: "failure",
           message: "This task name already exists."
-        }, 400);
+        }, 200);
       }
       else {
        // console.log(task);
