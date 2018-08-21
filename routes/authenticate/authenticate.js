@@ -71,34 +71,34 @@ module.exports = function(passport){
                         message:"OTP doesn't matched."
                     });
                 }
-               
+
             }
         })
     });
 
     router.get('/success-franchisee', function(req, res){
-        
+
     if(req.user.verified == false){
         //console.log(req.user)
         var otp = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
         var mailOptions={
             to: req.user.franchisee_email,
             subject: 'OTP',
-            from: "ikshitnodemailer@gmail.com",
+            from: "carzdev@gmail.com",
             headers: {
                 "X-Laziness-level": 1000,
                 "charset" : 'UTF-8'
             },
 
-            html: "<p>Your one time password is <b>"+otp+"</b>. Please enter this to verify your account.</p><div><p>Best,</p><p>Carz.</p></div>"
+            html: "<p>Your one time password is <b>"+otp+"</b>. Please use this to verify your account.</p><div><p>Best,</p><p>Carz.</p></div>"
         }
         var transporter = nodemailer.createTransport({
-            service: 'Gmail',
+            service: 'gmail',
             secure: false, // use SSL
             port: 25, // port for secure SMTP
             auth: {
-                user: 'ikshitnodemailer@gmail.com',
-                pass: 'ikshit1007007'
+                user: 'carzdev@gmail.com',
+                pass: 'Carz@123'
             }
         });
         transporter.sendMail(mailOptions, function(error, response){

@@ -452,7 +452,7 @@ router.get('/get_notifications/:user_id', function (req, res) {
                     data: meeting
                 }, 200);
             }
-        })
+        }).sort({date: -1})
     }
     catch (err) {
         return res.send({
@@ -683,7 +683,7 @@ router.get('/change_read_status/:id', (req, res) => {
                 // data[i].save();
                 id_array.push(data[i]._id);
             }
-            Notification.update({ _id: { $in: id_array } }, { $set: { read_status: true } }, (err, success) => {
+            Notification.update({ _id: { $in: id_array } }, {  read_status: true }, { multi: true },  (err, success) => {
                 if (err) {
                     return res.json(err);
                 }
