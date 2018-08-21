@@ -26,6 +26,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_country": String,
     "franchisee_pincode": String,
     "franchisee_area": String,
+    "country_code":String,
     "partners_list": {type:Number, default:0},
     "lead_age":Number,
     "lead_source":String,
