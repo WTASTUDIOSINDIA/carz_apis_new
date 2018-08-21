@@ -59,6 +59,53 @@ router.post('/add_assessment_type',function(req,res){
 	}
 });
 
+// to edit question type
+router.put('/update_question_type',function(req,res){
+    try{
+        Question_Type.findOne({_id:req.body.id},function(err,question_type){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(!question_type){
+                return res.send({
+                    state:"failure",
+                    message:"No question type found."
+                },400);
+            }
+            if(question_type){
+                question_type.question_type_name = req.body.question_type_name;
+                question_type.description = req.body.description;
+                question_type.version_id = req.body.version_id;
+                question_type.franchisor_id = req.body.franchisor_id;
+                question_type.save(function(err,question_type){
+                    if(err){
+                        return res.send({
+                            state:"error",
+                            message:err
+                        },500);
+                    }
+                    else{
+                        return res.send({
+                            state:"success",
+                            message:"Question Type updated",
+                            data:question_type
+                        },200);
+                    }
+                })
+            }
+        });
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+});
+
 //in settings to get question types (sections)
 router.get('/question_types/:version_id/:franchisor_id',function(req,res){
     try{

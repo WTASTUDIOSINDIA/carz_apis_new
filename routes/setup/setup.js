@@ -1007,7 +1007,7 @@ router.put('/edit_version', function(req, res){
             return res.send({
                 state: "success",
                 message: "Version updated succssfully!",
-                data: version
+                data:version
             }, 200);
           }
         })

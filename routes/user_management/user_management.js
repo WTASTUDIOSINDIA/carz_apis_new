@@ -61,6 +61,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user.user_mail = userCreateForm.user_mail;
           user.user_role = userCreateForm.user_role;
           user.user_status = userCreateForm.user_status;
+          user.country_code = userCreateForm.country_code;
           user.user_phone_number = userCreateForm.user_phone_number;
           user.franchisor_id= userCreateForm.franchisor_id;
           if (req.file) {
@@ -78,7 +79,8 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
             else {
               res.send({
                 state: "success",
-                message: "User created"
+                message: "User created",
+                data:user
               }, 200);
             }
           });
@@ -110,6 +112,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user.user_mail = userEditForm.user_mail;
           user.user_role = userEditForm.user_role;
           user.user_status = userEditForm.user_status;
+          user.country_code = userEditForm.country_code;
           user.user_phone_number = userEditForm.user_phone_number;
           user.franchisor_id = userEditForm.franchisor_id;
           if (req.file) {
@@ -128,7 +131,8 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
             else {
               res.send({
                 state: "success",
-                message: "User updated"
+                message: "User updated",
+                data:user
               }, 200);
             }
           });
