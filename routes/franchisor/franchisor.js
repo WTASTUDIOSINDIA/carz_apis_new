@@ -9,7 +9,7 @@ var createHash = function(password){
 };
 //   edit  franchisor my profile
 router.put('/edit_franchisor_profile', function (req,res){
-    if(req.body.user_name && req.body.user_pass){
+    if(req.body.user_name){
     try{
         
         Franchisor.findById({_id:req.body.user_id}, function(err, user){
