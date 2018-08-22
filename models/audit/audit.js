@@ -7,6 +7,7 @@ var auditChecklistSchema = new mongoose.Schema({
     'audit_checklist_type':String,
     'audit_visible_to':String,
     'audit_description':String,
+    'checklist_type_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
 })
 
