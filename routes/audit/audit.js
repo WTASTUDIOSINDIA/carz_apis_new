@@ -175,7 +175,7 @@ router.get('/get_audit_all_checklist_types/:franchisor_id', function (req, res) 
   });
 
 //   TO delete checklist by id
-router.delete('/delete_checklist/:checklist_id/:franchisor_id', function(req,res){
+router.delete('/delete_checklist/:checklist_type_id/:franchisor_id', function(req,res){
     try{
       AuditChecklistType.findByIdAndRemove({ _id:req.params.checklist_type_id, franchisor_id: req.params.franchisor_id}, function(err, checklist_type){
         if(err){
