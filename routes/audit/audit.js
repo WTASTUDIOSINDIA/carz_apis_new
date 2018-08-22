@@ -183,7 +183,7 @@ router.get('/get_audit_all_checklist_types/:franchisor_id', function (req, res) 
   });
 
 //   TO delete checklist by id
-router.delete('/delete_checklist/:checklist_type_id/:franchisor_id', function(req,res){
+router.delete('/delete_checklist_type/:checklist_type_id/:franchisor_id', function(req,res){
     try{
       AuditChecklistType.findByIdAndRemove({ _id:req.params.checklist_type_id, franchisor_id: req.params.franchisor_id}, function(err, checklist_type){
         if(err){
@@ -259,6 +259,7 @@ router.post('/create_audit_checklist', function (req,res){
                 auditChecklist.audit_checklist_type = req.body.audit_checklist_type;
                 auditChecklist.audit_visible_to = req.body.audit_visible_to;
                 auditChecklist.audit_description = req.body.audit_description;
+                auditChecklist.created_at =req.body.created_at;
                 auditChecklist.checklist_type_id = req.body.checklist_type_id;
                 auditChecklist.franchisor_id = req.body.franchisor_id;
                 auditChecklist.save(function (err, auditChecklist){
@@ -298,6 +299,7 @@ router.put('/update_audit_checklist', function (req,res){
                 audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
                 audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
                 audit_checklist.audit_visible_to = req.body.audit_visible_to;
+                audit_checklist.created_at = req.body.created_at;
                 audit_checklist.audit_description = req.body.audit_description;
                 audit_checklist.checklist_type_id = req.body.checklist_type_id;
                 audit_checklist.save(function(err, audit_checklist){
@@ -452,7 +454,6 @@ router.delete('/delete_all_checklists', function(req,res){
 // To create task
 router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'), function (req, res) {
     var auditChecklistTaskForm = JSON.parse(req.body.task);
-    // console.log(checklistTaskForm);
     try {
       AuditTask.findOne({ audit_task_name: auditChecklistTaskForm.audit_task_name, checklist_id: auditChecklistTaskForm.checklist_id }, function (err, task) {
         if (err) {
@@ -461,7 +462,6 @@ router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_
             message: "Something went wrong."
           }, 500);
         }
-        console.log(task);
         if (task) {
           res.send({
             state: "failure",
@@ -493,7 +493,7 @@ router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_
             else {
               res.send({
                 state: "success",
-                message: "Task created successfully",
+                message: "Task created!",
                 data: task
               }, 200);
             }
@@ -510,7 +510,7 @@ router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_
   })
 
 //  To update task
-router.put('/edit_audit_checklist_tasks', upload.single('audit_checklist_task_img'), function(req, res){
+router.put('/update_audit_checklist_tasks', upload.single('audit_checklist_task_img'), function(req, res){
     var auditChecklistTaskEditForm = JSON.parse(req.body.task);
     console.log(auditChecklistTaskEditForm);
     try{
