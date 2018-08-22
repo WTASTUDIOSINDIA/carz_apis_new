@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var multer = require('multer');
 var AuditChecklist = mongoose.model('AuditChecklist');
 var AuditChecklistType = mongoose.model('AuditChecklistType')
+var AuditTask = mongoose.model('AuditTask')
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 aws.config.loadFromPath('./config.json');
@@ -26,6 +27,13 @@ var upload = multer({
   })
 });
 
+var fileupload = upload.fields([{
+    name: 'file_upload',
+    maxCount: 50
+  }, {
+    name: 'imgFields',
+    maxCount:20
+  }])
 
 //   To create checklist type
 router.post('/create_audit_checklist_type', function (req, res) {
@@ -175,7 +183,7 @@ router.get('/get_audit_all_checklist_types/:franchisor_id', function (req, res) 
   });
 
 //   TO delete checklist by id
-router.delete('/delete_checklist/:checklist_id/:franchisor_id', function(req,res){
+router.delete('/delete_checklist/:checklist_type_id/:franchisor_id', function(req,res){
     try{
       AuditChecklistType.findByIdAndRemove({ _id:req.params.checklist_type_id, franchisor_id: req.params.franchisor_id}, function(err, checklist_type){
         if(err){
@@ -237,7 +245,7 @@ router.post('/create_audit_checklist', function (req,res){
     try{
         AuditChecklist.findOne({audit_checklist_title: req.body.audit_checklist_title, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
             if(err){
-                res.send(500)
+               return res.send(500, err)
             }
             if(auditChecklist){
                 res.send({
@@ -284,7 +292,7 @@ router.put('/update_audit_checklist', function (req,res){
     try{
         AuditChecklist.findById({_id:req.body._id}, function(err, audit_checklist){
             if(err){
-                res.send(500);
+                return res.send(500, err);
             }
             if(audit_checklist){
                 audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
@@ -441,6 +449,210 @@ router.delete('/delete_all_checklists', function(req,res){
     }
   })   
 
+// To create task
+router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'), function (req, res) {
+    var auditChecklistTaskForm = JSON.parse(req.body.task);
+    // console.log(checklistTaskForm);
+    try {
+      AuditTask.findOne({ audit_task_name: auditChecklistTaskForm.audit_task_name, checklist_id: auditChecklistTaskForm.checklist_id }, function (err, task) {
+        if (err) {
+          res.send({
+            state: "failure",
+            message: "Something went wrong."
+          }, 500);
+        }
+        console.log(task);
+        if (task) {
+          res.send({
+            state: "failure",
+            message: "Task name already exists."
+          }, 200);
+        }
+        else {
+          task = new AuditTask();
+          task.audit_task_name = auditChecklistTaskForm.audit_task_name;
+          task.audit_task_type = auditChecklistTaskForm.audit_task_type;
+          task.audit_task_radio_options = auditChecklistTaskForm.audit_task_radio_options;
+          task.audit_file_upload_required = auditChecklistTaskForm.audit_file_upload_required;
+          task.checklist_id = auditChecklistTaskForm.checklist_id;
+          if (req.file) {
+              var audit_checklist_task_img = {};
+            task.audit_task_file_attachment_file_url = req.file.location;
+            task.audit_task_file_attachment_file_name = req.file.key;
+            task.audit_task_file_attachment_file_type = req.file.contentType;
+          }
+          task.save(function (err, task) {
+  
+  
+            if (err) {
+              res.send({
+                state: "failure",
+                message: "Something went wrong."
+              }, 500);
+            }
+            else {
+              res.send({
+                state: "success",
+                message: "Task created successfully",
+                data: task
+              }, 200);
+            }
+          });
+        }
+      });
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  })
 
+//  To update task
+router.put('/edit_audit_checklist_tasks', upload.single('audit_checklist_task_img'), function(req, res){
+    var auditChecklistTaskEditForm = JSON.parse(req.body.task);
+    console.log(auditChecklistTaskEditForm);
+    try{
+      AuditTask.findById({_id: auditChecklistTaskEditForm._id},function(err,task){
+    if(err){
+      return res.send({
+        state:"err",
+        message:"Something went wrong.We are looking into it."
+      },500);
+    }
+    if (task){
+        task.audit_task_name = auditChecklistTaskEditForm.audit_task_name;
+        task.audit_task_type = auditChecklistTaskEditForm.audit_task_type;
+        task.audit_task_radio_options = auditChecklistTaskEditForm.audit_task_radio_options;
+        task.audit_file_upload_required = auditChecklistTaskEditForm.audit_file_upload_required;
+        task.checklist_id = auditChecklistTaskEditForm.checklist_id;
+      if (req.file) {
+        console.log(req.file);
+        var audit_checklist_task_img = {};
+        task.audit_task_file_attachment_file_url = req.file.location;
+        task.audit_task_file_attachment_file_name = req.file.key;
+        task.audit_task_file_attachment_file_type = req.file.contentType;
+      }
+      task.save(function(err, task){
+        if(err){
+          res.send({
+             state:"err",
+             message:"Something went wrong."
+         },500);
+        }
+     else{
+         res.send({
+             state:"success",
+             message:"Task Updated."
+         },200);
+     }
+      });
+    }
+    if(!task){
+      res.send({
+          state:"failure",
+          message:"Failed to update"
+      },400);
+  }
+      })
+    }
+    catch(err){
+          return res.send({
+              state:"error",
+              message:err
+          });
+      }
+  })
+
+// to get checklist tasks by checklist id
+router.get('/get_audit_checklist_tasks/:checklist_id', function (req, res) {
+    try {
+      AuditTask.find({ checklist_id: req.params.checklist_id }, function (err, task) {
+        if (err) {
+          return res.send(500, err);
+        }
+        if (task.length == 0) {
+          res.send({
+            message: "Tasks are not found",
+            state: "failure",
+            data: []
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            data: task
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
+
+//   to get all tasks
+router.get('/get_audit_checklist_tasks', function (req, res) {
+    try {
+      AuditTask.find({}, function (err, task) {
+        if (err) {
+          return res.send(500, err);
+        }
+        if (task.length == 0) {
+          res.send({
+            message: "Tasks are not found",
+            state: "failure",
+            data: []
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            data: task
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
+
+//   to delete task
+router.delete('/delete_checklist_task/:task_id', function (req, res) {
+    try {
+      AuditTask.findByIdAndRemove({ _id: req.params.task_id }, function (err, task) {
+        if (err) {
+          return res.send(500, err);
+        }
+  
+        if (!task) {
+          res.send({
+            message: "Task  not found",
+            state: "failure",
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            message: "Task deleted successfully!",
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
 
 module.exports = router;

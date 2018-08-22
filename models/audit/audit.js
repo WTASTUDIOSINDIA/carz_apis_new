@@ -20,6 +20,7 @@ var auditTaskSchema = new mongoose.Schema({
     'audit_task_file_attachment_file_type': String,
     'audit_task_radio_options': Array,
     'audit_date_uploaded': Date,
+    'checklist_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'}
 })
 
 var auditChecklistTypeSchema = new mongoose.Schema({
@@ -29,4 +30,5 @@ var auditChecklistTypeSchema = new mongoose.Schema({
 
 mongoose.model('AuditChecklist', auditChecklistSchema);
 mongoose.model('AuditChecklistType', auditChecklistTypeSchema);
+mongoose.model('AuditTask', auditTaskSchema);
 
