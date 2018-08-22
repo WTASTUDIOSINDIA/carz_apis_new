@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 var Franchisor = mongoose.model('Franchisor');
 
-var auditChecklistSchema = new mongoose.Schema({
+var auditChecklistCategorySchema = new mongoose.Schema({
     'audit_checklist_title':String,
     'audit_checklist_type':String,
     'audit_visible_to':String,
@@ -27,6 +27,6 @@ var auditChecklistTypeSchema = new mongoose.Schema({
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
 })
 
-mongoose.model('AuditChecklist', auditChecklistSchema);
+mongoose.model('AuditChecklistCategory', auditChecklistCategorySchema);
 mongoose.model('AuditChecklistType', auditChecklistTypeSchema);
 

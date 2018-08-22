@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
 var multer = require('multer');
-var AuditChecklist = mongoose.model('AuditChecklist');
+var AuditChecklistCategory = mongoose.model('AuditChecklistCategory');
 var AuditChecklistType = mongoose.model('AuditChecklistType')
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -117,9 +117,9 @@ router.put('/update_audit_checklist_type', function (req,res){
 	}
 })
 // to get checklist type by id
-router.get('/get_audit_checklist_type_by_id/:checklist_type_id', function (req, res) {
+router.get('/get_audit_checklist_type_by_id/:checklist_type_id/:franchisor_id', function (req, res) {
     try {
-      AuditChecklistType.find({ _id: req.params.checklist_type_id }, function (err, checklist_type) {
+      AuditChecklistType.find({ _id: req.params.checklist_type_id, franchisor_id:req.params.franchisor_id }, function (err, checklist_type) {
         if (err) {
           return res.send(500, err);
         }
@@ -235,7 +235,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 // to crete audit checklist
 router.post('/create_audit_checklist', function (req,res){
     try{
-        AuditChecklist.findOne({audit_checklist_title: req.body.audit_checklist_title, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
+        AuditChecklistCategory.findOne({audit_checklist_title: req.body.audit_checklist_title, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
             if(err){
                 res.send(500)
             }
@@ -246,13 +246,12 @@ router.post('/create_audit_checklist', function (req,res){
                 },200);
             }
             else{
-                auditChecklist = new AuditChecklist();
+                auditChecklist = new AuditChecklistCategory();
                 auditChecklist.audit_checklist_title = req.body.audit_checklist_title;
                 auditChecklist.audit_checklist_type = req.body.audit_checklist_type;
                 auditChecklist.audit_visible_to = req.body.audit_visible_to;
                 auditChecklist.audit_description = req.body.audit_description;
                 auditChecklist.checklist_type_id = req.body.checklist_type_id;
-                auditChecklist.franchisor_id = req.body.franchisor_id;
                 auditChecklist.save(function (err, auditChecklist){
                     if(err){
                         res.send({
@@ -282,7 +281,7 @@ router.post('/create_audit_checklist', function (req,res){
 // To update checklist
 router.put('/update_audit_checklist', function (req,res){
     try{
-        AuditChecklist.findById({_id:req.body._id}, function(err, audit_checklist){
+        AuditChecklistCategory.findById({_id:req.body._id}, function(err, audit_checklist){
             if(err){
                 res.send(500);
             }
@@ -328,7 +327,7 @@ router.put('/update_audit_checklist', function (req,res){
 // to get checklist by id
 router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) {
     try {
-      AuditChecklist.find({ checklist_type_id: req.params.checklist_type_id }, function (err, audit_checklist) {
+      AuditChecklistCategory.find({ checklist_type_id: req.params.checklist_type_id }, function (err, audit_checklist) {
         if (err) {
           return res.send(500, err);
         }
@@ -357,7 +356,7 @@ router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) 
 // To get all checklists
 router.get('/get_audit_all_checklists', function (req, res) {
     try {
-      AuditChecklist.find({ }, function (err, audit_checklist) {
+      AuditChecklistCategory.find({ }, function (err, audit_checklist) {
         if (err) {
           return res.send(500, err);
         }
@@ -386,7 +385,7 @@ router.get('/get_audit_all_checklists', function (req, res) {
 //   TO delete checklist by id
 router.delete('/delete_checklist/:checklist_id', function(req,res){
     try{
-      AuditChecklist.findByIdAndRemove({ _id:req.params.checklist_id}, function(err, audit_checklist){
+      AuditChecklistCategory.findByIdAndRemove({ _id:req.params.checklist_id}, function(err, audit_checklist){
         if(err){
           return res.send(500, err);
         }
@@ -415,7 +414,7 @@ router.delete('/delete_checklist/:checklist_id', function(req,res){
 //To delete all checklists
 router.delete('/delete_all_checklists', function(req,res){
     try{
-      AuditChecklist.remove({ }, function(err, audit_checklist){
+      AuditChecklistCategory.remove({ }, function(err, audit_checklist){
         if(err){
           return res.send(500, err);
         }
