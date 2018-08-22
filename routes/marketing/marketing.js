@@ -468,58 +468,89 @@ router.get('/get_campaign_files/:id', function (req, res) {
   }])
 // after campaign details
 router.put('/after_campaign_details',upload.single('after_campaign_files'), function(req,res){
-     var campaignDetails = JSON.parse(req.body.campaign);
-    console.log(req.body.campaign);
-    // try{
-        Campaign.findOne({'_id':campaignDetails._id},function(err,campaign){
-            console.log(campaign);
-            if(err){
-                return res.send({
-                        state:"err",
-                        message:"Something went wrong.We are looking into it."
-                    },500);
-            }
-            if(campaign){
-                campaign.amount_spent = campaignDetails.amount_spent;
-                campaign.leads_generated = campaignDetails.leads_generated;
-                campaign.footfalls = campaignDetails.footfalls;
-                campaign.campaign_duration = campaignDetails.campaign_duration;
-                campaign.campaign_status = campaignDetails.campaign_status;
-                if (req.file){
-                    campaign.after_campaign_file_attachment_file_url = req.file.location;
-                    campaign.after_campaign_file_attachment_file_name = req.file.key;
-                    campaign.after_campaign_file_attachment_file_type = req.file.contentType;
-                }
-                campaign.save(function(err,campaign){
-                   if(err){
-                     res.send({
-                        state:"err",
-                        message:"Something went wrong."
-                    },500);
+    var campaignDetails = JSON.parse(req.body.campaign);
+   console.log(req.body.campaign);
+   // try{
+       Campaign.findOne({'_id':campaignDetails._id},function(err,campaign){
+           console.log(campaign);
+           if(err){
+               return res.send({
+                   state:"err",
+                   message:"Something went wrong. We are looking into it."
+               },500);
+           }
+           if(campaign){
+               campaign.amount_spent = campaignDetails.amount_spent;
+               campaign.leads_generated = campaignDetails.leads_generated;
+               campaign.footfalls = campaignDetails.footfalls;
+               campaign.campaign_duration = campaignDetails.campaign_duration;
+               campaign.campaign_status = campaignDetails.campaign_status;
+               campaign.franchisor_id = campaignDetails.franchisor_id;
+               campaign.franchisee_id = campaignDetails.franchisee_id;
+               if (req.file){
+                   console.log(req.file);
+                   campaign.after_campaign_file_attachment_file_url = req.file.location;
+                   campaign.after_campaign_file_attachment_file_name = req.file.key;
+                   campaign.after_campaign_file_attachment_file_type = req.file.contentType;
+               }
+               campaign.save(function(err,campaign){
+                   {
+                       var folder = new Folder();
+                   folder.marketing_folder = true;
+                   folder.campaign_id = campaign._id;
+                   folder.franchisee_Id = campaignDetails.franchisee_id;
+                   folder.franchisor_Id = campaignDetails.franchisor_id;
+                   folder.folder_name = 'Campaign Images';
+                   folder.save(function(err, folder){
+                       console.log("campaign folder created");
+                       console.log('folder----------------',folder);
+                   });
+                 
+                   if(folder){
+                   var library = new Library();
+                   library.path = campaign.campaign_file_attachment_file_url;
+                   library.key = campaign.campaign_file_attachment_file_type;
+                   library.file_name = campaign.campaign_file_attachment_file_name;
+                   if(campaign.mimetype == "application/pdf"){
+                       library.image_type = "pdf";
                    }
-                else{
+                   if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
+                       campaign.image_type = "image";
+                   }
+                   // library.uploaded_status = status;
+                   library.date_uploaded = Date.now();
+                   library.folder_Id = folder._id;
+                   library.campaign_id = campaign._id;
+                   library.franchisee_Id = campaignDetails.franchisee_id;;
+                   library.save(function(err, library){
+                       console.log("campaign file created");
+                       console.log('library++++++++++', library);
+                       // console.log('folder_id++++++++++', folder_Id);
+                   });
+                       }
+                       console.log('library', library);
+                       res.send({
+                           state:"success",
+                           message:"Campaign updated.",
+                           data:campaign
+                       },200);
+                   }
+               });
 
-                    return res.send({
-                        state:"success",
-                        message:"Campaign details updated.",
-                        data:campaign
-                    },200);
-                }
-                });
-            }
-            if(!campaign){
-                res.send({
-                    state:"failure",
-                    message:"Failed to update!."
-                },400);
-            }
-        })
-    // }
-    // catch(err){
-    //     return res.send({
-    //         state:"error",
-    //         message:err
-    //     });
-    // }
+           }
+           if(!campaign){
+               res.send({
+                   state:"failure",
+                   message:"Failed to update!."
+               },400);
+           }
+       })
+   // }
+   // catch(err){
+   //     return res.send({
+   //         state:"error",
+   //         message:err
+   //     });
+   // }
 });
 module.exports = router;
