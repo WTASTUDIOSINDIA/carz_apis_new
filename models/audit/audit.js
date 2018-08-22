@@ -7,6 +7,7 @@ var auditChecklistSchema = new mongoose.Schema({
     'audit_checklist_type':String,
     'audit_visible_to':String,
     'audit_description':String,
+    'checklist_type_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
 })
 
@@ -21,5 +22,11 @@ var auditTaskSchema = new mongoose.Schema({
     'audit_date_uploaded': Date,
 })
 
+var auditChecklistTypeSchema = new mongoose.Schema({
+    'audit_checklist_type_name': String,
+    'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
+})
+
 mongoose.model('AuditChecklist', auditChecklistSchema);
+mongoose.model('AuditChecklistType', auditChecklistTypeSchema);
 
