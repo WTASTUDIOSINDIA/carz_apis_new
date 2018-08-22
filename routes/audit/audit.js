@@ -117,9 +117,9 @@ router.put('/update_audit_checklist_type', function (req,res){
 	}
 })
 // to get checklist type by id
-router.get('/get_audit_checklist_type_by_id/:checklist_type_id', function (req, res) {
+router.get('/get_audit_checklist_type_by_id/:checklist_type_id/:franchisor_id', function (req, res) {
     try {
-      AuditChecklistType.find({ _id: req.params.checklist_type_id }, function (err, checklist_type) {
+      AuditChecklistType.find({ _id: req.params.checklist_type_id, franchisor_id:req.params.franchisor_id }, function (err, checklist_type) {
         if (err) {
           return res.send(500, err);
         }
