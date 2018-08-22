@@ -115,4 +115,120 @@ router.put('/update_audit_checklist', function (req,res){
 	}
 })
 
+// to get checklist by id
+router.get('/get_audit_checklist_by_id/:checklist_id', function (req, res) {
+    try {
+      AuditChecklist.find({ _id: req.params.checklist_id }, function (err, audit_checklist) {
+        if (err) {
+          return res.send(500, err);
+        }
+        if (!audit_checklist) {
+          res.send({
+            message: "Checklist not found",
+            state: "failure",
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            data: audit_checklist
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
+
+// To get all checklists
+router.get('/get_audit_all_checklists', function (req, res) {
+    try {
+      AuditChecklist.find({ }, function (err, audit_checklist) {
+        if (err) {
+          return res.send(500, err);
+        }
+        if (!audit_checklist) {
+          res.send({
+            message: "Checklists not found",
+            state: "failure",
+          }, 201);
+        }
+        else {
+          res.send({
+            state: "success",
+            data: audit_checklist
+          }, 200);
+        }
+      })
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  });
+
+//   TO delete checklist by id
+router.delete('/delete_checklist/:checklist_id/:franchisor_id', function(req,res){
+    try{
+      AuditChecklist.findByIdAndRemove({ _id:req.params.checklist_id, franchisor_id: req.params.franchisor_id,}, function(err, audit_checklist){
+        if(err){
+          return res.send(500, err);
+        }
+        if(!audit_checklist){
+          res.send({
+            state:'failure',
+            message:'No checkilist found'
+          },400)
+        }
+        else{
+          res.send({
+            state:'success',
+            message:'Checklist deleted'
+          },200)
+        }
+      })
+    }
+    catch(err){
+      return res.send({
+        state:'error',
+        message:err
+      })
+    }
+  })
+
+//To delete all checklists
+router.delete('/delete_all_checklists', function(req,res){
+    try{
+      AuditChecklist.remove({ }, function(err, audit_checklist){
+        if(err){
+          return res.send(500, err);
+        }
+        if(!audit_checklist){
+          res.send({
+            state:'failure',
+            message:'No checkilists found'
+          },400)
+        }
+        else{
+          res.send({
+            state:'success',
+            message:'Checklists deleted'
+          },200)
+        }
+      })
+    }
+    catch(err){
+      return res.send({
+        state:'error',
+        message:err
+      })
+    }
+  })   
+
 module.exports = router;
