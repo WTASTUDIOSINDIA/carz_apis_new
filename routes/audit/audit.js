@@ -3,6 +3,7 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var multer = require('multer');
 var AuditChecklist = mongoose.model('AuditChecklist');
+var AuditChecklistType = mongoose.model('AuditChecklistType')
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 aws.config.loadFromPath('./config.json');
@@ -24,6 +25,97 @@ var upload = multer({
     }
   })
 });
+
+
+//   To create checklist type
+router.post('/create_audit_checklist_type', function (req, res) {
+    try {
+      AuditChecklistType.findOne({ audit_checklist_type_name: req.body.audit_checklist_type_name, franchisor_id: req.body.franchisor_id }, function (err, checklist_type) {
+        if (err) {
+          res.send({
+            state: "failure",
+            message: "Something went wrong."
+          }, 500);
+        }
+        if (checklist_type) {
+          res.send({
+            state: "failure",
+            message: "This checklist type name already exists."
+          }, 200);
+        }
+        else {
+          console.log(checklist_type);
+          checklist_type = new AuditChecklistType();
+          checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
+          checklist_type.franchisor_id = req.body.franchisor_id;
+          checklist_type.save(function (err, checklist_type) {
+            if (err) {
+              res.send({
+                state: "failure",
+                message: "Something went wrong."
+              }, 500);
+            }
+            else {
+              res.send({
+                state: "success",
+                message: "Checklist Type created successfully",
+                data:checklist_type
+              }, 200);
+            }
+          });
+        }
+      });
+    }
+    catch (err) {
+      return res.send({
+        state: "error",
+        message: err
+      });
+    }
+  })
+
+//   to update checklist type name
+router.put('/update_audit_checklist_type', function (req,res){
+    try{
+        AuditChecklistType.findById({_id:req.body._id}, function(err, checklist_type){
+            if(err){
+                res.send(500);
+            }
+            if(checklist_type){
+                checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
+                checklist_type.franchisor_id = req.body.franchisor_id;
+                checklist_type.save(function(err, checklist_type){
+                    if(err){
+                        res.send({
+                            state:'err',
+                            message:'Something went wrong. We are looking into it.'
+                        },500);
+                    }
+                    else{
+                        res.send({
+                            state:'success',
+                            message:'Checklist Type updated!',
+                            data: checklist_type
+                        },200);
+                    }
+                })
+            }
+            if(!checklist_type){
+                res.send({
+                    state:'failure',
+                    message:'Failed to update!'
+                },400);
+            }
+        })
+        
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		});
+	}
+})
 
 router.post('/create_audit_checklist', function (req,res){
     try{
@@ -230,5 +322,7 @@ router.delete('/delete_all_checklists', function(req,res){
       })
     }
   })   
+
+
 
 module.exports = router;
