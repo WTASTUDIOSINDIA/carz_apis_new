@@ -11,6 +11,7 @@ var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
 var EmployeeAssessmentTypeOfFranchisee = mongoose.model('EmployeeAssessmentTypeOfFranchisee');
+var Versions = mongoose.model('Versions');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -62,6 +63,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 console.log(assessment);
                 assessment = new EmployeeAssessmentType();
                 assessment.assessment_type_name = req.body.assessment_type_name;
+                assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.version_id = req.body.version_id;
                 assessment.save(function (err, assessment) {
@@ -133,7 +135,7 @@ router.put('/update_assessment_type', function (req, res) {
         })
     }
 })
-// TO get assessment type
+// TO get assessment type settings
 router.get('/get_assessments_type_name/:version_id', function (req, res) {
     try {
         EmployeeAssessmentType.find({ version_id: req.params.version_id }, function (err, assessments) {
@@ -253,46 +255,48 @@ router.post('/save_employee_assessment_type', function (req, res) {
                 }, 500);
             }
             if (employeeType) {
-                saveEmployeeAssessmentType(req.params.employee_id, res);
+                getEmployeeAssessmentTypes(req.body.employee_id, res);
             }
             else {
                 console.log('166', req.body.data);
-                for (var i = 0; i < req.body.data.length; i++) {
-                    employeeType = new EmployeeAssessmentTypeOfFranchisee();
-                    employeeType.assessment_type_id = req.body.data[i]._id;
-                    console.log('166', req.body.data[i]._id);
-                    employeeType.assessment_type_name = req.body.data[i].assessment_type_name;
-                    console.log('168', req.body.data[i].assessment_type_name);
-                    employeeType.employee_id = req.body.employee_id;
-                    employeeType.save(function (err, employeeType) {
-                        console.log('169', employeeType);
-                        if (err) {
-                            res.send({
-                                state: "failure",
-                                message: "Something went wrong."
-                            }, 500);
-                        }
-                        else {
-                            // saveEmployeeAssessmentType(req.params.employee_id, res);
-                            EmployeeAssessmentTypeOfFranchisee.find({ employee_id: req.body.employee_id }, function (err, employeeType) {
-                                if (!employeeType) {
-                                    res.send({
-                                        state: "failure",
-                                        employeeType: []
-                                    }, 201);
-                                }
-                                else {
-                                    res.send({
-                                        state: "success",
-                                        data: employeeType
-                                    }, 200);
-                                    console.log('data', employeeType);
-                                }
-                            })
-                        }
-                    });
-                }
-
+                Versions.findOne({franchisor_id: req.body.franchisor_id, 
+                    version_type: 'e_assessments', 
+                    default: true}, function(err, version){
+                        EmployeeAssessmentType.find({version_id: version._id}, function(err, assessments){
+                            for (var i = 0; i < assessments.length; i++) {
+                                employeeType = new EmployeeAssessmentTypeOfFranchisee();
+                                employeeType.assessment_type_id = assessments[i]._id;
+                                employeeType.assessment_type_name = assessments[i].assessment_type_name;
+                                employeeType.employee_id = req.body.employee_id;
+                                employeeType.save(function (err, employeeType) {
+                                    if (err) {
+                                        res.send({
+                                            state: "failure",
+                                            message: "Something went wrong."
+                                        }, 500);
+                                    }
+                                    else {
+                                        // saveEmployeeAssessmentType(req.params.employee_id, res);
+                                        EmployeeAssessmentTypeOfFranchisee.find({ employee_id: req.body.employee_id }, function (err, employeeType) {
+                                            if (!employeeType) {
+                                                res.send({
+                                                    state: "failure",
+                                                    employeeType: []
+                                                }, 201);
+                                            }
+                                            else {
+                                                res.send({
+                                                    state: "success",
+                                                    data: employeeType
+                                                }, 200);
+                                                console.log('data', employeeType);
+                                            }
+                                        })
+                                    }
+                                });
+                            }
+                        })
+                    })
 
             }
         });
@@ -305,7 +309,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
     }
 })
 
-function saveEmployeeAssessmentType(employee_id, res) {
+function getEmployeeAssessmentTypes(employee_id, res) {
     EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id }, function (err, employeeType) {
         if (!employeeType) {
             res.send({
@@ -326,7 +330,7 @@ function saveEmployeeAssessmentType(employee_id, res) {
 //To get  employee assessment type
 router.get('/get_save_employee_assessment_type/:employee_id', function (req, res) {
     try {
-        saveEmployeeAssessmentType(req.params.employee_id, res);
+        getEmployeeAssessmentTypes(req.params.employee_id, res);
     }
     catch (err) {
         return res.send({
