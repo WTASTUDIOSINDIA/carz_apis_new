@@ -18,6 +18,7 @@ var adminSchema = new mongoose.Schema({
   "user_role": {type: String, default: 'admin'},
   "user_name": String,
   "created_on": Date,
+  "user_country_code": String,
   "user_phone_number": String,
   "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
   "user_status": {type: String, default: 'active'},

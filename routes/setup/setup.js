@@ -430,7 +430,7 @@ router.post('/create_setup_checklist_task', upload.single('checklist_task_img'),
         res.send({
           state: "failure",
           message: "This task name already exists."
-        }, 400);
+        }, 200);
       }
       else {
        // console.log(task);
@@ -1006,7 +1006,8 @@ router.put('/edit_version', function(req, res){
           if(version){
             return res.send({
                 state: "success",
-                message: "Version created succssfully!"
+                message: "Version updated succssfully!",
+                data:version
             }, 200);
           }
         })

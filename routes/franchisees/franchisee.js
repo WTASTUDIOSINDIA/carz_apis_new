@@ -399,6 +399,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.franchisee_city=franchiseeForm.franchisee_city;
                 franchisee.franchisee_state=franchiseeForm.franchisee_state;
                 franchisee.franchisee_address=franchiseeForm.franchisee_address;
+                franchisee.country_code=franchiseeForm.country_code;
                 franchisee.franchisee_mobile_number=franchiseeForm.partner_mobile_number;
                 franchisee.franchisee_investment=franchiseeForm.franchisee_investment;
                 franchisee.franchisee_preferred_date=franchiseeForm.franchisee_preferred_date;
@@ -442,6 +443,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                     partner.partner_name=franchiseeForm.partner_name,
                     partner.partner_occupation=franchiseeForm.partner_occupation,
                     partner.partner_email=franchisee.franchisee_email,
+                    partner.country_code=franchiseeForm.country_code,
                     partner.partner_mobile_number=franchiseeForm.partner_mobile_number,
                     partner.partner_age=franchiseeForm.partner_age,
                     partner.partner_address = franchiseeForm.partner_address,
