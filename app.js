@@ -38,6 +38,7 @@ var versions = require('./routes/versions/versions');
 var activity_tracker = require('./routes/activity_tracker/activity_tracker');
 var user_management = require('./routes/user_management/user_management');
 var audit = require('./routes/audit/audit');
+var franchisee_audit = require('./routes/audit/franchisee_audit');
 
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
@@ -181,6 +182,7 @@ app.use('/versions',versions);
 app.use('/usermanagement', user_management);
 app.use('/activity_tracker', activity_tracker);
 app.use('/audit', audit);
+app.use('/franchisee_audit', franchisee_audit);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {

@@ -39,8 +39,7 @@ var employeeAssessmentTypeSchema = new mongoose.Schema({
     'assessment_type_name': String,
     'description' : String,
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
-    'version_id': String,
-    'duration': 
+    'version_id': String
 });
 
 var employeeAssessmentTypeOfFranchiseeSchema = new mongoose.Schema({

@@ -5,7 +5,6 @@ var multer = require('multer');
 var AuditChecklist = mongoose.model('AuditChecklist');
 var AuditChecklistType = mongoose.model('AuditChecklistType');
 var AuditTask = mongoose.model('AuditTask');
-var FranchiseeSpecificAuditChecklist = mongoose.model('FranchiseeSpecificAuditChecklist');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 aws.config.loadFromPath('./config.json');
@@ -240,6 +239,30 @@ router.delete('/delete_all_checklists_types', function(req,res){
       })
     }
   }) 
+
+  router.get('/get_audit_checklist', function (req,res){
+    try{
+        AuditChecklist.find({}, function (err, auditChecklist){
+            if(err){
+               return res.send(500, err)
+            }
+            if(auditChecklist){
+                res.send({
+                    state:'success',
+                    message:'Checklist exists!',
+                    data:auditChecklist
+                },200);
+            }
+            
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
 
 // to crete audit checklist
 router.post('/create_audit_checklist', function (req,res){
@@ -655,66 +678,6 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
       });
     }
   });
-
-
-  router.post('/complete_audit_task',upload.single('audit_task_file'), function(req, res){
-    var completeTask = JSON.parse(req.body.task);
-    FranchiseeSpecificAuditChecklist.findOne({'task_id':completeTask.task_id}, function (err, task){
-    if (!task){
-    task = new UserAnswersOfTask();
-    task.task_id = completeTask.task_id;
-    task.audit_task_status = completeTask.audit_task_status;
-    task.audit_task_answer = completeTask.audit_task_answer;
-    task.checklist_id = completeTask.checklist_id;
-    task.franchisee_id = completeTask.franchisee_id;
-    task.checklist_type_id = completeTask.checklist_type_id;
-    if (req.file) {
-      var audit_task_file = {};
-      task.task_franchisee_submitted_file_url = req.file.location;
-      task.task_franchisee_submitted_file_name = req.file.key;
-      task.task_franchisee_submitted_file_type = req.file.contentType;
-    }
-    task.save(function(err, task){
-      if(err){
-        return res.send({
-          status: 'error',
-          data: task
-        },400);
-      }
-      
-      else {
-        return res.send({
-          status: 'success',
-          message: 'Task completed successfully',
-          data: task
-        },200);
-      }
-      
-    })
-  }
-  
-    })
-  });
-
-  router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, res) {
-    FranchiseeSpecificAuditChecklist.find({checklist_id: req.params.checklist_id, franchisee_id: req.params.franchisee_id }, function (err, tasks) {
-      if (err) {
-        return res.send(err);
-      }
-      if (tasks.length == 0) {
-        return res.send({
-          status: 'failure',
-          message: "No tasks are completed!"
-        },400);
-      }
-      if (tasks.length > 0) {
-        return res.send({
-          status: 'success',
-          data: tasks
-        },200);
-      }
-    })
-  })
 
 
 module.exports = router;
