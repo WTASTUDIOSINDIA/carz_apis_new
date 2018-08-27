@@ -8,7 +8,7 @@ var auditChecklistSchema = new mongoose.Schema({
     'audit_visible_to':String,
     'audit_description':String,
     'created_at': Date,
-    'checklist_type_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
+    'checklist_type_id': {type: Schema.Types.ObjectId, ref:'AuditChecklistType'},
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
 
 })
@@ -30,22 +30,21 @@ var auditChecklistTypeSchema = new mongoose.Schema({
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'}
 })
 
-var franchiseeSpecificAuditChecklistSchema = new mongoose.Schema({
-    'checklist_type_id': String,
-    'audit_checklist_type_name':String,
-    'checklist_id': String,
-    'audit_task_data': Array,
-    'franchisee_id': String,
-    'task_id': String,
-    'audit_task_answer': String,
-    'audit_task_status':{type:Boolean, default:false},
-    'task_franchisee_submitted_file_name': String,
-    'task_franchisee_submitted_file_type': String,
-    'task_franchisee_submitted_file_url': String,
+var FranchiseeAuditTaskSchema = new mongoose.Schema({
+    'checklist_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
+    'task_id': {type: Schema.Types.ObjectId, ref: 'AuditTask'},
+    'task_type': String,
+    'franchisee_id':  {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'task_status' : {type:Boolean,default:false},
+    'file_name' : String,
+    'file_url' : String, 
+    'file_type' : String,
+    'created_on': { type: Date, default: Date.now }
 })
 
 mongoose.model('AuditChecklist', auditChecklistSchema);
 mongoose.model('AuditChecklistType', auditChecklistTypeSchema);
 mongoose.model('AuditTask', auditTaskSchema);
-mongoose.model('FranchiseeSpecificAuditChecklist',franchiseeSpecificAuditChecklistSchema);
+mongoose.model('FranchiseeAuditTask', FranchiseeAuditTaskSchema);
+
 

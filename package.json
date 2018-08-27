@@ -26,6 +26,7 @@
     "googleapis": "^27.0.0",
     "googleapis-plus": "^0.8.3",
     "ical-generator": "^1.0.3",
+    "moment": "^2.22.2",
     "mongoose": "^5.0.3",
     "morgan": "^1.9.0",
     "multer": "^1.3.0",
@@ -40,6 +41,9 @@
   },
   "devDependencies": {
     "@angular/cli": "^1.7.4",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "rimraf": "^2.6.2",
     "socket.io": "^2.1.1"
   }
 }
