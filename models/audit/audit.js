@@ -30,6 +30,7 @@ var auditChecklistTypeSchema = new mongoose.Schema({
 })
 
 var FranchiseeAuditTaskSchema = new mongoose.Schema({
+    'checklist_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
     'task_id': {type: Schema.Types.ObjectId, ref: 'AuditTask'},
     'task_type': String,
     'franchisee_id':  {type: Schema.Types.ObjectId, ref: 'Franchisee'},

@@ -28,12 +28,14 @@ router.post('/get_checklist', function (req,res){
 
     if(data.checklist_type){
         let query = {};
-       
+        let second_query = {};
         if(data.checklist_type == "Daily"){
           if(data.date){
-
-           
- 
+            let from = new Date(data.date);
+            let from_date = from.setHours(0,0,0,0);
+            let to = new Date(data.date);
+            let to_date = to.setHours(23, 59, 59, 999);
+            second_query = {task_type:data.checklist_type, created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
             res.status(400).json({error:'2',message:"Date is mandatory for Daily tasks."});
           }
@@ -41,7 +43,11 @@ router.post('/get_checklist', function (req,res){
         }
         if(data.checklist_type == "Weekly"){
           if(data.fromDate && data.toDate){
- 
+            let from = new Date(data.fromDate);
+            let from_date = from.setHours(0,0,0,0);
+            let to = new Date(data.toDate);
+            let to_date = to.setHours(23, 59, 59, 999);
+            second_query = {task_type:data.checklist_type, created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
             res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
           }
@@ -49,7 +55,7 @@ router.post('/get_checklist', function (req,res){
         }
         if(data.checklist_type == "Monthly"){
           if(data.month){
- 
+            res.status(400).json({error:'2',message:"still in dev mode."});
           }else{
             res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
           }
@@ -57,7 +63,7 @@ router.post('/get_checklist', function (req,res){
         }
         if(data.checklist_type == "Quarterly"){
           if(data.fromMonth && data.toMonth){
- 
+            res.status(400).json({error:'2',message:"still in dev mode."});
           }else{
             res.status(400).json({error:'2',message:"From and To Months are mandatory for Quarterly tasks."});
           }
@@ -65,14 +71,14 @@ router.post('/get_checklist', function (req,res){
         }
         if(data.checklist_type == "Yearly"){
           if(data.year){
- 
+            res.status(400).json({error:'2',message:"still in dev mode."});
           }else{
             res.status(400).json({error:'2',message:"Year is mandatory for Year tasks."});
           }
 
         }
         query.audit_checklist_type = data.checklist_type
-        auditService.findlist(query)
+        auditService.findlist(query,second_query)
         .then((response) => {
           if(response)
           { 
@@ -94,7 +100,9 @@ router.post('/get_checklist', function (req,res){
 router.post('/save_franchisee_audit_task', function (req,res){
   let data = req.body;
 
-  if(data.task_id && data.franchisee_id && data.task_status && data.task_type){
+  console.log(data);
+
+  if(data.task_id && data.franchisee_id && data.task_status && data.task_type && data.checklist_id){
     let task_id = objectId(data.task_id);
     let franchisee_id = objectId(data.franchisee_id);
     let query = {};
@@ -107,10 +115,10 @@ router.post('/save_franchisee_audit_task', function (req,res){
         let send_date = moment(s_date).format("D-M-YYYY");
 
         if(today == send_date){
-        query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+        query = {$and: [{task_id:task_id,task_type:data.task_type,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
         //query.task_id = task_id; 
         }else{
-          res.status(400).json({error:'2',message:"You are not autherisred."});
+          res.status(400).json({error:'2',message:"You are not autherisred..."});
         }
        
       }else{
@@ -124,19 +132,17 @@ router.post('/save_franchisee_audit_task', function (req,res){
         let curr = new Date; // get current date
         let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
         let last = first + 6; // last day is the first day + 6
-        let s_date = new Date(data.date);
-        let send_date = moment(s_date).format("D-M-YYYY");
-        let firstday = moment(new Date(curr.setDate(first)).toUTCString()).format("D-M-YYYY");
-        let lastday = moment(new Date(curr.setDate(last)).toUTCString()).format("D-M-YYYY");
+        
+        let send_date = new Date(data.date);
+        let firstday = new Date(curr.setDate(first));
+        let lastday = new Date(curr.setDate(last));
 
-        if(send_date >= firstday && send_date <= lastday){
-          console.log(firstday);
-          console.log(lastday);
-          console.log(send_date);
-          query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gt: new Date(firstday),$lt: new Date(lastday)}}]};
+        if((new Date(send_date) >= new Date(firstday)) && (new Date(send_date) <= new Date(lastday))){
+          
+          query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
           //query.task_id = task_id; 
           }else{
-            res.status(400).json({error:'2',message:"You are not autherisred."});
+            res.status(400).json({error:'2',message:"You are not autherisred.."});
           }
 
       }else{
@@ -146,7 +152,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
     }
     if(data.task_type == "Monthly"){
       if(data.month){
-
+        res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
         res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
       }
@@ -154,7 +160,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
     }
     if(data.task_type == "Quarterly"){
       if(data.month){
-
+        res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
         res.status(400).json({error:'2',message:"From and To Months are mandatory for Quarterly tasks."});
       }
@@ -162,7 +168,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
     }
     if(data.task_type == "Yearly"){
       if(data.year){
-
+        res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
         res.status(400).json({error:'2',message:"Year is mandatory for Year tasks."});
       }
@@ -171,18 +177,14 @@ router.post('/save_franchisee_audit_task', function (req,res){
 
     auditService.findOne(query)
     .then((response) => {
-      console.log("----",response);
       if(response){
           if(response.length !== 0){
-            console.log("existed");
             response.task_status = data.task_status;
             return response.save();
           }else{
-            console.log("new-==");
             return auditService.create(data);
           }
         }else{
-          console.log("new----");
           return auditService.create(data); 
         }
       })
