@@ -73,8 +73,7 @@ const findlist = (query,second_query) => {
 
 
 const findtasks = (query,second_query) => {
-  console.log(query);
-  console.log(second_query);
+  
   return AuditTask.aggregate([
     { $match: {
       $and: [
