@@ -31,7 +31,7 @@ const findcheckelist = (query) => {
     return AuditTask.find().exec();
   }
 
-const findlist = (query) => {
+const findlist = (query,second_query) => {
   return AuditChecklist.aggregate([
     { $match: {
       $and: [
@@ -45,6 +45,25 @@ const findlist = (query) => {
         foreignField: 'checklist_id',
         as: 'TaskData'
     }
+},
+
+{
+  $lookup: {
+      from: FranchiseeAuditTask.collection.name,
+      let: { id: "$_id"},
+      pipeline: [
+        { $match: {
+          
+          $and: [
+            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }},
+            second_query
+            ] }
+        },
+        
+      ],
+    
+    as: 'FranchiseeTaskData'
+  }
 },
 
   
