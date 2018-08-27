@@ -70,6 +70,44 @@ const findlist = (query,second_query) => {
   ]).exec();
 }  
 
+
+
+const findtasks = (query,second_query) => {
+  console.log(query);
+  console.log(second_query);
+  return AuditTask.aggregate([
+    { $match: {
+      $and: [
+            query
+      ]
+  } },
+  
+
+{
+  $lookup: {
+      from: FranchiseeAuditTask.collection.name,
+      let: { id: "$_id"},
+      pipeline: [
+        { $match: {
+          
+          $and: [
+            {$expr:{ $eq: [ "$task_id",  "$$id" ] }},
+            second_query
+            ] }
+        },
+        
+      ],
+    
+    as: 'FranchiseeTaskData'
+  }
+},
+
+  
+  ]).exec();
+}  
+
+
+
 const update = (query, data) => {
   return FranchiseeAuditTask.findOneAndUpdate(query, data, { new: true }).exec();
 }
@@ -82,5 +120,6 @@ module.exports =  {
   update,
   findcheckelist,
   findlist,
-  tasks
+  tasks,
+  findtasks
 };
