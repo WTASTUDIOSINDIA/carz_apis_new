@@ -5,6 +5,15 @@
   var moment = require("moment");
   var mongoose = require('mongoose');
   const objectId = mongoose.Types.ObjectId;
+  var schedule = require('node-schedule');
+
+ 
+var rule = new schedule.RecurrenceRule();
+rule.second = 42;
+ 
+var j = schedule.scheduleJob(rule, function(){
+  console.log('The answer to life, the universe, and everything!');
+});
   
   router.get('/get_audit_checklist', function (req,res){
     let requestFrom = req.headers["x-request-from"];
