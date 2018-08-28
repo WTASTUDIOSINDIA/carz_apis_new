@@ -209,4 +209,80 @@ router.post('/save_franchisee_audit_task', function (req,res){
 
 })
 
+
+
+router.post('/get_tasks_at_checklist_id', function (req,res){
+  let data = req.body;
+
+  if(data.checklist_id && data.checklist_type){
+      let query = {};
+      let second_query = {};
+      if(data.checklist_type == "Daily"){
+        if(data.date){
+          let from = new Date(data.date);
+          let from_date = from.setHours(0,0,0,0);
+          let to = new Date(data.date);
+          let to_date = to.setHours(23, 59, 59, 999);
+          second_query = {created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+        }else{
+          res.status(400).json({error:'2',message:"Date is mandatory for Daily tasks."});
+        }
+
+      }
+      if(data.checklist_type == "Weekly"){
+        if(data.fromDate && data.toDate){
+          let from = new Date(data.fromDate);
+          let from_date = from.setHours(0,0,0,0);
+          let to = new Date(data.toDate);
+          let to_date = to.setHours(23, 59, 59, 999);
+          second_query = {created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+        }else{
+          res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
+        }
+
+      }
+      if(data.checklist_type == "Monthly"){
+        if(data.month){
+          res.status(400).json({error:'2',message:"still in dev mode."});
+        }else{
+          res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
+        }
+
+      }
+      if(data.checklist_type == "Quarterly"){
+        if(data.fromMonth && data.toMonth){
+          res.status(400).json({error:'2',message:"still in dev mode."});
+        }else{
+          res.status(400).json({error:'2',message:"From and To Months are mandatory for Quarterly tasks."});
+        }
+
+      }
+      if(data.checklist_type == "Yearly"){
+        if(data.year){
+          res.status(400).json({error:'2',message:"still in dev mode."});
+        }else{
+          res.status(400).json({error:'2',message:"Year is mandatory for Year tasks."});
+        }
+
+      }
+      query.checklist_id = objectId(data.checklist_id);
+      auditService.findtasks(query,second_query)
+      .then((response) => {
+        if(response)
+        { 
+          res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
+        }else{
+          res.status(404).json({ error: "1", message: "Error in getting details"});
+        }
+      })
+      .catch((error) => {
+        res.status(500).json({ error: "2", message: "Internal server error"});
+      });
+  }else{
+      res.status(400).json({error:'2',message:"checklist type and id is mandatory."});
+  }
+
+  
+})
+
 module.exports = router;
