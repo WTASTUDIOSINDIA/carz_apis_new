@@ -6,13 +6,112 @@
   var mongoose = require('mongoose');
   const objectId = mongoose.Types.ObjectId;
   var schedule = require('node-schedule');
+  var nodemailer = require('nodemailer');
+  var Franchisee = mongoose.model('Franchisee');
+  var Utils = require('../../common/utils');
 
- 
-var rule = new schedule.RecurrenceRule();
-rule.second = 42;
- 
-var j = schedule.scheduleJob(rule, function(){
-  console.log('The answer to life, the universe, and everything!');
+  var day_rule = new schedule.RecurrenceRule();
+  day_rule.dayOfWeek = [new schedule.Range(1, 6)];
+  day_rule.hour = 23;
+  day_rule.minute = 59;
+  day_rule.second = 599;
+
+  var week_rule = new schedule.RecurrenceRule();
+  week_rule.dayOfWeek = [6];
+  week_rule.hour = 23;
+  week_rule.minute = 59;
+  week_rule.second = 599;
+
+schedule.scheduleJob(day_rule, function(req,res){
+
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+        franchiees.forEach(function(element){
+
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+
+
+        });
+    }
+})
+  
+});
+
+
+schedule.scheduleJob(week_rule, function(req,res){
+
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+        franchiees.forEach(function(element){
+
+        let curr = new Date; // get current date
+        let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        let last = first + 5; // last day is the first day + 6
+        
+        let firstday = new Date(curr.setDate(first));
+        let lastday = new Date(curr.setDate(last));
+
+          let query = {$and: [{checklist_type:"Weekly",franchisee_id :objectId(element._id),created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+
+
+        });
+    }
+})
+  
 });
   
   router.get('/get_audit_checklist', function (req,res){
@@ -141,7 +240,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
 
         let curr = new Date; // get current date
         let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
+        let last = first + 5; // last day is the first day + 6
         
         let send_date = new Date(data.date);
         let firstday = new Date(curr.setDate(first));
@@ -189,8 +288,8 @@ router.post('/save_franchisee_audit_task', function (req,res){
     .then((response) => {
       if(response){
           if(response.length !== 0){
-            response.task_status = data.task_status;
-            return response.save();
+            //response.task_status = data.task_status;
+            return response.remove();
           }else{
             return auditService.create(data);
           }

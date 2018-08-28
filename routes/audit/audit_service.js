@@ -23,6 +23,10 @@ const findOne = (query) => {
   return FranchiseeAuditTask.findOne(query).exec();
 }
 
+const findFranchiseeTasksByDaily = (query) => {
+  return FranchiseeAuditTask.find(query).exec();
+}
+
 const findcheckelist = (query) => {
     return AuditChecklist.find(query).exec();
   }
@@ -120,5 +124,6 @@ module.exports =  {
   findcheckelist,
   findlist,
   tasks,
-  findtasks
+  findtasks,
+  findFranchiseeTasksByDaily
 };
