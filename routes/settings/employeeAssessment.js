@@ -1099,7 +1099,7 @@ router.delete('/delete_model_by_id/:id', function (req, res) {
     }
 })
 
-
+    
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
     try {
