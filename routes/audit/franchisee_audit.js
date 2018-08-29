@@ -16,6 +16,9 @@
   day_rule.minute = 59;
   day_rule.second = 599;
 
+  var sec_rule = new schedule.RecurrenceRule();
+  sec_rule.second = 10;
+
   var week_rule = new schedule.RecurrenceRule();
   week_rule.dayOfWeek = [6];
   week_rule.hour = 23;
@@ -63,6 +66,61 @@ schedule.scheduleJob(day_rule, function(req,res){
 })
   
 });
+
+
+
+schedule.scheduleJob(day_rule, function(req,res){
+  
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1, "franchisee_created_on":1,"franchisor_id":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+
+        franchiees.forEach(function(element){
+
+          if(element.franchisee_created_on){
+
+            let curr = new Date; // get current date
+            let check_date = curr.getDate() - 5; // First day is the day of the month - the day of the week
+            
+            let check_date_full = new Date(curr.setDate(check_date));
+
+          if(new Date(check_date_full) > new Date(element.franchisee_created_on)){
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(Date.now() ) }}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+        }
+      }
+
+        });
+    }
+})
+  
+});
+
 
 
 schedule.scheduleJob(week_rule, function(req,res){
