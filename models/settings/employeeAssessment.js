@@ -72,6 +72,12 @@ var sectionsSchema = new mongoose.Schema({
     "franchisor_id": String
 });
 
+var carModelSchema = new mongoose.Schema({
+    "model_name": String,
+    "version_id": String,
+    "franchisor_id": String
+})
+
 
 mongoose.model('EmployeeAssessmentTypeOfFranchisee', employeeAssessmentTypeOfFranchiseeSchema);
 mongoose.model('EmployeeAssessmentType', employeeAssessmentTypeSchema);
@@ -79,3 +85,4 @@ mongoose.model('EmployeeDetails', employeeDetailsSchema);
 mongoose.model('EmployeeAssessment', employeeAssessmentSchema);
 mongoose.model('EmployeeAssessmentSubmitted', employeeAssementSubmittedSchema);
 mongoose.model('Sections', sectionsSchema);
+mongoose.model('CarModels', carModelSchema);
