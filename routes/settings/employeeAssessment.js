@@ -7,6 +7,7 @@ var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
+var CarModels = mongoose.model('CarModels');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
@@ -937,6 +938,86 @@ router.post('/create_employee_details', function (req, res) {
     //         message: err
     //     },500)
     // }
+})
+//To create employee fileds
+router.post('/create_model', function (req, res) {
+    // try {
+    CarModels.findOne({ model_name: req.body.model_name , version_id: req.body.version_id}, function (err, model) {
+        if (err) {
+            res.send({
+                state: 'failure',
+                message: 'Something went wrong',
+            }, 500)
+        }
+        if (model) {
+            res.send({
+                state: "failure",
+                message: "This Employee already exists."
+            }, 400);
+        }
+        else {
+            model = new CarModels();
+            model.model_name = req.body.model_name;
+            model.version_id = req.body.version_id;
+            model.franchisor_id = req.body.franchisor_id;
+           
+            model.save(function (err, model) {
+                if (err) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500)
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        message: 'Model created successfully',
+                        data: model
+                    }, 200)
+                }
+            })
+        }
+    })
+    // }
+    // catch (err) {
+    //     res.send({
+    //         state: 'err',
+    //         message: err
+    //     },500)
+    // }
+})
+
+//To get models by version id
+router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req, res) {
+    try {
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: req.params.version_id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
 })
 
 //To get create employee details
