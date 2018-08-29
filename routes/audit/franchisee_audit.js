@@ -5,6 +5,114 @@
   var moment = require("moment");
   var mongoose = require('mongoose');
   const objectId = mongoose.Types.ObjectId;
+  var schedule = require('node-schedule');
+  var nodemailer = require('nodemailer');
+  var Franchisee = mongoose.model('Franchisee');
+  var Utils = require('../../common/utils');
+
+  var day_rule = new schedule.RecurrenceRule();
+  day_rule.dayOfWeek = [new schedule.Range(1, 6)];
+  day_rule.hour = 23;
+  day_rule.minute = 59;
+  day_rule.second = 599;
+
+  var week_rule = new schedule.RecurrenceRule();
+  week_rule.dayOfWeek = [6];
+  week_rule.hour = 23;
+  week_rule.minute = 59;
+  week_rule.second = 599;
+
+schedule.scheduleJob(day_rule, function(req,res){
+
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+        franchiees.forEach(function(element){
+
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+
+
+        });
+    }
+})
+  
+});
+
+
+schedule.scheduleJob(week_rule, function(req,res){
+
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+        franchiees.forEach(function(element){
+
+        let curr = new Date; // get current date
+        let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        let last = first + 5; // last day is the first day + 6
+        
+        let firstday = new Date(curr.setDate(first));
+        let lastday = new Date(curr.setDate(last));
+
+          let query = {$and: [{checklist_type:"Weekly",franchisee_id :objectId(element._id),created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+
+
+        });
+    }
+})
+  
+});
   
   router.get('/get_audit_checklist', function (req,res){
     let requestFrom = req.headers["x-request-from"];
@@ -26,7 +134,7 @@
 router.post('/get_checklist', function (req,res){
     let data = req.body;
 
-    if(data.checklist_type){
+    if(data.checklist_type && data.franchisee_id){
         let query = {};
         let second_query = {};
         if(data.checklist_type == "Daily"){
@@ -35,7 +143,7 @@ router.post('/get_checklist', function (req,res){
             let from_date = from.setHours(0,0,0,0);
             let to = new Date(data.date);
             let to_date = to.setHours(23, 59, 59, 999);
-            second_query = {task_type:data.checklist_type, created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+            second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
             res.status(400).json({error:'2',message:"Date is mandatory for Daily tasks."});
           }
@@ -47,7 +155,7 @@ router.post('/get_checklist', function (req,res){
             let from_date = from.setHours(0,0,0,0);
             let to = new Date(data.toDate);
             let to_date = to.setHours(23, 59, 59, 999);
-            second_query = {task_type:data.checklist_type, created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+            second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
             res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
           }
@@ -100,14 +208,15 @@ router.post('/get_checklist', function (req,res){
 router.post('/save_franchisee_audit_task', function (req,res){
   let data = req.body;
 
-  console.log(data);
-
-  if(data.task_id && data.franchisee_id && data.task_status && data.task_type && data.checklist_id){
+  if(data.task_id && data.franchisee_id  && data.checklist_type && data.checklist_id){
+    if(!data.task_status){
+      data.task_status = false;
+    }
     let task_id = objectId(data.task_id);
     let franchisee_id = objectId(data.franchisee_id);
     let query = {};
 
-    if(data.task_type == "Daily"){
+    if(data.checklist_type == "Daily"){
       if(data.date){
 
         let today = moment().format("D-M-YYYY");
@@ -115,7 +224,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
         let send_date = moment(s_date).format("D-M-YYYY");
 
         if(today == send_date){
-        query = {$and: [{task_id:task_id,task_type:data.task_type,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+        query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
         //query.task_id = task_id; 
         }else{
           res.status(400).json({error:'2',message:"You are not autherisred..."});
@@ -126,12 +235,12 @@ router.post('/save_franchisee_audit_task', function (req,res){
       }
 
     }
-    if(data.task_type == "Weekly"){
+    if(data.checklist_type == "Weekly"){
       if(data.date){
 
         let curr = new Date; // get current date
         let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
+        let last = first + 5; // last day is the first day + 6
         
         let send_date = new Date(data.date);
         let firstday = new Date(curr.setDate(first));
@@ -150,7 +259,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
       }
 
     }
-    if(data.task_type == "Monthly"){
+    if(data.checklist_type == "Monthly"){
       if(data.month){
         res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
@@ -158,7 +267,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
       }
 
     }
-    if(data.task_type == "Quarterly"){
+    if(data.checklist_type == "Quarterly"){
       if(data.month){
         res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
@@ -166,7 +275,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
       }
 
     }
-    if(data.task_type == "Yearly"){
+    if(data.checklist_type == "Yearly"){
       if(data.year){
         res.status(400).json({error:'2',message:"still in dev mode."});
       }else{
@@ -179,8 +288,8 @@ router.post('/save_franchisee_audit_task', function (req,res){
     .then((response) => {
       if(response){
           if(response.length !== 0){
-            response.task_status = data.task_status;
-            return response.save();
+            //response.task_status = data.task_status;
+            return response.remove();
           }else{
             return auditService.create(data);
           }
@@ -214,7 +323,7 @@ router.post('/save_franchisee_audit_task', function (req,res){
 router.post('/get_tasks_at_checklist_id', function (req,res){
   let data = req.body;
 
-  if(data.checklist_id && data.checklist_type){
+  if(data.checklist_id && data.checklist_type && data.franchisee_id){
       let query = {};
       let second_query = {};
       if(data.checklist_type == "Daily"){
@@ -223,7 +332,7 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
           let from_date = from.setHours(0,0,0,0);
           let to = new Date(data.date);
           let to_date = to.setHours(23, 59, 59, 999);
-          second_query = {created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+          second_query = {franchisee_id:objectId(data.franchisee_id),created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)}};
         }else{
           res.status(400).json({error:'2',message:"Date is mandatory for Daily tasks."});
         }
@@ -235,7 +344,7 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
           let from_date = from.setHours(0,0,0,0);
           let to = new Date(data.toDate);
           let to_date = to.setHours(23, 59, 59, 999);
-          second_query = {created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+          second_query = {franchisee_id:objectId(data.franchisee_id),created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
         }else{
           res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
         }
