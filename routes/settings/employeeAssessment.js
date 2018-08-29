@@ -77,7 +77,8 @@ router.post('/create_assessemnt_type', function (req, res) {
                     else {
                         res.send({
                             state: "success",
-                            message: "Assessment Type created successfully"
+                            message: "Assessment Type created successfully",
+                            data:assessment
                         }, 200);
                     }
                 });
