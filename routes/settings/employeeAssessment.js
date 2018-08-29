@@ -1020,6 +1020,85 @@ router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req
     }
 })
 
+
+//To edit model details
+router.put('/update_model_details', function (req, res) {
+    try {
+        CarModels.findById({ _id: req.body._id }, function (err, model) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
+            }
+            if (model) {
+                model.model_name = req.body.model_name;
+               
+                model.save(function (err, model) {
+                    if (err) {
+                        res.send({
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Model updated'
+                        }, 200)
+                    }
+                })
+            }
+            if (!model) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: 'err'
+        })
+    }
+});
+
+
+// To delete employee details
+router.delete('/delete_model_by_id/:id', function (req, res) {
+    try {
+        CarModels.findByIdAndRemove({ _id: req.params.id }, function (err, model) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!model) {
+                res.send({
+                    state: err,
+                    message: 'Model not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Model deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
     try {
