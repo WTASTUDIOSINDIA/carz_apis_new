@@ -39,12 +39,15 @@ var employeeAssessmentTypeSchema = new mongoose.Schema({
     'assessment_type_name': String,
     'description' : String,
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
-    'version_id': String
+    'version_id': String,
+    'model_id': String
+
 });
 
 var employeeAssessmentTypeOfFranchiseeSchema = new mongoose.Schema({
     'assessment_type_id': String,
     'assessment_type_name': String,
+    'model_id': String,
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
     'assessment_status': {type: Boolean, default: false}
 
@@ -61,6 +64,7 @@ var employeeDetailsSchema = new mongoose.Schema({
     'employee_age': String,
     'employee_company_of_experience': String,
     'employee_experience_in': String,
+    'model_id': String,
     'employee_vertical': String,
     'employee_days_experience': String,
     'created_on' : { type: Date, default: Date.now },

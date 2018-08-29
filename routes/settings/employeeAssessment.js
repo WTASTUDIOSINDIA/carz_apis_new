@@ -67,6 +67,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.version_id = req.body.version_id;
+                assessment.model_id = req.model_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
@@ -137,9 +138,9 @@ router.put('/update_assessment_type', function (req, res) {
     }
 })
 // TO get assessment type settings
-router.get('/get_assessments_type_name/:version_id', function (req, res) {
+router.get('/get_assessments_type_name/:model_id', function (req, res) {
     try {
-        EmployeeAssessmentType.find({ version_id: req.params.version_id }, function (err, assessments) {
+        EmployeeAssessmentType.find({ model_id: req.params.model_id }, function (err, assessments) {
             if (err) {
                 return res.send(500, err);
             }
@@ -910,6 +911,7 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_address = req.body.employee_address;
             employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
             employeeDetails.employee_age = req.body.employee_age;
+            employeeDetails.model_id = req.body.model_id;
             employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
             employeeDetails.employee_experience_in = req.body.employee_experience_in;
             employeeDetails.employee_vertical = req.body.employee_vertical;
@@ -1011,6 +1013,43 @@ router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req
                 }, 200)
             }
         })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+//To get models by default version id
+router.get('/get_models_by_default_version/:franchisor_id', function (req, res) {
+    try {
+        Versions.findOne({franchisor_id: req.params.franchisor_id, 
+            version_type: 'e_assessments', 
+            default: true}, function(err, version){
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: version._id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    })
     }
     catch (err) {
         res.send({
@@ -1181,6 +1220,7 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_address = req.body.employee_address;
                 employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
                 employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.model_id = req.body.model_id;
                 employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
                 employeeDetails.employee_vertical = req.body.employee_vertical;
