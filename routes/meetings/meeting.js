@@ -430,8 +430,27 @@ function saveMeetingNotification(request, response) {
     notific.meeting_time = getNotifications.meeting_time;
     notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
-    notific.notification_to = getNotifications.notification_to;
+    notific.meeting_status = getNotifications.meeting_status;
+    if(!getNotifications.meeting_status == 'pending') {
+        notific.notification_to = getNotifications.notification_to;
+    }
     notific.discussion_notification = getNotifications.discussion_notification;
+    if (getNotifications.meeting_reason) {
+        notific.meeting_reason = getNotifications.meeting_reason;
+    }
+    if (getNotifications.meeting_status) {
+        notific.approved_by = getNotifications.approved_by;
+    }
+    if (getNotifications.meeting_status) {
+        if(getNotifications.notification_to == 'franchisee') {
+            notific.notification_to = "franchisor",
+            console.log(notific.notification_to, '1', getNotifications.notification_to);
+        }
+        else if(getNotifications.notification_to == 'franchisor') {
+            notific.notification_to = "franchisee",
+            console.log(notific.notification_to, '2', getNotifications.notification_to);
+        }
+    }
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {
@@ -761,50 +780,92 @@ router.put('/change_meeting_status', function (req, res) {
                         }, 500);
                     }
                     else {
-                        console.log('here');
-                        // if(meetingEditForm.meeting_status === 'declined') {
-                        //     var user_mail;
-                        //     if(meetingForm.approved_by == franchisor) {
-                        //         Franchisee.find({ _id: meetingForm.franchisee_id}, (err, data) => {
-                        //             if (err) {
-                        //                 console.log(err);
-                        //             }
-                        //             if (data) {
-                        //                 console.log(data, 'mail_data');
-                        //             }
-                        //         })
-                        //     }
-                        //     var mailOptions={
-                        //         to: req.user.franchisee_email,
-                        //         subject: 'OTP',
-                        //         from: "carzdev@gmail.com",
-                        //         headers: {
-                        //             "X-Laziness-level": 1000,
-                        //             "charset" : 'UTF-8'
-                        //         },
-                    
-                        //         html: "<p>Your one time password is <b>"+otp+"</b>. Please use this to verify your account.</p><div><p>Best,</p><p>Carz.</p></div>"
-                        //     }
-                        //     var transporter = nodemailer.createTransport({
-                        //         service: 'gmail',
-                        //         secure: false, // use SSL
-                        //         port: 25, // port for secure SMTP
-                        //         auth: {
-                        //             user: 'carzdev@gmail.com',
-                        //             pass: 'Carz@123'
-                        //         }
-                        //     });
-                        //     transporter.sendMail(mailOptions, function(error, response){
-                        //         if(error){
-                        //             return res.send(error);
-                        //         }
-                        //         else{
-                        //             return res.send(response);
-                        //         }
-                        //     });
-                        // }
+                        console.log(meeting, 'here');
+                        if(meeting.meeting_status === 'declined') {
+                            var reciever_mail;
+                            var sender_name;
+                            if(meeting.approved_by == 'franchisor') {
+                                Franchisee.findById({ _id: meeting.franchisee_id}, (err, data) => {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    if (data) {
+                                        console.log(data, 'mail_data');
+                                        reciever_mail = data.franchisee_email;
+                                        console.log(reciever_mail, 'receiver_mail');
+                                        // Franchisor.findById({ _id: metting.franchisor_id }, (err, success) => {
+                                        //     if (err) {
+                                        //         console.log(err);
+                                        //     }
+                                        //     if (success) {
+                                        //         sender_name = success[0].user_name;
+                                        //         mailSend(reciever_mail, "carz");
+
+                                        //     }
+                                        // })
+                                        mailSend(reciever_mail, "carz");
+                                    }
+                                })
+                            }
+                            if(meeting.approved_by == 'franchisee') {
+                                Franchisor.findById({ _id: meeting.franchisor_id}, (err, data) => {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                    if (data) {
+                                        console.log(data, 'mail_data');
+                                        reciever_mail = data.user_mail;
+                                        console.log(reciever_mail, 'receiver_mail');
+                                        Franchisee.findById({ _id: meeting.franchisee_id }, (err, success) => {
+                                            if (err) {
+                                                console.log(err);
+                                            }
+                                            if (success) {
+                                                sender_name = success.franchisee_name;
+                                                mailSend(reciever_mail, sender_name);
+
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                            function mailSend(reciever_mail, sender_name) {
+                                
+                                var mailOptions={
+                                    to: reciever_mail,
+                                    subject: 'Carz meeting status',
+                                    from: "carzdev@gmail.com",
+                                    headers: {
+                                        "X-Laziness-level": 1000,
+                                        "charset" : 'UTF-8'
+                                    },
+                        
+                                    html: "<p>Your meeting with <b>"+sender_name+"</b> has been declined.</p><div><p>Reason: "+meeting.meeting_reason+" </p></div><div><p>Best,</p><p>Carz.</p></div>"
+                                }
+                                var transporter = nodemailer.createTransport({
+                                    service: 'gmail',
+                                    secure: false, // use SSL
+                                    port: 25, // port for secure SMTP
+                                    auth: {
+                                        user: 'carzdev@gmail.com',
+                                        pass: 'Carz@123'
+                                    }
+                                });
+                                transporter.sendMail(mailOptions, function(error, response){
+                                    if(error){
+                                        // return res.send(error);
+                                        console.log(error);
+                                    }
+                                    else{
+                                        // return res.send(response);
+                                        console.log(response);
+                                    }
+                                });
+                            }
+                        }
                         io.on('connection', function (socket) {
                             console.log(socket);
+                            socket.emit('news', { hello: 'world' });
                             socket.on('message', function (data, response) {
                                 console.log(data, "42_meeting.js");
                                 var meeting_data = saveMeetingNotification(data, response);
