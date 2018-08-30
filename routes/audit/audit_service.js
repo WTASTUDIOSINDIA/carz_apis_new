@@ -38,7 +38,6 @@ const findcheckelist = (query) => {
   }
 
 const findlist = (query,second_query,nonworking_query) => {
-  console.log(second_query);
   return AuditChecklist.aggregate([
     { $match: {
       $and: [
@@ -57,12 +56,10 @@ const findlist = (query,second_query,nonworking_query) => {
 {
   $lookup: {
       from: NonWorkingDay.collection.name,
-      let: { id: "$_id"},
       pipeline: [
         { $match: {
           
           $and: [
-            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }},
             nonworking_query
             ] }
         },
@@ -164,6 +161,36 @@ const findtasks = (query,second_query,nonworking_query) => {
   ]).exec();
 }  
 
+const findTasksList = (type) => {
+  return AuditTask.aggregate([
+    { $match: {
+      $and: [
+            {checklist_type:type}
+      ]
+  } },
+]).exec();
+}
+
+
+const findCalenderList = (query) => {
+
+  return FranchiseeAuditTask.aggregate([
+    { $match: {
+      $and: [
+        query
+      ]
+  } },
+  
+
+  ]).exec();
+}  
+
+
+const findNonWorkList = (query) => {
+
+  return NonWorkingDay.findOne(query).exec();
+}  
+
 const findNonWorkingDay = (query) => {
   return NonWorkingDay.findOne(query).exec();
 }
@@ -198,5 +225,8 @@ module.exports =  {
   findNonWorkingDay,
   createNonWorkingDay,
   removeNonWorkingDay,
-  updateNonWorkingDay
+  updateNonWorkingDay,
+  findCalenderList,
+  findTasksList,
+  findNonWorkList
 };
