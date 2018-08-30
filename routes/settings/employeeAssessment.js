@@ -7,6 +7,7 @@ var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
+var CarModels = mongoose.model('CarModels');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
@@ -66,6 +67,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.version_id = req.body.version_id;
+                assessment.model_id = req.body.model_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
@@ -136,9 +138,9 @@ router.put('/update_assessment_type', function (req, res) {
     }
 })
 // TO get assessment type settings
-router.get('/get_assessments_type_name/:version_id', function (req, res) {
+router.get('/get_assessments_type_name/:model_id', function (req, res) {
     try {
-        EmployeeAssessmentType.find({ version_id: req.params.version_id }, function (err, assessments) {
+        EmployeeAssessmentType.find({ model_id: req.params.model_id }, function (err, assessments) {
             if (err) {
                 return res.send(500, err);
             }
@@ -259,10 +261,10 @@ router.post('/save_employee_assessment_type', function (req, res) {
             }
             else {
                 console.log('166', req.body.data);
-                Versions.findOne({franchisor_id: req.body.franchisor_id, 
-                    version_type: 'e_assessments', 
-                    default: true}, function(err, version){
-                        EmployeeAssessmentType.find({version_id: version._id}, function(err, assessments){
+                // Versions.findOne({franchisor_id: req.body.franchisor_id, 
+                //     version_type: 'e_assessments', 
+                //     default: true}, function(err, version){
+                        EmployeeAssessmentType.find({model_id: req.body.model_id}, function(err, assessments){
                             for (var i = 0; i < assessments.length; i++) {
                                 employeeType = new EmployeeAssessmentTypeOfFranchisee();
                                 employeeType.assessment_type_id = assessments[i]._id;
@@ -296,7 +298,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                 });
                             }
                         })
-                    })
+                   // })
 
             }
         });
@@ -909,6 +911,7 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_address = req.body.employee_address;
             employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
             employeeDetails.employee_age = req.body.employee_age;
+            employeeDetails.model_id = req.body.model_id;
             employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
             employeeDetails.employee_experience_in = req.body.employee_experience_in;
             employeeDetails.employee_vertical = req.body.employee_vertical;
@@ -938,6 +941,202 @@ router.post('/create_employee_details', function (req, res) {
     //     },500)
     // }
 })
+//To create employee fileds
+router.post('/create_model', function (req, res) {
+    // try {
+    CarModels.findOne({ model_name: req.body.model_name , version_id: req.body.version_id}, function (err, model) {
+        if (err) {
+            res.send({
+                state: 'failure',
+                message: 'Something went wrong',
+            }, 500)
+        }
+        if (model) {
+            res.send({
+                state: "failure",
+                message: "This Employee already exists."
+            }, 400);
+        }
+        else {
+            model = new CarModels();
+            model.model_name = req.body.model_name;
+            model.version_id = req.body.version_id;
+            model.franchisor_id = req.body.franchisor_id;
+           
+            model.save(function (err, model) {
+                if (err) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500)
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        message: 'Model created successfully',
+                        data: model
+                    }, 200)
+                }
+            })
+        }
+    })
+    // }
+    // catch (err) {
+    //     res.send({
+    //         state: 'err',
+    //         message: err
+    //     },500)
+    // }
+})
+
+//To get models by version id
+router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req, res) {
+    try {
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: req.params.version_id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+//To get models by default version id
+router.get('/get_models_by_default_version/:franchisor_id', function (req, res) {
+    try {
+        Versions.findOne({franchisor_id: req.params.franchisor_id, 
+            version_type: 'e_assessments', 
+            default: true}, function(err, version){
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: version._id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+
+//To edit model details
+router.put('/update_model_details', function (req, res) {
+    try {
+        CarModels.findById({ _id: req.body._id }, function (err, model) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
+            }
+            if (model) {
+                model.model_name = req.body.model_name;
+               
+                model.save(function (err, model) {
+                    if (err) {
+                        res.send({
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Model updated'
+                        }, 200)
+                    }
+                })
+            }
+            if (!model) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: 'err'
+        })
+    }
+});
+
+
+// To delete employee details
+router.delete('/delete_model_by_id/:id', function (req, res) {
+    try {
+        CarModels.findByIdAndRemove({ _id: req.params.id }, function (err, model) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!model) {
+                res.send({
+                    state: err,
+                    message: 'Model not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Model deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
 
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
@@ -1021,6 +1220,7 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_address = req.body.employee_address;
                 employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
                 employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.model_id = req.body.model_id;
                 employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
                 employeeDetails.employee_vertical = req.body.employee_vertical;
@@ -1077,6 +1277,37 @@ router.delete('/delete_employee_details/:id', function (req, res) {
                 res.send({
                     state: 'success',
                     message: 'Employee deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+// To delete all employees details
+router.delete('/delete_all_employees', function (req, res) {
+    try {
+        EmployeeDetails.remove({}, function (err, employeeDetails) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!employeeDetails) {
+                res.send({
+                    state: err,
+                    message: 'Employee not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Employees deleted'
                 }, 200);
             }
         })

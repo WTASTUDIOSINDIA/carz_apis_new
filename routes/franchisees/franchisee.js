@@ -420,6 +420,7 @@ router.post('/create_franchisee',upload.single('franchisee_img'),function(req, r
                 franchisee.bussiness_type = franchiseeForm.bussiness_type_id;
                 franchisee.partners_list = 1;
                 franchisee.partner_name = franchiseeForm.partner_name;
+                franchisee.franchisor_id = franchiseeForm.franchisor_id;
 
                 if(req.file){
                     var franchisee_pic = {};
@@ -1899,6 +1900,7 @@ var request = require("request"),
                         franchisee.rejected_franchisee_reason = req.body.rejected_franchisee_reason;
                     }
                     franchisee.lead_type = req.body.lead_type
+                    franchisee.franchisee_created_on = new Date();
                     franchisee.save(function(err,franchisee){
                        if(err){
                          res.send({

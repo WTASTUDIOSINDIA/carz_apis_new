@@ -3,6 +3,7 @@ var bCrypt = require('bcrypt-nodejs');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
 var franchiseeSchema = new mongoose.Schema({
+    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
     "franchisee_name":String,
     "franchisee_occupation":String,
@@ -66,7 +67,8 @@ var franchiseeSchema = new mongoose.Schema({
           "otp": String,
           "status": { type: Boolean, default: false }, //verification status
           "verifiedDate": Date
-      }
+      },
+    "franchisee_created_on" : Date  
 });
 
 var librarySchema = new mongoose.Schema({
