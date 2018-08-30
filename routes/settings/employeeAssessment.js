@@ -67,7 +67,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.version_id = req.body.version_id;
-                assessment.model_id = req.model_id;
+                assessment.model_id = req.body.model_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
@@ -261,10 +261,10 @@ router.post('/save_employee_assessment_type', function (req, res) {
             }
             else {
                 console.log('166', req.body.data);
-                Versions.findOne({franchisor_id: req.body.franchisor_id, 
-                    version_type: 'e_assessments', 
-                    default: true}, function(err, version){
-                        EmployeeAssessmentType.find({version_id: version._id}, function(err, assessments){
+                // Versions.findOne({franchisor_id: req.body.franchisor_id, 
+                //     version_type: 'e_assessments', 
+                //     default: true}, function(err, version){
+                        EmployeeAssessmentType.find({model_id: req.body.model_id}, function(err, assessments){
                             for (var i = 0; i < assessments.length; i++) {
                                 employeeType = new EmployeeAssessmentTypeOfFranchisee();
                                 employeeType.assessment_type_id = assessments[i]._id;
@@ -298,7 +298,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                 });
                             }
                         })
-                    })
+                   // })
 
             }
         });
@@ -1277,6 +1277,37 @@ router.delete('/delete_employee_details/:id', function (req, res) {
                 res.send({
                     state: 'success',
                     message: 'Employee deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+// To delete all employees details
+router.delete('/delete_all_employees', function (req, res) {
+    try {
+        EmployeeDetails.remove({}, function (err, employeeDetails) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!employeeDetails) {
+                res.send({
+                    state: err,
+                    message: 'Employee not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Employees deleted'
                 }, 200);
             }
         })
