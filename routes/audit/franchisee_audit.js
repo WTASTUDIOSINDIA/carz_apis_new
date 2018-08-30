@@ -70,7 +70,7 @@ schedule.scheduleJob(day_rule, function(req,res){
 
 
 schedule.scheduleJob(day_rule, function(req,res){
-  
+
   Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1, "franchisee_created_on":1,"franchisor_id":1}).lean().exec(function(err,franchiees){
     if(err){
         return res.send(500, err);
@@ -222,10 +222,13 @@ router.post('/get_checklist', function (req,res){
 
         }
         if(data.checklist_type == "Monthly"){
-          if(data.month){
-            res.status(400).json({error:'2',message:"still in dev mode."});
+          if(data.date){
+            let curr = new Date(data.date); // get current date
+            let month = curr.getMonth()+1; // First day is the day of the month - the day of the week
+            //second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $month:month }};
+            //res.status(400).json({error:'2',message:"still in dev mode."});
           }else{
-            res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
+            res.status(400).json({error:'2',message:"Date is mandatory for Monthly tasks."});
           }
 
         }

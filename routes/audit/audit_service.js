@@ -38,6 +38,7 @@ const findcheckelist = (query) => {
   }
 
 const findlist = (query,second_query,nonworking_query) => {
+  console.log(second_query);
   return AuditChecklist.aggregate([
     { $match: {
       $and: [
