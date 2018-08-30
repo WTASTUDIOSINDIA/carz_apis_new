@@ -82,12 +82,14 @@ router.post('/create_meeting', function (req, res) {
                     meeting.notification_to = meetingForm.notification_to;
                     meeting.meeting_status = meetingForm.meeting_status;
                     meeting.created_by = meetingForm.created_by;
-
-                    meetingForm.meeting_assigned_people.forEach(function(element){
-
-                            attendies.push(element['user_mail'])
-
-                    });
+                    // console.log(meetingForm.meeting_assigned_people);
+                    if(meetingForm.meeting_assigned_people){
+                        meetingForm.meeting_assigned_people.forEach(function(element){
+    
+                                attendies.push(element['user_mail'])
+    
+                        });
+                    }
 
                     Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                         if (err) {
@@ -282,14 +284,18 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_remarks = meetingEditForm.meeting_remarks,
                     meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
                     meeting.notification_to - meetingEditForm.notification_to,
-                    // meeting.meeting_status = meetingEditForm.meeting_status,
-                    // meeting.created_by = meetingEditForm.created_by
-
+                    meeting.meeting_status = meetingEditForm.meeting_status,
+                    meeting.created_by = meetingEditForm.created_by,
+                    meeting.approved_by = meetingEditForm.approved_by;
+                    if (meetingForm.meeting_reason) {
+                        meeting.meeting_reason = meetingForm.meeting_reason
+                    };
                     meeting.save(function (err, meeting) {
                         if (err) {
                             res.send({
                                 state: "err",
-                                message: "Something went wrong."
+                                message: "Something went wrong.",
+                                data: err
                             }, 500);
                         }
                         else {
@@ -755,6 +761,69 @@ router.put('/change_meeting_status', function (req, res) {
                         }, 500);
                     }
                     else {
+                        console.log('here');
+                        // if(meetingEditForm.meeting_status === 'declined') {
+                        //     var user_mail;
+                        //     if(meetingForm.approved_by == franchisor) {
+                        //         Franchisee.find({ _id: meetingForm.franchisee_id}, (err, data) => {
+                        //             if (err) {
+                        //                 console.log(err);
+                        //             }
+                        //             if (data) {
+                        //                 console.log(data, 'mail_data');
+                        //             }
+                        //         })
+                        //     }
+                        //     var mailOptions={
+                        //         to: req.user.franchisee_email,
+                        //         subject: 'OTP',
+                        //         from: "carzdev@gmail.com",
+                        //         headers: {
+                        //             "X-Laziness-level": 1000,
+                        //             "charset" : 'UTF-8'
+                        //         },
+                    
+                        //         html: "<p>Your one time password is <b>"+otp+"</b>. Please use this to verify your account.</p><div><p>Best,</p><p>Carz.</p></div>"
+                        //     }
+                        //     var transporter = nodemailer.createTransport({
+                        //         service: 'gmail',
+                        //         secure: false, // use SSL
+                        //         port: 25, // port for secure SMTP
+                        //         auth: {
+                        //             user: 'carzdev@gmail.com',
+                        //             pass: 'Carz@123'
+                        //         }
+                        //     });
+                        //     transporter.sendMail(mailOptions, function(error, response){
+                        //         if(error){
+                        //             return res.send(error);
+                        //         }
+                        //         else{
+                        //             return res.send(response);
+                        //         }
+                        //     });
+                        // }
+                        io.on('connection', function (socket) {
+                            console.log(socket);
+                            socket.on('message', function (data, response) {
+                                console.log(data, "42_meeting.js");
+                                var meeting_data = saveMeetingNotification(data, response);
+                                console.log(meeting_data, "44_meeting.js");
+                                io.emit('message', { type: 'new-message-23', text: meeting_data });
+                                // Function above that stores the message in the database
+
+                            });
+
+                            socket.on('join', (params, callback) => {
+                                // if(!isRealString(params.name) || !isRealString(params.room)) {
+                                //     callback('Name and room are required.');
+                                // }
+                                socket.join(params.id);
+                                socket.emit('newNotification'.generateMessage('You have a new notification'));
+                                socket.broadcast.to(params.id).emit('newNotification', params);
+                                io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
+                            });
+                        });
                         res.send({
                             state: "success",
                             message: "Meeting updated.",
