@@ -210,23 +210,53 @@ router.post('/get_checklist', function (req,res){
 
         }
         if(data.checklist_type == "Weekly"){
-          if(data.fromDate && data.toDate){
-            let from = new Date(data.fromDate);
+          if(data.date){
+            let curr = new Date(data.date); // get current date
+            let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+            let last = first + 6; // last day is the first day + 6
+
+            let fromDate = new Date(curr.setDate(first));
+            let toDate = new Date(curr.setDate(last));
+
+            let from = new Date(fromDate);
             let from_date = from.setHours(0,0,0,0);
-            let to = new Date(data.toDate);
+            let to = new Date(toDate);
             let to_date = to.setHours(23, 59, 59, 999);
+
             second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
-            res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
+            res.status(400).json({error:'2',message:"Date is mandatory for Weekly tasks."});
           }
 
         }
         if(data.checklist_type == "Monthly"){
           if(data.date){
-            let curr = new Date(data.date); // get current date
-            let month = curr.getMonth()+1; // First day is the day of the month - the day of the week
-            //second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $month:month }};
-            //res.status(400).json({error:'2',message:"still in dev mode."});
+            let curr = new Date(data.date); // get date
+            let month = curr.getMonth(); 
+            let year = curr.getFullYear(); 
+            var date = new Date(year, month, 1);
+            var days = [];
+    
+            while (date.getMonth() === month) {
+               days.push(new Date(date));
+               date.setDate(date.getDate() + 1);
+            }
+
+            var date_length = days.length;
+            let from = days[0];
+            var d = new Date(from);
+            d.setHours(d.getHours() + 5);
+            d.setMinutes(d.getMinutes() + 30);
+            let from_date = d.setHours(0,0,0,0);
+            let to = days[date_length-1];
+            var t = new Date(to);
+            t.setHours(t.getHours() + 5);
+            t.setMinutes(t.getMinutes() + 30);
+            let to_date = t.setHours(23, 59, 59, 999);
+
+            second_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+
+
           }else{
             res.status(400).json({error:'2',message:"Date is mandatory for Monthly tasks."});
           }
@@ -323,8 +353,62 @@ router.post('/save_franchisee_audit_task', function (req,res){
 
     }
     if(data.checklist_type == "Monthly"){
-      if(data.month){
-        res.status(400).json({error:'2',message:"still in dev mode."});
+      if(data.date){
+
+        let curr_d = new Date; // get current date
+        let month_d = curr_d.getMonth(); 
+        let year_d = curr_d.getFullYear(); 
+        var date_d = new Date(year_d, month_d, 1);
+        var days_d = [];
+
+        while (date_d.getMonth() === month_d) {
+           days_d.push(new Date(date_d));
+           date_d.setDate(date_d.getDate() + 1);
+        }
+
+        var date_length_d = days_d.length;
+        let from_d = days_d[0];
+        var d_d = new Date(from_d);
+        d_d.setHours(d_d.getHours() + 5);
+        d_d.setMinutes(d_d.getMinutes() + 30);
+        let from_date_d = new Date(d_d.setHours(0,0,0,0));
+        let to_d = days_d[date_length_d-1];
+        var t_d = new Date(to_d);
+        t_d.setHours(t_d.getHours() + 5);
+        t_d.setMinutes(t_d.getMinutes() + 30);
+        let to_date_d = new Date(t_d.setHours(23, 59, 59, 999));
+        let send_date = new Date(data.date);
+
+        if((new Date(send_date) >= new Date(from_date_d)) && (new Date(send_date) <= new Date(to_date_d))){
+
+        let curr = new Date(data.date); // get date
+            let month = curr.getMonth(); 
+            let year = curr.getFullYear(); 
+            var date = new Date(year, month, 1);
+            var days = [];
+    
+            while (date.getMonth() === month) {
+               days.push(new Date(date));
+               date.setDate(date.getDate() + 1);
+            }
+
+            var date_length = days.length;
+            let from = days[0];
+            var d = new Date(from);
+            d.setHours(d.getHours() + 5);
+            d.setMinutes(d.getMinutes() + 30);
+            let from_date = d.setHours(0,0,0,0);
+            let to = days[date_length-1];
+            var t = new Date(to);
+            t.setHours(t.getHours() + 5);
+            t.setMinutes(t.getMinutes() + 30);
+            let to_date = t.setHours(23, 59, 59, 999);
+
+            query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+          }else{
+            res.status(400).json({error:'2',message:"You are not autherisred.."});
+          }
+
       }else{
         res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
       }
@@ -404,20 +488,54 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
 
       }
       if(data.checklist_type == "Weekly"){
-        if(data.fromDate && data.toDate){
-          let from = new Date(data.fromDate);
+        if(data.date){
+
+          let curr = new Date(data.date); // get current date
+          let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+          let last = first + 6; // last day is the first day + 6
+
+          let fromDate = new Date(curr.setDate(first));
+          let toDate = new Date(curr.setDate(last));
+
+          let from = new Date(fromDate);
           let from_date = from.setHours(0,0,0,0);
-          let to = new Date(data.toDate);
+          let to = new Date(toDate);
           let to_date = to.setHours(23, 59, 59, 999);
+          
           second_query = {franchisee_id:objectId(data.franchisee_id),created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
         }else{
-          res.status(400).json({error:'2',message:"From and To Dates are mandatory for Weekly tasks."});
+          res.status(400).json({error:'2',message:"Date is mandatory for Weekly tasks."});
         }
 
       }
       if(data.checklist_type == "Monthly"){
-        if(data.month){
-          res.status(400).json({error:'2',message:"still in dev mode."});
+        if(data.date){
+
+            let curr = new Date(data.date); // get date
+            let month = curr.getMonth(); 
+            let year = curr.getFullYear(); 
+            var date = new Date(year, month, 1);
+            var days = [];
+    
+            while (date.getMonth() === month) {
+               days.push(new Date(date));
+               date.setDate(date.getDate() + 1);
+            }
+
+            var date_length = days.length;
+            let from = days[0];
+            var d = new Date(from);
+            d.setHours(d.getHours() + 5);
+            d.setMinutes(d.getMinutes() + 30);
+            let from_date = d.setHours(0,0,0,0);
+            let to = days[date_length-1];
+            var t = new Date(to);
+            t.setHours(t.getHours() + 5);
+            t.setMinutes(t.getMinutes() + 30);
+            let to_date = t.setHours(23, 59, 59, 999);
+
+            second_query = {franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+
         }else{
           res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
         }
@@ -542,9 +660,12 @@ router.post('/get_calender_list', function (req,res){
 
     data.franchisee_id = objectId(data.franchisee_id);
 
-    let curr = new Date(data.date); // get current date
-        let month = curr.getMonth(); // First day is the day of the month - the day of the week
-        let year = curr.getFullYear(); // last day is the first day + 6
+
+    if(data.checklist_type == "Daily"){
+
+    let curr = new Date(data.date); // get date
+        let month = curr.getMonth(); 
+        let year = curr.getFullYear(); 
         var date = new Date(year, month, 1);
         var days = [];
 
@@ -614,6 +735,22 @@ router.post('/get_calender_list', function (req,res){
       else
         res.status(500).json({ error: "2", message: "Internal server error"});
     });
+  }
+
+  else if(data.checklist_type == "Monthly"){
+
+    let curr = new Date(data.date); // get date
+    let month = curr.getMonth(); 
+    let year = curr.getFullYear(); 
+    var date = new Date(year, month, 1);
+    
+
+    while (date.getMonth() === month) {
+       days.push(new Date(date));
+       date.setDate(date.getDate() + 1);
+    }
+
+  }
 
   }else{
     res.status(400).json({error:'2',message:"checklist id, checklist type, on-date and franchisee id is mandatory."});
