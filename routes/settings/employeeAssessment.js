@@ -9,6 +9,7 @@ var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
 var CarModels = mongoose.model('CarModels');
+var nodemailer = require('nodemailer');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
@@ -752,7 +753,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
                 answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
                 answer.question_id = req.body.question_id;
-                answer.assessment_type_id = req.body.assessment_type.id;
+                answer.assessment_type_id = req.body.assessment_type_id;
                 if(answer.correct_answer === req.body.employee_answer){
                     answer.incorrect_answer = false;
                 }                
@@ -793,6 +794,48 @@ router.put('/submit_employee_assessmnent', function (req,res){
                             }
                             else {
                                 assessment_type.assessment_qualified = false;
+                                EmployeeDetails.findById({ _id: req.body.employee_id}, (err, data) => {
+                                    if(err){
+
+                                    }
+                                    if (data) {
+                                       console.log(data); 
+                                       mailSend(data.employee_email);
+                                    }
+                                })
+                                function mailSend(reciever_mail) {
+
+                                    var mailOptions = {
+                                        to: reciever_mail,
+                                        subject: 'Carz Employee Assessment Videos',
+                                        from: "carzdev@gmail.com",
+                                        headers: {
+                                            "X-Laziness-level": 1000,
+                                            "charset": 'UTF-8'
+                                        },
+    
+                                        html: "<p>Your not qualified for employee assessment. Please click the below link to watch the videos and retake the test.</p><div><a href=https://www.youtube.com/watch?v=qHm9MG9xw1o> </a> </div><div><p>Best,</p><p>Carz.</p></div> "
+                                    }
+                                    var transporter = nodemailer.createTransport({
+                                        service: 'gmail',
+                                        secure: false, // use SSL
+                                        port: 25, // port for secure SMTP
+                                        auth: {
+                                            user: 'carzdev@gmail.com',
+                                            pass: 'Carz@123'
+                                        }
+                                    });
+                                    transporter.sendMail(mailOptions, function (error, response) {
+                                        if (error) {
+                                            // return res.send(error);
+                                            console.log(error);
+                                        }
+                                        else {
+                                            // return res.send(response);
+                                            console.log(response);
+                                        }
+                                    });
+                                }
                             }
                             assessment_type.total_questions_count = total_questions_count_local;
                             assessment_type.answered_questions_count = answered_correct_questions_count;
