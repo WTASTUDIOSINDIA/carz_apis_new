@@ -14,6 +14,7 @@ var auditChecklistSchema = new mongoose.Schema({
 
 var auditTaskSchema = new mongoose.Schema({
     'audit_task_name': String,
+    'checklist_type': String,
     'audit_task_type': String,
     'audit_file_upload_required': {type:Boolean,default:false},
     'audit_task_file_attachment_file_name': String,

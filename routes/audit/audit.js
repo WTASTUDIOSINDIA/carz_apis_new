@@ -478,52 +478,65 @@ router.delete('/delete_all_checklists', function(req,res){
 // To create task
 router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'), function (req, res) {
     var auditChecklistTaskForm = JSON.parse(req.body.task);
+    
     try {
-      AuditTask.findOne({ audit_task_name: auditChecklistTaskForm.audit_task_name, checklist_id: auditChecklistTaskForm.checklist_id }, function (err, task) {
+      AuditChecklist.findOne({_id:auditChecklistTaskForm.checklist_id}, function (err, checklist) {
         if (err) {
           res.send({
             state: "failure",
             message: "Something went wrong."
           }, 500);
         }
-        if (task) {
-          res.send({
-            state: "failure",
-            message: "Task name already exists."
-          }, 200);
-        }
-        else {
-          task = new AuditTask();
-          task.audit_task_name = auditChecklistTaskForm.audit_task_name;
-          task.audit_task_type = auditChecklistTaskForm.audit_task_type;
-          task.audit_task_radio_options = auditChecklistTaskForm.audit_task_radio_options;
-          task.audit_file_upload_required = auditChecklistTaskForm.audit_file_upload_required;
-          task.checklist_id = auditChecklistTaskForm.checklist_id;
-          if (req.file) {
-              var audit_checklist_task_img = {};
-            task.audit_task_file_attachment_file_url = req.file.location;
-            task.audit_task_file_attachment_file_name = req.file.key;
-            task.audit_task_file_attachment_file_type = req.file.contentType;
-          }
-          task.save(function (err, task) {
-  
-  
+        if (checklist) {
+          AuditTask.findOne({ audit_task_name: auditChecklistTaskForm.audit_task_name, checklist_id: auditChecklistTaskForm.checklist_id }, function (err, task) {
             if (err) {
               res.send({
                 state: "failure",
                 message: "Something went wrong."
               }, 500);
             }
-            else {
+            if (task) {
               res.send({
-                state: "success",
-                message: "Task created!",
-                data: task
+                state: "failure",
+                message: "Task name already exists."
               }, 200);
+            }
+            else {
+              task = new AuditTask();
+              task.audit_task_name = auditChecklistTaskForm.audit_task_name;
+              task.checklist_type = checklist.audit_checklist_type;
+              task.audit_task_type = auditChecklistTaskForm.audit_task_type;
+              task.audit_task_radio_options = auditChecklistTaskForm.audit_task_radio_options;
+              task.audit_file_upload_required = auditChecklistTaskForm.audit_file_upload_required;
+              task.checklist_id = auditChecklistTaskForm.checklist_id;
+              if (req.file) {
+                  var audit_checklist_task_img = {};
+                task.audit_task_file_attachment_file_url = req.file.location;
+                task.audit_task_file_attachment_file_name = req.file.key;
+                task.audit_task_file_attachment_file_type = req.file.contentType;
+              }
+              task.save(function (err, task) {
+      
+      
+                if (err) {
+                  res.send({
+                    state: "failure",
+                    message: "Something went wrong."
+                  }, 500);
+                }
+                else {
+                  res.send({
+                    state: "success",
+                    message: "Task created!",
+                    data: task
+                  }, 200);
+                }
+              });
             }
           });
         }
-      });
+      })
+
     }
     catch (err) {
       return res.send({
