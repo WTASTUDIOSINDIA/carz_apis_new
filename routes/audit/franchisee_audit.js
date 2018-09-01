@@ -691,9 +691,9 @@ router.post('/get_calender_list', function (req,res){
                 .then((r) => {
                   
                   if(r){
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
                   }else{
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
                   }
                   if(days.length == day_list.length){
                     res.status(200).json({ error: "0", message: "Tasks found",data:day_list});
@@ -705,9 +705,9 @@ router.post('/get_calender_list', function (req,res){
                 .then((r) => {
                   console.log(r);
                   if(r){
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
                   }else{
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
                   }
                   if(days.length == day_list.length){
                     res.status(200).json({ error: "0", message: "Tasks found",data:day_list});
