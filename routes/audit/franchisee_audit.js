@@ -283,7 +283,31 @@ router.post('/get_checklist', function (req,res){
         .then((response) => {
           if(response)
           { 
-            res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
+            let data_list = [];
+            
+            if(data.checklist_type == "Daily"){
+              console.log(nonworking_query);
+              auditService.findNonWorkList(nonworking_query)
+              .then((resp) => {
+                console.log(resp);
+                if(resp){
+                  data_list.push({non_working_day:resp.status,checklist_data:response})
+                res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }else{
+                  data_list.push({non_working_day:"false",checklist_data:response})
+                  res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }
+              })
+              .catch((error) => {
+                res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+
+            }else{
+              console.log()
+              data_list.push({non_working_day:"false",checklist_data:response})
+              res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+            }
+            
           }else{
             res.status(404).json({ error: "1", message: "Error in getting details"});
           }
@@ -578,7 +602,7 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
 router.post('/save_non_working_day', function (req,res){
   let data = req.body;
 
-  if(data.franchisee_id  && data.checklist_type && data.on_date){
+  if(data.franchisee_id  && data.checklist_type && data.on_date && data.remarks){
 
     let from = new Date(data.on_date);
     let from_date = from.setHours(0,0,0,0);
@@ -586,8 +610,7 @@ router.post('/save_non_working_day', function (req,res){
     let to_date = to.setHours(23, 59, 59, 999);
     let nonworking_query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), on_date:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
     data.on_date = new Date(data.on_date);
-    console.log(data);
-    console.log(nonworking_query);
+
     auditService.findNonWorkingDay(nonworking_query)
     .then((response) => {
         if(response)
@@ -616,7 +639,7 @@ router.post('/save_non_working_day', function (req,res){
 
 
   }else{
-    res.status(400).json({error:'2',message:"checklist id, checklist type, on-date and franchisee id is mandatory."});
+    res.status(400).json({error:'2',message:"checklist type, on-date, remarks and franchisee id is mandatory."});
 }
 })
 
@@ -692,12 +715,12 @@ router.post('/get_calender_list', function (req,res){
                 .then((r) => {
                   
                   if(r){
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
                   }else{
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
                   }
                   if(days.length == day_list.length){
-                    res.status(200).json({ error: "0", message: "No Tasks found",data:day_list});
+                    res.status(200).json({ error: "0", message: "Tasks found",data:day_list});
                   }
                 })
                 
@@ -706,12 +729,12 @@ router.post('/get_calender_list', function (req,res){
                 .then((r) => {
                   console.log(r);
                   if(r){
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
                   }else{
-                    day_list.push({"date":new Date(day.setDate(day.getDate() + 1)),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
+                    day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":false});
                   }
                   if(days.length == day_list.length){
-                    res.status(200).json({ error: "0", message: "No Tasks found",data:day_list});
+                    res.status(200).json({ error: "0", message: "Tasks found",data:day_list});
                   }
                 })
                 
@@ -735,52 +758,96 @@ router.post('/get_calender_list', function (req,res){
     });
   }
 
+  else if(data.checklist_type == "Weekly"){
+    var d = new Date(data.date);
+    var getTot = daysInMonth(d.getMonth(),d.getFullYear());
+    var sat_days = new Array();
+
+    for(var i=1;i<=getTot;i++){
+        var newDate = new Date(d.getFullYear(),d.getMonth(),i)
+        if(newDate.getDay()==6){
+          sat_days.push(new Date(newDate));
+        }
+        
+    }
+
+    auditService.findTasksList(data.checklist_type)
+    .then((response) => {
+      if(response){
+        if(response.length != 0){
+          var week_list = [];
+
+          sat_days.forEach(function(sat_day){
+            
+          var curr = new Date(sat_day);
+          let day = curr.getDay();
+          let firstday = new Date(curr.getTime() - 60*60*24* day*1000); // will return firstday (i.e. Sunday) of the week
+          let lastday = new Date(firstday.getTime() + 60 * 60 *24 * 6 * 1000); // adding (60*60*6*24*1000) means adding six days to the firstday which results in lastday (Saturday) of the week
+
+          let from = new Date(firstday);
+          let from_date = from.setHours(0,0,0,0);
+          let to = new Date(lastday);
+          let to_date = to.setHours(23, 59, 59, 999);
+          query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+         
+          auditService.findCalenderList(query)
+          .then((resp) => {
+            if(resp){
+             week_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length});
+             if(sat_days.length == week_list.length){
+             res.status(200).json({ error: "0", message: "Tasks found",data:week_list});
+             }
+            }else{
+              res.status(400).json({ error: "3", message: "Something went wrong"});
+            }
+          })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error2"});
+          });
+        })
+  }else{
+    res.status(400).json({ error: "3", message: "No Tasks found"});
+  }
+}
+})
+
+.catch((error) => {
+    res.status(500).json({ error: "2", message: "Internal server error1"});
+});
+
+  }
+
   else if(data.checklist_type == "Monthly"){
 
     auditService.findTasksList(data.checklist_type)
     .then((response) => {
       if(response){
         if(response.length != 0){
+          var month_list = [];
+      
+          var date = new Date(data.date);
+          var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+          var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-          var day_list = [];
+          let from_date = firstDay.setHours(0,0,0,0);
+          
+          let to_date = lastDay.setHours(23, 59, 59, 999);
 
-    let curr = new Date(data.date); // get date
-    let month = curr.getMonth(); 
-    let year = curr.getFullYear(); 
-    var date = new Date(year, month, 1);
-    var days = [];
-
-    while (date.getMonth() === month) {
-       days.push(new Date(date));
-       date.setDate(date.getDate() + 1);
-    }
-
-    var date_length = days.length;
-    let from = days[0];
-    var d = new Date(from);
-    d.setHours(d.getHours() + 5);
-    d.setMinutes(d.getMinutes() + 30);
-    let from_date = d.setHours(0,0,0,0);
-    let to = days[date_length-1];
-    var t = new Date(to);
-    t.setHours(t.getHours() + 5);
-    t.setMinutes(t.getMinutes() + 30);
-    let to_date = t.setHours(23, 59, 59, 999);
-
-    console.log("from_date----"+from_date+"---todate----"+to_date);
-
-    query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
-    auditService.findCalenderList(date_query,non_working_day_query)
-    .then((resp) => {
-      if(resp){
-        console.log(resp.length);
-      }
-    })
-    .catch((error) => {
-        res.status(500).json({ error: "2", message: "Internal server error2"});
-    });
+          query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
+          auditService.findCalenderList(query)
+          .then((resp) => {
+            if(resp){
+             month_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length});
+             res.status(200).json({ error: "0", message: "Tasks found",data:month_list});
+            }else{
+              res.status(400).json({ error: "3", message: "Something went wrong"});
+            }
+          })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error2"});
+          });
   }else{
-    res.status(400).json({ error: "0", message: "No Tasks found"});
+    res.status(400).json({ error: "3", message: "No Tasks found"});
   }
 }
 })
@@ -799,5 +866,9 @@ router.post('/get_calender_list', function (req,res){
   }
 
 })
+
+function daysInMonth(month,year) {
+  return new Date(year, month, 0).getDate();
+}
 
 module.exports = router;

@@ -55,23 +55,6 @@ const findlist = (query,second_query,nonworking_query) => {
 
 {
   $lookup: {
-      from: NonWorkingDay.collection.name,
-      pipeline: [
-        { $match: {
-          
-          $and: [
-            nonworking_query
-            ] }
-        },
-        
-      ],
-    
-    as: 'NonWorkingDayData'
-  }
-},
-
-{
-  $lookup: {
       from: FranchiseeAuditTask.collection.name,
       let: { id: "$_id"},
       pipeline: [
