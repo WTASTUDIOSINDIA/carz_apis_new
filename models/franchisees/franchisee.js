@@ -144,7 +144,10 @@ var notificationSchema = new mongoose.Schema({
     "status" : Boolean,
     "notification_to": String,
     "discussion_notification": String,
-    "read_status": { type: Boolean, default: false}
+    "read_status": { type: Boolean, default: false},
+    "meeting_reason":String,
+    "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
+    "meeting_status": {type: String, default: 'pending'}
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
