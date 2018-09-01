@@ -764,8 +764,6 @@ router.post('/get_calender_list', function (req,res){
           let from_date = from.setHours(0,0,0,0);
           let to = new Date(lastday);
           let to_date = to.setHours(23, 59, 59, 999);
-          console.log("from date-----"+from_date);
-          console.log("to date-----"+to_date);
           query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
          
           auditService.findCalenderList(query)
