@@ -22,9 +22,10 @@ var employeeAssessmentSchema = new mongoose.Schema({
 })
 
 var employeeAssementSubmittedSchema = new mongoose.Schema({
-    'employee_assessment_list': Array,
+   // 'employee_assessment_list': Array,
     'correct_answer': String,
     'employee_answer': String,
+    'is_answer_correct': {type: Boolean, default: false},
     'total_questions': Number,
     'assessment_type': {id: String, status: {type: Boolean, default: false}},
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
@@ -32,6 +33,7 @@ var employeeAssementSubmittedSchema = new mongoose.Schema({
     // 'employee_assessment_status': { type: String, default: 'Pending' },
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
     'version_id': String,
+    'question_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessment'},
     'franchisor_id': {type: Schema.Types.ObjectId, ref: 'Franchisor'}
 });
 
@@ -40,18 +42,27 @@ var employeeAssessmentTypeSchema = new mongoose.Schema({
     'description' : String,
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     'version_id': String,
-    'model_id': String
+    'model_id': String,
+    'createdAt': Date,
+    'pass_percentage': Number,
+    'assessment_duration': Number
 
 });
 
 var employeeAssessmentTypeOfFranchiseeSchema = new mongoose.Schema({
-    'assessment_type_id': String,
+    'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
     'assessment_type_name': String,
     'model_id': String,
+    'createdAt': Date,
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
-    'assessment_status': {type: Boolean, default: false}
+    'assessment_status': {type: Boolean, default: false},    
+    'assessment_qualified': {type: Boolean, default: false},    
+    'employee_percentage': Number,
+    'pass_percentage': Number,
+    'total_questions_count': Number,
+    'answered_questions_count': Number
 
-})
+});
 
 var employeeDetailsSchema = new mongoose.Schema({
     'employee_name': String,
