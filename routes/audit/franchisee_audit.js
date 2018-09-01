@@ -283,7 +283,31 @@ router.post('/get_checklist', function (req,res){
         .then((response) => {
           if(response)
           { 
-            res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
+            let data_list = [];
+            
+            if(data.checklist_type == "Daily"){
+              console.log(nonworking_query);
+              auditService.findNonWorkList(nonworking_query)
+              .then((resp) => {
+                console.log(resp);
+                if(resp){
+                  data_list.push({non_working_day:resp.status,checklist_data:response})
+                res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }else{
+                  data_list.push({non_working_day:"false",checklist_data:response})
+                  res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }
+              })
+              .catch((error) => {
+                res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+
+            }else{
+              console.log()
+              data_list.push({non_working_day:"false",checklist_data:response})
+              res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+            }
+            
           }else{
             res.status(404).json({ error: "1", message: "Error in getting details"});
           }
@@ -578,7 +602,7 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
 router.post('/save_non_working_day', function (req,res){
   let data = req.body;
 
-  if(data.franchisee_id  && data.checklist_type && data.on_date){
+  if(data.franchisee_id  && data.checklist_type && data.on_date && data.remarks){
 
     let from = new Date(data.on_date);
     let from_date = from.setHours(0,0,0,0);
@@ -615,7 +639,7 @@ router.post('/save_non_working_day', function (req,res){
 
 
   }else{
-    res.status(400).json({error:'2',message:"checklist id, checklist type, on-date and franchisee id is mandatory."});
+    res.status(400).json({error:'2',message:"checklist type, on-date, remarks and franchisee id is mandatory."});
 }
 })
 
