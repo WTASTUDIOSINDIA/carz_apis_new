@@ -4,9 +4,11 @@ var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
+const objectId = mongoose.Types.ObjectId;
 var csv = require('csv')
 var path = require('path');
 var EmployeeAssessment = mongoose.model('EmployeeAssessment');
+var CarModels = mongoose.model('CarModels');
 var EmployeeAssessmentSubmitted = mongoose.model('EmployeeAssessmentSubmitted');
 var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
@@ -65,7 +67,11 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment.assessment_type_name = req.body.assessment_type_name;
                 assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
+                assessment.pass_percentage = req.body.pass_percentage;
+                assessment.assessment_duration = req.body.assessment_duration;
                 assessment.version_id = req.body.version_id;
+                assessment.createdAt = Date.now();
+                assessment.model_id = req.body.model_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
@@ -105,6 +111,8 @@ router.put('/update_assessment_type', function (req, res) {
             if (assessment) {
                 assessment.assessment_type_name = req.body.assessment_type_name;
                 assessment.franchisor_id = req.body.franchisor_id;
+                assessment.pass_percentage = req.body.pass_percentage;
+                assessment.assessment_duration = req.body.assessment_duration;
                 assessment.save(function (err, assessment) {
                     if (err) {
                         res.send({
@@ -136,9 +144,9 @@ router.put('/update_assessment_type', function (req, res) {
     }
 })
 // TO get assessment type settings
-router.get('/get_assessments_type_name/:version_id', function (req, res) {
+router.get('/get_assessments_type_name/:model_id', function (req, res) {
     try {
-        EmployeeAssessmentType.find({ version_id: req.params.version_id }, function (err, assessments) {
+        EmployeeAssessmentType.find({ model_id: req.params.model_id }, function (err, assessments) {
             if (err) {
                 return res.send(500, err);
             }
@@ -258,16 +266,25 @@ router.post('/save_employee_assessment_type', function (req, res) {
                 getEmployeeAssessmentTypes(req.body.employee_id, res);
             }
             else {
-                console.log('166', req.body.data);
-                Versions.findOne({franchisor_id: req.body.franchisor_id, 
-                    version_type: 'e_assessments', 
-                    default: true}, function(err, version){
-                        EmployeeAssessmentType.find({version_id: version._id}, function(err, assessments){
+                console.log('166', req.body);
+                // Versions.findOne({franchisor_id: req.body.franchisor_id, 
+                //     version_type: 'e_assessments', 
+                //     default: true}, function(err, version){
+                        EmployeeAssessmentType.find({model_id: req.body.model_id}, function(err, assessments){
+                            if (err) {
+                                res.send({
+                                    state: "failure",
+                                    message: err
+                                }, 500);
+                            }
+                            console.log('166', err);
                             for (var i = 0; i < assessments.length; i++) {
                                 employeeType = new EmployeeAssessmentTypeOfFranchisee();
                                 employeeType.assessment_type_id = assessments[i]._id;
                                 employeeType.assessment_type_name = assessments[i].assessment_type_name;
                                 employeeType.employee_id = req.body.employee_id;
+                                employeeType.createdAt = assessments[i].createdAt;
+                                employeeType.pass_percentage = assessments[i].pass_percentage;
                                 employeeType.save(function (err, employeeType) {
                                     if (err) {
                                         res.send({
@@ -278,6 +295,12 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                     else {
                                         // saveEmployeeAssessmentType(req.params.employee_id, res);
                                         EmployeeAssessmentTypeOfFranchisee.find({ employee_id: req.body.employee_id }, function (err, employeeType) {
+                                            if (err) {
+                                                res.send({
+                                                    state: "failure",
+                                                    data: err
+                                                }, 201);
+                                            }
                                             if (!employeeType) {
                                                 res.send({
                                                     state: "failure",
@@ -296,7 +319,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                 });
                             }
                         })
-                    })
+                   // })
 
             }
         });
@@ -310,7 +333,8 @@ router.post('/save_employee_assessment_type', function (req, res) {
 })
 
 function getEmployeeAssessmentTypes(employee_id, res) {
-    EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id }, function (err, employeeType) {
+    //EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id } , null, {sort: {date: 1}}, function (err, employeeType) {
+        EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id}).sort({createdAt: 1}).exec(function (err, employeeType) {
         if (!employeeType) {
             res.send({
                 state: "failure",
@@ -618,29 +642,34 @@ router.delete('/delete_employee_assessent_question', function (req, res) {
 //To send answers
 router.put('/employee_assessment_answer', function (req, res) {
     try {
-        EmployeeAssessmentSubmitted.findOne({ employee_id: req.body.employee_id }, function (err, answer) {
+        EmployeeAssessmentSubmitted.findOne({ employee_id: req.body.employee_id, question_id: req.body.question_id }, function (err, answer) {
             if (err) {
                 return res.send({
                     state: "error",
                     message: err
                 }, 500);
             }
-            var answered_questions_list = [];
-            var question_data = {
-                "question_id": req.body.question_id,
-                "employee_answer": req.body.employee_answer,
-                "question_type": req.body.question_type,
-                "correct_answer": req.body.correct_answer,
-                "employee_id":req.body.employee_id,
-                "assessment_type_id": req.body.assessment_type_id
-            };
+            // var answered_questions_list = [];
+            // var question_data = {
+            //     "question_id": req.body.question_id,
+            //     "employee_answer": req.body.employee_answer,
+            //     "question_type": req.body.question_type,
+            //     "correct_answer": req.body.correct_answer,
+            //     "employee_id":req.body.employee_id,
+            //     "assessment_type_id": req.body.assessment_type_id
+            // };
             if (answer) {
-                answer.employee_assessment_list.push(question_data);
+                //answer.employee_assessment_list.push(question_data);
+                answer.correct_answer = req.body.correct_answer;
                 answer.employee_answer = req.body.employee_answer;
+                if(req.body.correct_answer === req.body.employee_answer){
+                    answer.is_answer_correct = true;
+                }
                 answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
+                answer.question_id = req.body.question_id;
                 answer.assessment_type_id = req.body.assessment_type_id;
-                answer.employee_assessment_status = req.body.employee_assessment_status;
+                //answer.employee_assessment_status = req.body.employee_assessment_status;
                 answer.total_questions = req.body.total_questions;
                 answer.save(function (err, answer) {
                     if (err) {
@@ -662,14 +691,21 @@ router.put('/employee_assessment_answer', function (req, res) {
                 // }, 200);
             }
             else {
-                answered_questions_list.push(question_data);
+                //answered_questions_list.push(question_data);
                 var answer = new EmployeeAssessmentSubmitted();
-                answer.employee_assessment_list = answered_questions_list;
-                answer.employee_id = req.body.employee_id
-                answer.franchisee_id = req.body.franchisee_id;
-                answer.assessment_type_id = req.body.assessment_type_id;
-                answer.employee_assessment_status = req.body.employee_assessment_status;
-                answer.total_questions = req.body.total_questions;
+                //answer.employee_assessment_list = answered_questions_list;
+                 //answer.employee_assessment_list.push(question_data);
+                 if(req.body.correct_answer === req.body.employee_answer){
+                    answer.is_answer_correct = true;
+                }
+                 answer.correct_answer = req.body.correct_answer;
+                 answer.employee_answer = req.body.employee_answer;
+                 answer.employee_id = req.body.employee_id;
+                 answer.franchisee_id = req.body.franchisee_id;
+                 answer.question_id = req.body.question_id;
+                 answer.assessment_type_id = req.body.assessment_type_id;
+                 //answer.employee_assessment_status = req.body.employee_assessment_status;
+                 answer.total_questions = req.body.total_questions;
                 answer.save(function (err, answer) {
                     if (err) {
                         return res.send({
@@ -699,47 +735,28 @@ router.put('/employee_assessment_answer', function (req, res) {
 //To submit employee assessment question list
 router.put('/submit_employee_assessmnent', function (req,res){
     // try{
-        EmployeeAssessmentSubmitted.findOne({employee_id: req.body.employee_id}, function (err ,answer){
+        EmployeeAssessmentSubmitted.findOne({question_id: req.body.question_id, employee_id: req.body.employee_id}, function (err ,answer){
             if(err){
                 return res.send({
                     state:"error",
                     message: err,
                 },500)
             }
-            if(!answer){
-                return res.send({
-                    state:"failure",
-                    message:"No answers found",
-                },400);
-            }
-            else{
-                var question_data = {
-                    "question_id": req.body.question_id,
-                    "employee_answer": req.body.employee_answer,
-                    "question_type": req.body.question_type,
-                    "correct_answer": req.body.correct_answer,
-                    "employee_id":req.body.employee_id,
-                    "assessment_type_id": req.body.assessment_type_id
-
-                };
-                console.log('614', question_data);
-                console.log('615', answer.employee_assessment_list);
-                console.log('616', answer);
-                for(var i=0; i<answer.employee_assessment_list; i++){
-                    if(answer.employee_assessment_list[i].question_id === question_data.question_id){
-                        answer.employee_assessment_list[i] = question_data;
-                    }
-                    else {
-                        answer.employee_assessment_list.push(question_data);
-                    }
+            if (answer) {
+                //answer.employee_assessment_list.push(question_data);
+                answer.correct_answer = req.body.correct_answer;
+                answer.employee_answer = req.body.employee_answer;
+                if(req.body.correct_answer === req.body.employee_answer){
+                    answer.is_answer_correct = true;
                 }
-                answer.employee_assessment_list.push(question_data);
                 answer.employee_id = req.body.employee_id;
                 answer.franchisee_id = req.body.franchisee_id;
-                answer.assessment_type_id = req.body.assessment_type_id;
-                answer.employee_assessment_status = req.body.employee_assessment_status;
-                answer.assessment_type.id= req.body.assessment_type.id;
-                answer.assessment_type.status = true;
+                answer.question_id = req.body.question_id;
+                answer.assessment_type_id = req.body.assessment_type.id;
+                if(answer.correct_answer === req.body.employee_answer){
+                    answer.incorrect_answer = false;
+                }                
+                //answer.employee_assessment_status = req.body.employee_assessment_status;
                 answer.total_questions = req.body.total_questions;
                 answer.save(function (err, answer) {
                     if (err) {
@@ -749,11 +766,126 @@ router.put('/submit_employee_assessmnent', function (req,res){
                         }, 500);
                     }
                     else {
+                        EmployeeAssessmentTypeOfFranchisee.findOne({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id}, function(err, assessment_type){
+                            console.log('assessment_type_111', assessment_type)
+                            assessment_type.assessment_status = true;
+                            var answered_correct_questions_count = 0;
+                            var total_questions_count_local = 0;                            
+                            EmployeeAssessmentSubmitted.count({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id, is_answer_correct: true}, function (err, saved_questions_count_server) {
+                                answered_correct_questions_count = saved_questions_count_server;
+                                console.log('answered_correct_questions_count', answered_correct_questions_count);
+                                EmployeeAssessment.count({assessment_type_id : req.body.assessment_type_id}, function (err, total_questions_count_server) {
+                                    total_questions_count_local = total_questions_count_server;
+                                    console.log('total_questions_count_local', total_questions_count_local);
+                                    var employee_percentage = 0;
+                            if(answered_correct_questions_count == 0){
+                                employee_percentage = 0;
+                                console.log('all are incorrect answeres');
+                            }
+                            else {
+                                employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
+                                console.log('no all are incorrect answeres');
+                            }
+                            
+                            console.log(employee_percentage, 'assessment_type.employee_percentage');
+                            if(employee_percentage >= assessment_type.pass_percentage){
+                                assessment_type.assessment_qualified = true;
+                            }
+                            else {
+                                assessment_type.assessment_qualified = false;
+                            }
+                            assessment_type.total_questions_count = total_questions_count_local;
+                            assessment_type.answered_questions_count = answered_correct_questions_count;
+                            assessment_type.employee_percentage = employee_percentage;
+                            assessment_type.save(function(err, assessment_type){
+                                if(err){
+                                    console.log('Swamy111_err',err);
+                                }
+                                console.log('Swamy111',assessment_type);
+                                return res.send({
+                                    state: "success",
+                                    message: "Question saved successfully!",
+                                    data: assessment_type
+                                }, 200);
+                            });
+                                })
+                            })                                                        
+                        });
+                        
+                    }
+                })
+                // return res.send({
+                //     state: "failure",
+                //     message: "This person has already attempt this test."
+                // }, 200);
+            }
+            else {
+                //answered_questions_list.push(question_data);
+                var answer = new EmployeeAssessmentSubmitted();
+                //answer.employee_assessment_list = answered_questions_list;
+                 //answer.employee_assessment_list.push(question_data);
+                 answer.correct_answer = req.body.correct_answer;
+                 answer.employee_answer = req.body.employee_answer;
+                 if(req.body.correct_answer === req.body.employee_answer){
+                    answer.is_answer_correct = true;
+                }
+                 answer.employee_id = req.body.employee_id;
+                 answer.franchisee_id = req.body.franchisee_id;
+                 answer.question_id = req.body.question_id;
+                 answer.assessment_type_id = req.body.assessment_type_id;
+                 //answer.employee_assessment_status = req.body.employee_assessment_status;
+                 answer.total_questions = req.body.total_questions;
+                answer.save(function (err, answer) {
+                    if (err) {
                         return res.send({
-                            state: "success",
-                            message: "Question saved successfully",
-                            data: answer
-                        }, 200);
+                            state: "error",
+                            message: err
+                        }, 500);
+                    }
+                    else {
+                        EmployeeAssessmentTypeOfFranchisee.findOne({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id}, function(err, assessment_type){
+                            console.log('assessment_type_222', assessment_type)
+                            assessment_type.assessment_status = true;
+                            var answered_correct_questions_count = 0;
+                            var total_questions_count_local = 0;                            
+                            EmployeeAssessmentSubmitted.count({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id, is_answer_correct: true}, function (err, saved_questions_count_server) {
+                                answered_correct_questions_count = saved_questions_count_server;
+                                console.log('answered_correct_questions_count', answered_correct_questions_count);
+                                EmployeeAssessment.count({assessment_type_id : req.body.assessment_type_id}, function (err, total_questions_count_server) {
+                                    total_questions_count_local = total_questions_count_server;
+                                    console.log('total_questions_count_local', total_questions_count_local);
+                                    var employee_percentage = 0;
+                            if(answered_correct_questions_count == 0){
+                                employee_percentage = 0;
+                            }
+                            else {
+                                employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
+                            }
+                            
+                            console.log(employee_percentage, 'assessment_type.employee_percentage');
+                            if(employee_percentage >= assessment_type.pass_percentage){
+                                assessment_type.assessment_qualified = true;
+                            }
+                            else {
+                                assessment_type.assessment_qualified = false;
+                            }
+                            assessment_type.employee_percentage = employee_percentage;
+                            assessment_type.total_questions_count = total_questions_count_local;
+                            assessment_type.answered_questions_count = answered_correct_questions_count;
+                            assessment_type.save(function(err, assessment_type){
+                                console.log('Swamy222',assessment_type);
+                                
+                                return res.send({
+                                    state: "success",
+                                    message: "Question saved successfully!", 
+                                    data: assessment_type
+                                }, 200);
+                            });
+                                })
+                            })
+                           
+                            
+                        });                        
                     }
                 })
             }
@@ -821,7 +953,7 @@ router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
 //To get reports
 router.get('/get_emp_assessment_submitted_list/:employee_id', function (req, res) {
     try {
-        EmployeeAssessmentSubmitted.findOne({ employee_id: req.params.employee_id }, function (err, list) {
+        EmployeeAssessmentSubmitted.find({ employee_id: req.params.employee_id }, function (err, list) {
             if (err) {
                 return res.send({
                     state: "error",
@@ -909,6 +1041,7 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_address = req.body.employee_address;
             employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
             employeeDetails.employee_age = req.body.employee_age;
+            employeeDetails.model_id = req.body.model_id;
             employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
             employeeDetails.employee_experience_in = req.body.employee_experience_in;
             employeeDetails.employee_vertical = req.body.employee_vertical;
@@ -938,6 +1071,202 @@ router.post('/create_employee_details', function (req, res) {
     //     },500)
     // }
 })
+//To create employee fileds
+router.post('/create_model', function (req, res) {
+    // try {
+    CarModels.findOne({ model_name: req.body.model_name , version_id: req.body.version_id}, function (err, model) {
+        if (err) {
+            res.send({
+                state: 'failure',
+                message: 'Something went wrong',
+            }, 500)
+        }
+        if (model) {
+            res.send({
+                state: "failure",
+                message: "This Employee already exists."
+            }, 400);
+        }
+        else {
+            model = new CarModels();
+            model.model_name = req.body.model_name;
+            model.version_id = req.body.version_id;
+            model.franchisor_id = req.body.franchisor_id;
+           
+            model.save(function (err, model) {
+                if (err) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500)
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        message: 'Model created successfully',
+                        data: model
+                    }, 200)
+                }
+            })
+        }
+    })
+    // }
+    // catch (err) {
+    //     res.send({
+    //         state: 'err',
+    //         message: err
+    //     },500)
+    // }
+})
+
+//To get models by version id
+router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req, res) {
+    try {
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: req.params.version_id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+//To get models by default version id
+router.get('/get_models_by_default_version/:franchisor_id', function (req, res) {
+    try {
+        Versions.findOne({franchisor_id: req.params.franchisor_id, 
+            version_type: 'e_assessments', 
+            default: true}, function(err, version){
+        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: version._id}, function (err, carmodels) {
+            if (err) {
+                return res.send({
+                    state: 'error',
+                    message: err
+                }, 500);
+            }
+            if (!carmodels) {
+                res.send({
+                    state: 'failure',
+                    message: 'Employees not found.',
+                    data: []
+                }, 400)
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    data: carmodels
+                }, 200)
+            }
+        })
+    })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+
+//To edit model details
+router.put('/update_model_details', function (req, res) {
+    try {
+        CarModels.findById({ _id: req.body._id }, function (err, model) {
+            if (err) {
+                return res.send({
+                    state: 'err',
+                    message: 'Something went wrong'
+                }, 500)
+            }
+            if (model) {
+                model.model_name = req.body.model_name;
+               
+                model.save(function (err, model) {
+                    if (err) {
+                        res.send({
+                            state: 'error',
+                            message: 'Something went wrong'
+                        }, 500)
+                    }
+                    else {
+                        res.send({
+                            state: 'success',
+                            message: 'Model updated'
+                        }, 200)
+                    }
+                })
+            }
+            if (!model) {
+                res.send({
+                    state: "failure",
+                    message: "Failed to update."
+                }, 400);
+            }
+        })
+    }
+    catch (err) {
+        res.send({
+            state: 'err',
+            message: 'err'
+        })
+    }
+});
+
+
+// To delete employee details
+router.delete('/delete_model_by_id/:id', function (req, res) {
+    try {
+        CarModels.findByIdAndRemove({ _id: req.params.id }, function (err, model) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!model) {
+                res.send({
+                    state: err,
+                    message: 'Model not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Model deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
 
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
@@ -1021,6 +1350,7 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_address = req.body.employee_address;
                 employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
                 employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.model_id = req.body.model_id;
                 employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
                 employeeDetails.employee_vertical = req.body.employee_vertical;
@@ -1088,5 +1418,127 @@ router.delete('/delete_employee_details/:id', function (req, res) {
         })
     }
 })
+// To delete all employees details
+router.delete('/delete_all_employees', function (req, res) {
+    try {
+        EmployeeDetails.remove({}, function (err, employeeDetails) {
+            if (err) {
+                return res.sendStatus({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!employeeDetails) {
+                res.send({
+                    state: err,
+                    message: 'Employee not found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Employees deleted'
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
 
+
+//get franchisee specific questions
+
+router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', function(req, res){
+    try{
+      //  EmployeeAssessmentTypeOfFranchisee.findById({_id: req.params.assessment_id}, function(err, assessment){
+
+         //Saved employees   EmployeeAssessmentSubmitted
+         var e_a_id = req.params.assessment_id;
+    var e_id = objectId(req.params.employee_id);
+    console.log(e_a_id, e_id);
+
+         get_merged_questions(e_a_id, e_id)
+         .then((response) => {
+             res.send({
+                 data: response 
+             })
+         })
+            
+      //  })
+    }
+    catch(err){
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
+
+function get_merged_questions(e_a_id, e_id){
+    var e_a_id_object_id = objectId(e_a_id);
+    console.log(e_a_id_object_id);
+    //EmployeeAssessmentTypeOfFranchisee.findById({assessment_type_id: req.params.assessment_id}, function(err, assessment){
+        return EmployeeAssessmentTypeOfFranchisee.aggregate([
+                {
+                    $match: {
+                        $and: [
+                            {assessment_type_id: e_a_id_object_id},
+                            {employee_id: e_id}
+                        ]
+                    }
+        
+                },
+                {
+                    $lookup: {
+                        from: EmployeeAssessment.collection.name,
+                        let: { assessment_type_id: e_a_id_object_id},
+                        pipeline: [
+                            {
+                                $match: {
+                                    $and: [
+                                        {$expr: {$eq: ["$assessment_type_id", e_a_id_object_id]}}
+                                    ]
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: EmployeeAssessmentSubmitted.collection.name,
+                                    let: { question_id: "$_id"},
+                                    pipeline: [
+                                        {
+                                            $match: {
+                                                $and: [
+                                                {$expr: {$eq: ["$question_id", "$$question_id"]}},   
+                                                {$expr: {$eq: ["$employee_id", e_id]}}
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    as: 'employee_answered_data'
+                                }
+                            }
+                        ],
+
+                        as: 'questions_list'
+
+                    }
+                }
+            ]).exec();
+    //});
+    // return EmployeeAssessment.aggregate([
+    //     {
+    //         $match: {
+    //             $and: [
+    //                 {_id: assessment._id}
+    //             ]
+    //         }
+
+    //     }
+    // ])
+}
 module.exports = router;
