@@ -302,6 +302,7 @@ var CampaignSchema = new mongoose.Schema({
     'leads_generated': String,
     'footfalls':String,
     'campaign_duration': String,
+    'after_campaign_files': Array,
     'after_campaign_file_attachment_file_name': String,
     'after_campaign_file_attachment_file_url': String,
     'after_campaign_file_attachment_file_type': String,

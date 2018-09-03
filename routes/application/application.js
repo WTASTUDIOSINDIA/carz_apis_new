@@ -441,7 +441,7 @@ router.post('/background_verification', docupload, function (req, res) {
   });
 });
 
-router.get('/ApplicationFormPdf', )
+// router.get('/ApplicationFormPdf', )
 
 router.get('/get_third_party_files/:id', function (req, res) {
   ThirdPartyFiles.find({

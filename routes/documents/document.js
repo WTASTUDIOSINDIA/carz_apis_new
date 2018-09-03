@@ -139,7 +139,7 @@ router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,
 });
 router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
     try{
-        FranchiseeType.find({version_id: req.params.version_id},function(err,type){
+        FranchiseeType.find({version_id: req.params.version_id, franchisor_id: req.params.franchisor_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -147,15 +147,15 @@ router.get('/get_business_type/:version_id/:franchisor_id',function(req,res){
                 },500);
             }
             else{
-                Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
-                    console.log(version, '124');
-                    if(err){
-                    return res.send({
-                        state: "error",
-                        message: err
-                    }, 500);
-                    }
-                })  
+                // Versions.find({franchisor_id: req.params.franchisor_id, version_type: 'kyc_docs', default: true}, function (err, version){
+                //     console.log(version, '124');
+                //     if(err){
+                //     return res.send({
+                //         state: "error",
+                //         message: err
+                //     }, 500);
+                //     }
+                // })
                 return res.send({
                     state:"success",
                     data:type
@@ -267,6 +267,7 @@ router.post('/set_business_type',function(req,res){
                 document_list.franchisor_id = req.body.franchisor_id;
                 document_list.version_id = req.body.version_id;
                 document_list.bussiness_type_name=req.body.bussiness_type_name;
+                document_list.version_id=req.body.version_id;
                 document_list.save(function(err,document_list){
                     if(err){
                         return res.send({
@@ -277,7 +278,8 @@ router.post('/set_business_type',function(req,res){
                     else{
                         return res.send({
                             state:"success",
-                            message:"Successfully added in the array."
+                            message:"Successfully added in the array.",
+                            data: document_list
                         },200);
                     }
                 })
@@ -295,7 +297,7 @@ router.put('/update_franchisee_type', function(req, res, next) {
     var franchiseeTypeEdit = req.body;
     console.log(req.body);
     try{
-        FranchiseeType.findOne({_id:franchiseeTypeEdit.businessType_id},function(err,type){
+        FranchiseeType.findOne({_id:franchiseeTypeEdit._id},function(err,type){
             console.log('franchiseeTypeEdit', franchiseeTypeEdit);
             if(err){
                 return res.send({
@@ -304,9 +306,9 @@ router.put('/update_franchisee_type', function(req, res, next) {
                     },500);
             }
             if(type){
-                document_list.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
-                document_list.businessType_id = franchiseeTypeEdit.businessType_id;
-                document_list.save(function(err,document_list){
+                type.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
+                type.description=franchiseeTypeEdit.description;
+                type.save(function(err,type){
                    if(err){
                      res.send({
                         state:"err",
@@ -316,7 +318,8 @@ router.put('/update_franchisee_type', function(req, res, next) {
                 else{
                     res.send({
                         state:"success",
-                        message:"FranchiseeType Updated."
+                        message:"FranchiseeType Updated.",
+                        data: type
                     },200);
                 }
                 });
