@@ -130,7 +130,7 @@ router.post('/uploadDtaa',cpUpload,function(req,res){
     }
 });
 router.get('/get_common_files/:uploaded_status',function(req,res){
-    Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
+    Library.find({uploaded_status:req.params.uploaded_status, is_campaign_file: false},function(err,file){
         if(err){
             res.send ({
                 status: 500,

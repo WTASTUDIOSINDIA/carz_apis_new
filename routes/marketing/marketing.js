@@ -467,7 +467,8 @@ router.get('/get_campaign_files/:id', function (req, res) {
     maxCount: 20
   }])
 // after campaign details
-router.put('/after_campaign_details',upload.single('after_campaign_files'), function(req,res){
+var cpUpload = upload.fields([{ name: 'after_campaign_files', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+router.put('/after_campaign_details',cpUpload, function(req,res){
      var campaignDetails = JSON.parse(req.body.campaign);
     console.log(req.body.campaign);
     // try{
@@ -511,9 +512,10 @@ router.put('/after_campaign_details',upload.single('after_campaign_files'), func
                                 library.date_uploaded = Date.now();
                                 library.folder_Id = folder._id;
                                 library.campaign_id = campaign._id;
+                                library.is_campaign_file = true;
                                 library.franchisee_Id = campaignDetails.franchisee_id;;
                                 library.save(function(err, library){
-                                    console.log("campaign file created");
+                                    console.log("campaign file created1");
                                     console.log('library++++++++++', library);
                                     // console.log('folder_id++++++++++', folder_Id);
                                 });
@@ -526,7 +528,7 @@ router.put('/after_campaign_details',upload.single('after_campaign_files'), func
                                 folder.franchisor_Id = campaignDetails.franchisor_id;
                                 folder.folder_name = campaign.title;
                                 folder.save(function(err, folder){
-                                    console.log("campaign folder created");
+                                    console.log("campaign folder created2");
                                     console.log('folder----------------',folder);
                                     if(folder){
                                         var library = new Library();
@@ -543,6 +545,7 @@ router.put('/after_campaign_details',upload.single('after_campaign_files'), func
                                         library.date_uploaded = Date.now();
                                         library.folder_Id = folder._id;
                                         library.campaign_id = campaign._id;
+                                        library.is_campaign_file = true;
                                         library.franchisee_Id = campaignDetails.franchisee_id;;
                                         library.save(function(err, library){
                                             console.log("campaign file created");
