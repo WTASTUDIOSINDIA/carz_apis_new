@@ -281,6 +281,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                 }, 500);
                             }
                             console.log('166', err);
+                            console.log(assessments, '284');
                             for (var i = 0; i < assessments.length; i++) {
                                 employeeType = new EmployeeAssessmentTypeOfFranchisee();
                                 employeeType.assessment_type_id = assessments[i]._id;

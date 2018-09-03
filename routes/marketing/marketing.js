@@ -488,8 +488,10 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
                 campaign.campaign_status = campaignDetails.campaign_status;
                 campaign.franchisor_id = campaignDetails.franchisor_id;
                 campaign.franchisee_id = campaignDetails.franchisee_id;
+                
+                 console.log(req.file, '492');
                 if (req.file){
-                    console.log(req.file);
+                    console.log(req.file, '492');
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
                     campaign.after_campaign_file_attachment_file_type = req.file.contentType;
@@ -497,63 +499,65 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
                 campaign.save(function(err,campaign){
                     {
                         Folder.findOne({campaign_id: campaign._id}, function(err, folder){
+                            
                             if(folder){
-                                var library = new Library();
-                                library.path = campaign.campaign_file_attachment_file_url;
-                                library.key = campaign.campaign_file_attachment_file_type;
-                                library.file_name = campaign.campaign_file_attachment_file_name;
-                                if(campaign.mimetype == "application/pdf"){
+                                var after_campaign_files = [];
+                                after_campaign_files = req.files.after_campaign_files;
+                                    for(var i=0; i<after_campaign_files.length; i++){
+                                        var library = new Library();
+                                library.path = after_campaign_files[i].path;
+                                library.key = after_campaign_files[i].key;
+                                library.file_name = after_campaign_files[i].originalname;
+                                if(after_campaign_files[i].mimetype == "application/pdf"){
                                     library.image_type = "pdf";
                                 }
-                                if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
-                                    campaign.image_type = "image";
+                                if(after_campaign_files[i].mimetype == "image/png" || after_campaign_files[i].mimetype == "image/jpg" || after_campaign_files[i].mimetype == "image/jpeg" || after_campaign_files[i].mimetype == "image/gif"){
+                                    library.image_type = "image";
                                 }
+                                
                                 // library.uploaded_status = status;
+                                
                                 library.date_uploaded = Date.now();
                                 library.folder_Id = folder._id;
                                 library.campaign_id = campaign._id;
                                 library.is_campaign_file = true;
                                 library.franchisee_Id = campaignDetails.franchisee_id;;
                                 library.save(function(err, library){
-                                    console.log("campaign file created1");
+                                    console.log("campaign file uploaded");
                                     console.log('library++++++++++', library);
                                     // console.log('folder_id++++++++++', folder_Id);
                                 });
+                                }
+                                
                             }
                             if(!folder){
-                                var folder = new Folder();
-                                folder.marketing_folder = true;
-                                folder.campaign_id = campaign._id;
-                                folder.franchisee_Id = campaignDetails.franchisee_id;
-                                folder.franchisor_Id = campaignDetails.franchisor_id;
-                                folder.folder_name = campaign.title;
-                                folder.save(function(err, folder){
-                                    console.log("campaign folder created2");
-                                    console.log('folder----------------',folder);
-                                    if(folder){
-                                        var library = new Library();
-                                        library.path = campaign.campaign_file_attachment_file_url;
-                                        library.key = campaign.campaign_file_attachment_file_type;
-                                        library.file_name = campaign.campaign_file_attachment_file_name;
-                                        if(campaign.mimetype == "application/pdf"){
-                                            library.image_type = "pdf";
-                                        }
-                                        if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
-                                            campaign.image_type = "image";
-                                        }
-                                        // library.uploaded_status = status;
-                                        library.date_uploaded = Date.now();
-                                        library.folder_Id = folder._id;
-                                        library.campaign_id = campaign._id;
-                                        library.is_campaign_file = true;
-                                        library.franchisee_Id = campaignDetails.franchisee_id;;
-                                        library.save(function(err, library){
-                                            console.log("campaign file created");
-                                            console.log('library++++++++++', library);
-                                            // console.log('folder_id++++++++++', folder_Id);
-                                        });
-                                            }
+                                var after_campaign_files = [];
+                                after_campaign_files = req.files.after_campaign_files;
+                            for(var i=0; i<after_campaign_files.length; i++){
+                                var library = new Library();
+                                library.path = after_campaign_files[i].path;
+                                library.key = after_campaign_files[i].key;
+                                library.file_name = after_campaign_files[i].originalname;
+                                if(after_campaign_files[i].mimetype == "application/pdf"){
+                                    library.image_type = "pdf";
+                                }
+                                if(after_campaign_files[i].mimetype == "image/png" || after_campaign_files[i].mimetype == "image/jpg" || after_campaign_files[i].mimetype == "image/jpeg" || after_campaign_files[i].mimetype == "image/gif"){
+                                    library.image_type = "image";
+                                }
+                                
+                                // library.uploaded_status = status;
+                                
+                                library.date_uploaded = Date.now();
+                                library.folder_Id = folder._id;
+                                library.campaign_id = campaign._id;
+                                library.is_campaign_file = true;
+                                library.franchisee_Id = campaignDetails.franchisee_id;;
+                                library.save(function(err, library){
+                                    console.log("campaign file uploaded");
+                                    console.log('library++++++++++', library);
+                                    // console.log('folder_id++++++++++', folder_Id);
                                 });
+                                }
                             }
                         })
                         res.send({
