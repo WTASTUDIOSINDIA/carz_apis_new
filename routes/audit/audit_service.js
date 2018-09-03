@@ -5,11 +5,13 @@ var FranchiseeAuditTask = mongoose.model('FranchiseeAuditTask');
 var AuditChecklist = mongoose.model('AuditChecklist');
 var AuditChecklistType = mongoose.model('AuditChecklistType');
 var AuditTask = mongoose.model('AuditTask');
+var NonWorkingDay = mongoose.model('NonWorkingDay');
 
 
 const create = (data) => {
   return FranchiseeAuditTask.create(data);
 }
+
 
 const findOneUser = (query, selectable) => {
   return FranchiseeAuditTask.findOne(query).select(selectable).exec();
@@ -35,7 +37,7 @@ const findcheckelist = (query) => {
     return AuditTask.find().exec();
   }
 
-const findlist = (query,second_query) => {
+const findlist = (query,second_query,nonworking_query) => {
   return AuditChecklist.aggregate([
     { $match: {
       $and: [
@@ -75,44 +77,121 @@ const findlist = (query,second_query) => {
 }  
 
 
-
-const findtasks = (query,second_query) => {
+const findtasks = (query,second_query,nonworking_query) => {
   
-  return AuditTask.aggregate([
+  return AuditChecklist.aggregate([
     { $match: {
       $and: [
             query
       ]
   } },
-  
-
+ 
 {
   $lookup: {
-      from: FranchiseeAuditTask.collection.name,
+      from: NonWorkingDay.collection.name,
       let: { id: "$_id"},
       pipeline: [
         { $match: {
           
           $and: [
-            {$expr:{ $eq: [ "$task_id",  "$$id" ] }},
-            second_query
+            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }},
+            nonworking_query
             ] }
         },
         
       ],
     
-    as: 'FranchiseeTaskData'
+    as: 'NonWorkingDayData'
   }
 },
-
+{
+  $lookup: {
+      from: AuditTask.collection.name,
+      let: { id: "$_id"},
+      pipeline: [
+        { $match: {
+          
+          $and: [
+            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }}
+            ] }
+        },
+        {
+          $lookup: {
+              from: FranchiseeAuditTask.collection.name,
+              let: { taskid: "$_id"},
+              pipeline: [
+                { $match: {
+                  
+                  $and: [
+                    {$expr:{ $eq: [ "$task_id",  "$$taskid" ] }},
+                    second_query
+                    ] }
+                },
+                
+              ],
+            
+            as: 'FranchiseeTaskData'
+          }
+        },
+        
+      ],
+    
+    as: 'TaskData'
+  }
+  
+},
   
   ]).exec();
 }  
 
+const findTasksList = (type) => {
+  return AuditTask.aggregate([
+    { $match: {
+      $and: [
+            {checklist_type:type}
+      ]
+  } },
+]).exec();
+}
 
+
+const findCalenderList = (query) => {
+
+  return FranchiseeAuditTask.aggregate([
+    { $match: {
+      $and: [
+        query
+      ]
+  } },
+  
+
+  ]).exec();
+}  
+
+
+const findNonWorkList = (query) => {
+
+  return NonWorkingDay.findOne(query).exec();
+}  
+
+const findNonWorkingDay = (query) => {
+  return NonWorkingDay.findOne(query).exec();
+}
+
+const createNonWorkingDay = (data) => {
+  return NonWorkingDay.create(data);
+}
+
+const removeNonWorkingDay = (query) => {
+  return NonWorkingDay.remove(query).exec();
+}
 
 const update = (query, data) => {
   return FranchiseeAuditTask.findOneAndUpdate(query, data, { new: true }).exec();
+}
+
+const updateNonWorkingDay = (query, data) => {
+  return NonWorkingDay.findOneAndUpdate(query, data, { new: true }).exec();
 }
 
 module.exports =  {
@@ -125,5 +204,12 @@ module.exports =  {
   findlist,
   tasks,
   findtasks,
-  findFranchiseeTasksByDaily
+  findFranchiseeTasksByDaily,
+  findNonWorkingDay,
+  createNonWorkingDay,
+  removeNonWorkingDay,
+  updateNonWorkingDay,
+  findCalenderList,
+  findTasksList,
+  findNonWorkList
 };

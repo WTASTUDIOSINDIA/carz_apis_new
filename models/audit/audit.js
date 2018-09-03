@@ -10,10 +10,12 @@ var auditChecklistSchema = new mongoose.Schema({
     'created_at': Date,
     'checklist_type_id': {type: Schema.Types.ObjectId, ref:'AuditChecklistType'},
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
+
 })
 
 var auditTaskSchema = new mongoose.Schema({
     'audit_task_name': String,
+    'checklist_type': String,
     'audit_task_type': String,
     'audit_file_upload_required': {type:Boolean,default:false},
     'audit_task_file_attachment_file_name': String,
@@ -41,9 +43,23 @@ var FranchiseeAuditTaskSchema = new mongoose.Schema({
     'created_on': { type: Date, default: Date.now }
 })
 
+var nonWorkingDaySchema = new mongoose.Schema({
+    'franchisee_id':  {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'checklist_id': {type: Schema.Types.ObjectId, ref:'AuditChecklist'},
+    'checklist_type': String,
+    'remarks' : String,
+    'file_name' : String,
+    'file_url' : String, 
+    'file_type' : String,
+    'status' : {type:Boolean,default:true},
+    'on_date' : {type: Date},
+    'created_on': { type: Date, default: Date.now }
+})
+
 mongoose.model('AuditChecklist', auditChecklistSchema);
 mongoose.model('AuditChecklistType', auditChecklistTypeSchema);
 mongoose.model('AuditTask', auditTaskSchema);
 mongoose.model('FranchiseeAuditTask', FranchiseeAuditTaskSchema);
+mongoose.model('NonWorkingDay', nonWorkingDaySchema);
 
 

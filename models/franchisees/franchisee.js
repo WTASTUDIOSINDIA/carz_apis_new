@@ -3,6 +3,7 @@ var bCrypt = require('bcrypt-nodejs');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
 var franchiseeSchema = new mongoose.Schema({
+    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
     "franchisee_name":String,
     "franchisee_occupation":String,
@@ -66,7 +67,8 @@ var franchiseeSchema = new mongoose.Schema({
           "otp": String,
           "status": { type: Boolean, default: false }, //verification status
           "verifiedDate": Date
-      }
+      },
+    "franchisee_created_on" : Date  
 });
 
 var librarySchema = new mongoose.Schema({
@@ -77,7 +79,8 @@ var librarySchema = new mongoose.Schema({
     "image_type":{type:String,default:'docs'},
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'}
+    "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'},
+    "is_campaign_file": {type:Boolean,default:false}
 
 });
 var partnerSchema = new mongoose.Schema({
@@ -142,7 +145,10 @@ var notificationSchema = new mongoose.Schema({
     "status" : Boolean,
     "notification_to": String,
     "discussion_notification": String,
-    "read_status": { type: Boolean, default: false}
+    "read_status": { type: Boolean, default: false},
+    "meeting_reason":String,
+    "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
+    "meeting_status": {type: String, default: 'pending'}
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
@@ -161,7 +167,8 @@ var FolderSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    "marketing_folder":{type:Boolean, default:false}
+    "marketing_folder":{type:Boolean, default:false},
+    "campaign_id": { type: Schema.Types.ObjectId, ref: 'Campaign'},
 });
 
 var DocSchema = new mongoose.Schema({
