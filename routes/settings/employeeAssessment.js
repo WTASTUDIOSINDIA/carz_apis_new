@@ -67,7 +67,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.version_id = req.body.version_id;
-                assessment.model_id = req.model_id;
+                assessment.model_id = req.body.model_id;
                 assessment.save(function (err, assessment) {
                     console.log('assessment65', assessment);
                     if (err) {
