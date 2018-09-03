@@ -166,7 +166,8 @@ var FolderSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    "marketing_folder":{type:Boolean, default:false}
+    "marketing_folder":{type:Boolean, default:false},
+    "campaign_id": { type: Schema.Types.ObjectId, ref: 'Campaign'},
 });
 
 var DocSchema = new mongoose.Schema({
