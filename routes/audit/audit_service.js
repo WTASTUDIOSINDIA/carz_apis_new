@@ -25,6 +25,10 @@ const findOne = (query) => {
   return FranchiseeAuditTask.findOne(query).exec();
 }
 
+const findOneTaskById = (query) => {
+  return AuditTask.findOne(query).exec();
+}
+
 const findFranchiseeTasksByDaily = (query) => {
   return FranchiseeAuditTask.find(query).exec();
 }
@@ -211,5 +215,6 @@ module.exports =  {
   updateNonWorkingDay,
   findCalenderList,
   findTasksList,
-  findNonWorkList
+  findNonWorkList,
+  findOneTaskById
 };
