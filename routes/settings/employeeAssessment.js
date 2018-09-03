@@ -111,6 +111,7 @@ router.put('/update_assessment_type', function (req, res) {
             }
             if (assessment) {
                 assessment.assessment_type_name = req.body.assessment_type_name;
+                assessment.description = req.body.description;
                 assessment.franchisor_id = req.body.franchisor_id;
                 assessment.pass_percentage = req.body.pass_percentage;
                 assessment.assessment_duration = req.body.assessment_duration;
