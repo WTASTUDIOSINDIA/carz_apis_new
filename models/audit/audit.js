@@ -37,6 +37,7 @@ var FranchiseeAuditTaskSchema = new mongoose.Schema({
     'checklist_type': String,
     'franchisee_id':  {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'task_status' : {type:Boolean,default:false},
+    'reason' : String,
     'file_name' : String,
     'file_url' : String, 
     'file_type' : String,

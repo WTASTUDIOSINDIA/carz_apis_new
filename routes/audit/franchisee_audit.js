@@ -1,6 +1,7 @@
 
   var express = require('express');
   var router = express.Router();
+  var multer = require('multer');
   var auditService = require('./audit_service');
   var moment = require("moment");
   var mongoose = require('mongoose');
@@ -9,6 +10,27 @@
   var nodemailer = require('nodemailer');
   var Franchisee = mongoose.model('Franchisee');
   var Utils = require('../../common/utils');
+  var aws = require('aws-sdk');
+  var multerS3 = require('multer-s3');
+  aws.config.loadFromPath('./config.json');
+  aws.config.update({
+      signatureVersion: 'v4'
+  });
+  var s0 = new aws.S3({})
+  var upload = multer({
+      storage:multerS3({
+          s3:s0,
+          bucket:'celebappfiles',
+          contentType: multerS3.AUTO_CONTENT_TYPE,
+          acl: 'public-read',
+          metadata: function (req, file, cb) {
+              cb(null, {fieldName: file.fieldname});
+          },
+          key: function (req, file, cb) {
+            cb(null, Date.now().toString() + '.' + file.originalname)
+          }
+      })
+  });
 
   var day_rule = new schedule.RecurrenceRule();
   day_rule.dayOfWeek = [new schedule.Range(1, 6)];
@@ -322,10 +344,16 @@ router.post('/get_checklist', function (req,res){
     
 })
 
-router.post('/save_franchisee_audit_task', function (req,res){
-  let data = req.body;
-
+router.post('/save_franchisee_audit_task',upload.single('file'), function (req,res){
+  let data = JSON.parse(req.body.task_data);
+  console.log(req.file);
+  var not_act = false;
   if(data.task_id && data.franchisee_id  && data.checklist_type && data.checklist_id){
+    if(req.file){
+    data["file_name"] = req.file.originalname;
+    data["file_url"] = req.file.location;
+    data["file_type"] = req.file.mimetype;
+    }
     if(!data.task_status){
       data.task_status = false;
     }
@@ -344,11 +372,12 @@ router.post('/save_franchisee_audit_task', function (req,res){
         query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
         //query.task_id = task_id; 
         }else{
-          res.status(400).json({error:'2',message:"You are not autherisred..."});
+          not_act = true;
+          res.status(203).json({error:'2',message:"You are not authorised"});
         }
        
       }else{
-        res.status(400).json({error:'2',message:"Date is mandatory for Daily tasks."});
+        res.status(203).json({error:'2',message:"Date is mandatory for Daily tasks."});
       }
 
     }
@@ -367,11 +396,12 @@ router.post('/save_franchisee_audit_task', function (req,res){
           query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
           //query.task_id = task_id; 
           }else{
-            res.status(400).json({error:'2',message:"You are not autherisred.."});
+            not_act = true;
+            res.status(203).json({error:'2',message:"You are not authorised"});
           }
 
       }else{
-        res.status(400).json({error:'2',message:"Date is mandatory for Weekly tasks."});
+        res.status(203).json({error:'2',message:"Date is mandatory for Weekly tasks."});
       }
 
     }
@@ -429,31 +459,32 @@ router.post('/save_franchisee_audit_task', function (req,res){
 
             query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
-            res.status(400).json({error:'2',message:"You are not autherisred.."});
+            not_act = true;
+            res.status(203).json({error:'2',message:"You are not authorised"});
           }
 
       }else{
-        res.status(400).json({error:'2',message:"Month is mandatory for Monthly tasks."});
+        res.status(203).json({error:'2',message:"Month is mandatory for Monthly tasks."});
       }
 
     }
     if(data.checklist_type == "Quarterly"){
       if(data.month){
-        res.status(400).json({error:'2',message:"still in dev mode."});
+        res.status(203).json({error:'2',message:"still in dev mode."});
       }else{
-        res.status(400).json({error:'2',message:"From and To Months are mandatory for Quarterly tasks."});
+        res.status(203).json({error:'2',message:"From and To Months are mandatory for Quarterly tasks."});
       }
 
     }
     if(data.checklist_type == "Yearly"){
       if(data.year){
-        res.status(400).json({error:'2',message:"still in dev mode."});
+        res.status(203).json({error:'2',message:"still in dev mode."});
       }else{
-        res.status(400).json({error:'2',message:"Year is mandatory for Year tasks."});
+        res.status(203).json({error:'2',message:"Year is mandatory for Year tasks."});
       }
 
     }
-
+    if(!not_act){
     auditService.findOne(query)
     .then((response) => {
       if(response){
@@ -480,15 +511,46 @@ router.post('/save_franchisee_audit_task', function (req,res){
     .catch((error) => {
         res.status(500).json({ error: "2", message: "Internal server error"});
     });
-   
+  }
   }else{
-    res.status(400).json({error:'2',message:"Taskid, Franchiseeid, Tasktype and Taskstatus fields are mandatory."});
+    res.status(203).json({error:'2',message:"Taskid, Franchiseeid, Tasktype and Taskstatus fields are mandatory."});
   }
 
 
 })
 
+//get_franchisee_task_by_id
 
+//to get uploded files
+router.get('/get_franchisee_task_by_id/:id',function(req,res){
+  let task_id = req.params.id;
+  
+  if(task_id){
+
+    let query = {_id:objectId(task_id)};
+    
+    auditService.findOneTaskById(query)
+    .then((response) => {
+      if(response){
+        res.status(200).json({ error: "0", message: "Succesfully created", data: response});
+        }else{
+          throw {
+            reason : "NotFound"
+          }
+        }
+      })
+    .catch((error) => {
+      if(err.reason == "NotFound")
+        res.status(404).json({error:'2',message:"Details not found with the given id"});
+      else
+        res.status(500).json({ error: "2", message: "Internal server error"});
+    });
+
+
+  }else{
+    res.status(400).json({error:'2',message:"checklist id, checklist type, on-date and franchisee id is mandatory."});
+}
+});
 
 router.post('/get_tasks_at_checklist_id', function (req,res){
   let data = req.body;
@@ -602,7 +664,7 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
 router.post('/save_non_working_day', function (req,res){
   let data = req.body;
 
-  if(data.franchisee_id  && data.checklist_type && data.on_date && data.remarks){
+  if(data.franchisee_id  && data.checklist_type && data.on_date){
 
     let from = new Date(data.on_date);
     let from_date = from.setHours(0,0,0,0);
@@ -615,8 +677,8 @@ router.post('/save_non_working_day', function (req,res){
     .then((response) => {
         if(response)
         { 
-          console.log("update");
-          return auditService.updateNonWorkingDay({_id:response._id},data)
+          console.log(response);
+          return response.remove(); 
           
         }else{
           console.log("new");
@@ -627,7 +689,7 @@ router.post('/save_non_working_day', function (req,res){
     .then((response) => {
         if(response)
         { 
-          res.status(200).json({ error: "0", message: "Succesfully created", data: response});
+          res.status(200).json({ error: "0", message: "Succesfull", data: response});
         }else{
           res.status(404).json({ error: "1", message: "Error in getting details"});
         }
