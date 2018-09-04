@@ -1101,6 +1101,19 @@ router.post('/create_employee_details', function (req, res) {
                     }, 500)
                 }
                 else {
+                    CarModels.findOne({_id:req.body.model_id},function(err, models){
+                        console.log(models, "1105");
+                        if(err){
+                            console.log(err, "1107");
+                        }
+                        if(models){
+                            employeeDetails.model_name =  models.model_name;
+                        employeeDetails.save(function (err, employeeDetails){
+                          console.log(employeeDetails, "1108");
+                        })
+                        }
+                        
+                      })
                     res.send({
                         state: 'success',
                         message: 'Employee created successfully'
