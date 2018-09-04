@@ -135,8 +135,32 @@ schedule.scheduleJob(day_rule, function(req,res){
             let check_date = curr.getDate() - 5; // First day is the day of the month - the day of the week
             
             let check_date_full = new Date(curr.setDate(check_date));
+ 
+          var i =0;  
+          var curr = new Date();
+          let day = curr.getDay();
+          let firstday = new Date(curr.getTime() - 60*60*24* day*1000); // will return firstday (i.e. Sunday) of the week
+          let lastday = new Date(firstday.getTime() + 60 * 60 *24 * 6 * 1000); // adding (60*60*6*24*1000) means adding six days to the firstday which results in lastday (Saturday) of the week
+/*
+          let nonworking_query = {checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(Date.now() ) }};
+          auditService.findNonWorkList(nonworking_query)
+              .then((resp) => {
+                console.log(resp);
+                if(resp){
+                  data_list.push({non_working_day:resp.status,checklist_data:response})
+                res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }else{
+                  data_list.push({non_working_day:"false",checklist_data:response})
+                  res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+                }
+              })
+              .catch((error) => {
+                res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+*/
 
           if(new Date(check_date_full) > new Date(element.franchisee_created_on)){
+
           let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(Date.now() ) }}]};
           
           auditService.findFranchiseeTasksByDaily(query)
@@ -214,6 +238,59 @@ schedule.scheduleJob(week_rule, function(req,res){
   
 });
   
+
+
+schedule.scheduleJob(month_rule, function(req,res){
+
+  Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
+    if(err){
+        return res.send(500, err);
+    }
+    if(!franchiees){
+        res.send({
+            "status":400,
+            "message":"Franchiees not found",
+            "message":"failure",
+            "franchisees_list":[]
+        },404);
+    }
+    else{
+        franchiees.forEach(function(element){
+
+          var date = new Date();
+          var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+          var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+          let from_date = firstDay.setHours(0,0,0,0);
+          
+          let to_date = lastDay.setHours(23, 59, 59, 999);
+
+          let query = {$and: [{checklist_type:"Monthly",franchisee_id :objectId(element._id),created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }}]};
+          
+          auditService.findFranchiseeTasksByDaily(query)
+          .then((response) => {
+            if(response){
+                if(response.length == 0){
+                  console.log("email");
+                  Utils.send_mail(element);
+                }
+              }else{
+                  console.log("email");
+                  Utils.send_mail(element);
+              }
+            })
+          .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
+
+
+        });
+    }
+})
+  
+});
+
+
   router.get('/get_audit_checklist', function (req,res){
     let requestFrom = req.headers["x-request-from"];
     let query = {};
