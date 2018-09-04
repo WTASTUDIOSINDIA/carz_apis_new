@@ -80,8 +80,8 @@ var librarySchema = new mongoose.Schema({
     "uploaded_status":{type:Number,default:0},//0 or 1
     "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "folder_Id":{ type: Schema.Types.ObjectId, ref: 'Folder'},
-    "is_campaign_file": {type:Boolean,default:false}
-
+    "is_campaign_file": {type:Boolean,default:false},
+    "campaign_id":{ type: Schema.Types.ObjectId, ref: 'Campaign'},
 });
 var partnerSchema = new mongoose.Schema({
     "partner_name": String,

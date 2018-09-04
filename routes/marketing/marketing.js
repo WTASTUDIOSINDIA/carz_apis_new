@@ -456,6 +456,16 @@ router.get('/get_campaign_files/:id', function (req, res) {
       }
     })
   })
+  router.get('/get_after_campaign_files/:campaign_id', function(req, res){
+      Library.find({campaign_id: req.params.campaign_id}, function(err, files){
+          if(files){
+              res.send({
+                  state: 'success',
+                  files: files
+              })
+          }
+      })
+  })
 
 
 
@@ -466,8 +476,94 @@ router.get('/get_campaign_files/:id', function (req, res) {
     name: 'imgFields',
     maxCount: 20
   }])
+
+  //upload_campaign_files
+  var cpUpload = upload.fields([{ name: 'after_campaign_files', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+  router.put('/upload_campaign_files',cpUpload, function(req,res){
+    var file_details = JSON.parse(req.body.file_details);
+    var after_campaign_files = [];
+    Folder.findOne({campaign_id: file_details.campaign_id}, function(err, folder){
+        if(folder){
+            after_campaign_files = req.files.after_campaign_files;
+            for(var i= 0; i<after_campaign_files.length; i++){
+                var library = new Library();
+            library.path = after_campaign_files[i].location;
+            library.key = after_campaign_files[i].key;
+            library.file_name = after_campaign_files[i].originalname;
+            if(after_campaign_files[i].mimetype == "application/pdf"){
+                library.image_type = "pdf";
+            }
+            if(after_campaign_files[i].mimetype == "image/png" || after_campaign_files[i].mimetype == "image/jpg" || after_campaign_files[i].mimetype == "image/jpeg" || after_campaign_files[i].mimetype == "image/gif"){
+                library.image_type = "image";
+            }
+            // library.uploaded_status = status;
+            library.date_uploaded = Date.now();
+            library.folder_Id = folder._id;
+            library.campaign_id = file_details.campaign_id;
+            library.is_campaign_file = true;
+            //library.franchisee_Id = campaignDetails.franchisee_id;;
+            library.save(function(err, library){
+                console.log("campaign file created1");
+                console.log('library++++++++++', library);
+                // console.log('folder_id++++++++++', folder_Id);
+                if(library){
+                    res.send({
+                        state:"success",
+                        message:"Updated."
+                    },200);
+                }
+            });
+            }
+            
+        }
+        if(!folder){
+            var folder = new Folder();
+            folder.marketing_folder = true;
+            folder.campaign_id = campaign._id;
+            folder.franchisee_Id = campaignDetails.franchisee_id;
+            folder.franchisor_Id = campaignDetails.franchisor_id;
+            folder.folder_name = campaign.title;
+            folder.save(function(err, folder){
+                console.log("campaign folder created2");
+                console.log('folder----------------',folder);
+                if(folder){
+                    after_campaign_files = req.files.after_campaign_files;
+                    for(var i= 0; i<after_campaign_files.length; i++){
+                        var library = new Library();
+                    library.path = after_campaign_files[i].location;
+                    library.key = after_campaign_files[i].key;
+                    library.file_name = after_campaign_files[i].originalname;
+                    if(after_campaign_files[i].mimetype == "application/pdf"){
+                        library.image_type = "pdf";
+                    }
+                    if(after_campaign_files[i].mimetype == "image/png" || after_campaign_files[i].mimetype == "image/jpg" || after_campaign_files[i].mimetype == "image/jpeg" || after_campaign_files[i].mimetype == "image/gif"){
+                        library.image_type = "image";
+                    }
+                    // library.uploaded_status = status;
+                    library.date_uploaded = Date.now();
+                    library.folder_Id = folder._id;
+                    library.campaign_id = file_details.campaign_id;
+                    library.is_campaign_file = true;
+                    //library.franchisee_Id = campaignDetails.franchisee_id;;
+                    library.save(function(err, library){
+                        console.log("campaign file created1");
+                        console.log('library++++++++++', library);
+                        // console.log('folder_id++++++++++', folder_Id);
+                        if(library){
+                            res.send({
+                                state:"success",
+                                message:"Updated."
+                            },200);
+                        }
+                    });
+                    }
+                        }
+            });
+        }
+    })
+  });
 // after campaign details
-var cpUpload = upload.fields([{ name: 'after_campaign_files', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+
 router.put('/after_campaign_details',cpUpload, function(req,res){
      var campaignDetails = JSON.parse(req.body.campaign);
     console.log(req.body.campaign);
@@ -496,66 +592,7 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
                 }
                 campaign.save(function(err,campaign){
                     {
-                        Folder.findOne({campaign_id: campaign._id}, function(err, folder){
-                            if(folder){
-                                var library = new Library();
-                                library.path = campaign.campaign_file_attachment_file_url;
-                                library.key = campaign.campaign_file_attachment_file_type;
-                                library.file_name = campaign.campaign_file_attachment_file_name;
-                                if(campaign.mimetype == "application/pdf"){
-                                    library.image_type = "pdf";
-                                }
-                                if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
-                                    campaign.image_type = "image";
-                                }
-                                // library.uploaded_status = status;
-                                library.date_uploaded = Date.now();
-                                library.folder_Id = folder._id;
-                                library.campaign_id = campaign._id;
-                                library.is_campaign_file = true;
-                                library.franchisee_Id = campaignDetails.franchisee_id;;
-                                library.save(function(err, library){
-                                    console.log("campaign file created1");
-                                    console.log('library++++++++++', library);
-                                    // console.log('folder_id++++++++++', folder_Id);
-                                });
-                            }
-                            if(!folder){
-                                var folder = new Folder();
-                                folder.marketing_folder = true;
-                                folder.campaign_id = campaign._id;
-                                folder.franchisee_Id = campaignDetails.franchisee_id;
-                                folder.franchisor_Id = campaignDetails.franchisor_id;
-                                folder.folder_name = campaign.title;
-                                folder.save(function(err, folder){
-                                    console.log("campaign folder created2");
-                                    console.log('folder----------------',folder);
-                                    if(folder){
-                                        var library = new Library();
-                                        library.path = campaign.campaign_file_attachment_file_url;
-                                        library.key = campaign.campaign_file_attachment_file_type;
-                                        library.file_name = campaign.campaign_file_attachment_file_name;
-                                        if(campaign.mimetype == "application/pdf"){
-                                            library.image_type = "pdf";
-                                        }
-                                        if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
-                                            campaign.image_type = "image";
-                                        }
-                                        // library.uploaded_status = status;
-                                        library.date_uploaded = Date.now();
-                                        library.folder_Id = folder._id;
-                                        library.campaign_id = campaign._id;
-                                        library.is_campaign_file = true;
-                                        library.franchisee_Id = campaignDetails.franchisee_id;;
-                                        library.save(function(err, library){
-                                            console.log("campaign file created");
-                                            console.log('library++++++++++', library);
-                                            // console.log('folder_id++++++++++', folder_Id);
-                                        });
-                                            }
-                                });
-                            }
-                        })
+                        
                         res.send({
                             state:"success",
                             message:"Campaign updated.",

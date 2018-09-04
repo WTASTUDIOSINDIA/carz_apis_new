@@ -800,7 +800,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
 
                                     }
                                     if (data) {
-                                       console.log(data); 
+                                       console.log(data), 'data803'; 
                                        mailSend(data.employee_email);
                                     }
                                 })
@@ -1584,5 +1584,39 @@ function get_merged_questions(e_a_id, e_id){
 
     //     }
     // ])
-}
+        }
+
+    router.get('/retake_exam/:employee_id/:assessment_id', function (req, res) {
+        try {
+            // { $set: { <field1>: <value1>, ... } }
+            EmployeeAssessmentSubmitted.updateMany({ employee_id: req.params.employee_id, assessment_type_id: req.params.assessment_id },{ $set: { employee_answer: '' }}, function (err, employeeQuestions) {
+                if (err) {
+                    return res.send({
+                        state: err,
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500);
+                }
+                if (!employeeQuestions) {
+                    res.send({
+                        state: 'failure',
+                        message: 'No questions found.'
+                    }, 201);
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        message: 'Success',
+                        data: employeeQuestions
+                    }, 200);
+                }
+            })
+        }
+        catch (err) {
+            return res.send({
+                state: 'err',
+                message: err
+            })
+        }
+    })
+
 module.exports = router;
