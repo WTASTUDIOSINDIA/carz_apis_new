@@ -137,7 +137,7 @@ schedule.scheduleJob(day_rule, function(req,res){
             let check_date_full = new Date(curr.setDate(check_date));
  
           var i =0;  
-          var curr = new Date();
+          //var curr = new Date();
           let day = curr.getDay();
           let firstday = new Date(curr.getTime() - 60*60*24* day*1000); // will return firstday (i.e. Sunday) of the week
           let lastday = new Date(firstday.getTime() + 60 * 60 *24 * 6 * 1000); // adding (60*60*6*24*1000) means adding six days to the firstday which results in lastday (Saturday) of the week
