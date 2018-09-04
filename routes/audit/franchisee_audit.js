@@ -54,7 +54,7 @@
   month_rule.minute = 59;
   month_rule.second = 599;
 
-schedule.scheduleJob(sec_rule, function(req,res){
+schedule.scheduleJob(day_rule, function(req,res){
 
   let curr = new Date().getDay(); // get current date
 
