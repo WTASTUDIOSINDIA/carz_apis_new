@@ -43,6 +43,7 @@ var employeeAssessmentTypeSchema = new mongoose.Schema({
     'franchisor_id':  {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     'version_id': String,
     'model_id': String,
+    'model_name': String,
     'createdAt': Date,
     'pass_percentage': Number,
     'assessment_duration': Number
@@ -53,6 +54,7 @@ var employeeAssessmentTypeOfFranchiseeSchema = new mongoose.Schema({
     'assessment_type_id': {type: Schema.Types.ObjectId, ref: 'EmployeeAssessmentType'},
     'assessment_type_name': String,
     'model_id': String,
+    'model_name': String,
     'createdAt': Date,
     'employee_id': {type: Schema.Types.ObjectId, ref: 'EmployeeDetails'},
     'assessment_status': {type: Boolean, default: false},    
@@ -76,6 +78,7 @@ var employeeDetailsSchema = new mongoose.Schema({
     'employee_company_of_experience': String,
     'employee_experience_in': String,
     'model_id': String,
+    'model_name': String,
     'employee_vertical': String,
     'employee_days_experience': String,
     'created_on' : { type: Date, default: Date.now },
