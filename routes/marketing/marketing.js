@@ -584,8 +584,10 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
                 campaign.campaign_status = campaignDetails.campaign_status;
                 campaign.franchisor_id = campaignDetails.franchisor_id;
                 campaign.franchisee_id = campaignDetails.franchisee_id;
+                
+                 console.log(req.file, '492');
                 if (req.file){
-                    console.log(req.file);
+                    console.log(req.file, '492');
                     campaign.after_campaign_file_attachment_file_url = req.file.location;
                     campaign.after_campaign_file_attachment_file_name = req.file.key;
                     campaign.after_campaign_file_attachment_file_type = req.file.contentType;
@@ -601,20 +603,20 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
                     }
                 });
 
-            }
-            if(!campaign){
-                res.send({
-                    state:"failure",
-                    message:"Failed to update!."
-                },400);
-            }
-        })
-    // }
-    // catch(err){
-    //     return res.send({
-    //         state:"error",
-    //         message:err
-    //     });
-    // }
+           }
+           if(!campaign){
+               res.send({
+                   state:"failure",
+                   message:"Failed to update!."
+               },400);
+           }
+       })
+   // }
+   // catch(err){
+   //     return res.send({
+   //         state:"error",
+   //         message:err
+   //     });
+   // }
 });
 module.exports = router;

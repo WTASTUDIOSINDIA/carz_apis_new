@@ -1494,7 +1494,7 @@ function generatePassword() {
     }
     return retVal;
 }
-async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id, sub_stage_name){
+function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id, sub_stage_name){
   console.log(folder_Id, '1167');
 
     if(!folder_Id ){
@@ -1530,7 +1530,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
     library.date_uploaded = Date.now();
     library.folder_Id = folder_Id;
     library.franchisee_Id = franchisee_Id;
-    await library.save(function(err,library){
+     library.save(function(err,library){
         if(err){
         res.send({
             status:500,
@@ -1867,11 +1867,11 @@ var request = require("request"),
             });
         }
     });
-  async  function get_existing_mails(values){
+    function get_existing_mails(values){
       var existing_franchisees = [];
       for(var i=0;i<values.length;i++){
         var franchisee_mail = values[i].franchisee_email;
-        await  Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
+          Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
               if(franchisee){
                 for(var j=0; j<franchisee.length; j++){
                   (function(j){

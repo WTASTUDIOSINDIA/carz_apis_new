@@ -84,7 +84,8 @@ router.post('/create_assessemnt_type', function (req, res) {
                     else {
                         res.send({
                             state: "success",
-                            message: "Assessment Type created successfully"
+                            message: "Assessment Type created successfully",
+                            data:assessment
                         }, 200);
                     }
                 });
@@ -280,6 +281,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
                                 }, 500);
                             }
                             console.log('166', err);
+                            console.log(assessments, '284');
                             for (var i = 0; i < assessments.length; i++) {
                                 employeeType = new EmployeeAssessmentTypeOfFranchisee();
                                 employeeType.assessment_type_id = assessments[i]._id;
@@ -1311,7 +1313,7 @@ router.delete('/delete_model_by_id/:id', function (req, res) {
     }
 })
 
-
+    
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
     try {
