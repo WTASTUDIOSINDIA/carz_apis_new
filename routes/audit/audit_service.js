@@ -82,7 +82,7 @@ const findlist = (query,second_query,nonworking_query) => {
 
 
 const findtasks = (query,second_query,nonworking_query) => {
-  
+  console.log(nonworking_query);
   return AuditChecklist.aggregate([
     { $match: {
       $and: [
@@ -90,24 +90,6 @@ const findtasks = (query,second_query,nonworking_query) => {
       ]
   } },
  
-{
-  $lookup: {
-      from: NonWorkingDay.collection.name,
-      let: { id: "$_id"},
-      pipeline: [
-        { $match: {
-          
-          $and: [
-            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }},
-            nonworking_query
-            ] }
-        },
-        
-      ],
-    
-    as: 'NonWorkingDayData'
-  }
-},
 {
   $lookup: {
       from: AuditTask.collection.name,

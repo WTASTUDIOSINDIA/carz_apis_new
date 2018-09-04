@@ -47,8 +47,18 @@
   week_rule.minute = 59;
   week_rule.second = 599;
 
+  var month_rule = new schedule.RecurrenceRule();
+  var curr_month = new Date().getMonth();
+  month_rule.month = curr_month+1;
+  month_rule.hour = 23;
+  month_rule.minute = 59;
+  month_rule.second = 599;
+
 schedule.scheduleJob(day_rule, function(req,res){
 
+  let curr = new Date().getDay(); // get current date
+
+if(curr != 0){
   Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
     if(err){
         return res.send(500, err);
@@ -64,29 +74,39 @@ schedule.scheduleJob(day_rule, function(req,res){
     else{
         franchiees.forEach(function(element){
 
-          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now()) }}]};
+          let nonworking_query = {checklist_type:"Daily",franchisee_id:objectId(element._id), on_date:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now())}};
           
-          auditService.findFranchiseeTasksByDaily(query)
-          .then((response) => {
-            if(response){
-                if(response.length == 0){
-                  console.log("email");
-                  Utils.send_mail(element);
-                }
-              }else{
-                  console.log("email");
-                  Utils.send_mail(element);
-              }
-            })
+          
+          auditService.findNonWorkList(nonworking_query)
+          .then((resp) => {
+            if(resp){
+             console.log("Non working day");
+            }else{
+              auditService.findFranchiseeTasksByDaily(query)
+              .then((response) => {
+                if(response){
+                    if(response.length == 0){
+                      Utils.send_mail(element);
+                    }
+                  }else{
+                      Utils.send_mail(element);
+                  }
+                })
+              .catch((error) => {
+                  res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+            }
+          })
           .catch((error) => {
-              res.status(500).json({ error: "2", message: "Internal server error"});
+            console.log("Found some error!");
           });
 
 
         });
     }
 })
-  
+}
 });
 
 
@@ -164,7 +184,7 @@ schedule.scheduleJob(week_rule, function(req,res){
 
         let curr = new Date; // get current date
         let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 5; // last day is the first day + 6
+        let last = first + 6; // last day is the first day + 6
         
         let firstday = new Date(curr.setDate(first));
         let lastday = new Date(curr.setDate(last));
@@ -346,7 +366,7 @@ router.post('/get_checklist', function (req,res){
 
 router.post('/save_franchisee_audit_task',upload.single('file'), function (req,res){
   let data = JSON.parse(req.body.task_data);
-  console.log(req.file);
+  
   var not_act = false;
   if(data.task_id && data.franchisee_id  && data.checklist_type && data.checklist_id){
     if(req.file){
@@ -373,7 +393,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
         //query.task_id = task_id; 
         }else{
           not_act = true;
-          res.status(203).json({error:'2',message:"You are not authorised"});
+          res.status(203).json({error:'2',message:"You can not complete this task right now!"});
         }
        
       }else{
@@ -397,7 +417,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
           //query.task_id = task_id; 
           }else{
             not_act = true;
-            res.status(203).json({error:'2',message:"You are not authorised"});
+            res.status(203).json({error:'2',message:"You can not complete this task right now!"});
           }
 
       }else{
@@ -460,7 +480,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
             query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
             not_act = true;
-            res.status(203).json({error:'2',message:"You are not authorised"});
+            res.status(203).json({error:'2',message:"You can not complete this task right now!"});
           }
 
       }else{
@@ -490,24 +510,71 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
       if(response){
           if(response.length !== 0){
             //response.task_status = data.task_status;
-            return response.remove();
+            response.remove()
+            .then((response) => {
+              if(response)
+              { 
+                res.status(200).json({ error: "0", message: "Removed Successfully", data: response});
+              }else{
+                res.status(404).json({ error: "1", message: "Error in getting details"});
+              }
+            })
+            .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+          });
           }else{
-            return auditService.create(data);
+            
+            auditService.findOneTaskById({_id:task_id})
+            .then((resp) => {
+              if(resp){
+
+                if(resp.audit_file_upload_required == true && !req.file){
+                  res.status(203).json({ error: "2", message: "File upload is mandetory for this task"});
+                }else{
+
+                auditService.create(data)
+                .then((response) => {
+                  if(response)
+                  { 
+                    res.status(200).json({ error: "0", message: "Succesfully Completed", data: response});
+                  }else{
+                    res.status(404).json({ error: "1", message: "Error in getting details"});
+                  }
+                })
+                .catch((error) => {
+                  res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+            }
+          }
+          })
           }
         }else{
-          return auditService.create(data); 
+          auditService.findOneTaskById({_id:task_id})
+            .then((resp) => {
+              if(resp){
+
+                if(resp.audit_file_upload_required == true && !req.file){
+
+                  res.status(203).json({ error: "2", message: "File upload is mandetory"});
+                }else{
+
+                auditService.create(data)
+                .then((response) => {
+                  if(response)
+                  { 
+                    res.status(200).json({ error: "0", message: "Succesfully created", data: response});
+                  }else{
+                    res.status(404).json({ error: "1", message: "Error in getting details"});
+                  }
+                })
+                .catch((error) => {
+                  res.status(500).json({ error: "2", message: "Internal server error"});
+              });
+            }
+          }
+          })
         }
       })
-
-    .then((response) => {
-        if(response)
-        { 
-          res.status(200).json({ error: "0", message: "Succesfully created", data: response});
-        }else{
-          res.status(404).json({ error: "1", message: "Error in getting details"});
-        }
-      })
-
     .catch((error) => {
         res.status(500).json({ error: "2", message: "Internal server error"});
     });
@@ -646,7 +713,30 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
       .then((response) => {
         if(response)
         { 
-          res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
+          let data_list=[];
+          //res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
+          if(data.checklist_type == "Daily"){
+            console.log(nonworking_query);
+            auditService.findNonWorkList(nonworking_query)
+            .then((resp) => {
+              console.log(resp);
+              if(resp){
+                data_list.push({non_working_day:resp.status,tasklist_data:response})
+              res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+              }else{
+                data_list.push({non_working_day:"false",tasklist_data:response})
+                res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+              }
+            })
+            .catch((error) => {
+              res.status(500).json({ error: "2", message: "Internal server error"});
+            });
+
+          }else{
+            data_list.push({non_working_day:"false",tasklist_data:response})
+            res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
+          }
+
         }else{
           res.status(404).json({ error: "1", message: "Error in getting details"});
         }
@@ -677,21 +767,35 @@ router.post('/save_non_working_day', function (req,res){
     .then((response) => {
         if(response)
         { 
-          console.log(response);
-          return response.remove(); 
+          response.remove()
+          .then((response) => {
+            if(response)
+            { 
+              res.status(200).json({ error: "0", message: "Succesfully removed as a non working day", data: response});
+            }else{
+              res.status(404).json({ error: "1", message: "Error in getting details"});
+            }
+          })
+    
+        .catch((error) => {
+            res.status(500).json({ error: "2", message: "Internal server error"});
+        });
           
         }else{
-          console.log("new");
-          return auditService.createNonWorkingDay(data)
-        }
-      })
-
-    .then((response) => {
-        if(response)
-        { 
-          res.status(200).json({ error: "0", message: "Succesfull", data: response});
-        }else{
-          res.status(404).json({ error: "1", message: "Error in getting details"});
+          
+          auditService.createNonWorkingDay(data)
+          .then((response) => {
+            if(response)
+            { 
+              res.status(200).json({ error: "0", message: "Succesfull added as non working day", data: response});
+            }else{
+              res.status(404).json({ error: "1", message: "Error in getting details"});
+            }
+          })
+    
+        .catch((error) => {
+            res.status(500).json({ error: "2", message: "Internal server error"});
+        });
         }
       })
 
@@ -753,7 +857,9 @@ router.post('/get_calender_list', function (req,res){
         var days = [];
 
         while (date.getMonth() === month) {
+          if(new Date(date).getDay() != 0){
            days.push(new Date(date));
+          }
            date.setDate(date.getDate() + 1);
         }
     auditService.findTasksList(data.checklist_type)
