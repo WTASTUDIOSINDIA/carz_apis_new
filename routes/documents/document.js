@@ -599,6 +599,7 @@ function update_kyc(req,res,kyc,message,reason){
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
                 if(message === "Doc rejected!"){
+                    console.log('kyc', update_kyc);
                     notify_user(req,res,message,reason, kyc);
                 }
                 else{
