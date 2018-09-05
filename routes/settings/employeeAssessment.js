@@ -799,7 +799,7 @@ router.put('/submit_employee_assessmnent', function (req,res){
                                 assessment_type.assessment_qualified = false;
                                 EmployeeDetails.findById({ _id: req.body.employee_id}, (err, data) => {
                                     if(err){
-
+                                        console.log(err), 'data802'; 
                                     }
                                     if (data) {
                                        console.log(data), 'data803'; 
@@ -1423,6 +1423,19 @@ router.put('/update_employee_details', function (req, res) {
                         }, 500)
                     }
                     else {
+                        CarModels.findOne({_id:req.body.model_id},function(err, models){
+                            console.log(models, "1427");
+                            if(err){
+                                console.log(err, "1429");
+                            }
+                            if(models){
+                                employeeDetails.model_name =  models.model_name;
+                            employeeDetails.save(function (err, employeeDetails){
+                              console.log(employeeDetails, "1434");
+                            })
+                            }
+                            
+                          })
                         res.send({
                             state: 'success',
                             message: 'Employee updated'
