@@ -74,8 +74,13 @@ if(curr != 0){
     else{
         franchiees.forEach(function(element){
 
-          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now()) }}]};
-          let nonworking_query = {checklist_type:"Daily",franchisee_id:objectId(element._id), on_date:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now())}};
+          let from = new Date();
+          let from_date = from.setHours(0,0,0,0);
+          let to = new Date();
+          let to_date = to.setHours(23, 59, 59, 999);
+
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(from_date),$lt: new Date(to_date) }}]};
+          let nonworking_query = {checklist_type:"Daily",franchisee_id:objectId(element._id), on_date:{ $gt: new Date(from_date),$lt: new Date(to_date)}};
           
           
           auditService.findNonWorkList(nonworking_query)
@@ -161,7 +166,12 @@ schedule.scheduleJob(day_rule, function(req,res){
 
           if(new Date(check_date_full) > new Date(element.franchisee_created_on)){
 
-          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(Date.now() ) }}]};
+            let from = new Date();
+            let from_date = from.setHours(0,0,0,0);
+            let to = new Date();
+            let to_date = to.setHours(23, 59, 59, 999);
+
+          let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(new Date(from_date) - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(to_date) }}]};
           
           auditService.findFranchiseeTasksByDaily(query)
           .then((response) => {
@@ -446,6 +456,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
   
   var not_act = false;
   if(data.task_id && data.franchisee_id  && data.checklist_type && data.checklist_id){
+    console.log(req.file);
     if(req.file){
     data["file_name"] = req.file.originalname;
     data["file_url"] = req.file.location;
@@ -465,8 +476,13 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
         let s_date = new Date(data.date);
         let send_date = moment(s_date).format("D-M-YYYY");
 
+        let from = new Date();
+        let from_date = from.setHours(0,0,0,0);
+        let to = new Date();
+        let to_date = to.setHours(23, 59, 59, 999);
+
         if(today == send_date){
-        query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gt: new Date(Date.now() - (1000 * 60 * 60 * 24)),$lt: new Date(Date.now() ) }}]};
+        query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gte: new Date(from_date),$lte: new Date(to_date) }}]};
         //query.task_id = task_id; 
         }else{
           not_act = true;
