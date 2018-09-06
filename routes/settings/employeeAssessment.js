@@ -1389,11 +1389,42 @@ router.get('/get_employee_details/:id', function (req, res) {
     }
 });
 
+// to get employees by franchisee id 
+router.get('/get_employees_by_franchisee_id/:franchisee_id', function(req, res){
+    try{
+        EmployeeDetails.find({franchisee_id: req.params.franchisee_id},function(err,employees){
+            if(err){
+                return res.send({
+                    state:"error",
+                    message:err
+                },500);
+            }
+            if(employees.length == 0){
+                return res.send({
+                    state:"failure",
+                    message:"No employees"
+                },400);
+            }
+            if(employees.length > 0){
+                return res.send({
+                    state:"success",
+                    data:employees
+                },200);
+            }
+        })
+    }
+    catch(err){
+		return res.send({
+			state:"error",
+			message:err
+		},500);
+	}
+})
 
-//To edit employee details
-router.put('/update_employee_details', function (req, res) {
+//To edit employee details 
+router.put('/update_employee_details', function (req, res) { 
     try {
-        EmployeeDetails.findById({ _id: req.body._id }, function (err, employeeDetails) {
+        EmployeeDetails.findById({ _id: req.body._id, franchisee_id:req.body.franchisee_id }, function (err, employeeDetails) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -1414,7 +1445,7 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
                 employeeDetails.employee_vertical = req.body.employee_vertical;
                 employeeDetails.employee_days_experience = req.body.employee_days_experience;
-                employeeDetails.franchisee_id = req.body.frachisee_id;
+                employeeDetails.franchisee_id = req.body.franchisee_id;
                 employeeDetails.save(function (err, employeeDetails) {
                     if (err) {
                         res.send({
