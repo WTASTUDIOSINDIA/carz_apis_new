@@ -518,6 +518,12 @@ router.put('/edit_folder', function(req, res, next){
       });
 
     }
+    if(!folder){
+        res.send({
+            state:'failure',
+            message:'Failed to edit'
+        },400);
+    }
 
   })
 }
