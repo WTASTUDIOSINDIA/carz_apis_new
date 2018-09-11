@@ -323,8 +323,11 @@ router.put('/question/vote',function(req,res){
                 return res.send(err);
             }
             else{
+                console.log('id', id);
+                console.log(req.body.votedBy);
                 var flag = false;
                 var id = req.body.votedBy;
+           
                 if(discussionquestion.votedBy.length>0){
                     for(var i=0;i<discussionquestion.votedBy.length;i++){
                         if(discussionquestion.votedBy[i] == id){

@@ -8,6 +8,9 @@ var Admin = mongoose.model('Admin');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
+var createHash = function(password){
+  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+};
 var bCrypt = require('bcrypt-nodejs');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
@@ -59,7 +62,8 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user = new Admin();
           user.user_name = userCreateForm.user_name;
           user.user_mail = userCreateForm.user_mail;
-          user.user_role = userCreateForm.user_role;
+          user.role = userCreateForm.role;
+          user.user_pass = createHash(userCreateForm.user_pass);
           user.user_status = userCreateForm.user_status;
           user.user_country_code = userCreateForm.user_country_code;
           user.user_phone_number = userCreateForm.user_phone_number;

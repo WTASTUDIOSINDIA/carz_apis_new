@@ -9,6 +9,7 @@ var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 var otpGenerator = require("otp-generator");
+var authService = require('./authenticate-service');
 
 module.exports = function(passport){
     //sends successful login state back to angular
@@ -168,12 +169,74 @@ module.exports = function(passport){
     });
 
     //franchisor log in
+    /*
     router.post('/franchisor-login', passport.authenticate('franchisor-login', {
         failureRedirect: '/authenticate/failure-franchisor',
         successRedirect: '/authenticate/success-franchisor',
         failureFlash: true
     }));
+    */
+   
+router.post('/franchisor-login', function (req,res){
 
+    let data = req.body;
+   // data.user_pass = createHash(data.user_pass);
+    let query = {};
+    query.user_mail = data.user_mail;
+    authService.findFranchisor(query)
+    .then((response) => {
+        if(response){
+            if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                response.user_pass = undefined;
+                res.send({
+                    state: 'success',
+                    user: response,
+                    status:200
+                });
+            }else{
+                throw{
+                    reason : "passworsMmatch"
+                }
+            }
+        }else{
+        throw{
+            reason : "userNotExist"
+        }
+        }
+    })
+    authService.findUser(query)
+    .then((response) => {
+        if(response){
+            if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                response.user_pass = undefined;
+                res.send({
+                    state: 'success',
+                    user: response,
+                    status:200
+                });
+            }else{
+                throw{
+                    reason : "passworsMmatch"
+                }
+            }
+        }else{
+        throw{
+            reason : "userNotExist"
+        }
+        }
+    })
+    .catch((error) => {
+        if(error.reason == "userNotExist"){
+            res.status(404).json({ error: "2", message: "User not Exists"});
+        }else if(passworsMmatch){
+            res.status(401).json({ error: "2", message: "Password is not correct"});
+        }else{
+        res.status(500).json({ error: "2", message: "Internal server error"});
+        }
+    });
+
+});
+  
     //admin log in
     router.post('/franchisee-login', passport.authenticate('franchisee-login', {
         failureRedirect: '/authenticate/failure-franchisee',

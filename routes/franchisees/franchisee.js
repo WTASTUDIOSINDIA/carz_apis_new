@@ -2030,7 +2030,7 @@ router.put('/disable_onboarding', function (req,res){
 
 
 //   edit  franchisee my profile
-router.put('/edit_my profile', function (req,res){
+router.put('/edit_my_profile', function (req,res){
     try{
         Franchisee.findById({_id:req.body.franchisee_id}, function(err, franchisee){
             if(err){
