@@ -552,6 +552,7 @@ function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id){
 }
 
 function notify_user(req,res,message,reason, kyc_data){
+    console.log('kycdata', kyc_data);
     var fromName = "CARZ";
                     var mailOptions={
                     to: 'vishnu@wtastudios.com',
@@ -596,10 +597,10 @@ function update_kyc(req,res,kyc,message,reason){
             },500);
         }
         else{
+            console.log('kycss', update_kyc);
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
                 if(message === "Doc rejected!"){
-                    console.log('kyc', update_kyc);
                     notify_user(req,res,message,reason, kyc);
                 }
                 else{
@@ -738,6 +739,8 @@ router.put('/reject_doc',function(req,res){
                 reason.doc_name  = req.body.doc_name;
                 reason.franchisee_Id  = req.body.franchisee_Id;
                 reason.partner_Id  = req.body.partner_Id;
+                reason.franchisee_email = req.body.franchisee_email;
+                reason.partner_email = req.body.partner_email;
                 reason.kyc_id = req.body.kyc_id;
                 reason.save(function(err,reason){
                     if(err){

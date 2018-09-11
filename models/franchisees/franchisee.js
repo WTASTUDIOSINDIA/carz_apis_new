@@ -213,7 +213,9 @@ var BussinessTypeListSchema = new mongoose.Schema({
 var KycSchema = new mongoose.Schema({
     "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     "partner_id": {type: Schema.Types.ObjectId, ref: 'Partner'},
-    "docs_types": Array
+    "docs_types": Array,
+    "franchisee_email": String,
+    "partner_email": String
 });
 
 var ReasonSchema = new mongoose.Schema({
@@ -224,6 +226,8 @@ var ReasonSchema = new mongoose.Schema({
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'partner_Id' :{type: Schema.Types.ObjectId, ref: 'Partner'},
     'kyc_id' : {type: Schema.Types.ObjectId, ref: 'KycUploads'},
+    "franchisee_email": String,
+    "partner_email": String
   });
 
 var QuestionTypeSchema = new mongoose.Schema({
