@@ -149,122 +149,90 @@ router.get('/get_franchisee/:id', function (req, res) {
 });
 
 // get all leads count
-// router.post('/get_all_leads', (req, res) => {
-//     var query = { lead_type: { $exists: true } }
-//     Franchisee.aggregate([
-//         { $match: query },
-//         { $group: { _id: null, count: { $sum: 1 } } }
-//     ]).exec()
-//         .then((total_leads) => {
-//             console.log(total_leads)
-//             return res.json(total_leads)
-//         })
-// })
-
 router.post('/get_all_leads', (req, res) => {
+    if(req.body.location){
+        var query = { lead_type: { $exists: true, $ne: "" }, franchisee_address: req.body.location  }
+    }
+    else if(!req.body.location || req.body.location == null) {
+        query = { lead_type: { $exists: true, $ne: "" }}
+    }
     var hot_leads = 0
     var warm_leads = 0
     var cold_leads = 0
     var unassigned = 0
     var rejected = 0
     var franchisee = 0
-    Franchisee.find({ 'lead_type': { $exists: true } } , (err, leads) => {
-        if (err) {
-            return res.json(500, err)
-        }
-        if (leads) {
-            // console.log(leads[0].lead_type)
-            for (var i = 0; i<leads.length; i++) {
-                if (leads[i].lead_type == "Unassigned") {
-                    console.log(leads[i])
-                    unassigned++
+    var total = 0
+    Franchisee.aggregate([
+        { $match: query },
+        { $group: {
+            _id: {
+            key: "$lead_type",
+            },
+            count: { "$sum": 1 }
+            }}
+    ]).exec()
+        .then((total_leads) => {
+            console.log(total_leads)
+            total_leads.forEach(lead => {
+                if(lead._id.key == "Cold"){
+                    cold_leads = cold_leads + lead.count
+                    total = total + lead.count
                 }
-                if (leads[i].lead_type == "Franchisees") {
-                    franchisee++
+                if(lead._id.key == "Hot"){
+                    hot_leads = hot_leads + lead.count
+                    total = total + lead.count
                 }
-                if (leads[i].lead_type == "Cold") {
-                    cold_leads++
+                if(lead._id.key == "Warm"){
+                    warm_leads = warm_leads + lead.count
+                    total = total + lead.count
                 }
-                if (leads[i].lead_type == "Hot") {
-                    hot_leads++
+                if(lead._id.key == "Unassigned"){
+                    unassigned = unassigned + lead.count
+                    total = total + lead.count
                 }
-                if (leads[i].lead_type == "Warm") {
-                    warm_leads++
+                if(lead._id.key == "Rejected"){
+                    rejected = rejected + lead.count
+                    total = total + lead.count
                 }
-                if (leads[i].lead_type == "Rejected") {
-                    rejected++
+                if(lead._id.key == "Franchisees"){
+                    franchisee = franchisee + lead.count
+                    total = total + lead.count
                 }
-            }
-            var t_leads = {
-                total_leads: leads.length,
-                hot_leads: hot_leads,
-                warm_leads: warm_leads,
-                cold_leads: cold_leads,
-                unassigned: unassigned,
-                rejected: rejected,
-                franchisees: franchisee
-            }
+                if(lead._id.key == undefined){
+                    cold_leads = 0
+                }
+                if(lead._id.key == undefined){
+                    hot_leads = 0
+                }
+                if(lead._id.key == undefined){
+                    warm_leads = 0
+                }
+                if(lead._id.key == undefined){
+                    unassigned = 0
+                }
+                if(lead._id.key == undefined){
+                    rejected = 0
+                }
+                if(lead._id.key == undefined){
+                    franchisee = 0
+                }
+                console.log(lead._id.key)
+            });
             return res.json({
                 state: 'success',
-                message: 'Successfully retreived lead data',
-                data: t_leads
+                message: 'successfully fetched lead details',
+                'hot_leads': hot_leads,
+                'warm_leads': warm_leads,
+                'cold_leads': cold_leads,
+                'unassigned': unassigned,
+                'rejected': rejected,
+                'franchisee': franchisee,
+                'total_leads': total
             })
-        }
-    })
+        })
 })
 
-//get leads by location
-router.post('/get_all_leads', (req, res) => {
-    var hot_leads = 0
-    var warm_leads = 0
-    var cold_leads = 0
-    var unassigned = 0
-    var rejected = 0
-    var franchisee = 0
-    Franchisee.find({ $and: [{ 'lead_type': { $exists: true }}, {'franchisee_address': req.body.location }] } , (err, leads) => {
-        if (err) {
-            return res.json(500, err)
-        }
-        if (leads) {
-            // console.log(leads[0].lead_type)
-            for (var i = 0; i<leads.length; i++) {
-                if (leads[i].lead_type == "Unassigned") {
-                    console.log(leads[i])
-                    unassigned++
-                }
-                if (leads[i].lead_type == "Franchisees") {
-                    franchisee++
-                }
-                if (leads[i].lead_type == "Cold") {
-                    cold_leads++
-                }
-                if (leads[i].lead_type == "Hot") {
-                    hot_leads++
-                }
-                if (leads[i].lead_type == "Warm") {
-                    warm_leads++
-                }
-                if (leads[i].lead_type == "Rejected") {
-                    rejected++
-                }
-            }
-            var t_leads = {
-                total_leads: leads.length,
-                hot_leads: hot_leads,
-                warm_leads: warm_leads,
-                cold_leads: cold_leads,
-                unassigned: unassigned,
-                rejected: rejected,
-                franchisees: franchisee
-            }
-            return res.json({
-                state: 'success',
-                message: 'Successfully retreived lead data',
-                data: t_leads
-            })
-        }
-    })
-})
 // to make franchisee notification count hide
 router.post('/make_notification_franchisee_count_hide', function (req, res) {
     Franchisee.find({ '_id': req.body.user_id }, function (err, franchisee) {
