@@ -557,7 +557,7 @@ router.put('/answer',function(req,res){
 	}
 });
 
-router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
+router.get('/get_report/:franchisor_id/:franchisee_Id/:partner_Id',function(req, res){
     try{
         Assessment.findOne({franchisee_id:req.params.franchisee_Id,partner_id:req.params.partner_Id},function(err,report){
             if(err){
@@ -574,34 +574,38 @@ router.get('/get_report/:franchisee_Id/:partner_Id',function(req, res){
             }
             console.log(report, 'report data');
             if(report){
-                Question_Type.find({},function(err,list){
-                    var graph_array = [];
-                    const obj = {
-                        "correct_answers": report.correct_answers,
-                        "total_question": report.total_questions
-                    };
-                    for(var i=0;i<list.length;i++){
-                        var ques = {
-                            ques_head_val:list[i].question_type_name,
-                            correct_opt : 0,
-                            total_ques_by_type:0
+                Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'f_assessments', default: true}, function (err, version){
+                    console.log(version._id, 'version version_name 578');
+                    Question_Type.find({franchisor_id: req.params.franchisor_id, version_id: version._id},function(err,list){
+                        var graph_array = [];
+                        const obj = {
+                            "correct_answers": report.correct_answers,
+                            "total_question": report.total_questions
                         };
-                        for(var j=0;j<report.assessment_list.length;j++){
-                            if((ques.ques_head_val == report.assessment_list[j].question_type)){
-                                    ques.total_ques_by_type = ques.total_ques_by_type + 1;
-                                if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
-                                    ques.correct_opt = ques.correct_opt + 1;
+                        for(var i=0;i<list.length;i++){
+                            var ques = {
+                                ques_head_val:list[i].question_type_name,
+                                section_id: list[i]._id,
+                                correct_opt : 0,
+                                total_ques_by_type:0
+                            };
+                            for(var j=0;j<report.assessment_list.length;j++){
+                                if((ques.section_id == report.assessment_list[j].question_section_id)){
+                                        ques.total_ques_by_type = ques.total_ques_by_type + 1;
+                                    if((report.assessment_list[j].selected_option == report.assessment_list[j].correct_answer)){
+                                        ques.correct_opt = ques.correct_opt + 1;
+                                    }
                                 }
                             }
+                            graph_array.push(ques);
                         }
-                        graph_array.push(ques);
-                    }
-                    return res.send({
-                        state:"success",
-                        message:"Result is out",
-                        data:report,
-                        graph_data:graph_array
-                    },200);
+                        return res.send({
+                            state:"success",
+                            message:"Result is out",
+                            data:report,
+                            graph_data:graph_array
+                        },200);
+                    })
                 })
             }
         })
