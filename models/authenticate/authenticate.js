@@ -15,13 +15,15 @@ var adminSchema = new mongoose.Schema({
   "user_mail": String,
   "user_pass": String,
   "user_confirm_pass": String,
-  "role":{
+  "user_type_role":{
       'audit_management': {type:String, default:false},
       'crm':{type: String, default:false},
       'library':{type: String, default:false},
       'marketing':{type: String, default:false},
       'discussion_forum': {type: String, default:false},
       'ticketing_system': {type: String, default:false},
+      'settings': {type: String, default: false},
+      'assessment': {type: String, default: false}
   },
   "user_name": String,
   "created_on": Date,
@@ -32,7 +34,8 @@ var adminSchema = new mongoose.Schema({
   "user_file_name": String,
   "user_file_link": String,
   "user_file_type": String,
-  "seen_notification":{type: Number, default: 0}
+  "seen_notification":{type: Number, default: 0},
+  'user_role': {type: String, default:'user'}
 })
 var forgotPasswordSchema = new mongoose.Schema({
     "franchisee_mail":String,
