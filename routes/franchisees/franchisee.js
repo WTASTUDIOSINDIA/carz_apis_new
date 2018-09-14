@@ -1639,7 +1639,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
             }
 
         })
-    }
+    })
     console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
@@ -2305,5 +2305,5 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
-
+}
 module.exports = router;
