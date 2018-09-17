@@ -1639,7 +1639,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
             }
 
         })
-    }
+    })
     console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
@@ -1700,6 +1700,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
         }
 
     });
+}
 }
 
 
