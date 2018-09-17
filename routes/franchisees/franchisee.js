@@ -150,11 +150,11 @@ router.get('/get_franchisee/:id', function (req, res) {
 
 // get all leads count
 router.post('/get_all_leads', (req, res) => {
-    if(req.body.location){
-        var query = { lead_type: { $exists: true, $ne: "" }, franchisee_address: req.body.location  }
+    if (req.body.location) {
+        var query = { lead_type: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
     }
-    else if(!req.body.location || req.body.location == null) {
-        query = { lead_type: { $exists: true, $ne: "" }}
+    else if (!req.body.location || req.body.location == null) {
+        query = { lead_type: { $exists: true, $ne: "" } }
     }
     var hot_leads = 0
     var warm_leads = 0
@@ -165,56 +165,58 @@ router.post('/get_all_leads', (req, res) => {
     var total = 0
     Franchisee.aggregate([
         { $match: query },
-        { $group: {
-            _id: {
-            key: "$lead_type",
-            },
-            count: { "$sum": 1 }
-            }}
+        {
+            $group: {
+                _id: {
+                    key: "$lead_type",
+                },
+                count: { "$sum": 1 }
+            }
+        }
     ]).exec()
         .then((total_leads) => {
             console.log(total_leads)
             total_leads.forEach(lead => {
-                if(lead._id.key == "Cold"){
+                if (lead._id.key == "Cold") {
                     cold_leads = cold_leads + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == "Hot"){
+                if (lead._id.key == "Hot") {
                     hot_leads = hot_leads + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == "Warm"){
+                if (lead._id.key == "Warm") {
                     warm_leads = warm_leads + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == "Unassigned"){
+                if (lead._id.key == "Unassigned") {
                     unassigned = unassigned + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == "Rejected"){
+                if (lead._id.key == "Rejected") {
                     rejected = rejected + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == "Franchisees"){
+                if (lead._id.key == "Franchisees") {
                     franchisee = franchisee + lead.count
                     total = total + lead.count
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     cold_leads = 0
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     hot_leads = 0
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     warm_leads = 0
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     unassigned = 0
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     rejected = 0
                 }
-                if(lead._id.key == undefined){
+                if (lead._id.key == undefined) {
                     franchisee = 0
                 }
                 console.log(lead._id.key)
@@ -232,6 +234,97 @@ router.post('/get_all_leads', (req, res) => {
             })
         })
 })
+
+// get all leads count
+router.post('/get_franchisee_status', (req, res) => {
+    if (req.body.location) {
+        var query = { interview_status: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
+    }
+    else if (!req.body.location || req.body.location == null) {
+        query = { interview_status: { $exists: true, $ne: "" } }
+    }
+    let profile_pending = 0
+    let discussion_pending = 0
+    let kyc_pending = 0
+    let interview_pending = 0
+    let assessment_pending = 0
+    let setup_pending = 0
+    let total = 0
+    Franchisee.aggregate([
+        { $match: query },
+        {
+            $group: {
+                _id: {
+                    key: "$interview_status",
+                },
+                count: { "$sum": 1 }
+            }
+        }
+    ]).exec()
+        .then((total_statuses) => {
+            console.log(total_statuses[0], 'oasfd')
+            total_statuses.forEach(status => {
+                console.log(status._id.key, 'key', status.count);
+                if (status._id.key == "Profile Pending") {
+                    profile_pending = profile_pending + status.count
+                    total = total + status.count
+                }
+                if (status._id.key == "Discussion Pending") {
+                    discussion_pending = discussion_pending + status.count
+                    total = total + status.count
+                }
+                if (status._id.key == "KYC Pending") {
+                    kyc_pending = kyc_pending + status.count
+                    total = total + status.count
+                }
+                if (status._id.key == " Interview Pending") {
+                    interview_pending = interview_pending + status.count
+                    console.log(interview_pending, 'kfa;');
+                    total = total + status.count
+                }
+                if (status._id.key == "Assessment Pending") {
+                    assessment_pending = assessment_pending + status.count
+                    total = total + status.count
+                }
+                if (status._id.key == "Setup Pending") {
+                    setup_pending = setup_pending + status.count
+                    total = total + status.count
+                }
+                if (status._id.key == undefined) {
+                    profile_pending = 0
+                }
+                if (status._id.key == undefined) {
+                    discussion_pending = 0
+                }
+                if (status._id.key == undefined) {
+                    kyc_pending = 0
+                }
+                if (status._id.key == undefined) {
+                    interview_pending = 0
+                }
+                if (status._id.key == undefined) {
+                    assessment_pending = 0
+                }
+                if (status._id.key == undefined) {
+                    setup_pending = 0
+                }
+                console.log(status._id.key)
+            });
+            console.log(interview_pending, 'interview');
+            return res.json({
+                state: 'success',
+                message: 'successfully fetched status details',
+                'profile_pending': profile_pending,
+                'discussion_pending': discussion_pending,
+                'kyc_pending': kyc_pending,
+                'interview_pending': interview_pending,
+                'assessment_pending': assessment_pending,
+                'setup_pending': setup_pending,
+                'total_statuses': total
+            })
+        })
+})
+
 
 // to make franchisee notification count hide
 router.post('/make_notification_franchisee_count_hide', function (req, res) {
@@ -1579,23 +1672,15 @@ function generatePassword() {
     }
     return retVal;
 }
-async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id, sub_stage_name){
-  console.log(folder_Id, '1167');
+async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_Id, sub_stage_name) {
+    console.log(folder_Id, '1167');
 
-    if(!folder_Id ){
-      var folder = new Folder();
-      folder.crm_folder = true;
-      folder.franchisee_Id = franchisee_Id;
-      if(sub_stage_name == 'nda' || sub_stage_name == 'payment'){
-        folder.folder_name = 'Discussion';
-      }
-      folder.save(function(err, folder){
-        if(err){
-           console.log(err, 'folder_error');
-        }
-        if(folder){
-//            console.log(folder, 'folderdata');
-          folder_Id = folder._id;
+    if (!folder_Id) {
+        var folder = new Folder();
+        folder.crm_folder = true;
+        folder.franchisee_Id = franchisee_Id;
+        if (sub_stage_name == 'nda' || sub_stage_name == 'payment') {
+            folder.folder_name = 'Discussion';
         }
         folder.save(function (err, folder) {
             if (err) {
@@ -1605,70 +1690,78 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
                 //            console.log(folder, 'folderdata');
                 folder_Id = folder._id;
             }
+            folder.save(function (err, folder) {
+                if (err) {
+                    console.log(err, 'folder_error');
+                }
+                if (folder) {
+                    //            console.log(folder, 'folderdata');
+                    folder_Id = folder._id;
+                }
 
-        })
-    })
-    console.log(folder_Id, "1504");
-    var library = new Library();
-    library.path = obj.location;
-    library.key = obj.key;
-    library.file_name = obj.originalname;
-    if (obj.mimetype == "application/pdf") {
-        library.image_type = "pdf";
-    }
-    if (obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif") {
-        library.image_type = "image";
-    }
-    library.uploaded_status = status;
-    library.date_uploaded = Date.now();
-    library.folder_Id = folder_Id;
-    library.franchisee_Id = franchisee_Id;
-    await library.save(function(err,library){
-        if(err){
-        res.send({
-            status:500,
-            state:"err",
-            message:"Something went wrong."
-        },500);
-        }
-
-        else {
-            console.log(library._id, "1189");
-            Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
-                //payment, nda, aggrement, aggrement_Copy
-                if (sub_stage_name == 'payment') {
-                    stage.stage_discussion.first_payment_library_file_id = library._id;
-                }
-                if (sub_stage_name == 'nda') {
-                    stage.stage_discussion.nda_library_file_id = library._id;
-                }
-                if (sub_stage_name == 'aggrement') {
-                    stage.stage_agreenent.second_payment_library_file_id = library._id;
-                }
-                if (sub_stage_name == 'aggrement_Copy') {
-                    stage.stage_agreenent.final_agreement_library_file_id = library._id;
-                }
-                stage.save(function (err, stage) {
-                    if (err) {
-                        console.log(err, "error while saving stage files");
-                    }
-                    if (stage) {
-                        console.log(stage, "library file attached to files");
-                    }
-                })
-
-                //  get_id_of_crm_file = library._id;
-                return library._id;
-                //     return new Promise(resolve => {
-                //
-                //     resolve('resolved');
-                //
-                // });
             })
+        })
+        console.log(folder_Id, "1504");
+        var library = new Library();
+        library.path = obj.location;
+        library.key = obj.key;
+        library.file_name = obj.originalname;
+        if (obj.mimetype == "application/pdf") {
+            library.image_type = "pdf";
         }
+        if (obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif") {
+            library.image_type = "image";
+        }
+        library.uploaded_status = status;
+        library.date_uploaded = Date.now();
+        library.folder_Id = folder_Id;
+        library.franchisee_Id = franchisee_Id;
+        await library.save(function (err, library) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    state: "err",
+                    message: "Something went wrong."
+                }, 500);
+            }
 
-    });
-}
+            else {
+                console.log(library._id, "1189");
+                Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
+                    //payment, nda, aggrement, aggrement_Copy
+                    if (sub_stage_name == 'payment') {
+                        stage.stage_discussion.first_payment_library_file_id = library._id;
+                    }
+                    if (sub_stage_name == 'nda') {
+                        stage.stage_discussion.nda_library_file_id = library._id;
+                    }
+                    if (sub_stage_name == 'aggrement') {
+                        stage.stage_agreenent.second_payment_library_file_id = library._id;
+                    }
+                    if (sub_stage_name == 'aggrement_Copy') {
+                        stage.stage_agreenent.final_agreement_library_file_id = library._id;
+                    }
+                    stage.save(function (err, stage) {
+                        if (err) {
+                            console.log(err, "error while saving stage files");
+                        }
+                        if (stage) {
+                            console.log(stage, "library file attached to files");
+                        }
+                    })
+
+                    //  get_id_of_crm_file = library._id;
+                    return library._id;
+                    //     return new Promise(resolve => {
+                    //
+                    //     resolve('resolved');
+                    //
+                    // });
+                })
+            }
+
+        });
+    }
 }
 
 
@@ -1861,116 +1954,116 @@ router.post('/import_franchisee', function (req, res) {
                                 });
                             }
 
-                                  };
-                          } //else statement of list length
-                        })
-                      }
-                    });
-                    // for(var i=0;i<franchiseeMultipleForm.length;i++){
-                    //
-                    //   var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
-                    //
-                    //     Franchisee.find({franchisee_email: franchiseeMultipleForm[i].franchisee_email},function(err,franchisee){
-                    //         if(franchisee){
-                    //           error_mode = true;
-                    //           errors_count = +1;
-                    //
-                    //           existing_franchisees.push(franchisee.franchisee_email);
-                    //
-                    //
-                    //         }
+                        };
+                    } //else statement of list length
+                })
+            }
+        });
+        // for(var i=0;i<franchiseeMultipleForm.length;i++){
+        //
+        //   var franchisee_mail = franchiseeMultipleForm[i].franchisee_email;
+        //
+        //     Franchisee.find({franchisee_email: franchiseeMultipleForm[i].franchisee_email},function(err,franchisee){
+        //         if(franchisee){
+        //           error_mode = true;
+        //           errors_count = +1;
+        //
+        //           existing_franchisees.push(franchisee.franchisee_email);
+        //
+        //
+        //         }
 
-                            // else {
-                            //
-                            //   if(errors_count === 0){
-                            //     var franchisee = new Franchisee();
-                            //     franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
-                            //     franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
-                            //     franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
-                            //     franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
-                            //     franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
-                            //     franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
-                            //     franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
-                            //     franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
-                            //     franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
-                            //     franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
-                            //     franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
-                            //     franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
-                            //
-                            //     franchisee.save(function(err,franchisee, next){
-                            //         if(err){
-                            //           console.log(err, "error 1188");
-                            //             return res.send({
-                            //                 state:"err",
-                            //                 message:"Something went wrong."
-                            //             },500);
-                            //         }
-                            //         else{
-                            //             if(franchisee_length==i){
-                            //                 return res.send({
-                            //                     state:"success",
-                            //                     message:"Franchisee Created."
-                            //                 },200);
-                            //                 var partner = new Partner();
-                            //
-                            //
-                            //                 partner.partner_name=franchiseeMultipleForm[i].franchisee_name,
-                            //                 partner.partner_occupation=franchiseeMultipleForm[i].partner_occupation,
-                            //                 partner.partner_email=franchiseeMultipleForm[i].franchisee_email,
-                            //                 partner.partner_mobile_number=franchiseeMultipleForm[i].partner_mobile_number,
-                            //                 partner.partner_age=franchiseeMultipleForm[i].partner_age,
-                            //                 partner.partner_address = franchiseeMultipleForm[i].partner_address,
-                            //                 partner.partner_city = franchiseeMultipleForm[i].partner_city,
-                            //                 partner.partner_state = franchiseeMultipleForm[i].partner_state,
-                            //                 partner.partner_pincode = franchiseeMultipleForm[i].partner_pincode,
-                            //                 partner.partner_country = franchiseeMultipleForm[i].partner_country,
-                            //                 partner.main_partner = true,
-                            //
-                            //                 partner.franchisee_id=franchisee._id;
-                            //                 partner.partner_profile_pic = franchisee.franchisee_profile_pic
-                            //                 partner.save(function(err,partner){
-                            //                     if(err){
-                            //                         res.send({
-                            //                             state:"err",
-                            //                             message:"Something went wrong."
-                            //                         },500);
-                            //                     }
-                            //                     else{
-                            //                         kyc_Upload(req, res,partner,franchisee,franchiseeMultipleForm[i]);
-                            //                     }
-                            //                 });
-                            //             }
-                            //         }
-                            //     });
-                            //   }
-                            // }
+        // else {
+        //
+        //   if(errors_count === 0){
+        //     var franchisee = new Franchisee();
+        //     franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
+        //     franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address,
+        //     franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
+        //     franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
+        //     franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
+        //     franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
+        //     franchisee.lead_source = franchiseeMultipleForm[i].lead_source,
+        //     franchisee.franchisee_franchise_type = franchiseeMultipleForm[i].franchisee_franchise_type,
+        //     franchisee.franchisee_franchise_model = franchiseeMultipleForm[i].franchisee_franchise_model,
+        //     franchisee.franchisee_date = franchiseeMultipleForm[i].franchisee_date,
+        //     franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
+        //     franchisee.franchisee_investment = franchiseeMultipleForm[i].franchisee_investment,
+        //
+        //     franchisee.save(function(err,franchisee, next){
+        //         if(err){
+        //           console.log(err, "error 1188");
+        //             return res.send({
+        //                 state:"err",
+        //                 message:"Something went wrong."
+        //             },500);
+        //         }
+        //         else{
+        //             if(franchisee_length==i){
+        //                 return res.send({
+        //                     state:"success",
+        //                     message:"Franchisee Created."
+        //                 },200);
+        //                 var partner = new Partner();
+        //
+        //
+        //                 partner.partner_name=franchiseeMultipleForm[i].franchisee_name,
+        //                 partner.partner_occupation=franchiseeMultipleForm[i].partner_occupation,
+        //                 partner.partner_email=franchiseeMultipleForm[i].franchisee_email,
+        //                 partner.partner_mobile_number=franchiseeMultipleForm[i].partner_mobile_number,
+        //                 partner.partner_age=franchiseeMultipleForm[i].partner_age,
+        //                 partner.partner_address = franchiseeMultipleForm[i].partner_address,
+        //                 partner.partner_city = franchiseeMultipleForm[i].partner_city,
+        //                 partner.partner_state = franchiseeMultipleForm[i].partner_state,
+        //                 partner.partner_pincode = franchiseeMultipleForm[i].partner_pincode,
+        //                 partner.partner_country = franchiseeMultipleForm[i].partner_country,
+        //                 partner.main_partner = true,
+        //
+        //                 partner.franchisee_id=franchisee._id;
+        //                 partner.partner_profile_pic = franchisee.franchisee_profile_pic
+        //                 partner.save(function(err,partner){
+        //                     if(err){
+        //                         res.send({
+        //                             state:"err",
+        //                             message:"Something went wrong."
+        //                         },500);
+        //                     }
+        //                     else{
+        //                         kyc_Upload(req, res,partner,franchisee,franchiseeMultipleForm[i]);
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //     });
+        //   }
+        // }
 
-                   //      });
-                   //
-                   //
-                   // }
+        //      });
+        //
+        //
+        // }
 
-            //     }
-            // });
-        }
-        catch(err){
-          console.log(err, "error 1188");
-            return res.send({
-                state:"error",
-                message:err
-            });
-        }
-    });
-    async function get_existing_mails(values){
-      var existing_franchisees = [];
-      for(var i=0;i<values.length;i++){
+        //     }
+        // });
+    }
+    catch (err) {
+        console.log(err, "error 1188");
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
+async function get_existing_mails(values) {
+    var existing_franchisees = [];
+    for (var i = 0; i < values.length; i++) {
         var franchisee_mail = values[i].franchisee_email;
-        await Franchisee.find({franchisee_email: values[i].franchisee_email, archieve_franchisee: false},function(err,franchisee){
-              if(franchisee){
-                for(var j=0; j<franchisee.length; j++){
-                  (function(j){
-                    existing_franchisees.push(franchisee[j].franchisee_email);
-                  })(j);
+        await Franchisee.find({ franchisee_email: values[i].franchisee_email, archieve_franchisee: false }, function (err, franchisee) {
+            if (franchisee) {
+                for (var j = 0; j < franchisee.length; j++) {
+                    (function (j) {
+                        existing_franchisees.push(franchisee[j].franchisee_email);
+                    })(j);
                 }
             }
         });
