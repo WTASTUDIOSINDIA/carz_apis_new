@@ -84,13 +84,15 @@ router.post('/create_setup_department', function (req, res) {
 // To update setup department
 router.put('/update_setup_department', function(req, res){
   try{
-    SetupDepartment.findById({_id: req.body._id},function(err,department){
+    SetupDepartment.findById({_id: req.body._id, setup_department_name_EN: req.body.setup_department_name_EN},function(err,department){
   if(err){
     return res.send({
       state:"err",
-      message:"Something went wrong.We are looking into it."
+      message:"Something went wrong.We are looking into it.",
+      data: err
     },500);
   }
+  console.log('department',department);
   if (department){
     department.setup_department_name_EN = req.body.setup_department_name_EN;
     department.franchisor_id = req.body.franchisor_id;
@@ -553,7 +555,7 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
 //To edit setup checklists
 router.put('/edit_setup_checklist', function(req, res) {
   try {
-    SetupChecklist.findOne({_id: req.body._id}, function (err,checklist) {
+    SetupChecklist.findOne({_id: req.body._id,setup_checklist_name_EN: req.body.setup_checklist_name_EN}, function (err,checklist) {
       console.log(req.body);
       console.log(err);
       if(err) {
@@ -586,7 +588,7 @@ router.put('/edit_setup_checklist', function(req, res) {
       if(!checklist){
         res.send({
           state:"failure",
-          message:"Failed to edit."
+          message:"Name already exists."
         },400);
       }
     })
@@ -977,7 +979,7 @@ router.get('/get_versions_by_department_id/:department_id', function (req, res) 
 // edit version
 router.put('/edit_version', function(req, res){
   try {
-    Versions.findById({_id: req.body._id}, function(err, version){
+    Versions.findById({_id: req.body._id, version_name:req.body.version_name}, function(err, version){
       if(err){
         return res.send({
             state: "error",

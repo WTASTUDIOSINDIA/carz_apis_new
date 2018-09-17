@@ -237,7 +237,7 @@ router.delete('/delete_version/:version_id', function(req, res){
 })
 router.put('/edit_version', function(req, res){
   try {
-    Versions.findById({_id: req.body._id}, function(err, version){
+    Versions.find({version_name: req.body.version_name}, function(err, version){
       if(err){
         return res.send({
             state: "failure",
