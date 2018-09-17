@@ -87,7 +87,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees', function (req, res) {
     try {
-        Franchisee.find({ archieve_franchisee: false }, { '_id': 1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_type': 1, 'franchisee_franchise_model': 1, 'franchisee_profile_pic': 1 }).lean().exec(function (err, franchiees) {
+        Franchisee.find({ archieve_franchisee: false }, {}).lean().exec(function (err, franchiees) {
             if (err) {
                 return res.send(500, err);
             }
@@ -229,6 +229,91 @@ router.post('/get_all_leads', (req, res) => {
                 'rejected': rejected,
                 'franchisee': franchisee,
                 'total_leads': total
+            })
+        })
+})
+
+// get all leads count
+router.post('/get_franchisee_status', (req, res) => {
+    if(req.body.location){
+        var query = { interview_status: { $exists: true, $ne: "" }, franchisee_address: req.body.location  }
+    }
+    else if(!req.body.location || req.body.location == null) {
+        query = { interview_status: { $exists: true, $ne: "" }}
+    }
+    var profile_pending = 0
+    var discussion_pending = 0
+    var kyc_pending = 0
+    var interview_pending = 0
+    var assessment_pending = 0
+    var setup_pending = 0
+    var total = 0
+    Franchisee.aggregate([
+        { $match: query },
+        { $group: {
+            _id: {
+            key: "$interview_status",
+            },
+            count: { "$sum": 1 }
+            }}
+    ]).exec()
+        .then((total_statuses) => {
+            console.log(total_statuses)
+            total_statuses.forEach(status => {
+                if(status._id.key == "Profile Pending"){
+                    profile_pending = profile_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == "Discussion Pending"){
+                    discussion_pending = discussion_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == "KYC Pending"){
+                    kyc_pending = kyc_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == "Interview Pending"){
+                    interview_pending = interview_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == "Assessment Pending"){
+                    assessment_pending = assessment_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == "Setup Pending"){
+                    setup_pending = setup_pending + status.count
+                    total = total + status.count
+                }
+                if(status._id.key == undefined){
+                    profile_pending = 0
+                }
+                if(status._id.key == undefined){
+                    discussion_pending = 0
+                }
+                if(status._id.key == undefined){
+                    kyc_pending = 0
+                }
+                if(status._id.key == undefined){
+                    interview_pending = 0
+                }
+                if(status._id.key == undefined){
+                    assessment_pending = 0
+                }
+                if(status._id.key == undefined){
+                    setup_pending = 0
+                }
+                console.log(status._id.key)
+            });
+            return res.json({
+                state: 'success',
+                message: 'successfully fetched status details',
+                'profile_pending': profile_pending,
+                'discussion_pending': discussion_pending,
+                'kyc_pending': kyc_pending,
+                'interview_pending': interview_pending,
+                'assessment_pending': assessment_pending,
+                'setup_pending': setup_pending,
+                'total_statuses': total
             })
         })
 })
@@ -1607,7 +1692,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
             }
 
         })
-    }
+    })
     console.log(folder_Id, "1504");
     var library = new Library();
     library.path = obj.location;
@@ -2273,5 +2358,5 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
-
+}
 module.exports = router;
