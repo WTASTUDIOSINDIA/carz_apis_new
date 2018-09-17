@@ -62,7 +62,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user = new Admin();
           user.user_name = userCreateForm.user_name;
           user.user_mail = userCreateForm.user_mail;
-          user.role = userCreateForm.role;
+          user.user_type_role = userCreateForm.user_type_role;
           user.user_pass = createHash(userCreateForm.user_pass);
           user.user_status = userCreateForm.user_status;
           user.user_country_code = userCreateForm.user_country_code;
