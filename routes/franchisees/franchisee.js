@@ -87,7 +87,7 @@ var upload = multer({
 //get all franchisees
 router.get('/get_franchisees', function (req, res) {
     try {
-        Franchisee.find({ archieve_franchisee: false }, { '_id': 1, 'partner_name': 1, 'franchisee_name': 1, 'partners_list': 1, 'franchisee_stage_completed': 1, 'lead_type': 1, 'sub_franchisee_count': 1, 'user_role': 1, 'franchisee_address': 1, 'franchisee_pincode': 1, 'franchisee_franchise_type': 1, 'franchisee_franchise_model': 1, 'franchisee_profile_pic': 1 }).lean().exec(function (err, franchiees) {
+        Franchisee.find({ archieve_franchisee: false }, {}).lean().exec(function (err, franchiees) {
             if (err) {
                 return res.send(500, err);
             }
@@ -324,7 +324,6 @@ router.post('/get_franchisee_status', (req, res) => {
             })
         })
 })
-
 
 // to make franchisee notification count hide
 router.post('/make_notification_franchisee_count_hide', function (req, res) {
@@ -2367,5 +2366,4 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
-
 module.exports = router;
