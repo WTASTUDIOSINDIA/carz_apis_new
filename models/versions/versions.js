@@ -5,7 +5,7 @@ var Schema = mongoose.Shema;
 
 
 var versionsSchema = new mongoose.Schema({
-  "version_name": { type: String, index: true ,unique: true },
+  "version_name": { type: String },
   "version_description": String,
   "released_on": Date,
   "version_type": { type: String,  enum: ['application_form', 'kyc_docs', 'f_assessments', 'e_assessments', 'checklists']},
