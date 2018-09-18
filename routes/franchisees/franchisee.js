@@ -1669,6 +1669,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id,franchisee_Id
 
     });
 }
+}
 
 
 var createHash = function (password) {
