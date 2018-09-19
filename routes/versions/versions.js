@@ -4,9 +4,9 @@ var mongoose = require('mongoose');
 var Versions = mongoose.model('Versions');
 router.post('/create_version', function(req, res){
   try {
-    Versions.findOne({'franchisor_id': req.body.franchisor_id,
+    Versions.findOne({'franchisor_id':req.body.franchisor_id,
       'version_type': req.body.version_type,
-      'version_name': req.body.version_name
+      'version_name': {$regex: new RegExp(req.body.version_name,'i')}
     }, function(err, version){
       if(err){
         return res.send({

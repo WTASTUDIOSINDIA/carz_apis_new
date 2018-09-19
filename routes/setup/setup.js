@@ -38,7 +38,7 @@ var upload = multer({
 });
 router.post('/create_setup_department', function (req, res) {
   try {
-    SetupDepartment.findOne({ setup_department_name_EN: req.body.setup_department_name_EN, franchisor_id: req.body.franchisor_id }, function (err, department) {
+    SetupDepartment.findOne({ 'setup_department_name_EN': {$regex: new RegExp(req.body.setup_department_name_EN,'i')}, franchisor_id: req.body.franchisor_id }, function (err, department) {
       if (err) {
         res.send({
           state: "failure",
@@ -84,7 +84,7 @@ router.post('/create_setup_department', function (req, res) {
 // To update setup department
 router.put('/update_setup_department', function(req, res){
   try{
-    SetupDepartment.findById({_id: req.body._id, setup_department_name_EN: req.body.setup_department_name_EN},function(err,department){
+    SetupDepartment.findOne({setup_department_name_EN: {$regex: new RegExp(req.body.setup_department_name_EN,'i')}},function(err,department){
   if(err){
     return res.send({
       state:"err",
@@ -92,18 +92,19 @@ router.put('/update_setup_department', function(req, res){
       data: err
     },500);
   }
-  console.log('department',department);
-  if (department){
-    department.setup_department_name_EN = req.body.setup_department_name_EN;
-    department.franchisor_id = req.body.franchisor_id;
-    department.save(function(err, department){
-      if(err){
-        res.send({
-           state:"err",
-           message:"Something went wrong."
-       },500);
-      }
-   else{
+  if(department){
+    res.send({
+        state:"failure",
+        message:"Department name already exists!"
+    },400);
+}
+  if (!department){
+    let data={};
+    data.setup_department_name_EN = req.body.setup_department_name_EN;
+    data.franchisor_id = req.body.franchisor_id;
+    SetupDepartment.findByIdAndUpdate(req.body._id, data, {new: true}, function(err, dep){
+   
+   if(dep){
        res.send({
            state:"success",
            message:"Department Updated.",
@@ -112,12 +113,7 @@ router.put('/update_setup_department', function(req, res){
    }
     });
   }
-  if(!department){
-    res.send({
-        state:"failure",
-        message:"Failed to update"
-    },400);
-}
+
     })
   }
   catch(err){
@@ -132,7 +128,7 @@ router.put('/update_setup_department', function(req, res){
 //To create setup checklist
 router.post('/create_setup_checklist', function (req, res) {
   try {
-    SetupChecklist.findOne({ setup_checklist_name_EN: req.body.setup_checklist_name_EN, setup_department_id: req.body.setup_department_id, version_id:req.body.version_id }, function (err, checklist) {
+    SetupChecklist.findOne({ setup_checklist_name_EN: {$regex: new RegExp(req.body.setup_checklist_name_EN, 'i')}, setup_department_id: req.body.setup_department_id, version_id:req.body.version_id }, function (err, checklist) {
       if (err) {
         res.send({
           state: "failure",
@@ -555,7 +551,7 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
 //To edit setup checklists
 router.put('/edit_setup_checklist', function(req, res) {
   try {
-    SetupChecklist.findOne({_id: req.body._id,setup_checklist_name_EN: req.body.setup_checklist_name_EN}, function (err,checklist) {
+    SetupChecklist.findOne({setup_checklist_name_EN: {$regex: new RegExp(req.body.setup_checklist_name_EN, 'i')}}, function (err,checklist) {
       console.log(req.body);
       console.log(err);
       if(err) {
@@ -565,12 +561,19 @@ router.put('/edit_setup_checklist', function(req, res) {
         },500);
       }
       if(checklist){
-        checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
-        checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
-        checklist.visible_to = req.body.visible_to;
-        checklist.setup_department_id = req.body.setup_department_id;
-        checklist.created_at = Date.now();
-        checklist.save(function (err, checklist){
+        res.send({
+          state:"failure",
+          message:"Name already exists."
+        },400);
+      }
+      if(!checklist){
+        let data = {};
+        data.setup_checklist_name = req.body.setup_checklist_name_EN;
+        data.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
+        data.visible_to = req.body.visible_to;
+        data.setup_department_id = req.body.setup_department_id;
+        data.created_at = Date.now();
+        SetupChecklist.findByIdAndUpdate(req.body._id, data, {new: true}, function(err, ver){
           if(err){
             res.send({
               state:"err",
@@ -585,12 +588,7 @@ router.put('/edit_setup_checklist', function(req, res) {
           }
         });
       }
-      if(!checklist){
-        res.send({
-          state:"failure",
-          message:"Name already exists."
-        },400);
-      }
+   
     })
   }
   catch(err){
@@ -914,7 +912,7 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
 router.post('/create_version_by_department_id', function(req, res){
   try {
     Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type,
-    'version_name': req.body.version_name, 'department_id': req.body.department_id
+    'version_name': {$regex: new RegExp(req.body.version_name,'i')}, 'department_id': req.body.department_id
     }, function(err, version){
       if(err){
         return res.send({
@@ -976,43 +974,45 @@ router.get('/get_versions_by_department_id/:department_id', function (req, res) 
   })
 })
 
-// edit version
+// To edit versions
 router.put('/edit_version', function(req, res){
   try {
-    Versions.findById({_id: req.body._id, version_name:req.body.version_name}, function(err, version){
+    console.log(req.body.version_name,'------------------------------++++');
+    Versions.findOne({'version_name': {$regex: new RegExp(req.body.version_name,'i')}}, function(err, version){
       if(err){
         return res.send({
-            state: "error",
+            state: "failure",
             message: err
         }, 500);
       }
-      if(!version){
+      console.log(req.body,'+++++++++++++++++++++++++++')
+      console.log(version,"=====");
+      if(version){
         return res.send({
             state: "failure",
-            message: "Incorrect Version ID!"
+            message: "This version already exists!"
         }, 200);
       }
-      if(version){
-        version.version_name = req.body.version_name;
-        version.version_description = req.body.version_description;
-        version.version_type = req.body.version_type;
-        version.franchisor_id = req.body.franchisor_id;
-        version.default = req.body.default;
-        version.save(function(err, version){
-          if(err){
-            return res.send({
-                state: "failure",
-                message: err
-            }, 500);
-          }
-          if(version){
+      if(!version) {
+
+        let data = {};
+
+        data.version_name = req.body.version_name;
+        data.version_description = req.body.version_description;
+        data.version_type = req.body.version_type;
+        data.franchisor_id = req.body.franchisor_id;
+        data.default = req.body.default;
+        console.log("----"+version);
+
+        Versions.findByIdAndUpdate(req.body._id, data, {new: true}, function(err, ver){
+          if(ver){
             return res.send({
                 state: "success",
-                message: "Version updated succssfully!",
-                data:version
+                message: "Version updated succssfully!"
             }, 200);
           }
         })
+
       }
 
     })
@@ -1023,6 +1023,7 @@ router.put('/edit_version', function(req, res){
     }, 500);
   }
 })
+
 
 // delete version by department id
 router.delete('/delete_version_by_department_id/:department_id', function (req, res) {

@@ -2274,5 +2274,5 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
-}
+
 module.exports = router;
