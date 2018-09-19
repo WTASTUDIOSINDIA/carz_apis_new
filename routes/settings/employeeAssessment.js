@@ -1143,7 +1143,7 @@ router.post('/create_model', function (req, res) {
         if (model) {
             res.send({
                 state: "failure",
-                message: "This Employee already exists."
+                message: "This Model already exists."
             }, 400);
         }
         else {

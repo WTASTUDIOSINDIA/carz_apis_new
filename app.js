@@ -43,11 +43,11 @@ var franchisee_audit = require('./routes/audit/franchisee_audit');
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
-var mongoose = require('mongoose');      //add for Mongo support
+var mongoose = require('mongoose');      //add for Mongo support 
 //console.log(mongoose.connection.readyState);
 //mongoose.connect('mongodb://localhost/carz-api');
 //\LIVE CARZ USING IT  from carz-api heroku
- //mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
+//  mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 
 //DEVELOPMENT // from carz-web heroku/
  mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
@@ -58,7 +58,7 @@ var io = require('socket.io')(http);
 var connectedSocketUsers = [];
 var socketusers = [];
 io.on('connection', function(socket) {
-  console.log("stwa");
+//   console.log("stwa");
     socket.emit('news', {hello: 'world'});
     socket.on('add-user', function(data, response){
     //  connectedSocketUsers.push(data);
