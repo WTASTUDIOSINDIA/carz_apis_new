@@ -12,7 +12,7 @@ var KycUploads = mongoose.model('KycUploads');
 var Franchisor = mongoose.model('Franchisor');
 var Admin = mongoose.model('Admin');
 var Auth = mongoose.model('Auth');
-var fs = require('fs');     
+var fs = require('fs');
 var csv = require('csv')
 var path = require('path');
 var Meeting = mongoose.model('Meeting');
@@ -333,35 +333,36 @@ router.post('/get_total_revenue', (req, res) => {
         { $match: { 'stage_discussion.payment_status': 'uploaded' } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
-    .then((one_lac) => {
-        console.log(one_lac)
-        if(one_lac[0] !== undefined){
-            one_lac_total = one_lac[0].one_lac_count * 100000;
-        }
-        return Stages.aggregate([
-            { $match: { 'stage_agreenent.4lac_payment_status': 'uploaded' } },
-            { $group: { _id: null, four_lac_count: { $sum: 1 } } }
-        ]).exec()
-        .then((four_lac) => {
-            console.log(four_lac)
-            if(four_lac[0] !== undefined){
-                four_lac_total = four_lac[0].four_lac_count * 400000;
+        .then((one_lac) => {
+            console.log(one_lac)
+            if (one_lac[0] !== undefined) {
+                one_lac_total = one_lac[0].one_lac_count * 100000;
             }
-            return (one_lac, four_lac);
+            return Stages.aggregate([
+                { $match: { 'stage_agreenent.4lac_payment_status': 'uploaded' } },
+                { $group: { _id: null, four_lac_count: { $sum: 1 } } }
+            ]).exec()
+                .then((four_lac) => {
+                    console.log(four_lac)
+                    if (four_lac[0] !== undefined) {
+                        four_lac_total = four_lac[0].four_lac_count * 400000;
+                    }
+                    return (one_lac, four_lac);
+                })
         })
-    })
-    .then((total) => {
-        return res.json({
-            state: 'success',
-            message: 'Successfully fetched total revenue',
-            'total_one_lac_revenue': one_lac_total,
-            'total_four_lac_revenue': four_lac_total
+        .then((total) => {
+            return res.json({
+                state: 'success',
+                message: 'Successfully fetched total revenue',
+                'total_one_lac_revenue': one_lac_total,
+                'total_four_lac_revenue': four_lac_total,
+                'total_revenue': one_lac_total + four_lac_total
+            })
         })
-    })
-    .catch((err) => {
-        console.log(err)
-        return res.json(500, err)
-      })
+        .catch((err) => {
+            console.log(err)
+            return res.json(500, err)
+        })
 })
 
 // to make franchisee notification count hide
