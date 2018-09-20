@@ -15,7 +15,7 @@ module.exports = function(passport){
     //  console.log("serrializing user",user);
         done(null, {id:user._id, user_role:user.user_role});
     });
-    console.log('Testinggg');
+    // console.log('Testinggg');
     passport.deserializeUser(function(user, done) {
       //if user role is admin
       console.log("deserrializing uses r",user);

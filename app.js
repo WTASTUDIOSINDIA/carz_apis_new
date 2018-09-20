@@ -58,7 +58,7 @@ var io = require('socket.io')(http);
 var connectedSocketUsers = [];
 var socketusers = [];
 io.on('connection', function(socket) {
-  console.log("stwa");
+//   console.log("stwa");
     socket.emit('news', {hello: 'world'});
     socket.on('add-user', function(data, response){
     //  connectedSocketUsers.push(data);
