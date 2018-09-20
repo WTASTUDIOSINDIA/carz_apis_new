@@ -3,16 +3,20 @@
 var mongoose = require('mongoose');
 var Franchisor = mongoose.model('Franchisor');
 var Admin = mongoose.model('Admin');
-var bCrypt = require('bcrypt-nodejs');
+var SuperAdmin = mongoose.model('SuperAdmin');
 
 const findFranchisor = (query) => {
     return Franchisor.findOne(query).exec();
   }
-  const findUser = (query) => {
+const findUser = (query) => {
     return Admin.findOne(query).exec();
   }
+const findSuperAdmin = (query) => {
+    return SuperAdmin.findOne(query).exec();
+  }  
 
   module.exports = {
     findFranchisor,
-    findUser
+    findUser,
+    findSuperAdmin
   };

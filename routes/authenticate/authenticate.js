@@ -185,6 +185,7 @@ router.post('/franchisor-login', function (req,res){
     query.user_mail = data.user_mail;
     authService.findFranchisor(query)
     .then((response) => {
+        console.log(response);
         if(response){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
                 response.user_pass = undefined;
@@ -199,12 +200,27 @@ router.post('/franchisor-login', function (req,res){
                 }
             }
         }else{
-        throw{
-            reason : "userNotExist"
-        }
+        return authService.findUser(query);
         }
     })
-    authService.findUser(query)
+    .then((response) => {
+        if(response){
+            if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                response.user_pass = undefined;
+                res.send({
+                    state: 'success',
+                    user: response,
+                    status:200
+                });
+            }else{
+                throw{
+                    reason : "passworsMmatch"
+                }
+            }
+        }else{
+            return authService.findSuperAdmin(query);
+        }
+    })
     .then((response) => {
         if(response){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
@@ -228,7 +244,7 @@ router.post('/franchisor-login', function (req,res){
     .catch((error) => {
         if(error.reason == "userNotExist"){
             res.status(404).json({ error: "2", message: "User not Exists"});
-        }else if(passworsMmatch){
+        }else if(error.reason == "passworsMmatch"){
             res.status(401).json({ error: "2", message: "Password is not correct"});
         }else{
         res.status(500).json({ error: "2", message: "Internal server error"});

@@ -11,6 +11,12 @@ var authenticateSchema = new mongoose.Schema({
     "user_status":String,
     "role":{type:String, enum: ['admin', 'franchisor', 'franchisee', 'masterFranchisee'], default:'superAdmin'}
 });
+var superAdminSchema = new mongoose.Schema({
+    "user_mail":String,
+    "user_role":String,
+    "user_pass":String,
+    "user_name":String,
+});
 var adminSchema = new mongoose.Schema({
   "user_mail": String,
   "user_pass": String,
@@ -45,3 +51,5 @@ var forgotPasswordSchema = new mongoose.Schema({
 mongoose.model('Auth', authenticateSchema);
 mongoose.model('ForgotPassword', forgotPasswordSchema);
 mongoose.model('Admin', adminSchema);
+mongoose.model('SuperAdmin', superAdminSchema);
+
