@@ -325,6 +325,46 @@ router.post('/get_franchisee_status', (req, res) => {
         })
 })
 
+// to get total revenue
+router.post('/get_total_revenue', (req, res) => {
+    var one_lac_total = 0;
+    var four_lac_total = 0;
+    Stages.aggregate([
+        { $match: { 'stage_discussion.payment_status': 'uploaded' } },
+        { $group: { _id: null, one_lac_count: { $sum: 1 } } }
+    ]).exec()
+        .then((one_lac) => {
+            console.log(one_lac)
+            if (one_lac[0] !== undefined) {
+                one_lac_total = one_lac[0].one_lac_count * 100000;
+            }
+            return Stages.aggregate([
+                { $match: { 'stage_agreenent.4lac_payment_status': 'uploaded' } },
+                { $group: { _id: null, four_lac_count: { $sum: 1 } } }
+            ]).exec()
+                .then((four_lac) => {
+                    console.log(four_lac)
+                    if (four_lac[0] !== undefined) {
+                        four_lac_total = four_lac[0].four_lac_count * 400000;
+                    }
+                    return (one_lac, four_lac);
+                })
+        })
+        .then((total) => {
+            return res.json({
+                state: 'success',
+                message: 'Successfully fetched total revenue',
+                'total_one_lac_revenue': one_lac_total,
+                'total_four_lac_revenue': four_lac_total,
+                'total_revenue': one_lac_total + four_lac_total
+            })
+        })
+        .catch((err) => {
+            console.log(err)
+            return res.json(500, err)
+        })
+})
+
 // to make franchisee notification count hide
 router.post('/make_notification_franchisee_count_hide', function (req, res) {
     Franchisee.find({ '_id': req.body.user_id }, function (err, franchisee) {
@@ -1150,9 +1190,11 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     stage.stage_discussion.payment_status = 'uploaded';
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file = req.file.location;
+                    stage.one_lac_payment_uploaded_date = Date.now();
                     stage.stage_discussion.payment_file_name = req.file.originalname;
                     activity_data.name = '1 Lac Payment updated!';
                     activity_data.activity_of = 'franchisor';
+
 
                 }
                 //'nda'
@@ -1237,6 +1279,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     // stage.stage_agreenent.status = false;
                     stage.stage_agreenent.agreement_value = 400000;
                     stage.stage_agreenent.agreement_file = req.file.location;
+                    stage.four_lac_payment_library_file_id = Date.now();
                     stage.stage_agreenent.agreement_file_name = req.file.originalname;
                     franchisee_id = stageForm.franchisee_id;
                     activity_data.activity_of = 'franchisor';

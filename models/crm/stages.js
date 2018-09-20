@@ -21,7 +21,7 @@ var stagesSchema = new mongoose.Schema({
       "payment_file": String,
       "payment_file_name": String,
       "first_payment_library_file_id": String,
-      "payment_file_uploaded":Date,
+      "one_lac_payment_uploaded_date":Date,
       "payment_file_type":{type:String,default:'docs'},
       "payment_status": {type: String, default: 'pending'}, //pending, rejected, approveds
       "nda_file": String,
@@ -51,7 +51,7 @@ var stagesSchema = new mongoose.Schema({
       "agreement_value": {type: Number, default: 400000},
       "agreement_file": String,
       "agreement_file_name": String,
-      "agreement_file_uploaded":Date,
+      "four_lac_payment_uploaded_date":Date,
       "second_payment_library_file_id": String,
       "agreement_file_type":{type:String,default:'docs'},
       "final_agreement_file_name":String,

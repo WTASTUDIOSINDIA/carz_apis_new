@@ -15,7 +15,7 @@ var _ = require('lodash');
 
 router.post('/add_assessment_type',function(req,res){
     try{
-        Question_Type.findOne({'question_type_name':req.body.question_type_name},function(err,questionType){
+        Question_Type.findOne({'question_type_name':{$regex: new RegExp (req.body.question_type_name,'i')}},function(err,questionType){
             if(err){
                 return res.send({
                     state:"error",
@@ -25,7 +25,7 @@ router.post('/add_assessment_type',function(req,res){
             if(questionType){
                  return res.send({
                     state:"failure",
-                    message:"Name exist"
+                    message:"Name already exists!"
                 },200);
             }
             else{
@@ -62,7 +62,7 @@ router.post('/add_assessment_type',function(req,res){
 // to edit question type
 router.put('/update_question_type', function (req, res) {
     try {
-        Question_Type.findOne({ _id:req.body._id }, function (err, question_type) {
+        Question_Type.findOne({ question_type_name:{$regex: new RegExp(req.body.question_type_name, 'i')} }, function (err, question_type) {
         if (err) {
           res.send({
             state: "error",
@@ -70,15 +70,22 @@ router.put('/update_question_type', function (req, res) {
           }, 500);
         }
         if (question_type) {
-            question_type.question_type_name = req.body.question_type_name;
-            question_type.description = req.body.description;
-            question_type.version_id = req.body.version_id;
-            question_type.franchisor_id = req.body.franchisor_id;
+            res.send({
+              state: "failure",
+              message: "Question type exists!"
+            }, 400);
+          }
+        if (!question_type) {
+            let data= {};
+            data.question_type_name = req.body.question_type_name;
+            data.description = req.body.description;
+            data.version_id = req.body.version_id;
+            data.franchisor_id = req.body.franchisor_id;
           console.log(question_type)
-          question_type.save(function (err, question_type) {
+          Question_Type.findByIdAndUpdate(req.body._id, data, {new: true}, function (err, question_type) {
             if (err) {
               res.send({
-                state: "failure",
+                state: "err",
                 message: "Something went wrong."
               }, 500);
             }
@@ -90,13 +97,6 @@ router.put('/update_question_type', function (req, res) {
               }, 200);
             }
           });
-          
-        if (!question_type) {
-            res.send({
-              state: "failure",
-              message: "No question types found."
-            }, 400);
-          }
         }
       });
     }

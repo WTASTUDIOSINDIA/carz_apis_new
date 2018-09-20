@@ -49,7 +49,7 @@ var fileupload = upload.fields([{
 // To create assessment types
 router.post('/create_assessemnt_type', function (req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: req.body.assessment_type_name, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
+        EmployeeAssessmentType.findOne({ assessment_type_name: {$regex: new RegExp(req.body.assessment_type_name, 'i')}, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
             if (err) {
                 res.send({
                     state: "failure",
@@ -103,7 +103,7 @@ router.post('/create_assessemnt_type', function (req, res) {
 //To update assessment type
 router.put('/update_assessment_type', function (req, res) {
     try {
-        EmployeeAssessmentType.findById({ _id: req.body._id }, function (err, assessment) {
+        EmployeeAssessmentType.findOne({ assessment_type_name: {$regex: new RegExp(req.body.assessment_type_name,'i')} }, function (err, assessment) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -111,12 +111,19 @@ router.put('/update_assessment_type', function (req, res) {
                 }, 500)
             }
             if (assessment) {
-                assessment.assessment_type_name = req.body.assessment_type_name;
-                assessment.description = req.body.description;
-                assessment.franchisor_id = req.body.franchisor_id;
-                assessment.pass_percentage = req.body.pass_percentage;
-                assessment.assessment_duration = req.body.assessment_duration;
-                assessment.save(function (err, assessment) {
+                res.send({
+                    state: "failure",
+                    message: "Name already exists!"
+                }, 400);
+            }
+            if (!assessment) {
+                let data ={};
+                data.assessment_type_name = req.body.assessment_type_name;
+                data.description = req.body.description;
+                data.franchisor_id = req.body.franchisor_id;
+                data.pass_percentage = req.body.pass_percentage;
+                data.assessment_duration = req.body.assessment_duration;
+                EmployeeAssessmentType.findByIdAndUpdate(req.body._id, data, {new:true}, function (err, assessment) {
                     if (err) {
                         res.send({
                             state: 'error',
@@ -131,12 +138,7 @@ router.put('/update_assessment_type', function (req, res) {
                     }
                 })
             }
-            if (!assessment) {
-                res.send({
-                    state: "failure",
-                    message: "Failed to update."
-                }, 400);
-            }
+            
         })
     }
     catch (err) {
@@ -1133,7 +1135,7 @@ router.post('/create_employee_details', function (req, res) {
 //To create employee fileds
 router.post('/create_model', function (req, res) {
     // try {
-    CarModels.findOne({ model_name: req.body.model_name , version_id: req.body.version_id}, function (err, model) {
+    CarModels.findOne({ model_name: {$regex: new RegExp(req.body.model_name, 'i')} , version_id: req.body.version_id}, function (err, model) {
         if (err) {
             res.send({
                 state: 'failure',
@@ -1252,7 +1254,7 @@ router.get('/get_models_by_default_version/:franchisor_id', function (req, res) 
 //To edit model details
 router.put('/update_model_details', function (req, res) {
     try {
-        CarModels.findById({ _id: req.body._id }, function (err, model) {
+        CarModels.findOne({ model_name: {$regex: new RegExp(req.body.model_name, 'i')} }, function (err, model) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -1260,9 +1262,16 @@ router.put('/update_model_details', function (req, res) {
                 }, 500)
             }
             if (model) {
-                model.model_name = req.body.model_name;
+                res.send({
+                    state: "failure",
+                    message: "Name already exists!"
+                }, 400);
+            }
+            if (!model) {
+                let data= {};
+                data.model_name = req.body.model_name;
                
-                model.save(function (err, model) {
+                CarModels.findByIdAndUpdate(req.body._id, data, {new:true},function (err, model) {
                     if (err) {
                         res.send({
                             state: 'error',
@@ -1277,12 +1286,7 @@ router.put('/update_model_details', function (req, res) {
                     }
                 })
             }
-            if (!model) {
-                res.send({
-                    state: "failure",
-                    message: "Failed to update."
-                }, 400);
-            }
+         
         })
     }
     catch (err) {
