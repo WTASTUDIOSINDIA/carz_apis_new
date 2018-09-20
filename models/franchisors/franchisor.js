@@ -7,7 +7,19 @@ var franchisorSchema = new mongoose.Schema({
     "user_pass":String,
     "user_mail":String,
     "seen_notifications": {type: Boolean, default: false},
-    "user_role":{type:String, default:'franchisor'}
+    "user_role":{type:String, default:'franchisor'},
+    "user_website":String,
+    "description" : String,
+    "country_code" :String,
+    "phone_number" : String,
+    "profile_pic" : {
+        "image_url" : String,
+        "image_type" : String,
+        "created_on" : Date
+    },
+    "status": {type: String, default: "active"},
+    "createdDate": { type: Date, default: Date.now }
+
 });
 
 
