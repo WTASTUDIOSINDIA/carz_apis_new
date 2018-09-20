@@ -38,7 +38,7 @@ var fileupload = upload.fields([{
 //   To create checklist type
 router.post('/create_audit_checklist_type', function (req, res) {
     try {
-      AuditChecklistType.findOne({ audit_checklist_type_name: req.body.audit_checklist_type_name, franchisor_id: req.body.franchisor_id }, function (err, checklist_type) {
+      AuditChecklistType.findOne({ audit_checklist_type_name: {$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}, franchisor_id: req.body.franchisor_id }, function (err, checklist_type) {
         if (err) {
           res.send({
             state: "failure",
@@ -85,14 +85,21 @@ router.post('/create_audit_checklist_type', function (req, res) {
 //   to update checklist type name
 router.put('/update_audit_checklist_type', function (req,res){
     try{
-        AuditChecklistType.findById({_id:req.body._id}, function(err, checklist_type){
+        AuditChecklistType.findOne({audit_checklist_type_name:{$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}}, function(err, checklist_type){
             if(err){
                 res.send(500);
             }
             if(checklist_type){
+              res.send({
+                  state:'failure',
+                  message:'Name already exists!'
+              },400);
+          }
+            if(!checklist_type){
+              let checklist_type = {};
                 checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
                 checklist_type.franchisor_id = req.body.franchisor_id;
-                checklist_type.save(function(err, checklist_type){
+                AuditChecklistType.findByIdAndUpdate(req.body._id, checklist_type,{new:true},function(err, checklist_type){
                     if(err){
                         res.send({
                             state:'err',
@@ -108,12 +115,7 @@ router.put('/update_audit_checklist_type', function (req,res){
                     }
                 })
             }
-            if(!checklist_type){
-                res.send({
-                    state:'failure',
-                    message:'Failed to update!'
-                },400);
-            }
+        
         })
         
     }
@@ -267,7 +269,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 // to crete audit checklist
 router.post('/create_audit_checklist', function (req,res){
     try{
-        AuditChecklist.findOne({audit_checklist_title: req.body.audit_checklist_title, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
+        AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
             if(err){
                return res.send(500, err)
             }

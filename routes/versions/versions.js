@@ -237,33 +237,34 @@ router.delete('/delete_version/:version_id', function(req, res){
 })
 router.put('/edit_version', function(req, res){
   try {
-    Versions.findById({_id: req.body._id}, function(err, version){
+    Versions.findOne({version_name:{$regex: new RegExp (req.body.version_name,'i')}}, function(err, version){
       if(err){
         return res.send({
             state: "failure",
             message: err
         }, 500);
       }
-      if(!version){
+      if(version){
         return res.send({
             state: "failure",
-            message: "Incorrect Version ID!"
+            message: "Name already exists!"
         }, 200);
       }
-      if(version){
-        version.version_name = req.body.version_name;
-        version.version_description = req.body.version_description;
-        version.version_type = req.body.version_type;
-        version.franchisor_id = req.body.franchisor_id;
-        version.default = req.body.default;
-        version.save(function(err, version){
+      if(!version){
+        let data ={};
+        data.version_name = req.body.version_name;
+        data.version_description = req.body.version_description;
+        data.version_type = req.body.version_type;
+        data.franchisor_id = req.body.franchisor_id;
+        data.default = req.body.default;
+        Versions.findByIdAndUpdate(req.body._id, data, {new: true} ,function(err, version){
           if(err){
             return res.send({
-                state: "failure",
-                message: err
+                state: 'err',
+                message: 'Something went wrong'
             }, 500);
           }
-          if(version){
+          else{
             return res.send({
                 state: "success",
                 message: "Version updated succssfully!",
