@@ -9,12 +9,12 @@ aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
 });
-
+var bucketName = 'celebappfiles';
 
 // AWS.config.loadFromPath('./config/s3_credentials.json');
 
 // const BucketName = config.default.awsS3.bucketName;
-const s3Bucket = new aws.S3({ params: { Bucket: 'celebappfiles' } });   
+const s3Bucket = new aws.S3({ params: { Bucket: bucketName} });   
 
 const uploadToS3 = (fileName, fileExt, fileData, isCampaign, callback) => {
     let data = new Buffer(fileData.replace("data:image\/" + fileExt + ";base64,", ""), "base64")
@@ -38,9 +38,9 @@ const uploadToS3 = (fileName, fileExt, fileData, isCampaign, callback) => {
 
 
 const getPreSignedURL = (awsFileKey) => {
-    let s3 = new AWS.S3();
+    let s3 = new aws.S3();
     let params = {
-        Bucket: config.default.awsS3.bucketName,
+        Bucket: bucketName,
         Key: awsFileKey
     };
     try {
@@ -56,7 +56,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage: multerS3({
         s3: s0,
-        bucket: 'celebappfiles',
+        bucket: bucketName,
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
