@@ -379,7 +379,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { 'stage_kycupload.status': true } },
+            { $match: { $and: [{ 'stage_kycupload.status': true }, { 'stage_assessment.status': false }]} },
             { $group: { _id: null, kyc_complete: { $sum: 1 } } }
         ]).exec()
         .then((kyc) => {
@@ -394,7 +394,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { 'stage_assessment.status': true } },
+            { $match: { $and: [{ 'stage_assessment.status': true }, { 'stage_agreenent.status': false } ] } },
             { $group: { _id: null, assessment_complete: { $sum: 1 } } }
         ]).exec()
         .then((assessment) => {
@@ -409,7 +409,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { 'stage_agreenent.status': true } },
+            { $match: { $and: [ { 'stage_agreenent.status': true }, { 'stage_setup.status': false } ] } },
             { $group: { _id: null, agreement_complete: { $sum: 1 } } }
         ]).exec()
         .then((agreement) => {
