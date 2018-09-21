@@ -8,6 +8,8 @@ aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
 });
+var common = require('../common')
+var config = common.config();
 
 var s0 = new aws.S3({})
 var upload = multer({
@@ -68,7 +70,7 @@ const send_franchisor_registartion_mail = (data) => {
             "charset" : 'UTF-8'
         },
     
-        html: 'Franchisor registration mail'
+        html: 'Franchisor registration mail. Please find the link '+config.website_url+'/pages/auth/reset-password/'+data._id+"."
     }
     var transporter = nodemailer.createTransport({
         service: 'Gmail',
