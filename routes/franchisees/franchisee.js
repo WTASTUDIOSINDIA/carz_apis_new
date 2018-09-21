@@ -20,6 +20,8 @@ var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
 // var Discussion = mongoose.model('Discussion');
+// import { utils } from '../../common/utils';
+var utils = require('../../common/utils');
 var Stages = mongoose.model('Stages');
 var ActivityTracker = mongoose.model('ActivityTracker');
 var Partner = mongoose.model('Partner');
@@ -689,9 +691,42 @@ router.post('/validate_mobile_number', function (req, res) {
     }
 });
 //create franchisee
-router.post('/create_franchisee', upload.single('franchisee_img'), function (req, res) {
-    var franchiseeForm = JSON.parse(req.body.franchisee);
+router.post('/create_franchisee', function (req, res) {
+    // var franchiseeForm = JSON.parse(req.body.franchisee);
+    console.log('--------', req.body);
+    let franchiseeForm = req.body;
+    if(franchiseeForm.franchisee_img){
+        if(franchiseeForm.franchisee_img != ""){
+    
+      let fileExt = "";
+    if (franchiseeForm.franchisee_img.indexOf("image/png") != -1)
+      fileExt = "png";
+  else if (franchiseeForm.franchisee_img.indexOf("image/jpeg") != -1)
+      fileExt = "jpeg";
+  else if (franchiseeForm.franchisee_img.indexOf("image/jpg") != -1)
+      fileExt = "jpg";
+  else if (franchiseeForm.franchisee_img.indexOf("video/mp4") != -1)
+      fileExt = "mp4";
+  else
+      fileExt = "png";
+
+  let imageKey = "franchisee_img/img_" + moment().unix();
+
+  if (franchiseeForm.franchisee_img)
+  console.log('++++++++++++++++',uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img));
+      utils.uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img);
+  delete franchiseeForm.franchisee_img;
+
+  franchiseeForm.prof_pic_org_url = imageKey + "." + fileExt;
+  franchiseeForm.prof_pic_url = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
+
+    }else{
+    franchiseeForm.prof_pic_url = "franchisee_img.png";
+  }}else{
+    franchiseeForm.prof_pic_url = "franchisee_img.png";
+  }
     try {//'franchisee_pincode':franchiseeForm.franchisee_pincode
+   
         Franchisee.findOne({ $and: [{ franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' }] }, function (err, franchisee) {
             if (franchisee) {
                 return res.send({
