@@ -364,7 +364,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { 'stage_discussion.status': true } },
+            { $match: { $and: [{ 'stage_discussion.status': true }, { 'stage_kycupload.status': false }]} },
             { $group: { _id: null, discussion_complete: { $sum: 1 } } }
         ]).exec()
         .then((disc) => {
