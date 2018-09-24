@@ -24,6 +24,13 @@ const create = (data) => {
 const findFranchisors = (query) => {
     return Franchisor.find(query).sort({'_id': -1}).exec();
   }
+const findOneFranchisor = (query) => {
+  return Franchisor.findOne(query).exec();
+}  
+
+const updateFranchisor = (query, data) => {
+  return Franchisor.findOneAndUpdate(query, data, { new: true }).exec();
+}
   
 
   module.exports = {
@@ -31,5 +38,7 @@ const findFranchisors = (query) => {
     create,
     findUser,
     findSuperAdmin,
-    findFranchisors
+    findFranchisors,
+    findOneFranchisor,
+    updateFranchisor
   }
