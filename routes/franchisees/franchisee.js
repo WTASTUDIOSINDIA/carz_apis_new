@@ -20,6 +20,10 @@ var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
 // var Discussion = mongoose.model('Discussion');
+// import { utils } from '../../common/utils';
+var utils = require('../../common/utils');
+// import moment from "moment";
+var moment = require('moment');
 var Stages = mongoose.model('Stages');
 var ActivityTracker = mongoose.model('ActivityTracker');
 var Partner = mongoose.model('Partner');
@@ -236,93 +240,219 @@ router.post('/get_all_leads', (req, res) => {
 })
 
 // get all leads count
+// router.post('/get_franchisee_status', (req, res) => {
+//     if (req.body.location) {
+//         var query = { interview_status: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
+//     }
+//     else if (!req.body.location || req.body.location == null) {
+//         query = { interview_status: { $exists: true, $ne: "" } }
+//     }
+//     let profile_pending = 0
+//     let discussion_pending = 0
+//     let kyc_pending = 0
+//     let interview_pending = 0
+//     let assessment_pending = 0
+//     let setup_pending = 0
+//     let total = 0
+//     Franchisee.aggregate([
+//         { $match: query },
+//         {
+//             $group: {
+//                 _id: {
+//                     key: "$interview_status",
+//                 },
+//                 count: { "$sum": 1 }
+//             }
+//         }
+//     ]).exec()
+//         .then((total_statuses) => {
+//             console.log(total_statuses[0], 'oasfd')
+//             total_statuses.forEach(status => {
+//                 console.log(status._id.key, 'key', status.count);
+//                 if (status._id.key == "Profile Pending") {
+//                     profile_pending = profile_pending + status.count
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == "Discussion Pending") {
+//                     discussion_pending = discussion_pending + status.count
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == "KYC Pending") {
+//                     kyc_pending = kyc_pending + status.count
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == " Interview Pending") {
+//                     interview_pending = interview_pending + status.count
+//                     console.log(interview_pending, 'kfa;');
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == "Assessment Pending") {
+//                     assessment_pending = assessment_pending + status.count
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == "Setup Pending") {
+//                     setup_pending = setup_pending + status.count
+//                     total = total + status.count
+//                 }
+//                 if (status._id.key == undefined) {
+//                     profile_pending = 0
+//                 }
+//                 if (status._id.key == undefined) {
+//                     discussion_pending = 0
+//                 }
+//                 if (status._id.key == undefined) {
+//                     kyc_pending = 0
+//                 }
+//                 if (status._id.key == undefined) {
+//                     interview_pending = 0
+//                 }
+//                 if (status._id.key == undefined) {
+//                     assessment_pending = 0
+//                 }
+//                 if (status._id.key == undefined) {
+//                     setup_pending = 0
+//                 }
+//                 console.log(status._id.key)
+//             });
+//             console.log(interview_pending, 'interview');
+//             return res.json({
+//                 state: 'success',
+//                 message: 'successfully fetched status details',
+//                 'profile_pending': profile_pending,
+//                 'discussion_pending': discussion_pending,
+//                 'kyc_pending': kyc_pending,
+//                 'interview_pending': interview_pending,
+//                 'assessment_pending': assessment_pending,
+//                 'setup_pending': setup_pending,
+//                 'total_statuses': total
+//             })
+//         })
+// })
+
 router.post('/get_franchisee_status', (req, res) => {
-    if (req.body.location) {
-        var query = { interview_status: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
+    // if (req.body.location) {
+    //     var query = { interview_status: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
+    // }
+    // else if (!req.body.location || req.body.location == null) {
+    //     query = { interview_status: { $exists: true, $ne: "" } }
+    // }
+    // let profile_pending = 0
+    // let discussion_pending = 0
+    // let kyc_pending = 0
+    // let interview_pending = 0
+    // let assessment_pending = 0
+    // let setup_pending = 0
+    // let total = 0
+    let status = {
+        profile_pending : 0,
+        discussion_pending : 0,
+        kyc_pending : 0,
+        interview_pending : 0,
+        agreement_pending : 0,
+        setup_pending : 0
     }
-    else if (!req.body.location || req.body.location == null) {
-        query = { interview_status: { $exists: true, $ne: "" } }
-    }
-    let profile_pending = 0
-    let discussion_pending = 0
-    let kyc_pending = 0
-    let interview_pending = 0
-    let assessment_pending = 0
-    let setup_pending = 0
-    let total = 0
-    Franchisee.aggregate([
-        { $match: query },
-        {
-            $group: {
-                _id: {
-                    key: "$interview_status",
-                },
-                count: { "$sum": 1 }
-            }
-        }
+    Stages.aggregate([
+        { $match: { 'stage_profile': 'completed' } },
+        { $group: { _id: null, profile_complete: { $sum: 1} }  }
     ]).exec()
-        .then((total_statuses) => {
-            console.log(total_statuses[0], 'oasfd')
-            total_statuses.forEach(status => {
-                console.log(status._id.key, 'key', status.count);
-                if (status._id.key == "Profile Pending") {
-                    profile_pending = profile_pending + status.count
-                    total = total + status.count
-                }
-                if (status._id.key == "Discussion Pending") {
-                    discussion_pending = discussion_pending + status.count
-                    total = total + status.count
-                }
-                if (status._id.key == "KYC Pending") {
-                    kyc_pending = kyc_pending + status.count
-                    total = total + status.count
-                }
-                if (status._id.key == " Interview Pending") {
-                    interview_pending = interview_pending + status.count
-                    console.log(interview_pending, 'kfa;');
-                    total = total + status.count
-                }
-                if (status._id.key == "Assessment Pending") {
-                    assessment_pending = assessment_pending + status.count
-                    total = total + status.count
-                }
-                if (status._id.key == "Setup Pending") {
-                    setup_pending = setup_pending + status.count
-                    total = total + status.count
-                }
-                if (status._id.key == undefined) {
-                    profile_pending = 0
-                }
-                if (status._id.key == undefined) {
-                    discussion_pending = 0
-                }
-                if (status._id.key == undefined) {
-                    kyc_pending = 0
-                }
-                if (status._id.key == undefined) {
-                    interview_pending = 0
-                }
-                if (status._id.key == undefined) {
-                    assessment_pending = 0
-                }
-                if (status._id.key == undefined) {
-                    setup_pending = 0
-                }
-                console.log(status._id.key)
-            });
-            console.log(interview_pending, 'interview');
-            return res.json({
-                state: 'success',
-                message: 'successfully fetched status details',
-                'profile_pending': profile_pending,
-                'discussion_pending': discussion_pending,
-                'kyc_pending': kyc_pending,
-                'interview_pending': interview_pending,
-                'assessment_pending': assessment_pending,
-                'setup_pending': setup_pending,
-                'total_statuses': total
-            })
+    .then(( stat) => {
+        console.log(stat, 'statuss');
+        // status.discussion_pending = stat[0].discussion_pending;
+        if (stat[0] == undefined) {
+            status.profile_pending = 0;
+        }
+        else {
+            status.profile_pending = stat[0].profile_complete
+        }
+        console.log(status.profile_pending);
+    })
+    .then(() => {
+        return Stages.aggregate([
+            { $match: { $and: [{ 'stage_discussion.status': true }, { 'stage_kycupload.status': false }]} },
+            { $group: { _id: null, discussion_complete: { $sum: 1 } } }
+        ]).exec()
+        .then((disc) => {
+            if (disc[0] == undefined ) {
+            status.discussion_pending = 0;
+            }
+            else {
+                status.discussion_pending = disc[0].discussion_complete;
+            }
+            return (disc);
         })
+    })
+    .then(() => {
+        return Stages.aggregate([
+            { $match: { $and: [{ 'stage_kycupload.status': true }, { 'stage_assessment.status': false }]} },
+            { $group: { _id: null, kyc_complete: { $sum: 1 } } }
+        ]).exec()
+        .then((kyc) => {
+            if (kyc[0] == undefined ) {
+                status.kyc_pending = 0;
+            }
+            else {
+                status.kyc_pending = kyc[0].kyc_complete;
+            }
+            return (kyc);
+        })
+    })
+    .then(() => {
+        return Stages.aggregate([
+            { $match: { $and: [{ 'stage_assessment.status': true }, { 'stage_agreenent.status': false } ] } },
+            { $group: { _id: null, assessment_complete: { $sum: 1 } } }
+        ]).exec()
+        .then((assessment) => {
+            if (assessment[0] == undefined ) {
+                status.interview_pending = 0;
+            }
+            else {
+                status.interview_pending = assessment[0].assessment_complete;
+            }
+            return (assessment);
+        })
+    })
+    .then(() => {
+        return Stages.aggregate([
+            { $match: { $and: [ { 'stage_agreenent.status': true }, { 'stage_setup.status': false } ] } },
+            { $group: { _id: null, agreement_complete: { $sum: 1 } } }
+        ]).exec()
+        .then((agreement) => {
+            if (agreement[0] == undefined ) {
+                status.agreement_pending = 0;
+            }
+            else {
+                status.agreement_pending = agreement[0].agreement_complete;
+            }
+            return (agreement);
+        })
+    })
+    .then(() => {
+        return Stages.aggregate([
+            { $match: { 'stage_setup.status': true } },
+            { $group: { _id: null, setup_complete: { $sum: 1 } } }
+        ]).exec()
+        .then((setup) => {
+            if (setup[0] == undefined ) {
+                status.setup_pending = 0;
+            }
+            else {
+                status.setup_pending = setup[0].setup_complete;
+            }
+            return (setup);
+        })
+    })
+    .then(() => {
+        console.log(status, 'status');
+        return res.json({
+            state: 'success',
+            message: 'Successfully fetched status data',
+            data: status
+        })
+    })
+    .catch((err) => {
+        console.log(err)
+        return res.json(500, err)
+      })
 })
 
 // to get total revenue
@@ -563,9 +693,12 @@ router.post('/validate_mobile_number', function (req, res) {
     }
 });
 //create franchisee
-router.post('/create_franchisee', upload.single('franchisee_img'), function (req, res) {
-    var franchiseeForm = JSON.parse(req.body.franchisee);
+router.post('/create_franchisee', function (req, res) {
+    
+    let franchiseeForm = req.body;
+   
     try {//'franchisee_pincode':franchiseeForm.franchisee_pincode
+   
         Franchisee.findOne({ $and: [{ franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' }] }, function (err, franchisee) {
             if (franchisee) {
                 return res.send({
@@ -611,7 +744,38 @@ router.post('/create_franchisee', upload.single('franchisee_img'), function (req
                             // franchisee.franchisee_name=franchiseeForm.partner_name;
 
                         };
-                        franchisee.franchisee_email = franchiseeForm.partner_email;
+                        if(franchiseeForm.franchisee_img){
+                            if(franchiseeForm.franchisee_img != ""){
+                        
+                          let fileExt = "";
+                        if (franchiseeForm.franchisee_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (franchiseeForm.franchisee_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (franchiseeForm.franchisee_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (franchiseeForm.franchisee_img.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "franchisee_img/img_" + moment().unix();
+                    console.log(imageKey)
+                      if (franchiseeForm.franchisee_img){
+                     // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img));
+                          utils.uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img);
+                      delete franchiseeForm.franchisee_img;
+                    }
+                      franchiseeForm.prof_pic_org_url = imageKey + "." + fileExt;
+                      franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
+                    
+                        }else{
+                        franchiseeForm.franchisee_img = "franchisee_img.png";
+                      }}else{
+                        franchiseeForm.franchisee_img = "franchisee_img.png";
+                      }
+                      franchiseeForm.franchisee_pass = createHash('mypassword');
+                        /*franchisee.franchisee_email = franchiseeForm.partner_email;
                         franchisee.franchisee_occupation = franchiseeForm.partner_occupation;
                         franchisee.franchisee_city = franchiseeForm.franchisee_city;
                         franchisee.franchisee_state = franchiseeForm.franchisee_state;
@@ -638,14 +802,17 @@ router.post('/create_franchisee', upload.single('franchisee_img'), function (req
                         franchisee.partners_list = 1;
                         franchisee.partner_name = franchiseeForm.partner_name;
                         franchisee.franchisor_id = franchiseeForm.franchisor_id;
-
+                        
                         if (req.file) {
                             var franchisee_pic = {};
                             franchisee_pic.path = req.file.location;
                             franchisee_pic.key = req.file.key;
                             franchisee.franchisee_profile_pic = franchisee_pic;
                         }
-                        franchisee.save(function (err, franchisee) {
+                        
+*/
+                        //franchisee = franchiseeForm;
+                        Franchisee.create(franchiseeForm,function (err, franchisee) {
                             if (err) {
                                 res.send({
                                     status: 500,

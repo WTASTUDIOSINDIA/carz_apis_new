@@ -911,8 +911,8 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
 // To create versions by department
 router.post('/create_version_by_department_id', function(req, res){
   try {
-    Versions.findOne({'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type,
-    'version_name': {$regex: new RegExp(req.body.version_name,'i')}, 'department_id': req.body.department_id
+    Versions.findOne({version_name: {$regex: new RegExp(req.body.version_name,'i')},'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type,
+     'department_id': req.body.department_id
     }, function(err, version){
       if(err){
         return res.send({
