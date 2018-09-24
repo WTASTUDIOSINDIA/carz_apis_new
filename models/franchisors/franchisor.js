@@ -17,7 +17,7 @@ var franchisorSchema = new mongoose.Schema({
         "image_type" : String,
         "created_on" : Date
     },
-    "status": {type: String, default: "active"},
+    "status": {type: String, default: "inactive"},
     "createdDate": { type: Date, default: Date.now }
 
 });
