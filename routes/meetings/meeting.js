@@ -157,7 +157,7 @@ router.post('/create_meeting', function (req, res) {
                                                 if (hours < 10) sHours = "0" + sHours;
                                                 if (minutes < 10) sMinutes = "0" + sMinutes;
 
-                                                var d = new Date(meeting.meeting_date);
+                                                var d = meeting.meeting_date;
                                                 d.setHours(d.getHours() + sHours);
                                                 d.setMinutes(d.getMinutes() + sMinutes);
 
@@ -413,7 +413,7 @@ router.get('/get_all_meetings', function (req, res) {
 
 router.post('/get_meetings_count', (req, res) => {
     date = new Date(req.body.date);
-    console.log(typeof(date));
+    console.log(typeof (date));
     console.log(date);
     var fdt = date.setHours(0, 0, 0, 0);
     console.log(fdt, 'fdt');
@@ -434,7 +434,8 @@ router.post('/get_meetings_count', (req, res) => {
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched meeting data',
-                data: data
+                meetings: data,
+                meetings_count: data.length
             })
         }
     })
