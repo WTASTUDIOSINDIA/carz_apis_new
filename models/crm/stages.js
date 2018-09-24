@@ -12,9 +12,9 @@ var Schema = mongoose.Schema;
 //     "stage_agreenent":  [{type: Schema.Types.ObjectId, ref: 'Agreement', status: false}]
 // });
 var stagesSchema = new mongoose.Schema({
-  "franchisee_id": String,
+  "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
   "folder_id": String,
-  "stage_profile": { type: Schema.Types.ObjectId, ref: 'Franchisee', status: "completed" },
+  "stage_profile": String,
   "stage_discussion": {
     "status": { type: Boolean, default: false },
     "payment_value": { type: Number, default: 100000 },
