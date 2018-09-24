@@ -63,6 +63,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "rejected_franchisee_reason": String,
     "verified": {type:Boolean, default:false},
+    "stage_profile": String,
     "verification": {
           "otp": String,
           "status": { type: Boolean, default: false }, //verification status
@@ -115,7 +116,7 @@ var partnerSchema = new mongoose.Schema({
 var meetingSchema = new mongoose.Schema({
    "meeting_title" : String,
    "meeting_location": String,
-   "meeting_date": String,
+   "meeting_date": Date,
    "meeting_time": String,
    "meeting_assigned_people": Array,
    "meeting_additional_services": String,
