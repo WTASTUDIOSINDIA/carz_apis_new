@@ -728,7 +728,8 @@ router.post('/create_franchisee', function (req, res) {
                       franchiseeForm.franchisee_pass = createHash('mypassword');
                       franchiseeForm.franchisee_email = franchiseeForm.partner_email;
                       franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
-                      franchisee.partner_name = franchiseeForm.partner_name;
+                      franchiseeForm.partner_name = franchiseeForm.partner_name;
+                      franchiseeForm.stage_profile = "completed";
                         /*franchisee.franchisee_email = franchiseeForm.partner_email;
                         franchisee.franchisee_occupation = franchiseeForm.partner_occupation;
                         franchisee.franchisee_city = franchiseeForm.franchisee_city;
