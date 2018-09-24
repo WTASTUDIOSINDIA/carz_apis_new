@@ -383,7 +383,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { $and: [{ 'stage_kycupload.status': true }, { 'stage_assessment.status': false }]} },
+            { $match: { 'stage_kycupload.status': true } },
             { $group: { _id: null, kyc_complete: { $sum: 1 } } }
         ]).exec()
         .then((kyc) => {
@@ -398,7 +398,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { $and: [{ 'stage_assessment.status': true }, { 'stage_agreenent.status': false } ] } },
+            { $match: { 'stage_assessment.status': true } },
             { $group: { _id: null, assessment_complete: { $sum: 1 } } }
         ]).exec()
         .then((assessment) => {
@@ -413,7 +413,7 @@ router.post('/get_franchisee_status', (req, res) => {
     })
     .then(() => {
         return Stages.aggregate([
-            { $match: { $and: [ { 'stage_agreenent.status': true }, { 'stage_setup.status': false } ] } },
+            { $match: { 'stage_agreenent.status': true } },
             { $group: { _id: null, agreement_complete: { $sum: 1 } } }
         ]).exec()
         .then((agreement) => {
@@ -775,6 +775,8 @@ router.post('/create_franchisee', function (req, res) {
                         franchiseeForm.franchisee_img = "franchisee_img.png";
                       }
                       franchiseeForm.franchisee_pass = createHash('mypassword');
+                      franchiseeForm.franchisee_email = franchiseeForm.partner_email;
+                      franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
                         /*franchisee.franchisee_email = franchiseeForm.partner_email;
                         franchisee.franchisee_occupation = franchiseeForm.partner_occupation;
                         franchisee.franchisee_city = franchiseeForm.franchisee_city;
