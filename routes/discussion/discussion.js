@@ -327,10 +327,10 @@ router.put('/question/vote',function(req,res){
                 console.log(req.body.votedBy);
                 var flag = false;
                 var id = req.body.votedBy;
-           
+                console.log('flag', flag);
                 if(discussionquestion.votedBy.length>0){
                     for(var i=0;i<discussionquestion.votedBy.length;i++){
-                        if(discussionquestion.votedBy[i] == id){
+                        if(discussionquestion.votedBy[i] === id){
                             flag = true;
                         }
                     }
