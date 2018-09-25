@@ -246,7 +246,7 @@ router.post('/get_franchisee_status', (req, res) => {
         setup_pending: 0
     }
     Stages.aggregate([
-        { $match: { 'stage_profile': 'completed' } },
+        { $match: { $and: [ { 'stage_profile': 'completed' }, { 'stage_discussion.status': false } ] } },
         { $group: { _id: null, profile_complete: { $sum: 1 } } }
     ]).exec()
         .then((stat) => {
@@ -1049,10 +1049,18 @@ router.delete('/delete_franchisee/:id', function (req, res) {
                 }, 400);
             }
             else {
-                res.send({
-                    "status": "200",
-                    "message": "User deleted sucessfully",
-                }, 200);
+                Stages.findByIdAndRemove({ 'franchisee_id': req.params.id }, (err, stage) => {
+                    if (err) {
+                        return res.json(500, err);
+                    }
+                    if (stage) {
+                        console.log('stage_deleted');
+                        res.send({
+                            "status": "200",
+                            "message": "User deleted sucessfully",
+                        }, 200);
+                    }
+                })
             }
         })
     }
