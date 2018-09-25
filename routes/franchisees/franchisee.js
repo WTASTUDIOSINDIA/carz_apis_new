@@ -721,9 +721,9 @@ router.post('/create_franchisee', function (req, res) {
                       franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
                     
                         }else{
-                        franchiseeForm.franchisee_img = "franchisee_img.png";
+                        franchiseeForm.franchisee_profile_pic = "franchisee_img.png";
                       }}else{
-                        franchiseeForm.franchisee_img = "franchisee_img.png";
+                        franchiseeForm.franchisee_profile_pic = "franchisee_img.png";
                       }
                       franchiseeForm.franchisee_pass = createHash('mypassword');
                       franchiseeForm.franchisee_email = franchiseeForm.partner_email;
