@@ -585,7 +585,7 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
           message: "Something went wrong.We are looking into it."
         });
       }
-
+      console.log(file, '58888');
       if (file) {
 
         file.stage_discussion.nda_file_name = '';

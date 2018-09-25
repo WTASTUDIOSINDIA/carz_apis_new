@@ -1286,6 +1286,7 @@ function update_franchisee(req, res, franchisee_id, val, stage) {
             }, 500);
         }
         else {
+            console.log(franchiees, 'franchiees');
             franchiees.franchisee_stage_completed = franchiees.franchisee_stage_completed + val;
             franchiees.first_lakh_payment = 'Submitted';
             franchiees.discussion_payment = "Payment uploaded proceed to application form"
@@ -1911,6 +1912,7 @@ async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_I
         library.folder_Id = folder_Id;
         library.franchisee_Id = franchisee_Id;
         await library.save(function (err, library) {
+            console.log(library, '1914 file line');
             if (err) {
                 res.send({
                     status: 500,
