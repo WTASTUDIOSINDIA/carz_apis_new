@@ -5,6 +5,7 @@ var franchisorSchema = new mongoose.Schema({
     // "franchisee_code":{ type: Schema.Types.ObjectId, ref: 'Auth'},
     "user_name":String,
     "user_pass":String,
+    "old_pass" : String,
     "user_mail":String,
     "seen_notifications": {type: Boolean, default: false},
     "user_role":{type:String, default:'franchisor'},

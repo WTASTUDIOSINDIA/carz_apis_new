@@ -177,7 +177,7 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
   router.post('/update_franchisor_pass', function (req,res){
 
     let data = req.body;
-    if(data.id) {
+    if(data.id && data.password) {
     if(data.id.length == 24) {
     
     let id = objectId(data.id);
@@ -229,12 +229,199 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
         res.status(200).json({error:'3',message:"Please enter valid Franchisorid."});
       }}
       else{
-        res.status(203).json({error:'2',message:"Id is required."});
+        res.status(203).json({error:'2',message:"Id and password is required."});
       }
   
   })
 
+
+  router.post('/update_franchisor', utils.upload.single('profile_pic'),function (req,res){
+
+    let data = JSON.parse(req.body.user);
+
+    if(data.id) {
+    if(data.id.length == 24) {
+    
+    let id = objectId(data.id);
+
+    let query = {_id:id};
+    franchisorservice.findOneFranchisor(query)
+    .then((response) => {
+      if(response){
+        if(req.file){
+          response.profile_pic = {
+              "image_url" : req.file.location,
+              "image_type" : req.file.mimetype,
+              "created_on" : new Date()
+          }
+      }
+        if(response.user_mail == data.user_mail){
+          response.description =  data.description;
+          response.user_website = data.user_website;
+          response.country_code = data.country_code;
+          response.user_name = data.user_name;
+          response.phone_number = data.phone_number;
+          response.save();
+          res.status(200).json({ error: "0", message: "Succesfully updated"});
+        }else{
+          return franchisorservice.findFranchisor({user_mail: data.user_mail}, '')
+         
+        }
+      }else{
+        throw {
+          reason: "notExists"
+        }
+      }
+      
+    })
+
+    .then((response) => {
+      if(response){
+        throw {
+          reason: "Exists"
+        }
+      }else { 
+      return franchisorservice.findUser({user_mail: data.user_mail}, '')
+        //return franchisorservice.create(data);
+      }
+    })
+    .then((response) => {
+      if(response){
+        throw {
+          reason: "Exists"
+        }
+      }else { 
+      return franchisorservice.findSuperAdmin({user_mail: data.user_mail}, '')
+      }
+    })
+
+    .then((response) => {
+      if(response){
+        throw {
+          reason: "Exists"
+        }
+      }else {
+        return franchisorservice.findOneFranchisor(query);
+      }
+    })
+    
+    .then((response) => {
+      if(response){
+
+        utils.send_franchisor_change_mail_to_old(response.user_mail);  
+        response.user_mail = data.user_mail;
+        response.description =  data.description;
+        response.user_website = data.user_website;
+        response.country_code = data.country_code;
+        response.user_name = data.user_name;
+        response.phone_number = data.phone_number;
+        if(response.user_pass != ""){
+          response.old_pass = response.user_pass;
+        }
+        response.user_pass = "";
+        response.status = "inactive";
+
+        utils.send_franchisor_change_mail_to_new(response);
+        
+        return response.save();
+
+      }else{
+        throw {
+          reason: "notExists"
+        }
+      }
+    })
+
+    .then((response) => {
+      if(response){
+        response.user_pass = undefined;
+       res.status(200).json({ error: "0", message: "Succesfully updated"});
+      }else{
+        res.status(203).json({ error: "1", message: "Uncaught error!"});
+      }
+    })
+
+    .catch((error) => {
+      if(error.reason == "notExists"){
+        res.status(203).json({ error: "1", message: "User not found"});
+      }else if(error.reason == "Exists"){
+        res.status(203).json({ error: "1", message: "Email already existed."});
+      }else if(error.reason == "alreadySet"){
+        res.status(203).json({ error: "1", message: "Password has been already set"});
+      }else{
+        res.status(500).json({ error: "4", message: "Internal server error"});
+      }
+      
+    });
+    }else{
+        res.status(200).json({error:'3',message:"Please enter valid Franchisorid."});
+      }}
+      else{
+        res.status(203).json({error:'2',message:"Id is required."});
+      }
   
+  })
+  
+
+
+  router.post('/confirm_mail', function (req,res){
+
+    let data = req.body;
+    if(data.id) {
+    if(data.id.length == 24) {
+    
+    let id = objectId(data.id);
+
+    let query = {_id:id};
+    franchisorservice.findOneFranchisor(query)
+    .then((response) => {
+      if(response){
+        if(!response.user_pass || response.user_pass == ""){
+          response.status = "active";
+            response.user_pass = response.old_pass;//req.body.user_pass;
+            response.old_pass = "";
+          return response.save();
+        }else{
+          throw {
+            reason: "alreadySet"
+          }
+        }
+        
+      }else{
+        throw {
+          reason: "notExists"
+        }
+      }
+      
+    })
+
+    .then((response) => {
+      if(response){
+        response.user_pass = undefined;
+       res.status(200).json({ error: "0", message: "Succesfully verified",data:response});
+      }else{
+        res.status(203).json({ error: "1", message: "Uncaught error!"});
+      }
+    })
+
+    .catch((error) => {
+      if(error.reason == "notExists"){
+        res.status(203).json({ error: "1", message: "User not found"});
+      }else if(error.reason == "alreadySet"){
+        res.status(203).json({ error: "1", message: "Mail has been already verified"});
+      }else{
+        res.status(500).json({ error: "4", message: "Internal server error"});
+      }
+      
+    });
+    }else{
+        res.status(200).json({error:'3',message:"Please enter valid Franchisorid."});
+      }}
+      else{
+        res.status(203).json({error:'2',message:"Id is required."});
+      }
+  
+  })
 
 
 module.exports = router;
