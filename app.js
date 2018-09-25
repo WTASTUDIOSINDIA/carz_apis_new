@@ -39,6 +39,8 @@ var activity_tracker = require('./routes/activity_tracker/activity_tracker');
 var user_management = require('./routes/user_management/user_management');
 var audit = require('./routes/audit/audit');
 var franchisee_audit = require('./routes/audit/franchisee_audit');
+var common = require('./common')
+var config = common.config();
 
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
@@ -50,7 +52,7 @@ var mongoose = require('mongoose');      //add for Mongo support
 // mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
 
 //DEVELOPMENT // from carz-web heroku/
- mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
+ mongoose.connect(config.database);
 
 var app = express();
 var http = require('http').Server(app);
