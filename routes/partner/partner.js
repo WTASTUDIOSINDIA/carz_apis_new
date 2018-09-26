@@ -10,6 +10,9 @@ var multerS3 = require('multer-s3');
 var KycUploads = mongoose.model('KycUploads');
 var bCrypt = require('bcrypt-nodejs');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
+var utils = require('../../common/utils');
+var moment = require('moment');
+var aws = require('aws-sdk');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
@@ -135,7 +138,8 @@ router.post('/validate_partner_email', function (req, res) {
 
 // To Create Partner Franchisee
 router.post('/create_partner_franchisee', upload.single('partner_pic'), function (req, res) {
-    var partnerForm = JSON.parse(req.body.partner);
+    // var partnerForm = JSON.parse(req.body.partner);
+    let partnerForm = req.body;
     try {
         Partner.findOne({
             'partner_email': partnerForm.partner_email
@@ -154,28 +158,57 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
             }
             if (!partner) {
                 var partner = new Partner();
-                if (req.file) {
-                    var partner_pic = {};
-                    partner_pic.path = req.file.location;
-                    partner_pic.key = req.file.key;
-                    partner.partner_profile_pic = partner_pic;
-                }
-                partner.partner_name = partnerForm.partner_name;
-                partner.partner_occupation = partnerForm.partner_occupation;
-                partner.partner_email = partnerForm.partner_email;
-                partner.partner_mobile_number = partnerForm.partner_mobile_number;
-                partner.partner_age = partnerForm.partner_age;
-                partner.franchisee_id = partnerForm.franchisee_id;
-                partner.partner_address = partnerForm.partner_address;
-                partner.partner_city = partnerForm.partner_city;
-                partner.partner_state = partnerForm.partner_state;
-                partner.partner_country = partnerForm.partner_country;
-                partner.partner_pincode = partnerForm.partner_pincode;
-                partner.partner_house_number = partnerForm.partner_house_number;
-                partner.bussiness_type = partnerForm.bussiness_type;
-                partner.bussiness_type_id = partnerForm.bussiness_type_id;
-                partner.partner_occupation_others = partnerForm.partner_occupation_others;
-                partner.save(function (err, partner) {
+                 if(partnerForm.partner_pic){
+                            if(partnerForm.partner_pic != ""){
+                        
+                          let fileExt = "";
+                        if (partnerForm.partner_pic.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (partnerForm.partner_pic.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (partnerForm.partner_pic.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (partnerForm.partner_pic.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "partner_pic/img_" + moment().unix();
+                    console.log(imageKey)
+                      if (partnerForm.partner_pic){
+                          utils.uploadToS3(imageKey, fileExt, partnerForm.partner_pic);
+                      delete partnerForm.partner_pic;
+                    }
+                      partnerForm.prof_pic_org_url = imageKey + "." + fileExt;
+                      partnerForm.franchisee_profile_pic = utils.getPreSignedURL(partnerForm.prof_pic_org_url);
+                    
+                        }else{
+                        partnerForm.partner_pic = "partner_pic.png";
+                      }}else{
+                        partnerForm.partner_pic = "partner_pic.png";
+                      }
+                // if (req.file) {
+                //     var partner_pic = {};
+                //     partner_pic.path = req.file.location;
+                //     partner_pic.key = req.file.key;
+                //     partner.partner_profile_pic = partner_pic;
+                // }
+                // partner.partner_name = partnerForm.partner_name;
+                // partner.partner_occupation = partnerForm.partner_occupation;
+                // partner.partner_email = partnerForm.partner_email;
+                // partner.partner_mobile_number = partnerForm.partner_mobile_number;
+                // partner.partner_age = partnerForm.partner_age;
+                // partner.franchisee_id = partnerForm.franchisee_id;
+                // partner.partner_address = partnerForm.partner_address;
+                // partner.partner_city = partnerForm.partner_city;
+                // partner.partner_state = partnerForm.partner_state;
+                // partner.partner_country = partnerForm.partner_country;
+                // partner.partner_pincode = partnerForm.partner_pincode;
+                // partner.partner_house_number = partnerForm.partner_house_number;
+                // partner.bussiness_type = partnerForm.bussiness_type;
+                // partner.bussiness_type_id = partnerForm.bussiness_type_id;
+                // partner.partner_occupation_others = partnerForm.partner_occupation_others;
+                Partner.create(partnerForm,function (err, partner) {
                     if (err) {
                         res.send({
                             state: "err",
@@ -293,21 +326,49 @@ function kyc_Upload(req, res, partner, partnerForm, message) {
 }
 //update franchisee
 
-router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (req, res, next) {
-    var partnerEditForm = JSON.parse(req.body.partner);
+router.put('/edit_partner_franchisee', function (req, res, next) {
+    // var partnerEditForm = JSON.parse(req.body.partner);
+    console.log('+++++++++++++', req.body);
+    let partnerEditForm = req.body;
     try {
-        Partner.findOne({
-            '_id': partnerEditForm._id
-        }, function (err, partner) {
+        Partner.findOne({ '_id': partnerEditForm._id}, function (err, partner) {
             if (err) {
                 return res.send({
                     state: "err",
                     message: "Something went wrong.We are looking into it."
                 }, 500);
             }
-
-            //If partner franchisee found,it will enter inside
-            if (partner) {
+            console.log('------------', partner);
+                            if (partner) {
+                            if(partnerEditForm.partner_pic){
+                            if(partnerEditForm.partner_pic != ""){
+                        
+                          let fileExt = "";
+                        if (partnerEditForm.partner_pic.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (partnerEditForm.partner_pic.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (partnerEditForm.partner_pic.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (partnerEditForm.partner_pic.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";  
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "partner_pic/img_" + moment().unix();
+                    console.log(imageKey)
+                      if (partnerEditForm.partner_pic){
+                          utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
+                      delete partnerEditForm.partner_pic;
+                    }
+                      partnerEditForm.prof_pic_org_url = imageKey + "." + fileExt;
+                      partnerEditForm.partner_profile_pic = utils.getPreSignedURL(partnerEditForm.prof_pic_org_url);
+                    
+                        }else{
+                        partnerEditForm.partner_profile_pic = "partner_pic.png";
+                      }}else{
+                        partnerEditForm.partner_profile_pic = "partner_pic.png";
+                      }
 
                 partner.partner_name = partnerEditForm.partner_name;
                 partner.partner_occupation = partnerEditForm.partner_occupation;
@@ -319,24 +380,13 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                 partner.partner_pincode = partnerEditForm.partner_pincode;
                 partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
                 partner.partner_age = partnerEditForm.partner_age;
-                partner.partner_lead_source = partnerEditForm.partner_lead_source;
-                partner.partner_investment = partnerEditForm.partner_investment;
-                partner.partner_franchise_type = partnerEditForm.partner_franchise_type;
-                partner.partner_how_soon_to_start = partnerEditForm.partner_how_soon_to_start;
-                partner.partner_remarks = partnerEditForm.partner_remarks;
-                partner.partner_preferred_date = partnerEditForm.partner_preferred_date;
-                partner.partner_preferred_time = partnerEditForm.partner_preferred_time;
-                partner.bussiness_type = partnerEditForm.bussiness_type;
+               partner.country_code = partnerEditForm.country_code;
                 partner.partner_house_number = partnerEditForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-                if (req.file) {
-
-                    var partner_pic = {};
-                    partner_pic.path = req.file.location;
-                    partner_pic.key = req.file.key;
-                    partner.partner_profile_pic = partner_pic;
-                }
+               
+                 partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
+                
 
 
                 partner.save(function (err, partner) {
@@ -347,9 +397,7 @@ router.put('/edit_partner_franchisee', upload.single('partner_pic'), function (r
                             message: "Something went wrong."
                         }, 500);
                     } else {
-                        Franchisee.findOne({
-                            _id: partner.franchisee_id
-                        }, function (err, franchiees) {
+                        Franchisee.findOne({_id: partner.franchisee_id}, function (err, franchiees) {
                             if (err) {
                                 return res.send({
                                     state: "err",

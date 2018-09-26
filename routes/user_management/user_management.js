@@ -7,6 +7,8 @@ var UserRole = mongoose.model('UserRole');
 var Admin = mongoose.model('Admin');
 var _ = require('lodash');
 var aws = require('aws-sdk');
+var utils = require('../../common/utils');
+var moment = require('moment');
 var multerS3 = require('multer-s3');
 var createHash = function(password){
   return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
@@ -42,7 +44,8 @@ var fileupload = upload.fields([{
 // To create user
 router.post('/create_user', upload.single('user_img'), function (req, res) {
   console.log('user', req.body);
-    var userCreateForm = JSON.parse(req.body.user);
+    // var userCreateForm = JSON.parse(req.body.user);
+    let userCreateForm = req.body;
  
     // try {
       Admin.findOne({ franchisor_id:userCreateForm.franchisor_id }, function (err, user) {
@@ -60,20 +63,49 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
         // }
         else {
           user = new Admin();
-          user.user_name = userCreateForm.user_name;
-          user.user_mail = userCreateForm.user_mail;
-          user.user_type_role = userCreateForm.user_type_role;
-          user.user_pass = createHash(userCreateForm.user_pass);
-          user.user_status = userCreateForm.user_status;
-          user.user_country_code = userCreateForm.user_country_code;
-          user.user_phone_number = userCreateForm.user_phone_number;
-          user.franchisor_id= userCreateForm.franchisor_id;
-          if (req.file) {
-            user.user_file_link = req.file.location;
-            user.user_file_name = req.file.key;
-            user.user_file_type = req.file.contentType;
-          }
-          user.save(function (err, user) {
+           if(userCreateForm.user_img){
+                            if(userCreateForm.user_img != ""){
+                        
+                          let fileExt = "";
+                        if (userCreateForm.user_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (userCreateForm.user_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (userCreateForm.user_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "user_img/img_" + moment().unix();
+                    console.log(imageKey)
+                      if (userCreateForm.user_img){
+                     // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, userCreateForm.user_img));
+                          utils.uploadToS3(imageKey, fileExt, userCreateForm.user_img);
+                      delete userCreateForm.user_img;
+                    }
+                      userCreateForm.prof_pic_org_url = imageKey + "." + fileExt;
+                      userCreateForm.franchisee_profile_pic = utils.getPreSignedURL(userCreateForm.prof_pic_org_url);
+                    
+                        }else{
+                        userCreateForm.user_img = "user_img.png";
+                      }}else{
+                        userCreateForm.user_img = "user_img.png";
+                      }
+                       user.user_pass = createHash(userCreateForm.user_pass);
+          // user.user_name = userCreateForm.user_name;
+          // user.user_mail = userCreateForm.user_mail;
+          // user.user_type_role = userCreateForm.user_type_role;
+         
+          // user.user_status = userCreateForm.user_status;
+          // user.user_country_code = userCreateForm.user_country_code;
+          // user.user_phone_number = userCreateForm.user_phone_number;
+          // user.franchisor_id= userCreateForm.franchisor_id;
+          // if (req.file) {
+          //   user.user_file_link = req.file.location;
+          //   user.user_file_name = req.file.key;
+          //   user.user_file_type = req.file.contentType;
+          // }
+          User.create(userCreateForm,function (err, user) {
             if (err) {
               res.send({
                 state: "failure",
@@ -100,7 +132,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
   })
 
 // To update user
-  router.put('/update_user', upload.single('user_img'), function (req, res) {
+  router.put('/update_user' ,function (req, res) {
     console.log(userEditForm);
     var userEditForm = JSON.parse(req.body.user);
     try {
@@ -112,6 +144,33 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           }, 500);
         }
         if (user) {
+           if(userEditForm.user_img){
+                            if(userEditForm.user_img != ""){
+                        
+                          let fileExt = "";
+                        if (userEditForm.user_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (userEditForm.user_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (userEditForm.user_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else 
+                          fileExt = "png";
+                    
+                      let imageKey = "user_img/img_" + moment().unix();
+                    console.log(imageKey)
+                      if (userEditForm.user_img){
+                          utils.uploadToS3(imageKey, fileExt, userEditForm.user_img);
+                      delete userEditForm.user_img;
+                    }
+                      userEditForm.prof_pic_org_url = imageKey + "." + fileExt;
+                      userEditForm.franchisee_profile_pic = utils.getPreSignedURL(userEditForm.prof_pic_org_url);
+                    
+                        }else{
+                        userEditForm.user_img = "user_img.png";
+                      }}else{
+                        userEditForm.user_img = "user_img.png";
+                      }
           user.user_name = userEditForm.user_name;
           user.user_mail = userEditForm.user_mail;
           user.user_role = userEditForm.user_role;
@@ -119,11 +178,11 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
           user.user_country_code = userEditForm.user_country_code;
           user.user_phone_number = userEditForm.user_phone_number;
           user.franchisor_id = userEditForm.franchisor_id;
-          if (req.file) {
-            user.franchisor_user_file_link = req.file.location;
-            user.franchisor_user_file_name = req.file.key;
-            user.franchisor_user_file_type = req.file.contentType;
-          }
+          // if (req.file) {
+          //   user.franchisor_user_file_link = req.file.location;
+          //   user.franchisor_user_file_name = req.file.key;
+          //   user.franchisor_user_file_type = req.file.contentType;
+          // }
           console.log(user)
           user.save(function (err, user) {
             if (err) {
