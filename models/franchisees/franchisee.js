@@ -92,6 +92,7 @@ var partnerSchema = new mongoose.Schema({
     "partner_city": String,
     "partner_state": String,
     "partner_country": String,
+    "country_code":String,
     "partner_pincode": String,
     "partner_house_number": String,
     "partner_mobile_number": String,

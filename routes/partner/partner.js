@@ -380,7 +380,7 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                 partner.partner_pincode = partnerEditForm.partner_pincode;
                 partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
                 partner.partner_age = partnerEditForm.partner_age;
-               
+               partner.country_code = partnerEditForm.country_code;
                 partner.partner_house_number = partnerEditForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 partner.partner_occupation_others = partnerEditForm.partner_occupation_others;

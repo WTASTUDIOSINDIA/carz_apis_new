@@ -132,7 +132,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
   })
 
 // To update user
-  router.put('/update_user', upload.single('user_img'), function (req, res) {
+  router.put('/update_user' ,function (req, res) {
     console.log(userEditForm);
     var userEditForm = JSON.parse(req.body.user);
     try {
@@ -154,9 +154,7 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
                           fileExt = "jpeg";
                       else if (userEditForm.user_img.indexOf("image/jpg") != -1)
                           fileExt = "jpg";
-                      else if (userEditForm.user_img.indexOf("video/mp4") != -1)
-                          fileExt = "mp4";
-                      else
+                      else 
                           fileExt = "png";
                     
                       let imageKey = "user_img/img_" + moment().unix();
