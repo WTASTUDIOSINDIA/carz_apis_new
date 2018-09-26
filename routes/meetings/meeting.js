@@ -412,14 +412,27 @@ router.get('/get_all_meetings', function (req, res) {
 });
 
 router.post('/get_meetings_count', (req, res) => {
-    date = new Date(req.body.date);
-    console.log(typeof (date));
-    console.log(date);
-    var fdt = date.setHours(0, 0, 0, 0);
-    console.log(fdt, 'fdt');
-    var tdt = date.setHours(23, 59, 59, 999);
-    console.log(tdt, 'tdt');
-    query = { meeting_date: { $gte: fdt, $lte: tdt } }
+    if(req.body.date){
+        date = new Date(req.body.date);
+        console.log(typeof (date));
+        console.log(date);
+        var fdt = date.setHours(0, 0, 0, 0);
+        console.log(fdt, 'fdt');
+        var tdt = date.setHours(23, 59, 59, 999);
+        console.log(tdt, 'tdt');
+        query = { meeting_date: { $gte: fdt, $lte: tdt } }
+    }
+    if(!req.body.date || req.body.date == null) {
+        date = new Date();
+        console.log(typeof (date));
+        console.log(date);
+        var fdt = date.setHours(0, 0, 0, 0);
+        console.log(fdt, 'fdt');
+        var tdt = date.setHours(23, 59, 59, 999);
+        console.log(tdt, 'tdt');
+        query = { meeting_date: { $gte: fdt, $lte: tdt } }
+    }
+    console.log(query);
     Meeting.find(query, (err, data) => {
         if (err) {
             return res.json(500, err);
