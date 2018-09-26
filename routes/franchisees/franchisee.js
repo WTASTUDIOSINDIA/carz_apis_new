@@ -1081,6 +1081,7 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
 });
 //delete franchisee
 router.delete('/delete_franchisee/:id', function (req, res) {
+    f_id = mongoose.Types.ObjectId(req.params.id);
     try {
         Franchisee.findByIdAndRemove({ _id: req.params.id }, function (err, franchisee) {
             if (err) {
@@ -1094,7 +1095,7 @@ router.delete('/delete_franchisee/:id', function (req, res) {
                 }, 400);
             }
             else {
-                Stages.findByIdAndRemove({ 'franchisee_id': req.params.id }, (err, stage) => {
+                Stages.findOneAndRemove({ 'franchisee_id': f_id }, (err, stage) => {
                     if (err) {
                         return res.json(500, err);
                     }
@@ -2323,6 +2324,7 @@ router.put('/lead_type', function (req, res) {
 
 // To archive
 router.put('/archieve_franchisee', function (req, res) {
+    f_id = mongoose.Types.ObjectId(req.body._id);
     try {
         // Franchisee.findById({_id:req.body._id},function(err,franchisee){
         //     if(err){
@@ -2364,11 +2366,18 @@ router.put('/archieve_franchisee', function (req, res) {
             if (err) {
                 return res.send(500, err);
             } else {
-                res.send({
-                    state: "success",
-                    message: "Franchisee status updated.",
-                    data: franchisee
-                }, 200);
+                Stages.findOneAndRemove({ 'franchisee_id': f_id }, (err, stage) => {
+                    if (err) {
+                        return res.json(500, err);
+                    }
+                    if (stage) {
+                        console.log('stage_deleted');
+                        res.send({
+                            "status": "200",
+                            "message": "User deleted sucessfully",
+                        }, 200);
+                    }
+                })
             }
 
 

@@ -3,7 +3,7 @@ var bCrypt = require('bcrypt-nodejs');
 var Franchisee = mongoose.model('Franchisee');
 require('../authenticate/authenticate.js');
 var Schema = mongoose.Schema;
-// var stagesSchema = new mongoose.Schema({
+// var stagesSchema = new mongoose.Schema({   
 //     "franchisee_id": String,
 //     "stage_profile": [{type: Schema.Types.ObjectId, ref: 'Franchisee', status: "completed"}],
 //     "stage_discussion":  [{type: Schema.Types.ObjectId, ref: 'Discussion', status: "inprogress"}],
