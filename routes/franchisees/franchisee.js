@@ -104,6 +104,13 @@ router.get('/get_franchisees', function (req, res) {
                 }, 404);
             }
             else {
+                
+                // let franchisee_data = [];
+                // franchiees.forEach((franchiee)=>{
+                //     franchiee.franchisee_profile_pic = utils.getPreSignedURL( franchiee.franchisee_profile_pic);
+                //     franchisee_data.push(franchiee);
+                // })
+                // console.log("---------------------"+franchisee_data);
                 res.send({
                     "status": "200",
                     "state": "success",
@@ -136,11 +143,15 @@ router.get('/get_franchisee/:id', function (req, res) {
                 }, 400);
             }
             else {
+                //     let franchisee_data =[];
+                //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
+                //     franchisee_data.push(franchisee);
                 res.send({
                     status: 200,
                     state: "success",
                     franchisees_data: franchisee
                 }, 200);
+                 
             }
         })
     }
@@ -717,13 +728,14 @@ router.post('/create_franchisee', function (req, res) {
                           utils.uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img);
                       delete franchiseeForm.franchisee_img;
                     }
-                      franchiseeForm.prof_pic_org_url = imageKey + "." + fileExt;
-                      franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
+                      franchiseeForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                    //   franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
+                      franchiseeForm.franchisee_profile_pic = franchiseeForm.prof_pic_org_url;
                     
                         }else{
-                        franchiseeForm.franchisee_profile_pic = "franchisee_img.png";
+                        franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
                       }}else{
-                        franchiseeForm.franchisee_profile_pic = "franchisee_img.png";
+                        franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
                       }
                       franchiseeForm.franchisee_pass = createHash('mypassword');
                       franchiseeForm.franchisee_email = franchiseeForm.partner_email;
