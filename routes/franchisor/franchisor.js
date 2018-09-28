@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require( 'mongoose' );;
 var multer  = require('multer');
+var utils = require('../../common/utils');
+var moment = require('moment');
+var aws = require('aws-sdk');
 var Franchisor = mongoose.model('Franchisor');
 var bCrypt = require('bcrypt-nodejs');
 var createHash = function(password){
@@ -59,11 +62,8 @@ router.put('/edit_franchisor_profile', function (req,res){
 }
 })
 
-router.post('/create', utils.upload.single('profile_pic'), function (req,res){
-
-    let data = JSON.parse(req.body.user);
-    //let data = req.body;
-   console.log(data);
+router.post('/create', function (req,res){
+                  let data = req.body;
     if(data.user_name && data.user_mail && data.user_website && data.description && data.country_code && data.phone_number) {
         franchisorservice.findFranchisor({user_mail: data.user_mail}, '')
       .then((response) => {
@@ -73,7 +73,6 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
           }
         }else { 
         return franchisorservice.findUser({user_mail: data.user_mail}, '')
-          //return franchisorservice.create(data);
         }
       })
       .then((response) => {
@@ -92,20 +91,50 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
             reason: "Exists"
           }
         }else {
-            console.log(req.file);  
-            if(req.file){
-                data.profile_pic = {
-                    "image_url" : req.file.location,
-                    "image_type" : req.file.mimetype,
-                    "created_on" : new Date()
-                }
-            }
+            var prof_pic_url = "";
+            let fileExt = "";
+            if(data.user_img){
+                    if(data.user_img != ""){
+                        
+                     
+                      if (data.user_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (data.user_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (data.user_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (data.user_img.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "user_img/img_" + moment().unix();
+
+                      if (data.user_img){
+                    
+                      utils.uploadToS3(imageKey, fileExt, data.user_img);
+                      
+                    }
+                      prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                   
+                        }else{
+                       prof_pic_url = "carz_pic.jpg";
+                      }}else{
+                        prof_pic_url = "carz_pic.jpg";
+                      }
+      
+          data.profile_pic = {
+              "image_url" : prof_pic_url,
+              "image_type" : fileExt,
+              "created_on" : new Date()
+          }
           return franchisorservice.create(data);
         }
       })
       .then((response) => {
         if(response) {
           utils.send_franchisor_registartion_mail(response);   
+
           response.user_pass = undefined;
           res.status(200).json({ error: "0", message: "User Registeration is Successful", data: response});
         } else {
@@ -235,10 +264,8 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
   })
 
 
-  router.post('/update_franchisor', utils.upload.single('profile_pic'),function (req,res){
-
-    let data = JSON.parse(req.body.user);
-
+  router.post('/update_franchisor',function (req,res){
+    let data = req.body;
     if(data.id) {
     if(data.id.length == 24) {
     
@@ -248,13 +275,44 @@ router.post('/create', utils.upload.single('profile_pic'), function (req,res){
     franchisorservice.findOneFranchisor(query)
     .then((response) => {
       if(response){
-        if(req.file){
+        var prof_pic_url = "";
+         let fileExt = "";
+            if(data.user_img){
+                    if(data.user_img != ""){
+                        
+                     
+                      if (data.user_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (data.user_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (data.user_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (data.user_img.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "user_img/img_" + moment().unix();
+
+                      if (data.user_img){
+                    
+                      utils.uploadToS3(imageKey, fileExt, data.user_img);
+                      
+                    }
+                      prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                   
+                        }else{
+                       prof_pic_url = "carz_pic.jpg";
+                      }}else{
+                        prof_pic_url = "carz_pic.jpg";
+                      }
+      
           response.profile_pic = {
-              "image_url" : req.file.location,
-              "image_type" : req.file.mimetype,
+              "image_url" : prof_pic_url,
+              "image_type" : fileExt,
               "created_on" : new Date()
           }
-      }
+      
         if(response.user_mail == data.user_mail){
           response.description =  data.description;
           response.user_website = data.user_website;

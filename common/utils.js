@@ -14,6 +14,13 @@ var config = common.config();
 var bucketName = 'celebappfiles';
 var otpGenerator = require('otp-generator');
 var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4" ); 
+var bucketName = 'carzfiles';
+
+const awsFileUrl = () => {
+    let url = "https://s3.ap-south-1.amazonaws.com/"+bucketName+"/";
+    return url;
+}
+
 // AWS.config.loadFromPath('./config/s3_credentials.json');
 
 // const BucketName = config.default.awsS3.bucketName;
@@ -23,6 +30,7 @@ const uploadToS3 = (fileName, fileExt, fileData, isCampaign, callback) => {
     let data = new Buffer(fileData.replace("data:image\/" + fileExt + ";base64,", ""), "base64")
     var uploadabledata = {
         //ACL: isCampaign ? 'public': 'private',
+        ACL : 'public-read',
         Key: fileName + '.' + fileExt,
         Body: data,
         ContentType: 'image/' + fileExt
@@ -44,7 +52,8 @@ const getPreSignedURL = (awsFileKey) => {
     let s3 = new aws.S3();
     let params = {
         Bucket: bucketName,
-        Key: awsFileKey
+        Key: awsFileKey,
+        // timeOut: new Date(new Date().getTime() + 1000 * 60 * 15)
     };
     try {
         let url = s3.getSignedUrl('getObject', params);
@@ -194,5 +203,6 @@ module.exports =  {
     send_franchisor_change_mail_to_new,
     sendMobileOTP,
     sendMailOTP,
-    generateOTP
+    generateOTP,
+    awsFileUrl
   };

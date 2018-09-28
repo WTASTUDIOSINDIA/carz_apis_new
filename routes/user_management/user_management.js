@@ -42,11 +42,8 @@ var fileupload = upload.fields([{
     maxCount: 20
 }]) 
 // To create user
-router.post('/create_user', upload.single('user_img'), function (req, res) {
-  console.log('user', req.body);
-    // var userCreateForm = JSON.parse(req.body.user);
+router.post('/create_user', function (req, res) {
     let userCreateForm = req.body;
- 
     // try {
       Admin.findOne({ franchisor_id:userCreateForm.franchisor_id }, function (err, user) {
         if (err) {
@@ -77,35 +74,34 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
                           fileExt = "png";
                     
                       let imageKey = "user_img/img_" + moment().unix();
-                    console.log(imageKey)
                       if (userCreateForm.user_img){
-                     // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, userCreateForm.user_img));
                           utils.uploadToS3(imageKey, fileExt, userCreateForm.user_img);
                       delete userCreateForm.user_img;
                     }
-                      userCreateForm.prof_pic_org_url = imageKey + "." + fileExt;
-                      userCreateForm.franchisee_profile_pic = utils.getPreSignedURL(userCreateForm.prof_pic_org_url);
+                      userCreateForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                      userCreateForm.user_profile_pic = userCreateForm.prof_pic_org_url;
+
                     
                         }else{
-                        userCreateForm.user_img = "user_img.png";
+                        userCreateForm.user_profile_pic = "carz_pic.jpg";
                       }}else{
-                        userCreateForm.user_img = "user_img.png";
+                        userCreateForm.user_profile_pic = "carz_pic.jpg";
                       }
-                       user.user_pass = createHash(userCreateForm.user_pass);
-          // user.user_name = userCreateForm.user_name;
-          // user.user_mail = userCreateForm.user_mail;
-          // user.user_type_role = userCreateForm.user_type_role;
-         
-          // user.user_status = userCreateForm.user_status;
-          // user.user_country_code = userCreateForm.user_country_code;
-          // user.user_phone_number = userCreateForm.user_phone_number;
-          // user.franchisor_id= userCreateForm.franchisor_id;
+          user.user_pass = createHash(userCreateForm.user_pass);
+          user.user_name = userCreateForm.user_name;
+          user.user_mail = userCreateForm.user_mail;
+          user.user_type_role = userCreateForm.user_type_role;
+          user.user_status = userCreateForm.user_status;
+          user.user_country_code = userCreateForm.user_country_code;
+          user.user_phone_number = userCreateForm.user_phone_number;
+          user.user_profile_pic =userCreateForm.user_profile_pic;
+          user.franchisor_id= userCreateForm.franchisor_id;
           // if (req.file) {
           //   user.user_file_link = req.file.location;
           //   user.user_file_name = req.file.key;
           //   user.user_file_type = req.file.contentType;
           // }
-          User.create(userCreateForm,function (err, user) {
+          user.save(function (err, user) {
             if (err) {
               res.send({
                 state: "failure",
@@ -131,21 +127,19 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
     // }
   })
 
-// To update user
-  router.put('/update_user' ,function (req, res) {
-    console.log(userEditForm);
-    var userEditForm = JSON.parse(req.body.user);
-    try {
-      Admin.findOne({ _id:userEditForm._id }, function (err, user) {
-        if (err) {
-          res.send({
-            state: "error",
-            message: "Something went wrong. We are looking into it."
-          }, 500);
-        }
-        if (user) {
-           if(userEditForm.user_img){
-                            if(userEditForm.user_img != ""){
+  router.put('/update_user', function (req, res, next) {
+    let userEditForm = req.body;
+    // try {
+        Admin.findOne({ '_id': userEditForm._id}, function (err, user) {
+            if (err) {
+                return res.send({
+                    state: "err",
+                    message: "Something went wrong.We are looking into it."
+                }, 500);
+            }
+                      if (user) {
+                      if(userEditForm.user_img){
+                      if(userEditForm.user_img != ""){
                         
                           let fileExt = "";
                         if (userEditForm.user_img.indexOf("image/png") != -1)
@@ -154,68 +148,64 @@ router.post('/create_user', upload.single('user_img'), function (req, res) {
                           fileExt = "jpeg";
                       else if (userEditForm.user_img.indexOf("image/jpg") != -1)
                           fileExt = "jpg";
-                      else 
+                      else if (userEditForm.user_img.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";  
+                      else
                           fileExt = "png";
                     
                       let imageKey = "user_img/img_" + moment().unix();
-                    console.log(imageKey)
                       if (userEditForm.user_img){
                           utils.uploadToS3(imageKey, fileExt, userEditForm.user_img);
                       delete userEditForm.user_img;
                     }
-                      userEditForm.prof_pic_org_url = imageKey + "." + fileExt;
-                      userEditForm.franchisee_profile_pic = utils.getPreSignedURL(userEditForm.prof_pic_org_url);
+                      userEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                      userEditForm.user_profile_pic = userEditForm.prof_pic_org_url;
                     
                         }else{
-                        userEditForm.user_img = "user_img.png";
+                        userEditForm.user_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
                       }}else{
-                        userEditForm.user_img = "user_img.png";
+                        userEditForm.user_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
                       }
-          user.user_name = userEditForm.user_name;
-          user.user_mail = userEditForm.user_mail;
-          user.user_role = userEditForm.user_role;
-          user.user_status = userEditForm.user_status;
-          user.user_country_code = userEditForm.user_country_code;
-          user.user_phone_number = userEditForm.user_phone_number;
-          user.franchisor_id = userEditForm.franchisor_id;
-          // if (req.file) {
-          //   user.franchisor_user_file_link = req.file.location;
-          //   user.franchisor_user_file_name = req.file.key;
-          //   user.franchisor_user_file_type = req.file.contentType;
-          // }
-          console.log(user)
-          user.save(function (err, user) {
-            if (err) {
-              res.send({
-                state: "failure",
-                message: "Something went wrong."
-              }, 500);
+
+                        user.user_name = userEditForm.user_name;
+                        user.user_mail = userEditForm.user_mail;
+                        user.user_role = userEditForm.user_role;
+                        user.user_status = userEditForm.user_status;
+                        user.user_country_code = userEditForm.user_country_code;
+                        user.user_phone_number = userEditForm.user_phone_number;
+                        user.franchisor_id = userEditForm.franchisor_id;
+                        user.user_type_role = userEditForm.user_type_role;
+                        user.user_pass = createHash(userEditForm.user_pass);
+                        user.user_profile_pic =userEditForm.user_profile_pic;
+                        user.save(function (err, user) {
+                    if (err) {
+                        res.send({
+                            state: "err",
+                            message: "Something went wrong."
+                        }, 500);
+                    }
+                       else {
+                        res.send({
+                            state: "success",
+                            message: "User updated."
+                        }, 200);
+                    }
+                });
             }
-            else {
-              res.send({
-                state: "success",
-                message: "User updated",
-                data:user
-              }, 200);
+            if (!user) {
+                res.send({
+                    state: "failure",
+                    message: "No users found."
+                }, 201);
             }
-          });
-          
-        if (!user) {
-            res.send({
-              state: "failure",
-              message: "User not found."
-            }, 400);
-          }
-        }
-      });
-    }
-    catch (err) {
-      return res.send({
-        state: "error",
-        message: err
-      });
-    }
-  })
+        });
+    // } catch (err) {
+    //     return res.send({
+    //         state: "error",
+    //         message: err
+    //     });
+    // }
+});
 
 //   To get user
 router.get('/get_user', function (req,res){
@@ -233,7 +223,12 @@ router.get('/get_user', function (req,res){
                     message:'No users found'
                 },200)
             }
-            if(user.length > 0){
+            else{
+              // let user_data = [];
+              //     user.forEach((user_img)=>{
+              //       user_img.profile_pic = utils.getPreSignedURL( user_img.profile_pic);
+              //       user_data.push(user_img);
+              //   })
                 return res.send({
                     state:'success',
                     data:user
@@ -265,6 +260,9 @@ router.get('/get_user_by_id/:id', function (req,res){
               },200)
           }
           if(user){
+            // let user_data = [];
+            //   user.profile_pic = utils.getPreSignedURL( partner.profile_pic);
+            //         user_data.push(user);
               return res.send({
                   state:'success',
                   data:user

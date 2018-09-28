@@ -42,9 +42,13 @@ var adminSchema = new mongoose.Schema({
   "user_phone_number": String,
   "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
   "user_status": {type: String, default: 'active'},
-  "user_file_name": String,
-  "user_file_link": String,
-  "user_file_type": String,
+  "profile_pic" : {
+        "image_url" : String,
+        "image_type" : String,
+        "created_on" : Date
+    },
+    "user_profile_pic":{type: Schema.Types.Mixed, default : {}},
+
   "seen_notification":{type: Number, default: 0},
   "verification": {
     "otp": String,

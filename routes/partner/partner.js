@@ -137,9 +137,10 @@ router.post('/validate_partner_email', function (req, res) {
 });
 
 // To Create Partner Franchisee
-router.post('/create_partner_franchisee', upload.single('partner_pic'), function (req, res) {
-    // var partnerForm = JSON.parse(req.body.partner);
-    let partnerForm = req.body;
+router.post('/create_partner_franchisee', function (req, res) {
+    var partnerForm = JSON.parse(req.body.partner);
+    console.log(req.body,'++++++++++++++++++++++++++++++++++++');
+    // let partnerForm = req.body;
     try {
         Partner.findOne({
             'partner_email': partnerForm.partner_email
@@ -158,57 +159,29 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
             }
             if (!partner) {
                 var partner = new Partner();
-                 if(partnerForm.partner_pic){
-                            if(partnerForm.partner_pic != ""){
-                        
-                          let fileExt = "";
-                        if (partnerForm.partner_pic.indexOf("image/png") != -1)
-                          fileExt = "png";
-                      else if (partnerForm.partner_pic.indexOf("image/jpeg") != -1)
-                          fileExt = "jpeg";
-                      else if (partnerForm.partner_pic.indexOf("image/jpg") != -1)
-                          fileExt = "jpg";
-                      else if (partnerForm.partner_pic.indexOf("video/mp4") != -1)
-                          fileExt = "mp4";
-                      else
-                          fileExt = "png";
-                    
-                      let imageKey = "partner_pic/img_" + moment().unix();
-                    console.log(imageKey)
-                      if (partnerForm.partner_pic){
-                          utils.uploadToS3(imageKey, fileExt, partnerForm.partner_pic);
-                      delete partnerForm.partner_pic;
-                    }
-                      partnerForm.prof_pic_org_url = imageKey + "." + fileExt;
-                      partnerForm.franchisee_profile_pic = utils.getPreSignedURL(partnerForm.prof_pic_org_url);
-                    
-                        }else{
-                        partnerForm.partner_pic = "partner_pic.png";
-                      }}else{
-                        partnerForm.partner_pic = "partner_pic.png";
-                      }
-                // if (req.file) {
-                //     var partner_pic = {};
-                //     partner_pic.path = req.file.location;
-                //     partner_pic.key = req.file.key;
-                //     partner.partner_profile_pic = partner_pic;
-                // }
-                // partner.partner_name = partnerForm.partner_name;
-                // partner.partner_occupation = partnerForm.partner_occupation;
-                // partner.partner_email = partnerForm.partner_email;
-                // partner.partner_mobile_number = partnerForm.partner_mobile_number;
-                // partner.partner_age = partnerForm.partner_age;
-                // partner.franchisee_id = partnerForm.franchisee_id;
-                // partner.partner_address = partnerForm.partner_address;
-                // partner.partner_city = partnerForm.partner_city;
-                // partner.partner_state = partnerForm.partner_state;
-                // partner.partner_country = partnerForm.partner_country;
-                // partner.partner_pincode = partnerForm.partner_pincode;
-                // partner.partner_house_number = partnerForm.partner_house_number;
-                // partner.bussiness_type = partnerForm.bussiness_type;
-                // partner.bussiness_type_id = partnerForm.bussiness_type_id;
-                // partner.partner_occupation_others = partnerForm.partner_occupation_others;
-                Partner.create(partnerForm,function (err, partner) {
+             
+                if (req.file) {
+                    var partner_pic = {};
+                    partner_pic.path = req.file.location;
+                    partner_pic.key = req.file.key;
+                    partner.partner_profile_pic = partner_pic;
+                }
+                partner.partner_name = partnerForm.partner_name;
+                partner.partner_occupation = partnerForm.partner_occupation;
+                partner.partner_email = partnerForm.partner_email;
+                partner.partner_mobile_number = partnerForm.partner_mobile_number;
+                partner.partner_age = partnerForm.partner_age;
+                partner.franchisee_id = partnerForm.franchisee_id;
+                partner.partner_address = partnerForm.partner_address;
+                partner.partner_city = partnerForm.partner_city;
+                partner.partner_state = partnerForm.partner_state;
+                partner.partner_country = partnerForm.partner_country;
+                partner.partner_pincode = partnerForm.partner_pincode;
+                partner.partner_house_number = partnerForm.partner_house_number;
+                partner.bussiness_type = partnerForm.bussiness_type;
+                partner.bussiness_type_id = partnerForm.bussiness_type_id;
+                partner.partner_occupation_others = partnerForm.partner_occupation_others;
+                partner.save(function (err, partner) {
                     if (err) {
                         res.send({
                             state: "err",
@@ -361,13 +334,14 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                           utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
                       delete partnerEditForm.partner_pic;
                     }
-                      partnerEditForm.prof_pic_org_url = imageKey + "." + fileExt;
-                      partnerEditForm.partner_profile_pic = utils.getPreSignedURL(partnerEditForm.prof_pic_org_url);
+                      partnerEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                    //   partnerEditForm.partner_profile_pic = utils.getPreSignedURL(partnerEditForm.prof_pic_org_url);
+                      partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
                     
                         }else{
-                        partnerEditForm.partner_profile_pic = "partner_pic.png";
+                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
                       }}else{
-                        partnerEditForm.partner_profile_pic = "partner_pic.png";
+                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
                       }
 
                 partner.partner_name = partnerEditForm.partner_name;
@@ -380,15 +354,11 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                 partner.partner_pincode = partnerEditForm.partner_pincode;
                 partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
                 partner.partner_age = partnerEditForm.partner_age;
-               partner.country_code = partnerEditForm.country_code;
+                partner.country_code = partnerEditForm.country_code;
                 partner.partner_house_number = partnerEditForm.partner_house_number;
                 partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                 partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-               
-                 partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
-                
-
-
+                partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
                 partner.save(function (err, partner) {
                     if (err) {
 
@@ -458,6 +428,11 @@ router.get('/get_partner_franchisee', function (req, res) {
                     "partner_list": []
                 }, 201);
             } else {
+                //   let partner_data = [];
+                // partner.forEach((partner_img)=>{
+                //     partner_img.partner_profile_pic = utils.getPreSignedURL( partner_img.partner_profile_pic);
+                //     partner_data.push(partner_img);
+                // })
                 res.send({
                     "state": "success",
                     "partner_list": partner
@@ -487,6 +462,9 @@ router.get('/get_franchisee_partners/:id', function (req, res) {
                     "data": []
                 }, 201);
             } else {
+                    // let partner_data =[];
+                    //  partner.partner_profile_pic = utils.getPreSignedURL( partner.partner_profile_pic);
+                    // partner_data.push(partner);
                 res.send({
                     state: "success",
                     data: partner
