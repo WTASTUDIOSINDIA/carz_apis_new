@@ -18,6 +18,10 @@ var franchisorSchema = new mongoose.Schema({
         "image_type" : String,
         "created_on" : Date
     },
+    "verification": {
+        "otp": String,
+        "status": { type: Boolean, default: false } //verification status
+    },
     "status": {type: String, default: "inactive"},
     "createdDate": { type: Date, default: Date.now }
 

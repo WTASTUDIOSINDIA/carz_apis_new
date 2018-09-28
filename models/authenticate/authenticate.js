@@ -16,7 +16,11 @@ var superAdminSchema = new mongoose.Schema({
     "user_role":String,
     "user_pass":String,
     "user_name":String,
-    'super_admin_pic':{type: Schema.Types.Mixed, default: {}}
+    "mobile_number" : String,
+    "verification": {
+        "otp": String,
+        "status": { type: Boolean, default: false } //verification status
+      }
 });
 var adminSchema = new mongoose.Schema({
   "user_mail": String,
@@ -46,6 +50,10 @@ var adminSchema = new mongoose.Schema({
     "user_profile_pic":{type: Schema.Types.Mixed, default : {}},
 
   "seen_notification":{type: Number, default: 0},
+  "verification": {
+    "otp": String,
+    "status": { type: Boolean, default: false } //verification status
+  },
   'user_role': {type: String, default:'user'}
 })
 var forgotPasswordSchema = new mongoose.Schema({

@@ -69,6 +69,10 @@ var franchiseeSchema = new mongoose.Schema({
           "status": { type: Boolean, default: false }, //verification status
           "verifiedDate": Date
       },
+    "pass_verification": {
+        "otp": String,
+        "status": { type: Boolean, default: false } //verification status
+    },  
     "franchisee_created_on" : Date  
 });
 
