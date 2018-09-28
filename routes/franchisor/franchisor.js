@@ -262,6 +262,29 @@ router.post('/create', function (req,res){
       }
   
   })
+  router.put('/change_franchisor_status', function(req, res){
+  try {
+    let query = {_id: req.body.franchisor_id};
+    franchisorservice.findOneFranchisor(query)
+    .then((franchisor) => {
+      console.log(franchisor);
+      if(franchisor){
+        franchisor.status = req.body.status;
+        franchisor.save(function(err, saved_franchisor){
+          res.status(200).json({error: "0", message: "Succesfully updated"});
+        });
+        
+      }
+    })  
+  }
+  catch (err) {
+      return res.send({
+          state: "error",
+          message: err
+      });
+  }
+
+  })
 
 
   router.post('/update_franchisor',function (req,res){

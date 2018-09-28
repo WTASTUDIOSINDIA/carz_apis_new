@@ -242,10 +242,10 @@ router.post('/franchisor-login', function (req,res){
         }
     })
     .catch((error) => {
-        if(error.reason == "userNotExist"){
-            res.status(404).json({ error: "2", message: "User not Exists"});
+        if(error.reason == "userNotExist"){ 
+            res.status(203).json({ error: "2", message: "User not Exists"});
         }else if(error.reason == "passworsMmatch"){
-            res.status(401).json({ error: "2", message: "Password is not correct"});
+            res.status(203).json({ error: "2", message: "Password is not correct"});
         }else{
         res.status(500).json({ error: "2", message: "Internal server error"});
         }
