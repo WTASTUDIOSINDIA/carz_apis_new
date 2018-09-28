@@ -12,7 +12,8 @@ aws.config.update({
 var common = require('../common')
 var config = common.config();
 var bucketName = 'celebappfiles';
-
+var otpGenerator = require('otp-generator');
+var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4" ); 
 // AWS.config.loadFromPath('./config/s3_credentials.json');
 
 // const BucketName = config.default.awsS3.bucketName;
@@ -153,7 +154,35 @@ const send_franchisor_change_mail_to_new = (data) => {
             console.log(response);
         }
     });
-    }        
+}    
+
+const sendMobileOTP = (otp, mobile) => {
+   console.log(otp);
+   console.log(mobile);
+    msg91.send(mobile, ""+otp+" is your One Time Password . Please enter OTP .", function(err, response){
+    console.log(err);
+    });
+
+};    
+
+const sendMailOTP = (otp, mail) => {
+    mailOptions.to = mail;
+    mailOptions.subject = 'OTP - Carz';
+    mailOptions.html = otp+' is your One Time Password . Please enter OTP.';
+  
+    transporter.sendMail(mailOptions, function(error, response){
+        if(error){
+            console.log(error);
+        }
+        else{
+            console.log(response);
+        }
+    });
+};   
+
+const generateOTP = () => {
+    return otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
+  }  
 
 module.exports =  {
     send_mail,
@@ -162,5 +191,8 @@ module.exports =  {
     uploadToS3,
     getPreSignedURL,
     send_franchisor_change_mail_to_old,
-    send_franchisor_change_mail_to_new
+    send_franchisor_change_mail_to_new,
+    sendMobileOTP,
+    sendMailOTP,
+    generateOTP
   };

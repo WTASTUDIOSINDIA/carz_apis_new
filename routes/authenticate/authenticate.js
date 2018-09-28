@@ -10,6 +10,12 @@ var crypto = require('crypto');
 var nodemailer = require('nodemailer');
 var otpGenerator = require("otp-generator");
 var authService = require('./authenticate-service');
+var utils = require('../../common/utils');
+const objectId = mongoose.Types.ObjectId;
+var bCrypt = require('bcrypt-nodejs');
+var createHash = function(password){
+    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+};
 
 module.exports = function(passport){
     //sends successful login state back to angular
@@ -399,6 +405,320 @@ router.post('/franchisor-login', function (req,res){
       //      }
       //  })
     })
+
+
+  router.post('/forgotpassword', function (req,res){
+
+    let data = req.body;
+    var otp = utils.generateOTP();
+    if(data.user_mail) {
+
+        authService.findSuperAdmin({user_mail: data.user_mail}, '')
+      .then((response) => {
+        if(response){
+          console.log(response.user_role);
+          utils.sendMobileOTP(otp,response.mobile_number);   
+          utils.sendMailOTP(otp,response.user_mail);
+          response.verification = {
+              otp : otp
+          }
+          response.save()
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+         
+        }else { 
+        return authService.findFranchisor({user_mail: data.user_mail}, '')
+          //return authService.create(data);
+        }
+      })
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(otp,response.phone_number);   
+          utils.sendMailOTP(otp,response.user_mail);
+          response.verification = {
+            otp : otp
+          }
+          response.save()
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+        }else { 
+        return authService.findFranchisee({franchisee_email: data.user_mail}, '')
+          //return authService.create(data);
+        }
+      })
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
+          utils.sendMailOTP(otp,response.franchisee_mail);
+          response.pass_verification = {
+            otp : otp
+          }
+          response.save()
+          response.franchisee_pass = undefined;
+          //response.pass_verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+        }else { 
+        return authService.findUser({user_mail: data.user_mail}, '')
+        }
+      })
+
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(otp,response.user_phone_number);   
+          utils.sendMailOTP(otp,response.user_mail);
+          response.verification = {
+            otp : otp
+          }
+          response.save()
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+        }else {
+          throw {
+            reason: "notExists"
+          }
+        }
+      })
+     
+      .catch((err) => {
+      if(err.reason == "notExists")
+        res.status(203).json({error:'3',message:"User not Exists with the given email"});
+       else
+        res.status(500).json({error:'4',message:"Internal Sever Error"});
+      });
+    } else {
+      res.status(203).json({error:'2',message:"Please enter email address."});
+    }
+  
+  })
+
+  router.post('/resendotp', function (req,res){
+
+    let data = req.body;
+    if(data.user_mail) {
+
+        authService.findSuperAdmin({user_mail: data.user_mail}, '')
+      .then((response) => {
+        if(response){
+          console.log(response.user_role);
+          utils.sendMobileOTP(response.verification.otp,response.mobile_number);   
+          utils.sendMailOTP(response.verification.otp,response.user_mail);
+          
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
+         
+        }else { 
+        return authService.findFranchisor({user_mail: data.user_mail}, '')
+          //return authService.create(data);
+        }
+      })
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(response.verification.otp,response.phone_number);   
+          utils.sendMailOTP(response.verification.otp,response.user_mail);
+          
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
+        }else { 
+        return authService.findFranchisee({franchisee_email: data.user_mail}, '')
+          //return authService.create(data);
+        }
+      })
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(response.verification.otp,response.franchisee_mobile_number);   
+          utils.sendMailOTP(response.verification.otp,response.franchisee_mail);
+          
+          response.franchisee_pass = undefined;
+          response.pass_verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
+        }else { 
+        return authService.findUser({user_mail: data.user_mail}, '')
+        }
+      })
+
+      .then((response) => {
+        if(response){
+            console.log(response.user_role);
+          utils.sendMobileOTP(response.verification.otp,response.user_phone_number);   
+          utils.sendMailOTP(response.verification.otp,response.user_mail);
+          
+          response.user_pass = undefined;
+          response.verification = undefined;
+          res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
+        }else {
+          throw {
+            reason: "notExists"
+          }
+        }
+      })
+     
+      .catch((err) => {
+      if(err.reason == "notExists")
+        res.status(203).json({error:'3',message:"User not Exists with the given email"});
+       else
+        res.status(500).json({error:'4',message:"Internal Sever Error"});
+      });
+    } else {
+      res.status(203).json({error:'2',message:"Please enter email address."});
+    }
+  })
+
+
+  router.post('/verifyotp_and_resetpass', function (req,res){
+
+    let data = req.body;
+    if(data.user_role && data.user_pass && data.id && data.otp) {
+
+        if(data.user_role == "super_admin"){
+
+            authService.findSuperAdmin({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(response.verification && response.verification.otp && response.verification.otp == data.otp){
+                      response.user_pass = createHash(data.user_pass);
+                      response.verification = undefined;
+                      return response.save();
+                    } else {
+                      throw {
+                        reason : "OTPMisMatch"
+                      }
+                    }
+                  } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                res.status(200).json({ error: "0", message: "Your OTP Verfication and reset password is successful",data:response});
+              })
+              .catch((err) => {
+                if(err.reason == "OTPMisMatch")
+                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                else if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else if(data.user_role == "franchisor"){
+
+            authService.findFranchisor({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(response.verification && response.verification.otp && response.verification.otp == data.otp){
+                      response.user_pass = createHash(data.user_pass);
+                      response.verification = undefined;
+                      return response.save();
+                    } else {
+                      throw {
+                        reason : "OTPMisMatch"
+                      }
+                    }
+                  } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                res.status(200).json({ error: "0", message: "Your OTP Verfication and reset password is successful",data:response});
+              })
+              .catch((err) => {
+                if(err.reason == "OTPMisMatch")
+                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                else if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else if(data.user_role == "franchisee"){
+
+            authService.findFranchisee({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(response.pass_verification && response.pass_verification.otp && response.pass_verification.otp == data.otp){
+                      response.user_pass = createHash(data.user_pass);
+                      response.pass_verification = undefined;
+                      return response.save();
+                    } else {
+                      throw {
+                        reason : "OTPMisMatch"
+                      }
+                    }
+                  } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                res.status(200).json({ error: "0", message: "Your OTP Verfication and reset password is successful",data:response});
+              })
+              .catch((err) => {
+                if(err.reason == "OTPMisMatch")
+                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                else if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else if(data.user_role == "user"){
+
+            authService.findFranchisor({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(response.verification && response.verification.otp && response.verification.otp == data.otp){
+                      response.user_pass = createHash(data.user_pass);
+                      response.verification = undefined;
+                      return response.save();
+                    } else {
+                      throw {
+                        reason : "OTPMisMatch"
+                      }
+                    }
+                  } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                res.status(200).json({ error: "0", message: "Your OTP Verfication is successful",data:response});
+              })
+              .catch((err) => {
+                if(err.reason == "OTPMisMatch")
+                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                else if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else{
+            res.status(203).json({error:'2',message:"User role is not existed"});
+        }
+
+    } else {
+      res.status(203).json({error:'2',message:"Missing required parameters(user_role,user_pass,id)"});
+    }
+  })
 
     return router;
 }
