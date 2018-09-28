@@ -263,7 +263,7 @@ router.post('/create', function (req,res){
   
   })
 
-
+/*
   router.post('/update_franchisor',function (req,res){
     let data = req.body;
     if(data.id) {
@@ -312,6 +312,8 @@ router.post('/create', function (req,res){
               "image_type" : fileExt,
               "created_on" : new Date()
           }
+
+          
       
         if(response.user_mail == data.user_mail){
           response.description =  data.description;
@@ -419,7 +421,174 @@ router.post('/create', function (req,res){
       }
   
   })
+  */
+
+ router.post('/update_franchisor', utils.upload.single('profile_pic'),function (req,res){
+
+  //let data = JSON.parse(req.body.user);
+  let data = req.body;
+  if(data.id) {
+  if(data.id.length == 24) {
   
+  let id = objectId(data.id);
+
+  let query = {_id:id};
+  var existed_response = "";
+  var prof_pic_url = "";
+  franchisorservice.findOneFranchisor(query)
+  .then((response) => {
+    if(response){
+      let fileExt = "";
+            if(data.user_img){
+                    if(data.user_img != ""){
+                        
+                     
+                      if (data.user_img.indexOf("image/png") != -1)
+                          fileExt = "png";
+                      else if (data.user_img.indexOf("image/jpeg") != -1)
+                          fileExt = "jpeg";
+                      else if (data.user_img.indexOf("image/jpg") != -1)
+                          fileExt = "jpg";
+                      else if (data.user_img.indexOf("video/mp4") != -1)
+                          fileExt = "mp4";
+                      else
+                          fileExt = "png";
+                    
+                      let imageKey = "user_img/img_" + moment().unix();
+
+                      if (data.user_img){
+                    
+                      utils.uploadToS3(imageKey, fileExt, data.user_img);
+                      
+                    }
+                      prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                   
+                        }else{
+                       prof_pic_url = "carz_pic.jpg";
+                      }}else{
+                        prof_pic_url = "carz_pic.jpg";
+                      }
+      
+          response.profile_pic = {
+              "image_url" : prof_pic_url,
+              "image_type" : fileExt,
+              "created_on" : new Date()
+          }
+      if(response.user_mail == data.user_mail){
+        response.description =  data.description;
+        response.user_website = data.user_website;
+        response.country_code = data.country_code;
+        response.user_name = data.user_name;
+        response.phone_number = data.phone_number;
+        existed_response = response;
+        //res.status(200).json({ error: "0", message: "Succesfully updated"});
+      }else{
+        return franchisorservice.findFranchisor({user_mail: data.user_mail}, '')
+       
+      }
+    }else{
+      throw {
+        reason: "notExists"
+      }
+    }
+    
+  })
+
+  .then((response) => {
+    console.log(response);
+    if(response){
+      throw {
+        reason: "Exists"
+      }
+    }else { 
+    return franchisorservice.findUser({user_mail: data.user_mail}, '')
+      //return franchisorservice.create(data);
+    }
+  })
+  .then((response) => {
+    if(response){
+      throw {
+        reason: "Exists"
+      }
+    }else { 
+    return franchisorservice.findSuperAdmin({user_mail: data.user_mail}, '')
+    }
+  })
+
+  .then((response) => {
+    if(response){
+      throw {
+        reason: "Exists"
+      }
+    }else {
+      return franchisorservice.findOneFranchisor(query);
+    }
+  })
+  
+  .then((response) => {
+    if(response){
+      if(response.user_mail == data.user_mail){
+        return existed_response.save();
+      }else{
+      utils.send_franchisor_change_mail_to_old(response.user_mail);  
+      response.profile_pic = {
+        "image_url" : prof_pic_url,
+        "image_type" : fileExt,
+        "created_on" : new Date()
+      }
+      response.user_mail = data.user_mail;
+      response.description =  data.description;
+      response.user_website = data.user_website;
+      response.country_code = data.country_code;
+      response.user_name = data.user_name;
+      response.phone_number = data.phone_number;
+      if(response.user_pass != ""){
+        response.old_pass = response.user_pass;
+      }
+      response.user_pass = "";
+      response.status = "inactive";
+
+      utils.send_franchisor_change_mail_to_new(response);
+      
+      return response.save();
+    }
+    }else{
+      throw {
+        reason: "notExists"
+      }
+    }
+  })
+
+  .then((response) => {
+    if(response){
+      response.user_pass = undefined;
+     res.status(200).json({ error: "0", message: "Succesfully updated"});
+    }else{
+      res.status(203).json({ error: "1", message: "Uncaught error!"});
+    }
+  })
+
+  .catch((error) => {
+    if(error.reason == "notExists"){
+      res.status(203).json({ error: "1", message: "User not found"});
+    }else if(error.reason == "Exists"){
+      res.status(203).json({ error: "1", message: "Email already existed."});
+    }else if(error.reason == "alreadySet"){
+      res.status(203).json({ error: "1", message: "Password has been already set"});
+    }else{
+      res.status(500).json({ error: "4", message: "Internal server error"});
+    }
+    
+  });
+  }else{
+      res.status(200).json({error:'3',message:"Please enter valid Franchisorid."});
+    }}
+    else{
+      res.status(203).json({error:'2',message:"Id is required."});
+    }
+
+})
+
 
 
   router.post('/confirm_mail', function (req,res){
