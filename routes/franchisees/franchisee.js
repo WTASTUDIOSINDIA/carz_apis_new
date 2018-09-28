@@ -250,7 +250,32 @@ router.post('/get_all_leads', (req, res) => {
         })
 })
 
-// get all leads count
+router.post('/get_leads_by_location', (req, res) => {
+    console.log(req.body);
+    if (req.body.country && !req.body.state && !req.body.city) {
+        query = { 'franchisee_country': req.body.country }
+    }
+    if (req.body.country && req.body.state && !req.body.city) {
+        query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state }
+    }
+    if (req.body.country && req.body.state && req.body.city) {
+        query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }
+    }
+    Franchisee.find( query, (err, data) => {
+        if (err) {
+            return res.json(500, err);
+        }
+        if (data) {
+            return res.json({
+                state: 'success',
+                message: 'Successfully fetched leads by location',
+                no_of_leads: data.length
+            })
+        }
+    })
+})
+
+// get franchisee status
 router.post('/get_franchisee_status', (req, res) => {
     let status = {
         profile_pending: 0,
