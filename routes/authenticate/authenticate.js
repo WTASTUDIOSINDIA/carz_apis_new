@@ -424,8 +424,11 @@ router.post('/franchisor-login', function (req,res){
           }
           response.save()
         //   response.user_pass = undefined;
-          response.verification = undefined;
-          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+         // response.verification = undefined;
+         let resp_data ={};
+         resp_data.user_mail = response.user_mail;
+         resp_data._id = response._id;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
          
         }else { 
         return authService.findFranchisor({user_mail: data.user_mail}, '')
@@ -441,9 +444,10 @@ router.post('/franchisor-login', function (req,res){
             otp : otp
           }
           response.save()
-        //   response.user_pass = undefined;
-          response.verification = undefined;
-          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+          let resp_data ={};
+          resp_data.user_mail = response.user_mail;
+          resp_data._id = response._id;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findFranchisee({franchisee_email: data.user_mail}, '')
           //return authService.create(data);
@@ -451,16 +455,17 @@ router.post('/franchisor-login', function (req,res){
       })
       .then((response) => {
         if(response){
-            console.log(response.user_role);
+          
           utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
-          utils.sendMailOTP(otp,response.franchisee_mail);
+          utils.sendMailOTP(otp,response.franchisee_email);
           response.pass_verification = {
             otp : otp
           }
           response.save()
-        //   response.franchisee_pass = undefined;
-          //response.pass_verification = undefined;
-          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+          let resp_data ={};
+          resp_data.franchisee_email = response.franchisee_email;
+          resp_data._id = response._id;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findUser({user_mail: data.user_mail}, '')
         }
@@ -475,9 +480,10 @@ router.post('/franchisor-login', function (req,res){
             otp : otp
           }
           response.save()
-        //   response.user_pass = undefined;
-          response.verification = undefined;
-          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
+          let resp_data ={};
+          resp_data.user_mail = response.user_mail;
+          resp_data._id = response._id;
+          res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else {
           throw {
             reason: "notExists"
@@ -588,6 +594,7 @@ router.post('/franchisor-login', function (req,res){
                     if(response.verification && response.verification.otp && response.verification.otp == data.otp){
                       response.user_pass = createHash(data.user_pass);
                       response.verification = undefined;
+                      console.log(response);
                       return response.save();
                     } else {
                       throw {
@@ -652,7 +659,7 @@ router.post('/franchisor-login', function (req,res){
             .then((response) => {
                 if(response) {
                     if(response.pass_verification && response.pass_verification.otp && response.pass_verification.otp == data.otp){
-                      response.user_pass = createHash(data.user_pass);
+                      response.franchisee_pass = createHash(data.user_pass);
                       response.pass_verification = undefined;
                       return response.save();
                     } else {
