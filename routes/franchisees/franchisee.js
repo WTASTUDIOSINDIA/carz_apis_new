@@ -1925,25 +1925,18 @@ async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_I
         if (sub_stage_name == 'nda' || sub_stage_name == 'payment') {
             folder.folder_name = 'Discussion';
         }
-        folder.save(function (err, folder) {
+        if (sub_stage_name == 'aggrement' || sub_stage_name == 'aggrement_Copy') {
+            folder.folder_name = 'Agreements';
+        }
+        await folder.save(async function (err, folder) {
             if (err) {
                 console.log(err, 'folder_error');
             }
             if (folder) {
                 //            console.log(folder, 'folderdata');
                 folder_Id = folder._id;
-            }
-            folder.save(function (err, folder) {
-                if (err) {
-                    console.log(err, 'folder_error');
-                }
-                if (folder) {
-                    //            console.log(folder, 'folderdata');
-                    folder_Id = folder._id;
-                }
-
-            })
-        })
+            }            
+        
         console.log(folder_Id, "1504");
         var library = new Library();
         library.path = obj.location;
@@ -1973,11 +1966,79 @@ async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_I
                 console.log(library._id, "1189");
                 Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
                     //payment, nda, aggrement, aggrement_Copy
+                    console.log(sub_stage_name, '1976666666');
                     if (sub_stage_name == 'payment') {
                         stage.stage_discussion.first_payment_library_file_id = library._id;
                     }
                     if (sub_stage_name == 'nda') {
                         stage.stage_discussion.nda_library_file_id = library._id;
+                        console.log(stage.stage_discussion.nda_library_file_id, '19811111')
+                    }
+                    if (sub_stage_name == 'aggrement') {
+                        stage.stage_agreenent.second_payment_library_file_id = library._id;
+                    }
+                    if (sub_stage_name == 'aggrement_Copy') {
+                        stage.stage_agreenent.final_agreement_library_file_id = library._id;
+                    }
+                    stage.save(function (err, stage) {
+                        if (err) {
+                            console.log(err, "error while saving stage files");
+                        }
+                        if (stage) {
+                            console.log(stage, "library file attached to files");
+                        }
+                    })
+
+                    //  get_id_of_crm_file = library._id;
+                    return library._id;
+                    //     return new Promise(resolve => {
+                    //
+                    //     resolve('resolved');
+                    //
+                    // });
+                })
+            }
+
+        });
+    })
+    }
+    if (folder_Id) {        
+        console.log(folder_Id, "1504");
+        var library = new Library();
+        library.path = obj.location;
+        library.key = obj.key;
+        library.file_name = obj.originalname;
+        if (obj.mimetype == "application/pdf") {
+            library.image_type = "pdf";
+        }
+        if (obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif") {
+            library.image_type = "image";
+        }
+        library.uploaded_status = status;
+        library.date_uploaded = Date.now();
+        library.folder_Id = folder_Id;
+        library.franchisee_Id = franchisee_Id;
+        await library.save(function (err, library) {
+            console.log(library, '1914 file line');
+            if (err) {
+                res.send({
+                    status: 500,
+                    state: "err",
+                    message: "Something went wrong."
+                }, 500);
+            }
+
+            else {
+                console.log(library._id, "1189");
+                Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
+                    //payment, nda, aggrement, aggrement_Copy
+                    console.log(sub_stage_name, '1976666666');
+                    if (sub_stage_name == 'payment') {
+                        stage.stage_discussion.first_payment_library_file_id = library._id;
+                    }
+                    if (sub_stage_name == 'nda') {
+                        stage.stage_discussion.nda_library_file_id = library._id;
+                        console.log(stage.stage_discussion.nda_library_file_id, '19811111')
                     }
                     if (sub_stage_name == 'aggrement') {
                         stage.stage_agreenent.second_payment_library_file_id = library._id;

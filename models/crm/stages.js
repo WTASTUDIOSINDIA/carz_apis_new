@@ -28,7 +28,7 @@ var stagesSchema = new mongoose.Schema({
     "nda_status": { type: String, default: 'pending' }, //pending, rejected, approved
     "application_status": { type: String, default: 'pending' },
     "nda_file_name": String,
-    "nda_library_file_id": String,
+    "nda_library_file_id": { type: Schema.Types.ObjectId, ref: 'Library' },
     "nda_file_uploaded": Date,
     "nda_file_type": { type: String, default: 'docs' },
     "franchisee_id": String,
