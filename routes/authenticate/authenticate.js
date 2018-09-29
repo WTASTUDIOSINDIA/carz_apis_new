@@ -428,6 +428,7 @@ router.post('/franchisor-login', function (req,res){
          let resp_data ={};
          resp_data.user_mail = response.user_mail;
          resp_data._id = response._id;
+         resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
          
         }else { 
@@ -447,6 +448,7 @@ router.post('/franchisor-login', function (req,res){
           let resp_data ={};
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findFranchisee({franchisee_email: data.user_mail}, '')
@@ -465,6 +467,7 @@ router.post('/franchisor-login', function (req,res){
           let resp_data ={};
           resp_data.franchisee_email = response.franchisee_email;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findUser({user_mail: data.user_mail}, '')
@@ -483,6 +486,7 @@ router.post('/franchisor-login', function (req,res){
           let resp_data ={};
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else {
           throw {
@@ -613,9 +617,9 @@ router.post('/franchisor-login', function (req,res){
               })
               .catch((err) => {
                 if(err.reason == "OTPMisMatch")
-                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                  res.status(203).json({error:'1',message:"Your OTP doesn't match"});
                 else if(err.reason == "NotFound")
-                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                  res.status(203).json({error:'2',message:"Details not found with the given username"});
                 else
                   res.status(500).json({error:'3',message:"Internal Sever Error"});
               });
@@ -646,9 +650,9 @@ router.post('/franchisor-login', function (req,res){
               })
               .catch((err) => {
                 if(err.reason == "OTPMisMatch")
-                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                  res.status(203).json({error:'1',message:"Your OTP doesn't match"});
                 else if(err.reason == "NotFound")
-                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                  res.status(203).json({error:'2',message:"Details not found with the given username"});
                 else
                   res.status(500).json({error:'3',message:"Internal Sever Error"});
               });
@@ -679,9 +683,9 @@ router.post('/franchisor-login', function (req,res){
               })
               .catch((err) => {
                 if(err.reason == "OTPMisMatch")
-                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                  res.status(203).json({error:'1',message:"Your OTP doesn't match"});
                 else if(err.reason == "NotFound")
-                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                  res.status(203).json({error:'2',message:"Details not found with the given username"});
                 else
                   res.status(500).json({error:'3',message:"Internal Sever Error"});
               });
@@ -713,9 +717,9 @@ router.post('/franchisor-login', function (req,res){
               })
               .catch((err) => {
                 if(err.reason == "OTPMisMatch")
-                  res.status(400).json({error:'1',message:"Your OTP doesn't match"});
+                  res.status(203).json({error:'1',message:"Your OTP doesn't match"});
                 else if(err.reason == "NotFound")
-                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                  res.status(203).json({error:'2',message:"Details not found with the given username"});
                 else
                   res.status(500).json({error:'3',message:"Internal Sever Error"});
               });
