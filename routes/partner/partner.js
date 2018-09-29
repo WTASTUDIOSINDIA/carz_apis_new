@@ -137,9 +137,8 @@ router.post('/validate_partner_email', function (req, res) {
 });
 
 // To Create Partner Franchisee
-router.post('/create_partner_franchisee', function (req, res) {
+router.post('/create_partner_franchisee', upload.single('partner_pic'), function (req, res) {
     var partnerForm = JSON.parse(req.body.partner);
-    console.log(req.body,'++++++++++++++++++++++++++++++++++++');
     // let partnerForm = req.body;
     try {
         Partner.findOne({
@@ -159,7 +158,7 @@ router.post('/create_partner_franchisee', function (req, res) {
             }
             if (!partner) {
                 var partner = new Partner();
-             
+                
                 if (req.file) {
                     var partner_pic = {};
                     partner_pic.path = req.file.location;
