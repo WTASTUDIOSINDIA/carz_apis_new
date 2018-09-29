@@ -577,6 +577,7 @@ router.post('/franchisor-login', function (req,res){
   router.post('/verifyotp_and_resetpass', function (req,res){
 
     let data = req.body;
+    console.log(req.body);
     if(data.user_role && data.user_pass && data.id && data.otp) {
 
         if(data.user_role == "super_admin"){
