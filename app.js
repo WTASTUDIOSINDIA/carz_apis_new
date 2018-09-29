@@ -50,7 +50,8 @@ var mongoose = require('mongoose');      //add for Mongo support
 //mongoose.connect('mongodb://localhost/carz-api');
 //\LIVE CARZ USING IT  from carz-api heroku
 // mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
-
+console.log("database-------"+JSON.stringify(config));
+console.log("database-------"+config.database);
 //DEVELOPMENT // from carz-web heroku/
  mongoose.connect(config.database);
 
