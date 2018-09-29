@@ -261,6 +261,7 @@ router.post('/get_leads_by_location', (req, res) => {
     if (req.body.country && req.body.state && req.body.city) {
         query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }
     }
+    console.log(query, 'query');
     Franchisee.find( query, (err, data) => {
         if (err) {
             return res.json(500, err);
@@ -395,6 +396,8 @@ router.post('/get_total_revenue', (req, res) => {
     date = new Date(req.body.date);
     var one_lac_total = 0;
     var four_lac_total = 0;
+    var total_leads = 0;
+    var progress = 0;
     Stages.aggregate([
         { $match: { 'stage_discussion.payment_status': 'uploaded' } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
@@ -417,12 +420,25 @@ router.post('/get_total_revenue', (req, res) => {
                 })
         })
         .then(() => {
+            return Stages.aggregate([
+                { $match:{} },
+                { $group: { _id: null, count: { $sum: 1 } } }
+            ]).exec()
+                .then((leads_count) => {
+                    console.log(leads_count);
+                    total_leads = leads_count[0].count * 5 * 100000;
+                })
+        })
+        .then(() => {
+            progress = ((one_lac_total + four_lac_total)/total_leads) * 100;
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched total revenue',
                 'total_one_lac_revenue': one_lac_total,
                 'total_four_lac_revenue': four_lac_total,
-                'total_revenue': one_lac_total + four_lac_total
+                'total_received': one_lac_total + four_lac_total,
+                'total_revenue': total_leads,
+                'progress': progress
             })
         })
         .catch((err) => {
@@ -446,7 +462,7 @@ router.post('/get_revenue_by_month', (req, res) => {
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
         .then((one_lac) => {
-            console.log(one_lac)
+            console.log(one_lac, 'one_lac')
             if (one_lac[0] !== undefined) {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
