@@ -423,7 +423,7 @@ router.post('/franchisor-login', function (req,res){
               otp : otp
           }
           response.save()
-          response.user_pass = undefined;
+        //   response.user_pass = undefined;
           response.verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
          
@@ -441,7 +441,7 @@ router.post('/franchisor-login', function (req,res){
             otp : otp
           }
           response.save()
-          response.user_pass = undefined;
+        //   response.user_pass = undefined;
           response.verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
         }else { 
@@ -458,7 +458,7 @@ router.post('/franchisor-login', function (req,res){
             otp : otp
           }
           response.save()
-          response.franchisee_pass = undefined;
+        //   response.franchisee_pass = undefined;
           //response.pass_verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
         }else { 
@@ -475,7 +475,7 @@ router.post('/franchisor-login', function (req,res){
             otp : otp
           }
           response.save()
-          response.user_pass = undefined;
+        //   response.user_pass = undefined;
           response.verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: response});
         }else {
@@ -679,9 +679,10 @@ router.post('/franchisor-login', function (req,res){
               });
 
         }else if(data.user_role == "user"){
-
-            authService.findFranchisor({_id:objectId(data.id)}, '')
+            console.log('************************',data.user_role)
+            authService.findUser({_id:objectId(data.id)}, '')
             .then((response) => {
+                console.log('#######################3', response);
                 if(response) {
                     if(response.verification && response.verification.otp && response.verification.otp == data.otp){
                       response.user_pass = createHash(data.user_pass);

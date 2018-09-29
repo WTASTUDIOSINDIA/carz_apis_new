@@ -187,7 +187,8 @@ router.post('/create_user', function (req, res) {
                        else {
                         res.send({
                             state: "success",
-                            message: "User updated."
+                            message: "User updated.",
+                            data:user
                         }, 200);
                     }
                 });
