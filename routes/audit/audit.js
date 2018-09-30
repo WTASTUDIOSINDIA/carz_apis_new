@@ -323,11 +323,11 @@ router.put('/update_audit_checklist', function (req,res){
             }
             if(audit_checklist){
                 audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
-                audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
+               // audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
                 audit_checklist.audit_visible_to = req.body.audit_visible_to;
                 audit_checklist.created_at = req.body.created_at;
                 audit_checklist.audit_description = req.body.audit_description;
-                audit_checklist.checklist_type_id = req.body.checklist_type_id;
+                //audit_checklist.checklist_type_id = req.body.checklist_type_id;
                 audit_checklist.save(function(err, audit_checklist){
                     if(err){
                         res.send({

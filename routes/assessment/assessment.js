@@ -186,7 +186,7 @@ router.get('/question_types_by_version/:franchisor_id',function(req,res){
 
 router.post('/question_list',function(req,res){
     try{
-        Question.findOne({'question_EN':req.body.question,'question_type':req.body.question_type},function(err,ques){
+        Question.findOne({'question_EN':req.body.question_EN,'question_type':req.body.question_type},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
