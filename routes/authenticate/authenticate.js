@@ -587,7 +587,6 @@ router.post('/franchisor-login', function (req,res){
   router.post('/verifyotp_and_resetpass', function (req,res){
 
     let data = req.body;
-    console.log(req.body);
     if(data.user_role && data.user_pass && data.id && data.otp) {
 
         if(data.user_role == "super_admin"){
@@ -691,10 +690,10 @@ router.post('/franchisor-login', function (req,res){
               });
 
         }else if(data.user_role == "user"){
-            console.log('************************',data.user_role)
+           
             authService.findUser({_id:objectId(data.id)}, '')
             .then((response) => {
-                console.log('#######################3', response);
+               
                 if(response) {
                     if(response.verification && response.verification.otp && response.verification.otp == data.otp){
                       response.user_pass = createHash(data.user_pass);
@@ -733,5 +732,204 @@ router.post('/franchisor-login', function (req,res){
     }
   })
 
+
+
+  router.post('/save_profile', function (req,res){
+
+    let data = req.body;
+    var otp = utils.generateOTP();
+    console.log(data);
+    if(data.user_role && data.user_name && data.id) {
+
+        if(data.user_role == "super_admin"){
+
+            authService.findSuperAdmin({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.mobile_number);   
+                        utils.sendMailOTP(otp,response.user_mail);
+                        response.verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.user_name = data.user_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                
+                response.user_pass = undefined;
+                if(response.verification.otp == otp){
+                    response.verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else if(data.user_role == "franchisor"){
+
+            authService.findFranchisor({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.mobile_number);   
+                        utils.sendMailOTP(otp,response.user_mail);
+                        response.verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.user_name = data.user_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                if(response.verification.otp == otp){
+                    response.verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else if(data.user_role == "franchisee"){
+
+            authService.findFranchisee({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
+                        utils.sendMailOTP(otp,response.franchisee_email);
+                        response.pass_verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.franchisee_name = data.franchisee_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                if(response.verification.otp == otp){
+                    response.verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+           
+
+        }else if(data.user_role == "user"){
+           
+            authService.findUser({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.mobile_number);   
+                        utils.sendMailOTP(otp,response.user_mail);
+                        response.verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.user_name = data.user_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.user_pass = undefined;
+                if(response.verification.otp == otp){
+                    response.verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+
+        }else{
+            res.status(203).json({error:'2',message:"User role is not existed"});
+        }
+
+    } else {
+      res.status(203).json({error:'2',message:"Missing required parameters(user_role,user_pass,id)"});
+    }
+  })
+
     return router;
 }
+
+
+//8143117996
