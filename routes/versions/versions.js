@@ -237,7 +237,7 @@ router.delete('/delete_version/:version_id', function(req, res){
 })
 router.put('/edit_version', function(req, res){
   try {
-    Versions.findOne({version_name:{$regex: new RegExp (req.body.version_name,'i')}}, function(err, version){
+    Versions.findOne({version_name:{$regex: new RegExp (req.body.version_name,'i')}, version_type: req.body.version_type}, function(err, version){
       if(err){
         return res.send({
             state: "failure",
