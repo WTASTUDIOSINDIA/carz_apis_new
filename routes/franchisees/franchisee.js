@@ -835,10 +835,10 @@ router.post('/create_franchisee', function (req, res) {
                                 stage.stage_profile = franchisee.stage_profile
                                 stage.save((err) => {
                                     if (err, stage) {
-                                        // console.log(err, 'errorrrr');
+                                        console.log(err, 'errorrrr');
                                     }
                                     if (stage) {
-                                        // console.log('Stage saved', stage)
+                                        console.log('Stage saved', stage)
                                     }
                                 });
 
@@ -1072,9 +1072,9 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
             }
             //If franchisee found,it will enter inside
             if (franchisee) {
-                    franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
+                franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
                     franchisee.franchisee_name = franchiseeEditForm.franchisee_name,
-                    franchisee.franchisee_occupation = franchisee.franchisee_occupation,
+                    franchisee.franchisee_occupation = franchiseeEditForm.franchisee_occupation,
                     franchisee.franchisee_email = franchiseeEditForm.franchisee_email,
                     franchisee.franchisee_city = franchiseeEditForm.franchisee_city,
                     franchisee.franchisee_state = franchiseeEditForm.franchisee_state,

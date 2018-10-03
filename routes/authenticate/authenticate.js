@@ -793,7 +793,7 @@ router.post('/franchisor-login', function (req,res){
             .then((response) => {
                 if(response) {
                     if(data.user_pass){
-                        utils.sendMobileOTP(otp,response.mobile_number);   
+                        utils.sendMobileOTP(otp,response.phone_number);   
                         utils.sendMailOTP(otp,response.user_mail);
                         response.verification = {
                             otp : otp
