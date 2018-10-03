@@ -508,10 +508,10 @@ router.post('/franchisor-login', function (req,res){
   })
 
   router.post('/resendotp', function (req,res){
-
+    console.log('--------------------',req.body);
     let data = req.body;
     if(data.user_mail) {
-
+        console.log('++++++++++++++++++++++++++///',data.user_mail);
         authService.findSuperAdmin({user_mail: data.user_mail}, '')
       .then((response) => {
         if(response){
@@ -529,13 +529,14 @@ router.post('/franchisor-login', function (req,res){
         }
       })
       .then((response) => {
+          conosle.log('+++++++++++++++++++', response);
         if(response){
             console.log(response.user_role);
           utils.sendMobileOTP(response.verification.otp,response.phone_number);   
           utils.sendMailOTP(response.verification.otp,response.user_mail);
           
-          response.user_pass = undefined;
-          response.verification = undefined;
+        //   response.user_pass = undefined;
+        //   response.verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
         }else { 
         return authService.findFranchisee({franchisee_email: data.user_mail}, '')
@@ -546,10 +547,10 @@ router.post('/franchisor-login', function (req,res){
         if(response){
             console.log(response.user_role);
           utils.sendMobileOTP(response.verification.otp,response.franchisee_mobile_number);   
-          utils.sendMailOTP(response.verification.otp,response.franchisee_mail);
+          utils.sendMailOTP(response.verification.otp,response.franchisee_email);
           
-          response.franchisee_pass = undefined;
-          response.pass_verification = undefined;
+        //   response.franchisee_pass = undefined;
+        //   response.pass_verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
         }else { 
         return authService.findUser({user_mail: data.user_mail}, '')
@@ -562,8 +563,8 @@ router.post('/franchisor-login', function (req,res){
           utils.sendMobileOTP(response.verification.otp,response.user_phone_number);   
           utils.sendMailOTP(response.verification.otp,response.user_mail);
           
-          response.user_pass = undefined;
-          response.verification = undefined;
+        //   response.user_pass = undefined;
+        //   response.verification = undefined;
           res.status(200).json({ error: "0", message: "OTP has been resent to your mail and mobile number", data: response});
         }else {
           throw {
