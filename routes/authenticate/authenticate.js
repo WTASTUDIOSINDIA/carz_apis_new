@@ -854,12 +854,12 @@ router.post('/franchisor-login', function (req,res){
                   }
             })
             .then((response) => {
-                response.user_pass = undefined;
-                if(response.verification.otp == otp){
-                    response.verification = undefined;
+                response.franchisee_pass = undefined;
+                if(response.pass_verification.otp == otp){
+                    response.pass_verification = undefined;
                     res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
                 }else{
-                    response.verification = undefined;
+                    response.pass_verification = undefined;
                    res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
                 }
               })
