@@ -542,7 +542,7 @@ router.post('/franchisor-login', function (req,res){
         if(response){
             console.log(response.user_role);
           utils.sendMobileOTP(response.verification.otp,response.franchisee_mobile_number);   
-          utils.sendMailOTP(response.verification.otp,response.franchisee_mail);
+          utils.sendMailOTP(response.verification.otp,response.franchisee_email);
           
           response.franchisee_pass = undefined;
           response.pass_verification = undefined;
