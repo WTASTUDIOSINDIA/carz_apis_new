@@ -1074,7 +1074,7 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
             if (franchisee) {
                 franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
                     franchisee.franchisee_name = franchiseeEditForm.franchisee_name,
-                    franchisee.franchisee_occupation = franchisee.franchisee_occupation,
+                    franchisee.franchisee_occupation = franchiseeEditForm.franchisee_occupation,
                     franchisee.franchisee_email = franchiseeEditForm.franchisee_email,
                     franchisee.franchisee_city = franchiseeEditForm.franchisee_city,
                     franchisee.franchisee_state = franchiseeEditForm.franchisee_state,
@@ -1091,7 +1091,7 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
                     franchisee.franchisee_remarks = franchiseeEditForm.franchisee_remarks,
                     franchisee.lead_age = franchiseeEditForm.lead_age,
                     franchisee.bussiness_type_id = franchiseeEditForm.bussiness_type_id;
-                franchisee.lead_source = franchiseeEditForm.lead_source
+                    franchisee.lead_source = franchiseeEditForm.lead_source
                 if (req.file) {
                     var franchisee_pic = {};
                     franchisee_pic.path = req.file.location;
