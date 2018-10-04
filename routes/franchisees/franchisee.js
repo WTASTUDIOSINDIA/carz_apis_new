@@ -392,18 +392,35 @@ router.post('/get_franchisee_status', (req, res) => {
         })
 })
 
-// to get total revenue
+// to get total revenue 
 router.post('/get_total_revenue', (req, res) => {
-    date = new Date(req.body.date);
-    var firstDay = new Date(date.getFullYear(),date.getMonth(), 1);
-    var lastDay = new Date(date.getFullYear(),date.getMonth() + 1, 0)
-    console.log(firstDay, lastDay, 'first, last');
+    var query = { $exists: true };
+    dt = new Date(req.body.date);
+    date = dt.getDate();
+    console.log(date, 'date<--------------')
+    if (req.body.type === 'yearly') {
+        var first_day_of_year = new Date(req.body.date, 0, 1);
+        var last_day_of_year = new Date(req.body.date , 11, 31);
+        console.log(first_day_of_year, '/////////', last_day_of_year);
+        query = { $gte: first_day_of_year, $lte: last_day_of_year }
+    }
+    if (req.body.type === 'monthly') {
+        var firstDay = new Date(req.body.date);
+        var lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() +1, 0)
+        // console.log(day);
+        // var lastDay = new Date(req.body.date);
+        var fdt = new Date(firstDay.setHours(0, 0, 0, 0));
+        var ldt = new Date(lastDay.setHours(23, 59, 59, 999));
+        console.log(firstDay, lastDay, 'first, last', fdt, ldt);
+        query = { $gte: fdt, $lte: ldt }
+    }
+    console.log(query, '------>');
     var one_lac_total = 0;
     var four_lac_total = 0;
     var total_leads = 0;
     var progress = 0;
     Stages.aggregate([
-        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': { $gte: firstDay, $lte: lastDay } } ] } },
+        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }] } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
         .then((one_lac) => {
@@ -412,7 +429,7 @@ router.post('/get_total_revenue', (req, res) => {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
             return Stages.aggregate([
-                { $match: { $and: [ { 'stage_agreenent.4lac_payment_status': 'uploaded' }, {'stage_agreenent.four_lac_payment_uploaded_date': { $gte: firstDay, $lte: lastDay } } ] } },
+                { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
             ]).exec()
                 .then((four_lac) => {
@@ -451,56 +468,87 @@ router.post('/get_total_revenue', (req, res) => {
         })
 })
 
-//get revenue by month
-// router.post('/get_revenue_by_month', (req, res) => {
-//     date = new Date(req.body.date);
-//     var one_lac_total = 0;
-//     var four_lac_total = 0;
-//     Stages.aggregate([
-//         {
-//             "$project": {
-//                 "month": { "$month": "$one_lac_payment_uploaded_date" }
-//             }
-//         },
-//         { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { month: date }] } },
-//         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
-//     ]).exec()
-//         .then((one_lac) => {
-//             console.log(one_lac, 'one_lac')
-//             if (one_lac[0] !== undefined) {
-//                 one_lac_total = one_lac[0].one_lac_count * 100000;
-//             }
-//             return Stages.aggregate([
-//                 {
-//                     "$project": {
-//                         "month": { "$month": "$four_lac_payment_uploaded_date" }
-//                     }
-//                 },
-//                 { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { month: date }] } },
-//                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
-//             ]).exec()
-//                 .then((four_lac) => {
-//                     console.log(four_lac)
-//                     if (four_lac[0] !== undefined) {
-//                         four_lac_total = four_lac[0].four_lac_count * 400000;
-//                     }
-//                     return (one_lac, four_lac);
-//                 })
-//         })
-//         .then(() => {
-//             return res.json({
-//                 state: 'success',
-//                 message: 'Successfully fetched total revenue',
-//                 'total_one_lac_revenue': one_lac_total,
-//                 'total_four_lac_revenue': four_lac_total,
-//                 'total_revenue': one_lac_total + four_lac_total
-//             })
-//         })
-//         .catch((err) => {
-//             console.log(err)
-//             return res.json(500, err)
-//         })
-// })
+router.post('/get_revenue_graph', (req, res) => {
+    date = new Date(req.body.date);
+    // if (req.body.type === 'yearly') {
+    //     console.log(date.getFullYear(), 0, 1);
+    //     var first_day_of_year = new Date(date.getFullYear(), 0, 1);
+    //     var last_day_of_year = new Date(date.getFullYear(), 11, 31);
+    //     console.log(first_day_of_year, '/////////', last_day_of_year);
+    //     query = { $gte: first_day_of_year, $lte: last_day_of_year }
+    // }
+    // if (req.body.type === 'monthly') {
+    //     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    //     var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    //     var fdt = new Date(firstDay.setHours(0, 0, 0, 0));
+    //     var ldt = new Date(lastDay.setHours(59, 59, 59, 999));
+    //     console.log(firstDay, lastDay, 'first, last', fdt, ldt);
+    //     query = { $gte: fdt, $lte: ldt }
+    // }
+    // console.log(query, '------>');
+    var one_lac_total = 0;
+    var four_lac_total = 0;
+    var total_leads = 0;
+    var progress = 0;
+    for (i = 1; i <= 12; i++) {
+        var query = { $exists: true };
+        Stages.aggregate([
+            { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }] } },
+            {
+                $group:
+                {
+                    _id: {
+                        month: { $month: date }
+                    },
+                    one_lac_count: { $sum: 1 }
+                }
+            }
+        ]).exec()
+            .then((one_lac) => {
+                console.log(one_lac)
+                if (one_lac[0] !== undefined) {
+                    one_lac_total = one_lac[0].one_lac_count * 100000;
+                }
+                return Stages.aggregate([
+                    { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
+                    { $group: { _id: null, four_lac_count: { $sum: 1 } } }
+                ]).exec()
+                    .then((four_lac) => {
+                        console.log(four_lac)
+                        if (four_lac[0] !== undefined) {
+                            four_lac_total = four_lac[0].four_lac_count * 400000;
+                        }
+                        return (one_lac, four_lac);
+                    })
+            })
+            .then(() => {
+                return Stages.aggregate([
+                    { $match: {} },
+                    { $group: { _id: null, count: { $sum: 1 } } }
+                ]).exec()
+                    .then((leads_count) => {
+                        console.log(leads_count);
+                        total_leads = leads_count[0].count * 5 * 100000;
+                    })
+            })
+            .then(() => {
+                progress = ((one_lac_total + four_lac_total) / total_leads) * 100;
+                return res.json({
+                    state: 'success',
+                    message: 'Successfully fetched total revenue',
+                    'total_one_lac_revenue': one_lac_total,
+                    'total_four_lac_revenue': four_lac_total,
+                    'total_received': one_lac_total + four_lac_total,
+                    'total_revenue': total_leads,
+                    'progress': progress
+                })
+            })
+            .catch((err) => {
+                console.log(err)
+                return res.json(500, err)
+            })
+    }
+})
 
 router.post('/get_revenue_by_months', (req, res) => {
     date = new Date(req.body.date);
@@ -1101,7 +1149,7 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
             if (franchisee) {
                 franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
                     franchisee.franchisee_name = franchiseeEditForm.franchisee_name,
-                    franchisee.franchisee_occupation = franchiseeEditForm.franchisee_occupation,
+                    franchisee.franchisee_occupation = franchisee.franchisee_occupation,
                     franchisee.franchisee_email = franchiseeEditForm.franchisee_email,
                     franchisee.franchisee_city = franchiseeEditForm.franchisee_city,
                     franchisee.franchisee_state = franchiseeEditForm.franchisee_state,
@@ -1118,7 +1166,7 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
                     franchisee.franchisee_remarks = franchiseeEditForm.franchisee_remarks,
                     franchisee.lead_age = franchiseeEditForm.lead_age,
                     franchisee.bussiness_type_id = franchiseeEditForm.bussiness_type_id;
-                    franchisee.lead_source = franchiseeEditForm.lead_source
+                franchisee.lead_source = franchiseeEditForm.lead_source
                 if (req.file) {
                     var franchisee_pic = {};
                     franchisee_pic.path = req.file.location;
