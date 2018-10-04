@@ -104,7 +104,7 @@ router.get('/get_franchisees', function (req, res) {
                 }, 404);
             }
             else {
-                
+
                 // let franchisee_data = [];
                 // franchiees.forEach((franchiee)=>{
                 //     franchiee.franchisee_profile_pic = utils.getPreSignedURL( franchiee.franchisee_profile_pic);
@@ -151,7 +151,7 @@ router.get('/get_franchisee/:id', function (req, res) {
                     state: "success",
                     franchisees_data: franchisee
                 }, 200);
-                 
+
             }
         })
     }
@@ -262,7 +262,7 @@ router.post('/get_leads_by_location', (req, res) => {
         query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }
     }
     console.log(query, 'query');
-    Franchisee.find( query, (err, data) => {
+    Franchisee.find(query, (err, data) => {
         if (err) {
             return res.json(500, err);
         }
@@ -270,7 +270,8 @@ router.post('/get_leads_by_location', (req, res) => {
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched leads by location',
-                no_of_leads: data.length
+                no_of_leads: data.length,
+                country: req.body.country
             })
         }
     })
@@ -287,7 +288,7 @@ router.post('/get_franchisee_status', (req, res) => {
         setup_pending: 0
     }
     Stages.aggregate([
-        { $match: { $and: [ { 'stage_profile': 'completed' }, { 'stage_discussion.status': false } ] } },
+        { $match: { $and: [{ 'stage_profile': 'completed' }, { 'stage_discussion.status': false }] } },
         { $group: { _id: null, profile_complete: { $sum: 1 } } }
     ]).exec()
         .then((stat) => {
@@ -394,12 +395,15 @@ router.post('/get_franchisee_status', (req, res) => {
 // to get total revenue
 router.post('/get_total_revenue', (req, res) => {
     date = new Date(req.body.date);
+    var firstDay = new Date(date.getFullYear(),date.getMonth(), 1);
+    var lastDay = new Date(date.getFullYear(),date.getMonth() + 1, 0)
+    console.log(firstDay, lastDay, 'first, last');
     var one_lac_total = 0;
     var four_lac_total = 0;
     var total_leads = 0;
     var progress = 0;
     Stages.aggregate([
-        { $match: { 'stage_discussion.payment_status': 'uploaded' } },
+        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': { $gte: firstDay, $lte: lastDay } } ] } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
         .then((one_lac) => {
@@ -408,7 +412,7 @@ router.post('/get_total_revenue', (req, res) => {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
             return Stages.aggregate([
-                { $match: { 'stage_agreenent.4lac_payment_status': 'uploaded' } },
+                { $match: { $and: [ { 'stage_agreenent.4lac_payment_status': 'uploaded' }, {'stage_agreenent.four_lac_payment_uploaded_date': { $gte: firstDay, $lte: lastDay } } ] } },
                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
             ]).exec()
                 .then((four_lac) => {
@@ -421,7 +425,7 @@ router.post('/get_total_revenue', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match:{} },
+                { $match: {} },
                 { $group: { _id: null, count: { $sum: 1 } } }
             ]).exec()
                 .then((leads_count) => {
@@ -430,7 +434,7 @@ router.post('/get_total_revenue', (req, res) => {
                 })
         })
         .then(() => {
-            progress = ((one_lac_total + four_lac_total)/total_leads) * 100;
+            progress = ((one_lac_total + four_lac_total) / total_leads) * 100;
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched total revenue',
@@ -448,49 +452,71 @@ router.post('/get_total_revenue', (req, res) => {
 })
 
 //get revenue by month
-router.post('/get_revenue_by_month', (req, res) => {
+// router.post('/get_revenue_by_month', (req, res) => {
+//     date = new Date(req.body.date);
+//     var one_lac_total = 0;
+//     var four_lac_total = 0;
+//     Stages.aggregate([
+//         {
+//             "$project": {
+//                 "month": { "$month": "$one_lac_payment_uploaded_date" }
+//             }
+//         },
+//         { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { month: date }] } },
+//         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
+//     ]).exec()
+//         .then((one_lac) => {
+//             console.log(one_lac, 'one_lac')
+//             if (one_lac[0] !== undefined) {
+//                 one_lac_total = one_lac[0].one_lac_count * 100000;
+//             }
+//             return Stages.aggregate([
+//                 {
+//                     "$project": {
+//                         "month": { "$month": "$four_lac_payment_uploaded_date" }
+//                     }
+//                 },
+//                 { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { month: date }] } },
+//                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
+//             ]).exec()
+//                 .then((four_lac) => {
+//                     console.log(four_lac)
+//                     if (four_lac[0] !== undefined) {
+//                         four_lac_total = four_lac[0].four_lac_count * 400000;
+//                     }
+//                     return (one_lac, four_lac);
+//                 })
+//         })
+//         .then(() => {
+//             return res.json({
+//                 state: 'success',
+//                 message: 'Successfully fetched total revenue',
+//                 'total_one_lac_revenue': one_lac_total,
+//                 'total_four_lac_revenue': four_lac_total,
+//                 'total_revenue': one_lac_total + four_lac_total
+//             })
+//         })
+//         .catch((err) => {
+//             console.log(err)
+//             return res.json(500, err)
+//         })
+// })
+
+router.post('/get_revenue_by_months', (req, res) => {
     date = new Date(req.body.date);
     var one_lac_total = 0;
     var four_lac_total = 0;
     Stages.aggregate([
         {
             "$project": {
-                "month": { "$month": "$one_lac_payment_uploaded_date" }
-            }
-        },
-        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { month: date }] } },
-        { $group: { _id: null, one_lac_count: { $sum: 1 } } }
+                "stage_discussion.nda_file_uploaded": { "$month": date }
+            },
+            "$match": { "stage_discussion.nda_file_uploaded": 8 },
+            "$group": { _id: null }
+        }
     ]).exec()
         .then((one_lac) => {
             console.log(one_lac, 'one_lac')
-            if (one_lac[0] !== undefined) {
-                one_lac_total = one_lac[0].one_lac_count * 100000;
-            }
-            return Stages.aggregate([
-                {
-                    "$project": {
-                        "month": { "$month": "$four_lac_payment_uploaded_date" }
-                    }
-                },
-                { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { month: date }] } },
-                { $group: { _id: null, four_lac_count: { $sum: 1 } } }
-            ]).exec()
-                .then((four_lac) => {
-                    console.log(four_lac)
-                    if (four_lac[0] !== undefined) {
-                        four_lac_total = four_lac[0].four_lac_count * 400000;
-                    }
-                    return (one_lac, four_lac);
-                })
-        })
-        .then(() => {
-            return res.json({
-                state: 'success',
-                message: 'Successfully fetched total revenue',
-                'total_one_lac_revenue': one_lac_total,
-                'total_four_lac_revenue': four_lac_total,
-                'total_revenue': one_lac_total + four_lac_total
-            })
         })
         .catch((err) => {
             console.log(err)
@@ -697,11 +723,11 @@ router.post('/validate_mobile_number', function (req, res) {
 });
 //create franchisee
 router.post('/create_franchisee', function (req, res) {
-    
+
     let franchiseeForm = req.body;
-   
+
     try {//'franchisee_pincode':franchiseeForm.franchisee_pincode
-   
+
         Franchisee.findOne({ $and: [{ franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' }] }, function (err, franchisee) {
             if (franchisee) {
                 return res.send({
@@ -747,42 +773,43 @@ router.post('/create_franchisee', function (req, res) {
                             // franchisee.franchisee_name=franchiseeForm.partner_name;
 
                         };
-                        if(franchiseeForm.franchisee_img){
-                            if(franchiseeForm.franchisee_img != ""){
-                        
-                          let fileExt = "";
-                        if (franchiseeForm.franchisee_img.indexOf("image/png") != -1)
-                          fileExt = "png";
-                      else if (franchiseeForm.franchisee_img.indexOf("image/jpeg") != -1)
-                          fileExt = "jpeg";
-                      else if (franchiseeForm.franchisee_img.indexOf("image/jpg") != -1)
-                          fileExt = "jpg";
-                      else if (franchiseeForm.franchisee_img.indexOf("video/mp4") != -1)
-                          fileExt = "mp4";
-                      else
-                          fileExt = "png";
-                    
-                      let imageKey = "franchisee_img/img_" + moment().unix();
-                    console.log(imageKey)
-                      if (franchiseeForm.franchisee_img){
-                     // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img));
-                          utils.uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img);
-                      delete franchiseeForm.franchisee_img;
-                    }
-                      franchiseeForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
-                    //   franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
-                      franchiseeForm.franchisee_profile_pic = franchiseeForm.prof_pic_org_url;
-                    
-                        }else{
-                        franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
-                      }}else{
-                        franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
-                      }
-                      franchiseeForm.franchisee_pass = createHash('mypassword');
-                      franchiseeForm.franchisee_email = franchiseeForm.partner_email;
-                      franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
-                      franchiseeForm.partner_name = franchiseeForm.partner_name;
-                      franchiseeForm.stage_profile = "completed";
+                        if (franchiseeForm.franchisee_img) {
+                            if (franchiseeForm.franchisee_img != "") {
+
+                                let fileExt = "";
+                                if (franchiseeForm.franchisee_img.indexOf("image/png") != -1)
+                                    fileExt = "png";
+                                else if (franchiseeForm.franchisee_img.indexOf("image/jpeg") != -1)
+                                    fileExt = "jpeg";
+                                else if (franchiseeForm.franchisee_img.indexOf("image/jpg") != -1)
+                                    fileExt = "jpg";
+                                else if (franchiseeForm.franchisee_img.indexOf("video/mp4") != -1)
+                                    fileExt = "mp4";
+                                else
+                                    fileExt = "png";
+
+                                let imageKey = "franchisee_img/img_" + moment().unix();
+                                console.log(imageKey)
+                                if (franchiseeForm.franchisee_img) {
+                                    // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img));
+                                    utils.uploadToS3(imageKey, fileExt, franchiseeForm.franchisee_img);
+                                    delete franchiseeForm.franchisee_img;
+                                }
+                                franchiseeForm.prof_pic_org_url = utils.awsFileUrl() + imageKey + "." + fileExt;
+                                //   franchiseeForm.franchisee_profile_pic = utils.getPreSignedURL(franchiseeForm.prof_pic_org_url);
+                                franchiseeForm.franchisee_profile_pic = franchiseeForm.prof_pic_org_url;
+
+                            } else {
+                                franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
+                            }
+                        } else {
+                            franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
+                        }
+                        franchiseeForm.franchisee_pass = createHash('mypassword');
+                        franchiseeForm.franchisee_email = franchiseeForm.partner_email;
+                        franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
+                        franchiseeForm.partner_name = franchiseeForm.partner_name;
+                        franchiseeForm.stage_profile = "completed";
                         /*franchisee.franchisee_email = franchiseeForm.partner_email;
                         franchisee.franchisee_occupation = franchiseeForm.partner_occupation;
                         franchisee.franchisee_city = franchiseeForm.franchisee_city;
@@ -820,7 +847,7 @@ router.post('/create_franchisee', function (req, res) {
                         
 */
                         //franchisee = franchiseeForm;
-                        Franchisee.create(franchiseeForm,function (err, franchisee) {
+                        Franchisee.create(franchiseeForm, function (err, franchisee) {
                             if (err) {
                                 res.send({
                                     status: 500,
@@ -832,7 +859,7 @@ router.post('/create_franchisee', function (req, res) {
 
                                 var stage = new Stages();
                                 stage.franchisee_id = franchisee._id,
-                                stage.stage_profile = franchisee.stage_profile
+                                    stage.stage_profile = franchisee.stage_profile
                                 stage.save((err) => {
                                     if (err, stage) {
                                         console.log(err, 'errorrrr');
@@ -1407,7 +1434,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     stage.stage_discussion.payment_status = 'uploaded';
                     stage.stage_discussion.payment_value = 100000;
                     stage.stage_discussion.payment_file = req.file.location;
-                    stage.one_lac_payment_uploaded_date = new Date();
+                    stage.stage_discussion.one_lac_payment_uploaded_date = new Date();
                     stage.stage_discussion.payment_file_name = req.file.originalname;
                     activity_data.name = '1 Lac Payment updated!';
                     activity_data.activity_of = 'franchisor';
@@ -1496,7 +1523,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     // stage.stage_agreenent.status = false;
                     stage.stage_agreenent.agreement_value = 400000;
                     stage.stage_agreenent.agreement_file = req.file.location;
-                    stage.four_lac_payment_library_file_id = new Date();
+                    stage.stage_agreenent.four_lac_payment_uploaded_date = new Date();
                     stage.stage_agreenent.agreement_file_name = req.file.originalname;
                     franchisee_id = stageForm.franchisee_id;
                     activity_data.activity_of = 'franchisor';
@@ -1951,74 +1978,74 @@ async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_I
             if (folder) {
                 //            console.log(folder, 'folderdata');
                 folder_Id = folder._id;
-            }            
-        
-        console.log(folder_Id, "1504");
-        var library = new Library();
-        library.path = obj.location;
-        library.key = obj.key;
-        library.file_name = obj.originalname;
-        if (obj.mimetype == "application/pdf") {
-            library.image_type = "pdf";
-        }
-        if (obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif") {
-            library.image_type = "image";
-        }
-        library.uploaded_status = status;
-        library.date_uploaded = Date.now();
-        library.folder_Id = folder_Id;
-        library.franchisee_Id = franchisee_Id;
-        await library.save(function (err, library) {
-            console.log(library, '1914 file line');
-            if (err) {
-                res.send({
-                    status: 500,
-                    state: "err",
-                    message: "Something went wrong."
-                }, 500);
             }
 
-            else {
-                console.log(library._id, "1189");
-                Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
-                    //payment, nda, aggrement, aggrement_Copy
-                    console.log(sub_stage_name, '1976666666');
-                    if (sub_stage_name == 'payment') {
-                        stage.stage_discussion.first_payment_library_file_id = library._id;
-                    }
-                    if (sub_stage_name == 'nda') {
-                        stage.stage_discussion.nda_library_file_id = library._id;
-                        console.log(stage.stage_discussion.nda_library_file_id, '19811111')
-                    }
-                    if (sub_stage_name == 'aggrement') {
-                        stage.stage_agreenent.second_payment_library_file_id = library._id;
-                    }
-                    if (sub_stage_name == 'aggrement_Copy') {
-                        stage.stage_agreenent.final_agreement_library_file_id = library._id;
-                    }
-                    stage.save(function (err, stage) {
-                        if (err) {
-                            console.log(err, "error while saving stage files");
+            console.log(folder_Id, "1504");
+            var library = new Library();
+            library.path = obj.location;
+            library.key = obj.key;
+            library.file_name = obj.originalname;
+            if (obj.mimetype == "application/pdf") {
+                library.image_type = "pdf";
+            }
+            if (obj.mimetype == "image/png" || obj.mimetype == "image/jpg" || obj.mimetype == "image/jpeg" || obj.mimetype == "image/gif") {
+                library.image_type = "image";
+            }
+            library.uploaded_status = status;
+            library.date_uploaded = Date.now();
+            library.folder_Id = folder_Id;
+            library.franchisee_Id = franchisee_Id;
+            await library.save(function (err, library) {
+                console.log(library, '1914 file line');
+                if (err) {
+                    res.send({
+                        status: 500,
+                        state: "err",
+                        message: "Something went wrong."
+                    }, 500);
+                }
+
+                else {
+                    console.log(library._id, "1189");
+                    Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
+                        //payment, nda, aggrement, aggrement_Copy
+                        console.log(sub_stage_name, '1976666666');
+                        if (sub_stage_name == 'payment') {
+                            stage.stage_discussion.first_payment_library_file_id = library._id;
                         }
-                        if (stage) {
-                            console.log(stage, "library file attached to files");
+                        if (sub_stage_name == 'nda') {
+                            stage.stage_discussion.nda_library_file_id = library._id;
+                            console.log(stage.stage_discussion.nda_library_file_id, '19811111')
                         }
+                        if (sub_stage_name == 'aggrement') {
+                            stage.stage_agreenent.second_payment_library_file_id = library._id;
+                        }
+                        if (sub_stage_name == 'aggrement_Copy') {
+                            stage.stage_agreenent.final_agreement_library_file_id = library._id;
+                        }
+                        stage.save(function (err, stage) {
+                            if (err) {
+                                console.log(err, "error while saving stage files");
+                            }
+                            if (stage) {
+                                console.log(stage, "library file attached to files");
+                            }
+                        })
+
+                        //  get_id_of_crm_file = library._id;
+                        return library._id;
+                        //     return new Promise(resolve => {
+                        //
+                        //     resolve('resolved');
+                        //
+                        // });
                     })
+                }
 
-                    //  get_id_of_crm_file = library._id;
-                    return library._id;
-                    //     return new Promise(resolve => {
-                    //
-                    //     resolve('resolved');
-                    //
-                    // });
-                })
-            }
-
-        });
-    })
+            });
+        })
     }
-    if (folder_Id) {        
+    if (folder_Id) {
         console.log(folder_Id, "1504");
         var library = new Library();
         library.path = obj.location;
