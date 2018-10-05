@@ -468,6 +468,10 @@ router.post('/get_total_revenue', (req, res) => {
         })
 })
 
+router.post('/get_revenue_of_year', (req, res) => {
+    
+})
+
 router.post('/get_revenue_graph', (req, res) => {
     date = new Date(req.body.date);
     // if (req.body.type === 'yearly') {
