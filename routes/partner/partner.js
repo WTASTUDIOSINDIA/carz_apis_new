@@ -175,6 +175,7 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
                 partner.partner_city = partnerForm.partner_city;
                 partner.partner_state = partnerForm.partner_state;
                 partner.partner_country = partnerForm.partner_country;
+                partner.country_code = partnerForm.country_code;
                 partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type = partnerForm.bussiness_type;
@@ -411,6 +412,8 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
     }
 });
 
+
+
 //get all partner franchisees
 router.get('/get_partner_franchisee', function (req, res) {
     try {
@@ -551,4 +554,107 @@ router.put('/make_default_profile', function (req, res) {
     }
 });
 
+
+function update_franchisee_partner_details(req, res) {
+    let partnerEditForm = req.body;
+    Partner.findOne({ '_id': partnerEditForm._id}, function (err, partner) {
+        if (err) {
+            return res.send({
+                state: "err",
+                message: "Something went wrong.We are looking into it."
+            }, 500);
+        }
+                        if (partner) {
+                        if(partnerEditForm.partner_pic){
+                        if(partnerEditForm.partner_pic != ""){
+                    
+                      let fileExt = "";
+                    if (partnerEditForm.partner_pic.indexOf("image/png") != -1)
+                      fileExt = "png";
+                  else if (partnerEditForm.partner_pic.indexOf("image/jpeg") != -1)
+                      fileExt = "jpeg";
+                  else if (partnerEditForm.partner_pic.indexOf("image/jpg") != -1)
+                      fileExt = "jpg";
+                  else if (partnerEditForm.partner_pic.indexOf("video/mp4") != -1)
+                      fileExt = "mp4";  
+                  else
+                      fileExt = "png";
+                
+                  let imageKey = "partner_pic/img_" + moment().unix();
+                  if (partnerEditForm.partner_pic){
+                      utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
+                  delete partnerEditForm.partner_pic;
+                }
+                  partnerEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                //   partnerEditForm.partner_profile_pic = utils.getPreSignedURL(partnerEditForm.prof_pic_org_url);
+                  partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
+                
+                    }else{
+                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                  }}else{
+                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                  }
+
+            partner.partner_name = partnerEditForm.partner_name;
+            partner.partner_occupation = partnerEditForm.partner_occupation;
+            partner.partner_email = partnerEditForm.partner_email;
+            partner.partner_address = partnerEditForm.partner_address;
+            partner.partner_city = partnerEditForm.partner_city;
+            partner.partner_state = partnerEditForm.partner_state;
+            partner.partner_country = partnerEditForm.partner_country;
+            partner.partner_pincode = partnerEditForm.partner_pincode;
+            partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
+            partner.partner_age = partnerEditForm.partner_age;
+            partner.country_code = partnerEditForm.country_code;
+            partner.partner_house_number = partnerEditForm.partner_house_number;
+            partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
+            partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
+            partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
+            partner.save(function (err, partner) {
+                if (err) {
+
+                    res.send({
+                        state: "err",
+                        message: "Something went wrong."
+                    }, 500);
+                } else {
+                    Franchisee.findOne({_id: partner.franchisee_id}, function (err, franchiees) {
+                        if (err) {
+                            return res.send({
+                                state: "err",
+                                message: "Something went wrong. We are looking into it."
+                            }, 500);
+                        } else {
+
+                            if (partner.main_partner) {
+                                franchiees.franchisee_profile_pic = partner.partner_profile_pic;
+                                franchiees.franchisee_mobile_number = partner.partner_mobile_number;
+                                franchiees.franchisee_occupation = partner.partner_occupation;
+                                franchiees.partner_occupation_others - partner.partner_occupation_others;
+                                franchiees.lead_age = partner.partner_age;
+                            }
+                            franchiees.save(function (err, franchiees) {
+                                if (err) {
+                                    return res.send({
+                                        state: "failure",
+                                        message: "Updation in franchisee got wrong"
+                                    }, 500);
+                                } else {
+                                    console.log(partner, 358);
+                                    kyc_Upload(req, res, partner, franchiees, "Partner franchisee Updated.");
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        if (!partner) {
+            res.send({
+                state: "failure",
+                message: "Partner franchise exist with this Id."
+            }, 201);
+        }
+    });
+}
 module.exports = router;
