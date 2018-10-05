@@ -310,7 +310,6 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                     message: "Something went wrong.We are looking into it."
                 }, 500);
             }
-            console.log('------------', partner);
                             if (partner) {
                             if(partnerEditForm.partner_pic){
                             if(partnerEditForm.partner_pic != ""){
@@ -328,7 +327,6 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                           fileExt = "png";
                     
                       let imageKey = "partner_pic/img_" + moment().unix();
-                    console.log(imageKey)
                       if (partnerEditForm.partner_pic){
                           utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
                       delete partnerEditForm.partner_pic;
@@ -552,4 +550,5 @@ router.put('/make_default_profile', function (req, res) {
         });
     }
 });
+
 module.exports = router;
