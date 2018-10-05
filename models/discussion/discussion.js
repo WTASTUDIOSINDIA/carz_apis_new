@@ -26,6 +26,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
       'comment_file_attachment_file_url': String,
       'comment_file_attachment_file_type': String,}],
     isVoted:{type:Boolean,default:false},
+    franchisee_name: String,
     franchisor_question_file_attachment_file_name: String,
     franchisor_question_file_attachment_file_url: String,
     franchisor_question_file_attachment_file_type: String,

@@ -316,21 +316,74 @@ router.put('/change_question_status',function(req,res){
 });
 
 //To vote
+// router.put('/question/vote',function(req,res){
+//     try{
+//         DiscussionQuestion.findById({_id:req.body.question_id},function(err,discussionquestion){
+//             if(err){
+//                 return res.send(err);
+//             }
+//             else{
+//                 console.log('id', id);
+//                 console.log(req.body.votedBy);
+//                 var flag = false;
+//                 var id = req.body.votedBy;
+//                 console.log('flag', flag);
+//                 if(discussionquestion.votedBy.length>0){
+//                     for(var i=0;i<discussionquestion.votedBy.length;i++){
+//                         if(discussionquestion.votedBy[i] === id){
+//                             flag = true;
+//                         }
+//                     }
+//                 }
+//                 if(flag){
+//                     res.send({
+//                         state:'failure',
+//                         message:'You have already voted for this question'
+//                     },201);
+//                 }
+//                 else{
+//                     discussionquestion.votes=discussionquestion.votes + 1;
+//                     discussionquestion.votedBy.push(id);
+//                     discussionquestion.save(function(err, discussionquestion){
+//                         if(err){
+//                             res.send(err);
+//                         }
+//                         else{
+//                             res.send({
+//                                 state:'success',
+//                                 data: discussionquestion
+//                             },200);
+//                         }
+//                     });
+//                 }
+//             }
+//         });
+//     }
+//     catch(err){
+//         res.send({
+//             state:"error",
+//             message:"Something went wrong"
+//         },500);
+//     }
+// });
+
+
+
 router.put('/question/vote',function(req,res){
     try{
-        DiscussionQuestion.findById({_id:req.body.question_id},function(err,discussionquestion){
+        DiscussionQuestion.findOne({_id:req.body.question_id},function(err,discussionquestion){
             if(err){
                 return res.send(err);
             }
             else{
-                console.log('id', id);
-                console.log(req.body.votedBy);
                 var flag = false;
+                
+                console.log('*********************',req.body.votedBy);
                 var id = req.body.votedBy;
-                console.log('flag', flag);
+                console.log('+++++++++++++++++++++++',req.body.votedBy);                
                 if(discussionquestion.votedBy.length>0){
                     for(var i=0;i<discussionquestion.votedBy.length;i++){
-                        if(discussionquestion.votedBy[i] === id){
+                        if(discussionquestion.votedBy == id){
                             flag = true;
                         }
                     }
@@ -338,12 +391,13 @@ router.put('/question/vote',function(req,res){
                 if(flag){
                     res.send({
                         state:'failure',
-                        message:'You have already voted for this question'
-                    },201);
+                        message:'You have already voted for this discussionquestion'
+                    });
                 }
                 else{
+                    console.log('discussionquestion', discussionquestion);
                     discussionquestion.votes=discussionquestion.votes + 1;
-                    discussionquestion.votedBy.push(id);
+                    discussionquestion.votedBy = discussionquestion.votedBy   ;
                     discussionquestion.save(function(err, discussionquestion){
                         if(err){
                             res.send(err);
@@ -351,8 +405,8 @@ router.put('/question/vote',function(req,res){
                         else{
                             res.send({
                                 state:'success',
-                                data: discussionquestion
-                            },200);
+                                data:discussionquestion
+                            });
                         }
                     });
                 }
@@ -363,7 +417,7 @@ router.put('/question/vote',function(req,res){
         res.send({
             state:"error",
             message:"Something went wrong"
-        },500);
+        });
     }
 });
 
