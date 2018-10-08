@@ -435,7 +435,7 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
                 },500)
             }
             else{
-                // discussionquestion.commentsCount = discussionquestion.commentsCount +1;
+                discussionquestion.commentsCount = discussionquestion.commentsCount +1;
                 if(req.file){
                     var comment_img = {};
                     discussionComments.comment.comment_file_attachment_file_url = req.file.location;
