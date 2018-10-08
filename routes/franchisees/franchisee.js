@@ -1217,7 +1217,6 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
                           let imageKey = "partner_pic/img_" + moment().unix();
                           if (partnerEditForm.partner_pic){
                               utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
-                          delete partnerEditForm.partner_pic;
                         }
                           partnerEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
                           partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
