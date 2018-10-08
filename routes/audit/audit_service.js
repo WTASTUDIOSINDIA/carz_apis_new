@@ -34,131 +34,145 @@ const findFranchiseeTasksByDaily = (query) => {
 }
 
 const findcheckelist = (query) => {
-    return AuditChecklist.find(query).exec();
-  }
+  return AuditChecklist.find(query).exec();
+}
 
-  const tasks = (query) => {
-    return AuditTask.find().exec();
-  }
+const tasks = (query) => {
+  return AuditTask.find().exec();
+}
 
-const findlist = (query,second_query,nonworking_query) => {
+const findlist = (query, second_query, nonworking_query) => {
   return AuditChecklist.aggregate([
-    { $match: {
-      $and: [
-            query
-      ]
-  } },
-  {
-    $lookup: {
+    {
+      $match: {
+        $and: [
+          query
+        ]
+      }
+    },
+    {
+      $lookup: {
         from: AuditTask.collection.name,
         localField: '_id',
         foreignField: 'checklist_id',
         as: 'TaskData'
-    }
-},
+      }
+    },
 
-{
-  $lookup: {
-      from: FranchiseeAuditTask.collection.name,
-      let: { id: "$_id"},
-      pipeline: [
-        { $match: {
-          
-          $and: [
-            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }},
-            second_query
-            ] }
-        },
-        
-      ],
-    
-    as: 'FranchiseeTaskData'
-  }
-},
+    {
+      $lookup: {
+        from: FranchiseeAuditTask.collection.name,
+        let: { id: "$_id" },
+        pipeline: [
+          {
+            $match: {
 
-  
+              $and: [
+                { $expr: { $eq: ["$checklist_id", "$$id"] } },
+                second_query
+              ]
+            }
+          },
+
+        ],
+
+        as: 'FranchiseeTaskData'
+      }
+    },
+
+
   ]).exec();
-}  
+}
 
 
-const findtasks = (query,second_query,nonworking_query) => {
+const findtasks = (query, second_query, nonworking_query) => {
   console.log(nonworking_query);
   return AuditChecklist.aggregate([
-    { $match: {
-      $and: [
-            query
-      ]
-  } },
- 
-{
-  $lookup: {
-      from: AuditTask.collection.name,
-      let: { id: "$_id"},
-      pipeline: [
-        { $match: {
-          
-          $and: [
-            {$expr:{ $eq: [ "$checklist_id",  "$$id" ] }}
-            ] }
-        },
-        {
-          $lookup: {
+    {
+      $match: {
+        $and: [
+          query
+        ]
+      }
+    },
+
+    {
+      $lookup: {
+        from: AuditTask.collection.name,
+        let: { id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+
+              $and: [
+                { $expr: { $eq: ["$checklist_id", "$$id"] } }
+              ]
+            }
+          },
+          {
+            $lookup: {
               from: FranchiseeAuditTask.collection.name,
-              let: { taskid: "$_id"},
+              let: { taskid: "$_id" },
               pipeline: [
-                { $match: {
-                  
-                  $and: [
-                    {$expr:{ $eq: [ "$task_id",  "$$taskid" ] }},
-                    second_query
-                    ] }
+                {
+                  $match: {
+
+                    $and: [
+                      { $expr: { $eq: ["$task_id", "$$taskid"] } },
+                      second_query
+                    ]
+                  }
                 },
-                
+
               ],
-            
-            as: 'FranchiseeTaskData'
-          }
-        },
-        
-      ],
-    
-    as: 'TaskData'
-  }
-  
-},
-  
+
+              as: 'FranchiseeTaskData'
+            }
+          },
+
+        ],
+
+        as: 'TaskData'
+      }
+
+    },
+
   ]).exec();
-}  
+}
 
 const findTasksList = (type) => {
   return AuditTask.aggregate([
-    { $match: {
-      $and: [
-            {checklist_type:type}
-      ]
-  } },
-]).exec();
+    {
+      $match: {
+        $and: [
+          { checklist_type: type }
+        ]
+      }
+    },
+  ]).exec();
 }
 
 
 const findCalenderList = (query) => {
 
   return FranchiseeAuditTask.aggregate([
-    { $match: {
-      $and: [
-        query
-      ]
-  } },
-  
+    {
+      $match: {
+        $and: [
+          query
+        ]
+      }
+    },
+
 
   ]).exec();
-}  
+}
 
 
 const findNonWorkList = (query) => {
 
   return NonWorkingDay.findOne(query).exec();
-}  
+}
 
 const findNonWorkingDay = (query) => {
   return NonWorkingDay.findOne(query).exec();
@@ -180,7 +194,7 @@ const updateNonWorkingDay = (query, data) => {
   return NonWorkingDay.findOneAndUpdate(query, data, { new: true }).exec();
 }
 
-module.exports =  {
+module.exports = {
   findOne,
   findUser,
   findOneUser,
