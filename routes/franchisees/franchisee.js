@@ -4,7 +4,6 @@ var mongoose = require('mongoose');;
 var multer = require('multer');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
-var Partner = mongoose.model('Partner')
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var Library = mongoose.model('Library');
 var Folder = mongoose.model('Folder');
@@ -486,79 +485,127 @@ router.post('/get_total_revenue', (req, res) => {
 })
 
 router.post('/get_revenue_graph', (req, res) => {
-    var year = '2018';
+    var year = req.body.date;
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var date;
-    for (var i = 0; i < months.length; i++) {
-        date = months[i] + ', ' + year;
-        var firstDay = new Date(date);
-        var lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
-        // console.log(day);
-        // var lastDay = new Date(req.body.date);
-        var fdt = new Date(firstDay.setHours(0, 0, 0, 0));
-        var ldt = new Date(lastDay.setHours(23, 59, 59, 999));
-        console.log(months[i], fdt, ldt);
-        var one_lac_total = 0;
-        var four_lac_total = 0;
-        var total_leads = 0;
-        var progress = 0;
-        var query = { $gte: fdt, $lte: ldt };
-        var months_data = [];
+    var months_data = [];
+    var data = [];
+    months.forEach(month => {
+        date = month + ', ' + year;
+        let firstDay = new Date(date);
+        let lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
+        let fdt = new Date(firstDay.setHours(0, 0, 0, 0));
+        let ldt = new Date(lastDay.setHours(23, 59, 59, 999));
+        console.log(month, fdt, ldt);
+        let one_lac_total = 0;
+        let four_lac_total = 0;
+        let total_leads = 0;
+        let progress = 0;
+        let query = { $gte: fdt, $lte: ldt };
         Stages.aggregate([
             { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }] } },
             { $group: { _id: null, one_lac_count: { $sum: 1 } } }
         ]).exec()
             .then((one_lac) => {
-                console.log(one_lac, 'one_lac')
-                if (one_lac[0] === undefined) {
-                    months_data.push(0);
+               
+                if (one_lac == "" || one_lac == null || one_lac.length == 0) {
+                    console.log(one_lac, 'one_lac--------------------')
+                    console.log(month, fdt, ldt);
+                    months_data.push({"month" :fdt, "total" : 0});
+                    if (months_data.length == months.length) {
+                        months_data.sort((x, y) => {
+                            return x.month - y.month;
+                        })
+                        // return months_data;
+                        console.log(months_data);
+                        for ( let j = 0; j < months_data.length; j++) {
+                            data.push(months_data[j].total);
+                        }
+                        return res.json({
+                            state: 'success',
+                            message: 'Successfully fetched total revenue',
+                            'total_yearly_revenue': data
+                        })
+                    }
                     console.log(months_data);
                 }
-                if (one_lac[0] !== undefined) {
+                else{
+                    if( one_lac[0].one_lac_count){
                     one_lac_total = one_lac[0].one_lac_count * 100000;
+                    }
+                    console.log(one_lac, '_lac-------++++++-------------')
+                    Stages.aggregate([
+                        { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
+                        { $group: { _id: null, four_lac_count: { $sum: 1 } } }
+                    ]).exec()
+                        .then((four_lac) => {
+                            console.log(four_lac, 'four_lac')
+
+                            if (four_lac[0] !== undefined) {
+                                four_lac_total = four_lac[0].four_lac_count * 400000;
+                            }
+                            let total = four_lac_total + one_lac_total;
+                            months_data.push({"month" :fdt, "total" : total});
+                            if (months_data.length == months.length) {
+                                months_data.sort((x, y) => {
+                                    return x.month - y.month;
+                                })
+                                for ( let j = 0; j < months_data.length; j++) {
+                                    data.push(months_data[j].total);
+                                }
+                                // return months_data;
+                                console.log(months_data);
+                                console.log(data, 'ads----------============');
+                                return res.json({
+                                    state: 'success',
+                                    message: 'Successfully fetched total revenue',
+                                    'total_yearly_revenue': data
+                                })
+                            }
+                            // return (one_lac, four_lac);
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                            return res.json(500, err)
+                        })
                 }
-                return Stages.aggregate([
-                    { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
-                    { $group: { _id: null, four_lac_count: { $sum: 1 } } }
-                ]).exec()
-                    .then((four_lac) => {
-                        console.log(four_lac, 'four_lac')
-                        if (four_lac[0] !== undefined) {
-                            four_lac_total = four_lac[0].four_lac_count * 400000;
-                        }
-                        return (one_lac, four_lac);
-                    })
             })
-            .then(() => {
-                return Stages.aggregate([
-                    { $match: {} },
-                    { $group: { _id: null, count: { $sum: 1 } } }
-                ]).exec()
-                    .then((leads_count) => {
-                        console.log(leads_count);
-                        total_leads = leads_count[0].count * 5 * 100000;
-                    })
-            })
-            .then(() => {
-                progress = ((one_lac_total + four_lac_total) / total_leads) * 100;
-                var total_received = one_lac_total + four_lac_total;
-                console.log(total_received, 'total_received');
-                    months_data.push(total_received);
-                console.log(months_data, 'months_data')
-                console.log(i);
-                if (i === 12) {
-                    return res.json({
-                        state: 'success',
-                        message: 'Successfully fetched total revenue',
-                        'total_yearly_revenue': months_data
-                    })
-                }
-            })
+            // .then(() => {
+            //     return Stages.aggregate([
+            //         { $match: {} },
+            //         { $group: { _id: null, count: { $sum: 1 } } }
+            //     ]).exec()
+            //         .then((leads_count) => {
+            //             console.log(leads_count);
+            //             total_leads = leads_count[0].count * 5 * 100000;
+            //         })
+            // })
+            // .then((response) => {
+            //     // progress = ((one_lac_total + four_lac_total) / total_leads) * 100;
+            //     // var total_received = one_lac_total + four_lac_total;
+            //     // console.log(total_received, 'total_received');
+            //     // months_data.push(total_received);
+            //     // console.log(months_data, 'months_data')
+            //     // console.log(i);
+            //     // if (i === 12) {
+            //         // return res.json({
+            //         //     state: 'success',
+            //         //     message: 'Successfully fetched total revenue',
+            //         //     'total_yearly_revenue': months_data
+            //         // })
+            //     // }
+            //     console.log(response);
+            //     return res.json({
+            //         state: 'success',
+            //         message: 'Successfully fetched total revenue',
+            //         'total_yearly_revenue': response
+            //     })
+            // })
             .catch((err) => {
                 console.log(err)
                 return res.json(500, err)
             })
-    }
+        });
 })
 
 router.post('/get_revenue_by_months', (req, res) => {
@@ -1311,6 +1358,7 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
     }
 })
 
+
 //update franchisee
 router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, res, next) {
     var franchiseeEditForm = JSON.parse(req.body.franchisee);
@@ -1385,121 +1433,6 @@ router.put('/edit_franchisee', upload.single('franchisee_img'), function (req, r
         });
     }
 });
-
-// update partners
-router.put('/edit_partner_franchisee', function (req, res, next) {
-    // var partnerEditForm = JSON.parse(req.body.partner);
-    console.log('+++++++++++++', req.body);
-    let partnerEditForm = req.body;
-    try {
-        Partner.findOne({ '_id': partnerEditForm._id}, function (err, partner) {
-            if (err) {
-                return res.send({
-                    state: "err",
-                    message: "Something went wrong.We are looking into it."
-                }, 500);
-            }
-                            if (partner) {
-                            if(partnerEditForm.partner_pic){
-                            if(partnerEditForm.partner_pic != ""){
-                        
-                          let fileExt = "";
-                        if (partnerEditForm.partner_pic.indexOf("image/png") != -1)
-                          fileExt = "png";
-                      else if (partnerEditForm.partner_pic.indexOf("image/jpeg") != -1)
-                          fileExt = "jpeg";
-                      else if (partnerEditForm.partner_pic.indexOf("image/jpg") != -1)
-                          fileExt = "jpg";
-                      else if (partnerEditForm.partner_pic.indexOf("video/mp4") != -1)
-                          fileExt = "mp4";  
-                      else
-                          fileExt = "png";
-                    
-                      let imageKey = "partner_pic/img_" + moment().unix();
-                      if (partnerEditForm.partner_pic){
-                          utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
-                      delete partnerEditForm.partner_pic;
-                    }
-                      partnerEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
-                    //   partnerEditForm.partner_profile_pic = utils.getPreSignedURL(partnerEditForm.prof_pic_org_url);
-                      partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
-                    
-                        }else{
-                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
-                      }}else{
-                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
-                      }
-
-                partner.partner_name = partnerEditForm.partner_name;
-                partner.partner_occupation = partnerEditForm.partner_occupation;
-                partner.partner_email = partnerEditForm.partner_email;
-                partner.partner_address = partnerEditForm.partner_address;
-                partner.partner_city = partnerEditForm.partner_city;
-                partner.partner_state = partnerEditForm.partner_state;
-                partner.partner_country = partnerEditForm.partner_country;
-                partner.partner_pincode = partnerEditForm.partner_pincode;
-                partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
-                partner.partner_age = partnerEditForm.partner_age;
-                partner.country_code = partnerEditForm.country_code;
-                partner.partner_house_number = partnerEditForm.partner_house_number;
-                partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
-                partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-                partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
-                partner.save(function (err, partner) {
-                    if (err) {
-
-                        res.send({
-                            state: "err",
-                            message: "Something went wrong."
-                        }, 500);
-                    } else {
-                        Franchisee.findOne({_id: partner.franchisee_id}, function (err, franchiees) {
-                            if (err) {
-                                return res.send({
-                                    state: "err",
-                                    message: "Something went wrong. We are looking into it."
-                                }, 500);
-                            } else {
-
-                                if (partner.main_partner) {
-                                    franchiees.franchisee_profile_pic = partner.partner_profile_pic;
-                                    franchiees.franchisee_mobile_number = partner.partner_mobile_number;
-                                    franchiees.franchisee_occupation = partner.partner_occupation;
-                                    franchiees.partner_occupation_others - partner.partner_occupation_others;
-                                    franchiees.lead_age = partner.partner_age;
-                                }
-                                franchiees.save(function (err, franchiees) {
-                                    if (err) {
-                                        return res.send({
-                                            state: "failure",
-                                            message: "Updation in franchisee got wrong"
-                                        }, 500);
-                                    } else {
-                                        console.log(partner, 358);
-                                        kyc_Upload(req, res, partner, franchiees, "Partner franchisee Updated.");
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-            //If partner franchisee not found,it will enter inside and send error message
-            if (!partner) {
-                res.send({
-                    state: "failure",
-                    message: "Partner franchise exist with this Id."
-                }, 201);
-            }
-        });
-    } catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        });
-    }
-}); 
-
 //delete franchisee
 router.delete('/delete_franchisee/:id', function (req, res) {
     f_id = mongoose.Types.ObjectId(req.params.id);
