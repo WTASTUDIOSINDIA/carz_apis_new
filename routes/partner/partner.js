@@ -137,9 +137,9 @@ router.post('/validate_partner_email', function (req, res) {
 });
 
 // To Create Partner Franchisee
-router.post('/create_partner_franchisee', upload.single('partner_pic'), function (req, res) {
-    var partnerForm = JSON.parse(req.body.partner);
-    // let partnerForm = req.body;
+router.post('/create_partner_franchisee', function (req, res) {
+    // var partnerForm = JSON.parse(req.body.partner);
+    var partnerForm = req.body;
     try {
         Partner.findOne({
             'partner_email': partnerForm.partner_email
@@ -158,13 +158,33 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
             }
             if (!partner) {
                 var partner = new Partner();
+                if(partnerForm.partner_pic){
+                    if(partnerForm.partner_pic != ""){
                 
-                if (req.file) {
-                    var partner_pic = {};
-                    partner_pic.path = req.file.location;
-                    partner_pic.key = req.file.key;
-                    partner.partner_profile_pic = partner_pic;
-                }
+                  let fileExt = "";
+                if (partnerForm.partner_pic.indexOf("image/png") != -1)
+                  fileExt = "png";
+              else if (partnerForm.partner_pic.indexOf("image/jpeg") != -1)
+                  fileExt = "jpeg";
+              else if (partnerForm.partner_pic.indexOf("image/jpg") != -1)
+                  fileExt = "jpg";
+              else if (partnerForm.partner_pic.indexOf("video/mp4") != -1)
+                  fileExt = "mp4";  
+              else
+                  fileExt = "png";
+            
+              let imageKey = "partner_pic/img_" + moment().unix();
+              if (partnerForm.partner_pic){
+                  utils.uploadToS3(imageKey, fileExt, partnerForm.partner_pic);
+            }
+              partnerForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+              partnerForm.partner_profile_pic = partnerForm.prof_pic_org_url;
+            
+                }else{
+                partnerForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+              }}else{
+                partnerForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+              }
                 partner.partner_name = partnerForm.partner_name;
                 partner.partner_occupation = partnerForm.partner_occupation;
                 partner.partner_email = partnerForm.partner_email;
@@ -175,7 +195,6 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
                 partner.partner_city = partnerForm.partner_city;
                 partner.partner_state = partnerForm.partner_state;
                 partner.partner_country = partnerForm.partner_country;
-                partner.country_code = partnerForm.country_code;
                 partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type = partnerForm.bussiness_type;
@@ -188,16 +207,13 @@ router.post('/create_partner_franchisee', upload.single('partner_pic'), function
                             message: "Something went wrong."
                         }, 500);
                     } else {
-                        Franchisee.findOne({
-                            _id: partnerForm.franchisee_id
-                        }, function (err, franchiees) {
+                        Franchisee.findOne({ _id: partnerForm.franchisee_id}, function (err, franchiees) {
                             if (err) {
                                 return res.send({
                                     state: "err",
                                     message: "Something went wrong. We are looking into it."
                                 }, 500);
                             } else {
-
                                 if (franchiees.partners_list) {
                                     franchiees.partners_list = franchiees.partners_list + 1;
                                 } else {
