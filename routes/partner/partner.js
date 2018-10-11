@@ -181,9 +181,9 @@ router.post('/create_partner_franchisee', function (req, res) {
               partnerForm.partner_profile_pic = partnerForm.prof_pic_org_url;
             
                 }else{
-                partnerForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                partnerForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
               }}else{
-                partnerForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                partnerForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
               }
                 partner.partner_name = partnerForm.partner_name;
                 partner.partner_occupation = partnerForm.partner_occupation;
@@ -353,9 +353,9 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                       partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
                     
                         }else{
-                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }}else{
-                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }
 
                 partner.partner_name = partnerEditForm.partner_name;
@@ -606,9 +606,9 @@ function update_franchisee_partner_details(req, res) {
                   partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
                 
                     }else{
-                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                   }}else{
-                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                    partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                   }
 
             partner.partner_name = partnerEditForm.partner_name;

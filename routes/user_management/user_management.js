@@ -83,9 +83,9 @@ router.post('/create_user', function (req, res) {
 
                     
                         }else{
-                        userCreateForm.user_profile_pic = "carz_pic.jpg";
+                        userCreateForm.user_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }}else{
-                        userCreateForm.user_profile_pic = "carz_pic.jpg";
+                        userCreateForm.user_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }
           user.user_pass = createHash(userCreateForm.user_pass);
           user.user_name = userCreateForm.user_name;
@@ -162,9 +162,9 @@ router.post('/create_user', function (req, res) {
                       userEditForm.user_profile_pic = userEditForm.prof_pic_org_url;
                     
                         }else{
-                        userEditForm.user_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                        userEditForm.user_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }}else{
-                        userEditForm.user_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                        userEditForm.user_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }
 
                         user.user_name = userEditForm.user_name;
