@@ -444,6 +444,14 @@ router.post('/get_meetings_count', (req, res) => {
             })
         }
         if (data) {
+            console.log(data);
+            for(var i = 0; i<data.length; i++){
+                Franchisee.findById({_id: data[i].franchisee_id}, function(err, franchisee){
+                    console.log(franchisee);                    
+                    data[i]['franchisee_name'] = franchisee.franchisee_name;
+                    data[i]['franchisee_profile_pic'] = franchisee.franchisee_profile_pic;
+                })
+            }
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched meeting data',
