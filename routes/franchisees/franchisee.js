@@ -909,10 +909,10 @@ router.post('/create_franchisee', function (req, res) {
                                 franchiseeForm.franchisee_profile_pic = franchiseeForm.prof_pic_org_url;
 
                             } else {
-                                franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
+                                franchiseeForm.franchisee_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                             }
                         } else {
-                            franchiseeForm.franchisee_profile_pic = "carz_pic.jpg";
+                            franchiseeForm.franchisee_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                         }
                         franchiseeForm.franchisee_pass = createHash('mypassword');
                         franchiseeForm.franchisee_email = franchiseeForm.partner_email;
@@ -1272,9 +1272,9 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
                           partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
                         
                             }else{
-                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                           }}else{
-                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"carz_pic.jpg";
+                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                           }
     
                     partner.partner_name = partnerEditForm.partner_name;
