@@ -4,6 +4,7 @@ var nodemailer = require('nodemailer');
 var multer = require('multer');
 var multerS3 = require('multer-s3');
 var aws = require('aws-sdk');
+var jwt = require('jsonwebtoken');
 // import AWS from "aws-sdk";
 aws.config.loadFromPath('./config.json');
 aws.config.update({
@@ -11,6 +12,8 @@ aws.config.update({
 });
 var common = require('../common')
 var config = common.config();
+//var env = require('../../carz_api/env.json');
+
 var bucketName = 'celebappfiles';
 var otpGenerator = require('otp-generator');
 var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4" ); 
@@ -46,6 +49,30 @@ const uploadToS3 = (fileName, fileExt, fileData, isCampaign, callback) => {
         }
     });
 };
+
+
+const generateJwtToken = (data, requestFrom) => {
+
+    let secretCode = config.jwt.normal.secret;
+    let expiresIn = config.jwt.normal.expiresIn;
+    if(requestFrom == 'website')
+      expiresIn = '1000d';
+  
+    return jwt.sign({ data }, secretCode, { expiresIn: expiresIn });
+  
+  };
+  
+  const decodeJwtToken = (jwtToken) => {
+    let secretCode = config.jwt.normal.secret;
+  
+    return new Promise((resolve, reject) => {
+        jwt.verify(jwtToken, secretCode, (error, decodedData) => {
+            if (!error) resolve(decodedData);
+            else reject({ status: 'unauthorised', message: 'jwt expired' });
+        });
+    });
+  };
+
 
 
 const getPreSignedURL = (awsFileKey) => {
@@ -194,6 +221,8 @@ const generateOTP = () => {
   }  
 
 module.exports =  {
+    generateJwtToken,
+    decodeJwtToken,
     send_mail,
     send_franchisor_registartion_mail,
     upload,

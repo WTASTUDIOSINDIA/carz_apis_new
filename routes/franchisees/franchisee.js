@@ -22,6 +22,11 @@ var _ = require('lodash');
 // var Discussion = mongoose.model('Discussion');
 // import { utils } from '../../common/utils';
 var utils = require('../../common/utils');
+// import {
+//     isUser,
+//     requires
+// } from '../../authenticate/authenticate-service';
+var authenticate = require ('../authenticate/authenticate-service')
 // import moment from "moment";
 var moment = require('moment');
 var Stages = mongoose.model('Stages');
@@ -843,8 +848,6 @@ router.post('/create_franchisee', function (req, res) {
                 });
             }
             else {
-
-
                 //Franchisee.findOne({'franchisee_code':franchiseeForm.franchisee_code},function(err,franchisee){
                 Franchisee.findOne({ 'franchisee_email': franchiseeForm.partner_email }, function (err, franchisee) {
                     if (err) {
