@@ -11,6 +11,8 @@ var nodemailer = require('nodemailer');
 var otpGenerator = require("otp-generator");
 var authService = require('./authenticate-service');
 var utils = require('../../common/utils');
+const jwt = require('jsonwebtoken')
+var authenticate = require ('../authenticate/authenticate-service');
 const objectId = mongoose.Types.ObjectId;
 var bCrypt = require('bcrypt-nodejs');
 var createHash = function(password){
@@ -184,7 +186,7 @@ module.exports = function(passport){
     */
    
 router.post('/franchisor-login', function (req,res){
-
+    console.log('+++++++++++++++++++', req.headers);
     let data = req.body;
    // data.user_pass = createHash(data.user_pass);
     let query = {};
@@ -194,10 +196,14 @@ router.post('/franchisor-login', function (req,res){
         console.log(response);
         if(response){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                let dataset = {};
+                dataset.userdata = response;
+                let requestForm = response.platform;
+                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
-                    user: response,
+                    user: dataset,
                     status:200
                 });
             }else{
@@ -212,10 +218,14 @@ router.post('/franchisor-login', function (req,res){
     .then((response) => {
         if(response){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                let dataset = {};
+                dataset.userdata = response;
+                let requestForm = response.platform;
+                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
-                    user: response,
+                    user: dataset,
                     status:200
                 });
             }else{
@@ -230,10 +240,14 @@ router.post('/franchisor-login', function (req,res){
     .then((response) => {
         if(response){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                let dataset = {};
+                dataset.userdata = response;
+                let requestForm = response.platform;
+                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
-                    user: response,
+                    user: dataset,
                     status:200
                 });
             }else{

@@ -7,6 +7,7 @@ var bCrypt = require('bcrypt-nodejs');
 var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 var Franchisee = mongoose.model('Franchisee');
+var utils = require('../../common/utils');
 module.exports = function(passport){
 //  console.log(passport);
 
@@ -68,6 +69,7 @@ module.exports = function(passport){
                         // User and password both match, return user from done method
                         // which will be treated like success
                         return done(null, franchisor);
+                       
                     }
                 );
             }
