@@ -26,7 +26,7 @@ var utils = require('../../common/utils');
 //     isUser,
 //     requires
 // } from '../../authenticate/authenticate-service';
-var authenticate = require ('../authenticate/authenticate-service')
+var authenticate = require('../authenticate/authenticate-service')
 // import moment from "moment";
 var moment = require('moment');
 var Stages = mongoose.model('Stages');
@@ -170,11 +170,15 @@ router.get('/get_franchisee/:id', function (req, res) {
 
 // get all leads count
 router.post('/get_all_leads', (req, res) => {
+    let master_query = { master_franchisee_id: { $exists: false } }
+    if (req.body._id) {
+        master_query = { master_franchisee_id: req.body._id }
+    }
     if (req.body.location) {
-        var query = { lead_type: { $exists: true, $ne: "" }, franchisee_address: req.body.location }
+        var query = { $and: [{ lead_type: { $exists: true, $ne: "" }}, {franchisee_address: req.body.location }, master_query ] }
     }
     else if (!req.body.location || req.body.location == null) {
-        query = { lead_type: { $exists: true, $ne: "" } }
+        query = { $and: [{ lead_type: { $exists: true, $ne: "" } }, master_query ] }
     }
     var hot_leads = 0
     var warm_leads = 0
@@ -256,15 +260,19 @@ router.post('/get_all_leads', (req, res) => {
 })
 
 router.post('/get_leads_by_location', (req, res) => {
+    let master_query = { master_franchisee_id: { $exists: false } }
+    if (req.body._id) {
+        master_query = { master_franchisee_id: req.body._id }
+    }
     console.log(req.body);
     if (req.body.country && !req.body.state && !req.body.city) {
-        query = { 'franchisee_country': req.body.country }
+        query = { $and: [{ 'franchisee_country': req.body.country }, master_query] }
     }
     if (req.body.country && req.body.state && !req.body.city) {
-        query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state }
+        query = { $and: [{ 'franchisee_country': req.body.country, 'franchisee_state': req.body.state }, master_query] }
     }
     if (req.body.country && req.body.state && req.body.city) {
-        query = { 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }
+        query = { $and: [{ 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }, master_query] }
     }
     console.log(query, 'query');
     Franchisee.find(query, (err, data) => {
@@ -292,8 +300,12 @@ router.post('/get_franchisee_status', (req, res) => {
         agreement_pending: 0,
         setup_pending: 0
     }
+    let master_query = { master_franchisee_id: { $exists: false } }
+    if (req.body._id) {
+        master_query = { master_franchisee_id: req.body._id }
+    }
     Stages.aggregate([
-        { $match: { $and: [{ 'stage_profile': 'completed' }, { 'stage_discussion.status': false }] } },
+        { $match: { $and: [{ 'stage_profile': 'completed' }, { 'stage_discussion.status': false }, master_query] } },
         { $group: { _id: null, profile_complete: { $sum: 1 } } }
     ]).exec()
         .then((stat) => {
@@ -309,7 +321,7 @@ router.post('/get_franchisee_status', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_discussion.status': true }, { 'stage_kycupload.status': false }] } },
+                { $match: { $and: [{ 'stage_discussion.status': true }, { 'stage_kycupload.status': false }, master_query] } },
                 { $group: { _id: null, discussion_complete: { $sum: 1 } } }
             ]).exec()
                 .then((disc) => {
@@ -324,7 +336,7 @@ router.post('/get_franchisee_status', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_kycupload.status': true }, { 'stage_assessment.status': false }] } },
+                { $match: { $and: [{ 'stage_kycupload.status': true }, { 'stage_assessment.status': false }, master_query] } },
                 { $group: { _id: null, kyc_complete: { $sum: 1 } } }
             ]).exec()
                 .then((kyc) => {
@@ -339,7 +351,7 @@ router.post('/get_franchisee_status', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_assessment.status': true }, { 'stage_agreenent.status': false }] } },
+                { $match: { $and: [{ 'stage_assessment.status': true }, { 'stage_agreenent.status': false }, master_query] } },
                 { $group: { _id: null, assessment_complete: { $sum: 1 } } }
             ]).exec()
                 .then((assessment) => {
@@ -355,7 +367,7 @@ router.post('/get_franchisee_status', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_agreenent.status': true }, { 'stage_setup.status': false }] } },
+                { $match: { $and: [{ 'stage_agreenent.status': true }, { 'stage_setup.status': false }, master_query] } },
                 { $group: { _id: null, agreement_complete: { $sum: 1 } } }
             ]).exec()
                 .then((agreement) => {
@@ -370,7 +382,7 @@ router.post('/get_franchisee_status', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: { 'stage_setup.status': true } },
+                { $match: { $and: [{ 'stage_setup.status': true }, master_query] } },
                 { $group: { _id: null, setup_complete: { $sum: 1 } } }
             ]).exec()
                 .then((setup) => {
@@ -400,25 +412,10 @@ router.post('/get_franchisee_status', (req, res) => {
 // to get total revenue 
 router.post('/get_total_revenue', (req, res) => {
     var query = { $exists: true };
-    // dt = new Date(req.body.date);
-    // date = dt.getDate();
-    // console.log(date, 'date<--------------')
-    // if (req.body.type === 'overall') {
-    //     var year = '2018';
-    //     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    //     var date;
-    //     for (i = 0; i < months.length; i++) {
-    //         date = months[i] + ', ' + year;
-    //         var firstDay = new Date(date);
-    //         var lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
-    //         // console.log(day);
-    //         // var lastDay = new Date(req.body.date);
-    //         var fdt = new Date(firstDay.setHours(0, 0, 0, 0));
-    //         var ldt = new Date(lastDay.setHours(23, 59, 59, 999));
-    //         console.log(months[i], fdt, ldt);
-    //     }
-
-    // }
+    let master_query = { master_franchisee_id: { $exists: false } }
+    if (req.body._id) {
+        master_query = { master_franchisee_id: req.body._id }
+    }
     if (req.body.type === 'yearly') {
         var first_day_of_year = new Date(req.body.date, 0, 1);
         var last_day_of_year = new Date(req.body.date, 11, 31);
@@ -441,7 +438,7 @@ router.post('/get_total_revenue', (req, res) => {
     var total_leads = 0;
     var progress = 0;
     Stages.aggregate([
-        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }] } },
+        { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }, master_query] } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
         .then((one_lac) => {
@@ -450,7 +447,7 @@ router.post('/get_total_revenue', (req, res) => {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
+                { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
             ]).exec()
                 .then((four_lac) => {
@@ -463,7 +460,7 @@ router.post('/get_total_revenue', (req, res) => {
         })
         .then(() => {
             return Stages.aggregate([
-                { $match: {} },
+                { $match: master_query },
                 { $group: { _id: null, count: { $sum: 1 } } }
             ]).exec()
                 .then((leads_count) => {
@@ -507,23 +504,29 @@ router.post('/get_revenue_graph', (req, res) => {
         let total_leads = 0;
         let progress = 0;
         let query = { $gte: fdt, $lte: ldt };
+        let master_query = { master_franchisee_id: { $exists: false } }
+        if (req.body._id) {
+            master_query = { master_franchisee_id: req.body._id }
+        }
+        console.log(query);
+        console.log(master_query);
         Stages.aggregate([
-            { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }] } },
+            { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }, master_query] } },
             { $group: { _id: null, one_lac_count: { $sum: 1 } } }
         ]).exec()
             .then((one_lac) => {
-               
+
                 if (one_lac == "" || one_lac == null || one_lac.length == 0) {
                     console.log(one_lac, 'one_lac--------------------')
                     console.log(month, fdt, ldt);
-                    months_data.push({"month" :fdt, "total" : 0});
+                    months_data.push({ "month": fdt, "total": 0 });
                     if (months_data.length == months.length) {
                         months_data.sort((x, y) => {
                             return x.month - y.month;
                         })
                         // return months_data;
                         console.log(months_data);
-                        for ( let j = 0; j < months_data.length; j++) {
+                        for (let j = 0; j < months_data.length; j++) {
                             data.push(months_data[j].total);
                         }
                         return res.json({
@@ -534,13 +537,13 @@ router.post('/get_revenue_graph', (req, res) => {
                     }
                     console.log(months_data);
                 }
-                else{
-                    if( one_lac[0].one_lac_count){
-                    one_lac_total = one_lac[0].one_lac_count * 100000;
+                else {
+                    if (one_lac[0].one_lac_count) {
+                        one_lac_total = one_lac[0].one_lac_count * 100000;
                     }
                     console.log(one_lac, '_lac-------++++++-------------')
                     Stages.aggregate([
-                        { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }] } },
+                        { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
                         { $group: { _id: null, four_lac_count: { $sum: 1 } } }
                     ]).exec()
                         .then((four_lac) => {
@@ -550,12 +553,12 @@ router.post('/get_revenue_graph', (req, res) => {
                                 four_lac_total = four_lac[0].four_lac_count * 400000;
                             }
                             let total = four_lac_total + one_lac_total;
-                            months_data.push({"month" :fdt, "total" : total});
+                            months_data.push({ "month": fdt, "total": total });
                             if (months_data.length == months.length) {
                                 months_data.sort((x, y) => {
                                     return x.month - y.month;
                                 })
-                                for ( let j = 0; j < months_data.length; j++) {
+                                for (let j = 0; j < months_data.length; j++) {
                                     data.push(months_data[j].total);
                                 }
                                 // return months_data;
@@ -610,7 +613,7 @@ router.post('/get_revenue_graph', (req, res) => {
                 console.log(err)
                 return res.json(500, err)
             })
-        });
+    });
 })
 
 router.post('/get_revenue_by_months', (req, res) => {
@@ -909,16 +912,19 @@ router.post('/create_franchisee', function (req, res) {
                                 franchiseeForm.franchisee_profile_pic = franchiseeForm.prof_pic_org_url;
 
                             } else {
-                                franchiseeForm.franchisee_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
+                                franchiseeForm.franchisee_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
                             }
                         } else {
-                            franchiseeForm.franchisee_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
+                            franchiseeForm.franchisee_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
                         }
                         franchiseeForm.franchisee_pass = createHash('mypassword');
                         franchiseeForm.franchisee_email = franchiseeForm.partner_email;
                         franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
                         franchiseeForm.partner_name = franchiseeForm.partner_name;
                         franchiseeForm.stage_profile = "completed";
+                        if( franchiseeForm.franchisee_franchise_type === 'Master') {
+                            franchiseeForm.user_role = 'master_franchisee'
+                        }
                         /*franchisee.franchisee_email = franchiseeForm.partner_email;
                         franchisee.franchisee_occupation = franchiseeForm.partner_occupation;
                         franchisee.franchisee_city = franchiseeForm.franchisee_city;
@@ -1197,8 +1203,8 @@ router.post('/create_multiple_franchisee', function (req, res) {
 
 
 //save frachisee and partner information api
-router.put('/save_partner_and_franchisee_information', function (req, res){
-    
+router.put('/save_partner_and_franchisee_information', function (req, res) {
+
     console.log('franchisee+++++++++++++++++', req.body.franchisee);
     console.log('partners++++++++++++++++', req.body.partners_list);
     var franchiseeEditForm = req.body.franchisee;
@@ -1214,7 +1220,7 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
             }
             //If franchisee found,it will enter inside
             if (franchisee) {
-                    franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
+                franchisee.franchisee_code = franchiseeEditForm.franchisee_code,
                     franchisee.franchisee_name = franchiseeEditForm.franchisee_name,
                     franchisee.franchisee_occupation = franchiseeEditForm.franchisee_occupation,
                     franchisee.franchisee_email = franchiseeEditForm.franchisee_email,
@@ -1233,8 +1239,8 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
                     franchisee.franchisee_remarks = franchiseeEditForm.franchisee_remarks,
                     franchisee.lead_age = franchiseeEditForm.lead_age,
                     franchisee.bussiness_type_id = franchiseeEditForm.bussiness_type_id;
-                    franchisee.lead_source = franchiseeEditForm.lead_source
-                    franchisee.save(function (err, franchisee) {
+                franchisee.lead_source = franchiseeEditForm.lead_source
+                franchisee.save(function (err, franchisee) {
                     if (err) {
                         res.send({
                             status: 500,
@@ -1245,102 +1251,103 @@ router.put('/save_partner_and_franchisee_information', function (req, res){
                     else {
                         for (let i = 0; i < partners_list.length; i++) {
                             var partnerEditForm = partners_list[i];
-                          Partner.findById({ '_id': partnerEditForm._id}, function (err, partner) {
+                            Partner.findById({ '_id': partnerEditForm._id }, function (err, partner) {
 
 
-                            if (partners_list[i]) {
-                                if(partnerEditForm.partner_pic){
-                                if(partnerEditForm.partner_pic != ""){
-                            
-                              let fileExt = "";
-                            if (partnerEditForm.partner_pic.indexOf("image/png") != -1)
-                              fileExt = "png";
-                          else if (partnerEditForm.partner_pic.indexOf("image/jpeg") != -1)
-                              fileExt = "jpeg";
-                          else if (partnerEditForm.partner_pic.indexOf("image/jpg") != -1)
-                              fileExt = "jpg";
-                          else if (partnerEditForm.partner_pic.indexOf("video/mp4") != -1)
-                              fileExt = "mp4";  
-                          else
-                              fileExt = "png";
-                        
-                          let imageKey = "partner_pic/img_" + moment().unix();
-                          if (partnerEditForm.partner_pic){
-                              utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
-                        }
-                          partnerEditForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
-                          partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
-                        
-                            }else{
-                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
-                          }}else{
-                            partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
-                          }
-    
-                    partner.partner_name = partnerEditForm.partner_name;
-                    partner.partner_occupation = partnerEditForm.partner_occupation;
-                    partner.partner_email = partnerEditForm.partner_email;
-                    partner.partner_address = partnerEditForm.partner_address;
-                    partner.partner_city = partnerEditForm.partner_city;
-                    partner.partner_state = partnerEditForm.partner_state;
-                    partner.partner_country = partnerEditForm.partner_country;
-                    partner.partner_pincode = partnerEditForm.partner_pincode;
-                    partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
-                    partner.partner_age = partnerEditForm.partner_age;
-                    partner.country_code = partnerEditForm.country_code;
-                    partner.partner_house_number = partnerEditForm.partner_house_number;
-                    partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
-                    partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-                    partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
-                    partner.save(function (err, partner) {
-                        if (err) {
-    
-                            res.send({
-                                state: "err",
-                                message: "Something went wrong."
-                            }, 500);
-                        } else {
-                            Franchisee.findOne({_id: partner.franchisee_id}, function (err, franchiees) {
-                                if (err) {
-                                    return res.send({
-                                        state: "err",
-                                        message: "Something went wrong. We are looking into it."
-                                    }, 500);
-                                } else {
-    
-                                    if (partner.main_partner) {
-                                        franchiees.franchisee_profile_pic = partner.partner_profile_pic;
-                                        franchiees.franchisee_mobile_number = partner.partner_mobile_number;
-                                        franchiees.franchisee_occupation = partner.partner_occupation;
-                                        franchiees.partner_occupation_others - partner.partner_occupation_others;
-                                        franchiees.lead_age = partner.partner_age;
+                                if (partners_list[i]) {
+                                    if (partnerEditForm.partner_pic) {
+                                        if (partnerEditForm.partner_pic != "") {
+
+                                            let fileExt = "";
+                                            if (partnerEditForm.partner_pic.indexOf("image/png") != -1)
+                                                fileExt = "png";
+                                            else if (partnerEditForm.partner_pic.indexOf("image/jpeg") != -1)
+                                                fileExt = "jpeg";
+                                            else if (partnerEditForm.partner_pic.indexOf("image/jpg") != -1)
+                                                fileExt = "jpg";
+                                            else if (partnerEditForm.partner_pic.indexOf("video/mp4") != -1)
+                                                fileExt = "mp4";
+                                            else
+                                                fileExt = "png";
+
+                                            let imageKey = "partner_pic/img_" + moment().unix();
+                                            if (partnerEditForm.partner_pic) {
+                                                utils.uploadToS3(imageKey, fileExt, partnerEditForm.partner_pic);
+                                            }
+                                            partnerEditForm.prof_pic_org_url = utils.awsFileUrl() + imageKey + "." + fileExt;
+                                            partnerEditForm.partner_profile_pic = partnerEditForm.prof_pic_org_url;
+
+                                        } else {
+                                            partnerEditForm.partner_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
+                                        }
+                                    } else {
+                                        partnerEditForm.partner_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
                                     }
-                                    franchiees.save(function (err, franchiees) {
+
+                                    partner.partner_name = partnerEditForm.partner_name;
+                                    partner.partner_occupation = partnerEditForm.partner_occupation;
+                                    partner.partner_email = partnerEditForm.partner_email;
+                                    partner.partner_address = partnerEditForm.partner_address;
+                                    partner.partner_city = partnerEditForm.partner_city;
+                                    partner.partner_state = partnerEditForm.partner_state;
+                                    partner.partner_country = partnerEditForm.partner_country;
+                                    partner.partner_pincode = partnerEditForm.partner_pincode;
+                                    partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
+                                    partner.partner_age = partnerEditForm.partner_age;
+                                    partner.country_code = partnerEditForm.country_code;
+                                    partner.partner_house_number = partnerEditForm.partner_house_number;
+                                    partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
+                                    partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
+                                    partner.partner_profile_pic = partnerEditForm.partner_profile_pic;
+                                    partner.save(function (err, partner) {
                                         if (err) {
-                                            return res.send({
-                                                state: "failure",
-                                                message: "Updation in franchisee got wrong"
+
+                                            res.send({
+                                                state: "err",
+                                                message: "Something went wrong."
                                             }, 500);
                                         } else {
-                                            console.log(partner, 358);
-                                            kyc_Upload(req, res, partner, franchiees, "Partner franchisee Updated.");
+                                            Franchisee.findOne({ _id: partner.franchisee_id }, function (err, franchiees) {
+                                                if (err) {
+                                                    return res.send({
+                                                        state: "err",
+                                                        message: "Something went wrong. We are looking into it."
+                                                    }, 500);
+                                                } else {
+
+                                                    if (partner.main_partner) {
+                                                        franchiees.franchisee_profile_pic = partner.partner_profile_pic;
+                                                        franchiees.franchisee_mobile_number = partner.partner_mobile_number;
+                                                        franchiees.franchisee_occupation = partner.partner_occupation;
+                                                        franchiees.partner_occupation_others - partner.partner_occupation_others;
+                                                        franchiees.lead_age = partner.partner_age;
+                                                    }
+                                                    franchiees.save(function (err, franchiees) {
+                                                        if (err) {
+                                                            return res.send({
+                                                                state: "failure",
+                                                                message: "Updation in franchisee got wrong"
+                                                            }, 500);
+                                                        } else {
+                                                            console.log(partner, 358);
+                                                            kyc_Upload(req, res, partner, franchiees, "Partner franchisee Updated.");
+                                                        }
+                                                    });
+                                                }
+                                            });
                                         }
                                     });
                                 }
-                            });
+
+
+                                res.send({
+                                    status: 200,
+                                    state: "success",
+                                    message: "Franchisee Updated.",
+                                    data: franchisee, partner
+                                }, 200);
+                            })
                         }
-                    });
-                }
-          
-                        
-                        res.send({
-                            status: 200,
-                            state: "success",
-                            message: "Franchisee Updated.",
-                            data: franchisee, partner
-                        }, 200);
-                    })
-                }
                     }
                 });
             }
