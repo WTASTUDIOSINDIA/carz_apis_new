@@ -532,7 +532,7 @@ router.delete('/delete_discussion_payment_file/:franchisee_id', function (req, r
 
         file[0].stage_discussion.payment_file_name = '';
         file[0].stage_discussion.payment_file = '';
-        file[0].one_lac_payment_uploaded_date = null;
+        file[0].stage_discussion.one_lac_payment_uploaded_date = null;
         file[0].save(function (err, file) {
           if (err) {
             res.send({
