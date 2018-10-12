@@ -384,10 +384,31 @@ router.get('/get_meeting/:franchisee_id/:stage_id', function (req, res) {
 // to get all meetings
 router.get('/get_all_meetings', function (req, res) {
     try {
-        Meeting.find({}, function (err, meeting) {
-            if (err) {
-                return res.send(500, err);
-            }
+        // Meeting.find({}, function (err, meeting) {
+        //     if (err) {
+        //         return res.send(500, err);
+        //     }
+        //     if (!meeting) {
+        //         res.send({
+        //             "message": "Meetings not found",
+        //             "state": "failure",
+        //             "meetings": []
+        //         }, 201);
+        //     }
+        //     else {
+        //         res.send({
+        //             "state": "success",
+        //             "meetings": meeting
+        //         }, 200);
+        //     }
+        // })
+
+        Meeting.find().populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
+.exec(function(err, meeting) {
+    if (err) return handleError(err);
+    // if (err) {
+    //             return res.send(500, err);
+    //         }
             if (!meeting) {
                 res.send({
                     "message": "Meetings not found",
@@ -401,7 +422,7 @@ router.get('/get_all_meetings', function (req, res) {
                     "meetings": meeting
                 }, 200);
             }
-        })
+});
     }
     catch (err) {
         return res.send({
@@ -411,7 +432,7 @@ router.get('/get_all_meetings', function (req, res) {
     }
 });
 
-router.post('/get_meetings_count', (req, res) => {
+router.post('/get_meetings_count', async (req, res) => {
     if(req.body.date){
         date = new Date(req.body.date);
         console.log(typeof (date));
@@ -432,34 +453,65 @@ router.post('/get_meetings_count', (req, res) => {
         console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
-    console.log(query);
-    Meeting.find(query, (err, data) => {
-        if (err) {
-            return res.json(500, err);
-        }
-        if (!data) {
-            return res.json({
-                state: 'error',
-                message: 'No meetings found',
-            })
-        }
-        if (data) {
-            console.log(data);
-            for(var i = 0; i<data.length; i++){
-                Franchisee.findById({_id: data[i].franchisee_id}, function(err, franchisee){
-                    console.log(franchisee);                    
-                    data[i]['franchisee_name'] = franchisee.franchisee_name;
-                    data[i]['franchisee_profile_pic'] = franchisee.franchisee_profile_pic;
+    // console.log(query);
+    //   Meeting.find(query, (err, data) => {
+    //     if (err) {
+    //         return res.json(500, err);
+    //     }
+    //     if (!data) {
+    //         return res.json({
+    //             state: 'error',
+    //             message: 'No meetings found',
+    //         })
+    //     }
+    //     if (data) {
+    //         // console.log(data);
+    //         // for(var i = 0; i<data.length; i++){
+    //         //     Franchisee.findById({_id: data[i].franchisee_id}, function(err, franchisee){
+    //         //         console.log(franchisee.franchisee_name);                    
+    //         //         data[i]['franchisee_name'] = franchisee.franchisee_name;
+    //         //         data[i]['franchisee_profile_pic'] = franchisee.franchisee_profile_pic;
+    //         //     })
+    //         // }
+    //         data.forEach(function(meeting){
+    //                  Franchisee.findById({_id: meeting.franchisee_id}, function(err, franchisee){
+    //                      console.log(meeting);
+    //                     meeting.franchisee_name_2 = franchisee.franchisee_name;
+    //                     console.log(meeting, '459');
+    //                     console.log(franchisee.franchisee_name, '460');
+    //                  });
+                 
+                    
+    //             });
+    //         return res.json({
+    //             state: 'success',
+    //             message: 'Successfully fetched meeting data',
+    //             meetings: data,
+    //             meetings_count: data.length
+    //         })
+    //     }
+    // })
+    console.log('473', query);
+    Meeting.find(query)
+.populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
+.exec(function(err, data) {
+    if (err) return handleError(err);
+            if (!data) {
+                return res.json({
+                    state: 'error',
+                    message: 'No meetings found',
                 })
             }
-            return res.json({
-                state: 'success',
-                message: 'Successfully fetched meeting data',
-                meetings: data,
-                meetings_count: data.length
-            })
-        }
-    })
+            if (data) {
+                return res.json({
+                    state: 'success',
+                    message: 'Successfully fetched meeting data',
+                    meetings: data,
+                    meetings_count: data.length
+                });
+            }
+});
+
 })
 /**
  * Creates an access token with VoiceGrant using your Twilio credentials.
@@ -717,24 +769,44 @@ function update_franchisee(req, res, franchisee_id, val, meeting) {
 // to get meetings by franchisee id
 router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
     try {
-        Meeting.find({ 'franchisee_id': req.params.franchisee_id }, function (err, meeting) {
+        // Meeting.find({ 'franchisee_id': req.params.franchisee_id }, function (err, meeting) {
 
-            if (err) {
-                return res.send(500, err);
-            }
+        //     if (err) {
+        //         return res.send(500, err);
+        //     }
+        //     if (!meeting) {
+        //         res.send({
+        //             "state": "failure",
+        //             "data": []
+        //         }, 400);
+        //     }
+        //     else {
+        //         res.send({
+        //             state: "success",
+        //             data: meeting
+        //         }, 200);
+        //     }
+        // })
+        Meeting.find({ 'franchisee_id': req.params.franchisee_id }).populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
+.exec(function(err, meeting) {
+    if (err) return handleError(err);
+    // if (err) {
+    //             return res.send(500, err);
+    //         }
             if (!meeting) {
                 res.send({
+                    "message": "Meetings not found",
                     "state": "failure",
                     "data": []
-                }, 400);
+                }, 201);
             }
             else {
                 res.send({
-                    state: "success",
+                    "state": "success",
                     data: meeting
                 }, 200);
             }
-        })
+});
     }
     catch (err) {
         return res.send({
