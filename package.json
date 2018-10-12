@@ -16,6 +16,7 @@
     "bcrypt-nodejs": "0.0.3",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
     "csv": "^3.0.2",
     "dynamic-html-pdf": "0.0.4",
     "ejs": "^2.5.7",

@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
 var session = require('express-session');
+// var cors = require('cors')
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
 require('./models/franchisors/franchisor');
@@ -145,6 +146,7 @@ app.use(require('express-session')({
     saveUninitialized: true,
     cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
 }));
+// app.use(cors('cors'))
 app.use(logger('dev'));
 app.use(session({
   secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9',
