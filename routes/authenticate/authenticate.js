@@ -4,6 +4,7 @@ var mongoose = require( 'mongoose' );
 var path = require('path');
 var Franchisor = mongoose.model('Franchisor');
 var Franchisee = mongoose.model('Franchisee');
+var SuperAdmin = mongoose.model('SuperAdmin');
 var ForgotPassword = mongoose.model('ForgotPassword');
 var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
@@ -131,7 +132,8 @@ module.exports = function(passport){
           res.send({
             state: 'otp',
             user: data,
-            status:200
+            status:200,
+            data: otp
         });
 
     }else{
@@ -198,8 +200,8 @@ router.post('/franchisor-login', function (req,res){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+               // let requestForm = response.platform;
+                //dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -238,12 +240,15 @@ router.post('/franchisor-login', function (req,res){
         }
     })
     .then((response) => {
+        console.log(response, 'test242');
         if(response){
+            console.log(response, 'test243');
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                console.log(response, 'test244');
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+                //let requestForm = response.platform;
+                //dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -747,7 +752,34 @@ router.post('/franchisor-login', function (req,res){
     }
   })
 
-
+  router.post('/create_super_admin', function(req, res){
+      let data = req.body;
+      if(data.user_role == "super_admin"){
+          authService.findSuperAdmin({user_mail: data.user_mail}, '')
+          .then((response) => {
+              if(response){
+                  
+              }
+              else {
+                  var superadmin = new SuperAdmin();
+                  superadmin.user_pass = createHash(data.user_pass);//req.body.user_pass;
+                  superadmin.user_mail = data.user_mail;
+                  superadmin.user_role = data.user_role;
+                  superadmin.user_name = data.user_name;
+                  superadmin.save(function(err, supeadmin){
+                      if(supeadmin){
+                        res.send({
+                            "status": 200,
+                            "message": "Success"                                    
+                        }, 200);
+                      }
+                    
+                  });
+              }
+          })
+      }
+      
+  })
 
   router.post('/save_profile', function (req,res){
 
@@ -846,6 +878,52 @@ router.post('/franchisor-login', function (req,res){
               });
 
         }else if(data.user_role == "franchisee"){
+
+            authService.findFranchisee({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
+                        utils.sendMailOTP(otp,response.franchisee_email);
+                        response.pass_verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.franchisee_name = data.franchisee_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.franchisee_pass = undefined;
+                if(response.pass_verification.otp == otp){
+                    response.pass_verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.pass_verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+           
+
+        }
+        else if(data.user_role == "master_franchisee"){
 
             authService.findFranchisee({_id:objectId(data.id)}, '')
             .then((response) => {

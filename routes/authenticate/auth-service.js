@@ -39,6 +39,13 @@ module.exports = function(passport){
             done(err, franchisee);
         });
       };
+
+      // if user role is master franchisee
+      if(user.user_role === "master_franchisee"){
+        Franchisee.findById(user.id, function(err, franchisee) {
+            done(err, franchisee);
+        });
+      };
     });
 
     // passport config

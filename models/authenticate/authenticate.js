@@ -9,7 +9,7 @@ var authenticateSchema = new mongoose.Schema({
     "user_name":String,
     "user_pic":{type: Schema.Types.Mixed, default : {}},
     "user_status":String,
-    "role":{type:String, enum: ['admin', 'franchisor', 'franchisee', 'masterFranchisee'], default:'superAdmin'}
+    "role":{type:String, enum: ['admin', 'franchisor', 'franchisee', 'master_franchisee'], default:'superAdmin'}
 });
 var superAdminSchema = new mongoose.Schema({
     "user_mail":String,
