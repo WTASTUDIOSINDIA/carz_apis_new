@@ -132,7 +132,8 @@ module.exports = function(passport){
           res.send({
             state: 'otp',
             user: data,
-            status:200
+            status:200,
+            data: otp
         });
 
     }else{
@@ -877,6 +878,52 @@ router.post('/franchisor-login', function (req,res){
               });
 
         }else if(data.user_role == "franchisee"){
+
+            authService.findFranchisee({_id:objectId(data.id)}, '')
+            .then((response) => {
+                if(response) {
+                    if(data.user_pass){
+                        utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
+                        utils.sendMailOTP(otp,response.franchisee_email);
+                        response.pass_verification = {
+                            otp : otp
+                        }
+                        return response.save()
+                      
+                       //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
+                    }
+                    else{
+                        response.franchisee_name = data.franchisee_name;
+                        return response.save();
+                        //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
+                    }
+                } else {
+                    throw {
+                      reason : "NotFound"
+                    }
+                  }
+            })
+            .then((response) => {
+                response.franchisee_pass = undefined;
+                if(response.pass_verification.otp == otp){
+                    response.pass_verification = undefined;
+                    res.status(200).json({ error: "2", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: response});
+                }else{
+                    response.pass_verification = undefined;
+                   res.status(200).json({ error: "0", message: "Succesfully updated",data:response});
+                }
+              })
+            
+              .catch((err) => {
+                if(err.reason == "NotFound")
+                  res.status(404).json({error:'2',message:"Details not found with the given username"});
+                else
+                  res.status(500).json({error:'3',message:"Internal Sever Error"});
+              });
+           
+
+        }
+        else if(data.user_role == "master_franchisee"){
 
             authService.findFranchisee({_id:objectId(data.id)}, '')
             .then((response) => {
