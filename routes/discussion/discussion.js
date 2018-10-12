@@ -376,23 +376,14 @@ router.put('/question/vote', function (req, res) {
                 return res.send(err);
             }
             if (discussionquestion) {
-                var flag = false;
-
-                console.log(typeof (discussionquestion.votedBy), '*********************', req.body.votedBy);
+             
                 var id = req.body.votedBy;
-                console.log(discussionquestion.votedBy, '+++++++++++++++++++++++', req.body.votedBy);
-                // if(discussionquestion.votedBy.length>0){
-                //     for(var i=0;i<discussionquestion.votedBy.length;i++){
-                //         if(discussionquestion.votedBy === id){
-                //             flag === true;
-                //         }
-                //     }
-                // }
                 DiscussionQuestion.find({ votedBy: { $elemMatch: { $eq: id } } }, (err, data) => {
+                    console.log(data);
                     if (err) {
                         console.log('err');
                     }
-                    else if (data) {
+                    else if(data.length != 0 || data != "") {
                         console.log('id exists');
                     }
                     else {
@@ -411,28 +402,7 @@ router.put('/question/vote', function (req, res) {
                         });
                     }
                 })
-                // if (flag == true) {
-                //     res.send({
-                //         state: 'failure',
-                //         message: 'You have already voted for this discussionquestion'
-                //     });
-                // }
-                // else {
-                //     console.log('discussionquestion', discussionquestion);
-                //     discussionquestion.votes = discussionquestion.votes + 1;
-                //     discussionquestion.votedBy.push(id);
-                //     discussionquestion.save(function (err, discussionquestion) {
-                //         if (err) {
-                //             res.send(err);
-                //         }
-                //         else {
-                //             res.send({
-                //                 state: 'success',
-                //                 data: discussionquestion
-                //             });
-                //         }
-                //     });
-                // }
+                
             }
         });
     }
