@@ -378,13 +378,16 @@ router.put('/question/vote', function (req, res) {
             if (discussionquestion) {
              
                 var id = req.body.votedBy;
-                DiscussionQuestion.find({ votedBy: { $elemMatch: { $eq: id } } }, (err, data) => {
+                DiscussionQuestion.find({$and:[{ votedBy: { $elemMatch: { $eq: id } } },{_id:mongoose.Types.ObjectId(req.body.question_id)}]}, (err, data) => {
                     console.log(data);
                     if (err) {
-                        console.log('err');
+                        return res.send(err);
                     }
                     else if(data.length != 0 || data != "") {
-                        console.log('id exists');
+                        res.send({
+                        state:'failure',
+                        message:'You have already voted for this question'
+                    },201);
                     }
                     else {
                         discussionquestion.votes = discussionquestion.votes + 1;
@@ -397,7 +400,7 @@ router.put('/question/vote', function (req, res) {
                                 res.send({
                                     state: 'success',
                                     data: discussionquestion
-                                });
+                                },200);
                             }
                         });
                     }
