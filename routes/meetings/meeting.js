@@ -404,25 +404,25 @@ router.get('/get_all_meetings', function (req, res) {
         // })
 
         Meeting.find().populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
-.exec(function(err, meeting) {
-    if (err) return handleError(err);
-    // if (err) {
-    //             return res.send(500, err);
-    //         }
-            if (!meeting) {
-                res.send({
-                    "message": "Meetings not found",
-                    "state": "failure",
-                    "meetings": []
-                }, 201);
-            }
-            else {
-                res.send({
-                    "state": "success",
-                    "meetings": meeting
-                }, 200);
-            }
-});
+            .exec(function (err, meeting) {
+                if (err) return handleError(err);
+                // if (err) {
+                //             return res.send(500, err);
+                //         }
+                if (!meeting) {
+                    res.send({
+                        "message": "Meetings not found",
+                        "state": "failure",
+                        "meetings": []
+                    }, 201);
+                }
+                else {
+                    res.send({
+                        "state": "success",
+                        "meetings": meeting
+                    }, 200);
+                }
+            });
     }
     catch (err) {
         return res.send({
@@ -433,7 +433,7 @@ router.get('/get_all_meetings', function (req, res) {
 });
 
 router.post('/get_meetings_count', async (req, res) => {
-    if(req.body.date){
+    if (req.body.date) {
         date = new Date(req.body.date);
         console.log(typeof (date));
         console.log(date);
@@ -443,7 +443,7 @@ router.post('/get_meetings_count', async (req, res) => {
         console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
-    if(!req.body.date || req.body.date == null) {
+    if (!req.body.date || req.body.date == null) {
         date = new Date();
         console.log(typeof (date));
         console.log(date);
@@ -480,8 +480,8 @@ router.post('/get_meetings_count', async (req, res) => {
     //                     console.log(meeting, '459');
     //                     console.log(franchisee.franchisee_name, '460');
     //                  });
-                 
-                    
+
+
     //             });
     //         return res.json({
     //             state: 'success',
@@ -493,9 +493,9 @@ router.post('/get_meetings_count', async (req, res) => {
     // })
     console.log('473', query);
     Meeting.find(query)
-.populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
-.exec(function(err, data) {
-    if (err) return handleError(err);
+        .populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
+        .exec(function (err, data) {
+            if (err) return handleError(err);
             if (!data) {
                 return res.json({
                     state: 'error',
@@ -510,7 +510,7 @@ router.post('/get_meetings_count', async (req, res) => {
                     meetings_count: data.length
                 });
             }
-});
+        });
 
 })
 /**
@@ -788,25 +788,25 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
         //     }
         // })
         Meeting.find({ 'franchisee_id': req.params.franchisee_id }).populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
-.exec(function(err, meeting) {
-    if (err) return handleError(err);
-    // if (err) {
-    //             return res.send(500, err);
-    //         }
-            if (!meeting) {
-                res.send({
-                    "message": "Meetings not found",
-                    "state": "failure",
-                    "data": []
-                }, 201);
-            }
-            else {
-                res.send({
-                    "state": "success",
-                    data: meeting
-                }, 200);
-            }
-});
+            .exec(function (err, meeting) {
+                if (err) return handleError(err);
+                // if (err) {
+                //             return res.send(500, err);
+                //         }
+                if (!meeting) {
+                    res.send({
+                        "message": "Meetings not found",
+                        "state": "failure",
+                        "data": []
+                    }, 201);
+                }
+                else {
+                    res.send({
+                        "state": "success",
+                        data: meeting
+                    }, 200);
+                }
+            });
     }
     catch (err) {
         return res.send({
