@@ -4,6 +4,7 @@ var mongoose = require( 'mongoose' );
 var path = require('path');
 var Franchisor = mongoose.model('Franchisor');
 var Franchisee = mongoose.model('Franchisee');
+var SuperAdmin = mongoose.model('SuperAdmin');
 var ForgotPassword = mongoose.model('ForgotPassword');
 var bCrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
@@ -199,8 +200,8 @@ router.post('/franchisor-login', function (req,res){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+               // let requestForm = response.platform;
+                //dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -239,12 +240,15 @@ router.post('/franchisor-login', function (req,res){
         }
     })
     .then((response) => {
+        console.log(response, 'test242');
         if(response){
+            console.log(response, 'test243');
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
+                console.log(response, 'test244');
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+                //let requestForm = response.platform;
+                //dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -748,7 +752,34 @@ router.post('/franchisor-login', function (req,res){
     }
   })
 
-
+  router.post('/create_super_admin', function(req, res){
+      let data = req.body;
+      if(data.user_role == "super_admin"){
+          authService.findSuperAdmin({user_mail: data.user_mail}, '')
+          .then((response) => {
+              if(response){
+                  
+              }
+              else {
+                  var superadmin = new SuperAdmin();
+                  superadmin.user_pass = createHash(data.user_pass);//req.body.user_pass;
+                  superadmin.user_mail = data.user_mail;
+                  superadmin.user_role = data.user_role;
+                  superadmin.user_name = data.user_name;
+                  superadmin.save(function(err, supeadmin){
+                      if(supeadmin){
+                        res.send({
+                            "status": 200,
+                            "message": "Success"                                    
+                        }, 200);
+                      }
+                    
+                  });
+              }
+          })
+      }
+      
+  })
 
   router.post('/save_profile', function (req,res){
 
