@@ -32,6 +32,7 @@
       })
   });
 
+ 
   var day_rule = new schedule.RecurrenceRule();
   day_rule.dayOfWeek = [new schedule.Range(1, 6)];
   day_rule.hour = 23;
@@ -48,7 +49,7 @@
   week_rule.second = 599;
 
   var month_rule = new schedule.RecurrenceRule();
-  var curr_month = new Date().getMonth();
+  var curr_month = moment(new Date().getMonth());
   month_rule.month = curr_month+1;
   month_rule.hour = 23;
   month_rule.minute = 59;
@@ -56,7 +57,7 @@
 
 schedule.scheduleJob(day_rule, function(req,res){
 
-  let curr = new Date().getDay(); // get current date
+  let curr = moment(new Date().getDay()); // get current date
 
 if(curr != 0){
   Franchisee.find({archieve_franchisee: false,lead_type:"Franchisees"}, {'_id':1, "franchisee_email":1}).lean().exec(function(err,franchiees){
@@ -74,9 +75,9 @@ if(curr != 0){
     else{
         franchiees.forEach(function(element){
 
-          let from = new Date();
+          let from = moment(new Date());
           let from_date = from.setHours(0,0,0,0);
-          let to = new Date();
+          let to = moment(new Date());
           let to_date = to.setHours(23, 59, 59, 999);
 
           let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(from_date),$lt: new Date(to_date) }}]};
@@ -136,13 +137,13 @@ schedule.scheduleJob(day_rule, function(req,res){
 
           if(element.franchisee_created_on){
 
-            let curr = new Date; // get current date
+            let curr = moment(new Date()); // get current date
             let check_date = curr.getDate() - 5; // First day is the day of the month - the day of the week
             
-            let check_date_full = new Date(curr.setDate(check_date));
+            let check_date_full = moment(new Date(curr.setDate(check_date)));
  
           var i =0;  
-          //var curr = new Date();
+          //var curr = moment(new Date());
           let day = curr.getDay();
           let firstday = new Date(curr.getTime() - 60*60*24* day*1000); // will return firstday (i.e. Sunday) of the week
           let lastday = new Date(firstday.getTime() + 60 * 60 *24 * 6 * 1000); // adding (60*60*6*24*1000) means adding six days to the firstday which results in lastday (Saturday) of the week
@@ -166,9 +167,9 @@ schedule.scheduleJob(day_rule, function(req,res){
 
           if(new Date(check_date_full) > new Date(element.franchisee_created_on)){
 
-            let from = new Date();
+            let from = moment(new Date());
             let from_date = from.setHours(0,0,0,0);
-            let to = new Date();
+            let to = moment(new Date());
             let to_date = to.setHours(23, 59, 59, 999);
 
           let query = {$and: [{checklist_type:"Daily",franchisee_id :objectId(element._id),created_on:{ $gt: new Date(new Date(from_date) - (1000 * 60 * 60 * 24 * 5)),$lt: new Date(to_date) }}]};
@@ -216,7 +217,7 @@ schedule.scheduleJob(week_rule, function(req,res){
     else{
         franchiees.forEach(function(element){
 
-        let curr = new Date; // get current date
+        let curr = moment(new Date()); // get current date
         let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
         let last = first + 6; // last day is the first day + 6
         
@@ -267,7 +268,7 @@ schedule.scheduleJob(month_rule, function(req,res){
     else{
         franchiees.forEach(function(element){
 
-          var date = new Date();
+          var date = moment(new Date());
           var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
           var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
@@ -476,9 +477,9 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
         let s_date = new Date(data.date);
         let send_date = moment(s_date).format("D-M-YYYY");
 
-        let from = new Date();
+        let from = moment(new Date());
         let from_date = from.setHours(0,0,0,0);
-        let to = new Date();
+        let to = moment(new Date());
         let to_date = to.setHours(23, 59, 59, 999);
 
         if(today == send_date){
@@ -499,7 +500,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
 
         let send_date = new Date(data.date);
 
-        var curr = new Date();
+        var curr = moment(new Date());
         let day = curr.getDay();
         let firstday = new Date(curr.getTime() - 60*60*24* day*1000); // will return firstday (i.e. Sunday) of the week
         let lastday = new Date(firstday.getTime() + 60 * 60 *24 * 6 * 1000); // adding (60*60*6*24*1000) means adding six days to the firstday which results in lastday (Saturday) of the week
@@ -521,7 +522,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
     if(data.checklist_type == "Monthly"){
       if(data.date){
 
-        let curr_d = new Date; // get current date
+        let curr_d = moment(new Date()); // get current date
         let month_d = curr_d.getMonth(); 
         let year_d = curr_d.getFullYear(); 
         var date_d = new Date(year_d, month_d, 1);
