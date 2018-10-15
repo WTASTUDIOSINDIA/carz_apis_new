@@ -81,6 +81,7 @@ var employeeDetailsSchema = new mongoose.Schema({
     'model_name': String,
     'employee_vertical': String,
     'employee_days_experience': String,
+    'evaluated_employee': {type: Boolean, default: false},
     'created_on' : { type: Date, default: Date.now },
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
     'employee_id': { type: Schema.Types.ObjectId, ref: 'Employee' }
