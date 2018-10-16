@@ -1461,6 +1461,7 @@ async function get_resources_qualified(list){
     var total_employees_list = [];
     console.log(list, 'List_1458');
     for(var i = 0; i < list.length; i++){
+        //(function (i) {
     await EmployeeAssessmentTypeOfFranchisee.find({employee_id: list[i]._id}, function(err, data){
         console.log(data, "data 1435 of submitted");
         if(data){
@@ -1479,7 +1480,7 @@ async function get_resources_qualified(list){
                 console.log(list, 'Employee details;')
                 console.log('iterated_array_index', i);
                 console.log(list[i], 'employeeddata');
-                list[i].evaluated_employee = true;
+                list[i]['evaluated_employee'] = true;
                 
             }
             total_employees_list.push(list[i]);
