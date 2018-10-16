@@ -8,8 +8,10 @@ var FranchiseeType = mongoose.model('FranchiseeType');
 var Library = mongoose.model('Library');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var Application = mongoose.model('Application');
+var Franchisee = mongoose.model('Franchisee');
 var _ = require('lodash');
 var nodemailer = require('nodemailer');
+var utils = require('../../common/utils');
 var KycUploads = mongoose.model('KycUploads');
 var Versions = mongoose.model('Versions');
 var Reasons = mongoose.model('Reasons');
@@ -600,16 +602,16 @@ function update_kyc(req,res,kyc,message,reason){
             console.log('kycss', update_kyc);
             update_kyc.docs_types = kyc.docs_types;
             update_kyc.save(function(err,kyc){
-                if(message === "Doc rejected!"){
-                    notify_user(req,res,message,reason, kyc);
-                }
-                else{
+                // if(message === "Doc rejected!"){
+                //     notify_user(req,res,message,reason, kyc);
+                // }
+                // else{
                     res.send({
                         state:"success",
                         message:message,
                         data: kyc
                     },200);
-                }
+                // }
             });
         }
     });
@@ -756,7 +758,20 @@ router.put('/reject_doc',function(req,res){
                         });
                         kyc.docs_types[results].doc_link = "";
                         kyc.docs_types[results].doc_status = 'Rejected';
-                        update_kyc(req,res,kyc,"Doc rejected!",reason);
+                        
+                       
+                        let user_data = {};
+                        user_data.user_mail = req.body.franchisee_email;
+                        // user_data.subject = 'Kyc file rejected';
+                        // user_data.html = req.body.reason_in_text +'.' + ' Please reupload.'
+                        console.log(user_data);
+                        utils.send_mail(user_data)
+                        // res.send({
+                        //     state:"success",
+                        //     message:'Success',
+                        //     data:kyc
+                        // },200);
+                         update_kyc(req,res,kyc,"Doc rejected!",reason);
                     }
                 });
             }
