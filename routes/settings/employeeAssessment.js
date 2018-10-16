@@ -802,6 +802,10 @@ router.put('/submit_employee_assessmnent', function (req,res){
                                 EmployeeDetails.findById({ _id: req.body.employee_id}, (err, data) => {
                                     if(err){
                                         console.log(err), 'data802'; 
+                                        // return res.send({
+                                        //     state:'err',
+                                        //     message:'error'
+                                        // },500)
                                     }
                                     if (data) {
                                        console.log(data), 'data803'; 
