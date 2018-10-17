@@ -1353,6 +1353,25 @@ router.get('/get_all_employees', function (req, res) {
                 }, 400)
             }
             else {
+                var evaluated_assessments_list = [];
+                for(var i = 0; i<employeeDetails.length; i++){
+                    EmployeeAssessmentTypeOfFranchisee.findOne({employee_id: employeeDetails[i]._id}, function(err, data){
+                        if(data){
+                            //assessment_qualified
+                            for(var j = 0; j<data.length; j++){
+                                if(data[j].assessment_qualified == true){
+                                    evaluated_assessments_list.push((data[j]));
+                                }
+                            }
+                            console.log(data.length, '1363 total assessments counts of employee');
+                            console.log(evaluated_assessments_list.length, '1363 qualified assessments counts of employee');
+                            if(data.length == evaluated_assessments_list.length){
+                                employeeDetails[i].evaluated_employee = true;
+                            }
+                        }
+
+                    })
+                }
                 res.send({
                     state: 'success',
                     data: employeeDetails
@@ -1398,27 +1417,40 @@ router.get('/get_employee_details/:id', function (req, res) {
 });
 
 // to get employees by franchisee id 
-router.get('/get_employees_by_franchisee_id/:franchisee_id', function(req, res){
+router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res){
     try{
-        EmployeeDetails.find({franchisee_id: req.params.franchisee_id},function(err,employees){
+        var employees_list = [];
+        EmployeeDetails.find({franchisee_id: req.params.franchisee_id},  function(err,employeeDetails){
             if(err){
                 return res.send({
                     state:"error",
                     message:err
                 },500);
             }
-            if(employees.length == 0){
+            if(employeeDetails.length == 0){
                 return res.send({
                     state:"failure",
                     message:"No employees"
                 },400);
             }
-            if(employees.length > 0){
-                return res.send({
-                    state:"success",
-                    data:employees
-                },200);
+            if(employeeDetails.length > 0){
+                var evaluated_assessments_list = [];
+                //for(var i = 0; i <= employeeDetails.length; i++){
+                    var existing_franchisees_list=  get_resources_qualified(employeeDetails);
+                    existing_franchisees_list.then(function(result){
+                       // employees_list.push(result);
+                       console.log(result, '1435 - lisrt');
+                       res.send({
+                           state: 'success',
+                           data: result
+                       }, 200)
+
+                    })
+                //}
+                
+                
             }
+            
         })
     }
     catch(err){
@@ -1428,6 +1460,42 @@ router.get('/get_employees_by_franchisee_id/:franchisee_id', function(req, res){
 		},500);
 	}
 })
+async function get_resources_qualified(list){
+    var evaluated_assessments_list =  [];
+    var total_employees_list = [];
+    console.log(list, 'List_1458');
+    for(var i = 0; i < list.length; i++){
+        //(function (i) {
+    await EmployeeAssessmentTypeOfFranchisee.find({employee_id: list[i]._id}, function(err, data){
+        console.log(data, "data 1435 of submitted");
+        if(data){
+            //assessment_qualified
+            for(var j = 0; j<data.length; j++){
+                (function (j) {
+                if(data[j].assessment_qualified == true){
+                    console.log(data[j], 'yes this guy is qualified');
+                    evaluated_assessments_list.push((data[j]));
+                }
+            })(j);
+            }
+            console.log(data.length, '1363 total assessments counts of employee');
+            console.log(evaluated_assessments_list.length, '1363 qualified assessments counts of employee');
+            if(data.length == evaluated_assessments_list.length){
+                console.log(list, 'Employee details;')
+                console.log('iterated_array_index', i);
+                console.log(list[i], 'employeeddata');
+                list[i]['evaluated_employee'] = true;
+                
+            }
+            total_employees_list.push(list[i]);
+        }
+
+    })
+}
+    console.log(list, 'employeeddata 1477');
+
+    return list;
+}
 
 //To edit employee details 
 router.put('/update_employee_details', function (req, res) { 
