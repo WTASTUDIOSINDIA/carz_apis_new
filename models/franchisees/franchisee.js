@@ -271,6 +271,9 @@ var ApplicationSchema = new mongoose.Schema({
     'franchisee_Id' : {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'isRequire':{type:Boolean,default:false},
     'order': { type:Number, default:0 },
+    "file_type": String,
+    "date_uploaded":Date,
+    "key":String
 
 })
 

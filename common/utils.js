@@ -129,8 +129,18 @@ const transporter = nodemailer.createTransport({
 const send_mail = (data) => {
 
     mailOptions.to = data.user_mail;
+    if(data.subject){
+    mailOptions.subject = data.subject;
+}
+else{
     mailOptions.subject = 'File has been rejected';
+}
+if(data.html){
+    mailOptions.html= data.html;
+}
+else{
     mailOptions.html= 'File rejected.';
+}
 
 
 transporter.sendMail(mailOptions, function(error, response){

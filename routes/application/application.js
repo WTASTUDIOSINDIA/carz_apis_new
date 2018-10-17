@@ -308,8 +308,16 @@ router.put('/submit_application', cpUpload, function (req, res) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                // application_form.application_list.file_type = "doc";
                 i++;
+                // if (req.files.file_upload[i].mimetype == "application/pdf") {
+                //   application_form.file_type = "pdf";
+                // }
+                // if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg") {
+                //   application_form.file_type = "image";
+                // }
               }
             }
           }
@@ -330,10 +338,11 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 console.log(stage);
               })
             })
-            // console.log(application.answers)
+            console.log(data);
             return res.send({
               state: "success",
-              message: "application submitted."
+              message: "application submitted.",
+              data:application
             }, 200);
           }
         })
@@ -347,7 +356,16 @@ router.put('/submit_application', cpUpload, function (req, res) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload') {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                // application_form.application_list.file_type = "doc";
+
+                // if (req.files.file_upload[i].mimetype == "application/pdf") {
+                //   application_form.file_type = "pdf";
+                // }
+                // if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg") {
+                //   application_form.file_type = "image";
+                // }
               }
             }
 

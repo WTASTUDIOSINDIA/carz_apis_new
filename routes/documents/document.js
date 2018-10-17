@@ -742,6 +742,8 @@ router.put('/reject_doc',function(req,res){
                 reason.franchisee_Id  = req.body.franchisee_Id;
                 reason.partner_Id  = req.body.partner_Id;
                 reason.franchisee_email = req.body.franchisee_email;
+                reason.franchisee_name = req.body.franchisee_name;
+                reason.partner_name = req.body.partner_name;
                 reason.partner_email = req.body.partner_email;
                 reason.kyc_id = req.body.kyc_id;
                 reason.save(function(err,reason){
@@ -762,8 +764,10 @@ router.put('/reject_doc',function(req,res){
                        
                         let user_data = {};
                         user_data.user_mail = req.body.franchisee_email;
-                        // user_data.subject = 'Kyc file rejected';
-                        // user_data.html = req.body.reason_in_text +'.' + ' Please reupload.'
+                        user_data.subject = 'Kyc file rejected';
+                        // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
+                        user_data.html =  "<p>Hi, "+req.body.franchisee_name + "<br>" + "Your Kyc file has been rejected" + "<br> "+ " <b>Reason:</b>"+req.body.reason_listed +" <br>"+"<b>Comment:</b>"+req.body.reason_in_text+ "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+
                         console.log(user_data);
                         utils.send_mail(user_data)
                         // res.send({

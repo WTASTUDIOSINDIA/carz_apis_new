@@ -445,6 +445,7 @@ router.post('/franchisor-login', function (req,res){
         //   response.user_pass = undefined;
          // response.verification = undefined;
          let resp_data ={};
+         resp_data.user_role = response.user_role;
          resp_data.user_mail = response.user_mail;
          resp_data._id = response._id;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
@@ -464,6 +465,7 @@ router.post('/franchisor-login', function (req,res){
           }
           response.save()
           let resp_data ={};
+          resp_data.user_role = response.user_role;
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
@@ -482,6 +484,7 @@ router.post('/franchisor-login', function (req,res){
           }
           response.save()
           let resp_data ={};
+          resp_data.user_role = response.user_role;
           resp_data.franchisee_email = response.franchisee_email;
           resp_data._id = response._id;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
@@ -500,6 +503,7 @@ router.post('/franchisor-login', function (req,res){
           }
           response.save()
           let resp_data ={};
+          resp_data.user_role = response.user_role;
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
@@ -881,6 +885,7 @@ router.post('/franchisor-login', function (req,res){
             .then((response) => {
                 if(response) {
                     if(data.user_pass){
+                        console.log('mobileotp', franchisee_mobile_number);
                         utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
                         utils.sendMailOTP(otp,response.franchisee_email);
                         response.pass_verification = {
