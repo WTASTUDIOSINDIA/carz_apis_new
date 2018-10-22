@@ -222,8 +222,8 @@ router.post('/franchisor-login', function (req,res){
             if(bCrypt.compareSync(data.user_pass,response.user_pass)){
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+               // let requestForm = response.platform;
+               // dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -448,6 +448,7 @@ router.post('/franchisor-login', function (req,res){
          resp_data.user_role = response.user_role;
          resp_data.user_mail = response.user_mail;
          resp_data._id = response._id;
+         resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
          
         }else { 
@@ -468,6 +469,7 @@ router.post('/franchisor-login', function (req,res){
           resp_data.user_role = response.user_role;
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findFranchisee({franchisee_email: data.user_mail}, '')
@@ -487,6 +489,7 @@ router.post('/franchisor-login', function (req,res){
           resp_data.user_role = response.user_role;
           resp_data.franchisee_email = response.franchisee_email;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else { 
         return authService.findUser({user_mail: data.user_mail}, '')
@@ -506,6 +509,7 @@ router.post('/franchisor-login', function (req,res){
           resp_data.user_role = response.user_role;
           resp_data.user_mail = response.user_mail;
           resp_data._id = response._id;
+          resp_data.user_role = response.user_role;
           res.status(200).json({ error: "0", message: "OTP has been sent to your mail and mobile number", data: resp_data});
         }else {
           throw {
