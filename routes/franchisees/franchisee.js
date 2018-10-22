@@ -43,7 +43,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage: multerS3({
         s3: s0,
-        bucket: 'celebappfiles',
+        bucket: 'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -2065,7 +2065,7 @@ function send_mail(req, res, stageForm) {
                 })
             }
             else {
-                var filepath = 'https://celebappfiles.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf';
+                var filepath = 'https://carzdev.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf';
                 var fromName = "CARZ";
                 var mailOptions = {
                     to: stageForm.to,
@@ -2078,7 +2078,7 @@ function send_mail(req, res, stageForm) {
                     attachments: [{
                         filename: "Application Form.pdf",
                         contentType: 'application/pdf',
-                        path: 'https://celebappfiles.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf'
+                        path: 'https://carzdev.s3.ap-south-1.amazonaws.com/1521119220821.angular-from-theory-to-practice.pdf'
                     }],
                     html: stageForm.body
                 }

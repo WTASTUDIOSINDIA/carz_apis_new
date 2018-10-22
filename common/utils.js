@@ -14,10 +14,10 @@ var common = require('../common')
 var config = common.config();
 //var env = require('../../carz_api/env.json');
 
-var bucketName = 'celebappfiles';
+var bucketName = 'carzdev';
 var otpGenerator = require('otp-generator');
 var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4" ); 
-var bucketName = 'carzfiles';
+var bucketName = 'carzdev';
 
 const awsFileUrl = () => {
     let url = "https://s3.ap-south-1.amazonaws.com/"+bucketName+"/";
