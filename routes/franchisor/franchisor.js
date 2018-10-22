@@ -117,11 +117,16 @@ router.post('/create', function (req,res){
                     }
                       prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
                    
-                        }else{
-                       prof_pic_url = "carz_pic.jpg";
-                      }}else{
-                        prof_pic_url = "carz_pic.jpg";
-                      }
+                        }
+                      //   else{
+                      // prof_pic_url = utils.awsFileUrl() + "franchisee_img/fallout.png";
+                       
+                      // }
+                    }
+                      // else{
+                      // prof_pic_url = utils.awsFileUrl() + "franchisee_img/fallout.png";
+                        
+                      // }
       
           data.profile_pic = {
               "image_url" : prof_pic_url,
@@ -486,11 +491,16 @@ router.post('/create', function (req,res){
                     }
                       prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
                    
-                        }else{
-                       prof_pic_url = "carz_pic.jpg";
-                      }}else{
-                        prof_pic_url = "carz_pic.jpg";
-                      }
+                        }
+                      //   else{
+                      // //  prof_pic_url = "franchisee_img/fallout.png";
+                      // prof_pic_url = utils.awsFileUrl() + "franchisee_img/fallout.png";
+
+                      // }
+                    }
+                    // else{
+                    //   prof_pic_url = utils.awsFileUrl() + "franchisee_img/fallout.png";                        
+                    //   }
       
           response.profile_pic = {
               "image_url" : prof_pic_url,
