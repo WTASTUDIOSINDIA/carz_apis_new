@@ -20,7 +20,7 @@
   var upload = multer({
       storage:multerS3({
           s3:s0,
-          bucket:'celebappfiles',
+          bucket:'carzdev',
           contentType: multerS3.AUTO_CONTENT_TYPE,
           acl: 'public-read',
           metadata: function (req, file, cb) {

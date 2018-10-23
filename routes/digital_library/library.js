@@ -19,7 +19,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'celebappfiles',
+        bucket:'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -34,7 +34,7 @@ var upload = multer({
 function deleteFile(key){
   console.log(key, 'test dsdsds');
     try{
-        var params = {Bucket: 'celebappfiles', Key : key};
+        var params = {Bucket: 'carzdev', Key : key};
         s0.deleteObject(params, function (err, response) {
             if (err) {
                 return res.send({ "error": err });
