@@ -119,7 +119,7 @@ router.get('/get_franchisees', function (req, res) {
                 res.send({
                     "status": "200",
                     "state": "success",
-                    "franchisees_list": franchiees
+                    "franchisees_list": franchiees,
                 }, 200);
             }
         })
@@ -917,6 +917,7 @@ router.post('/create_franchisee', function (req, res) {
                         } else {
                             franchiseeForm.franchisee_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
                         }
+                        console.log('920', franchiseeForm);
                         franchiseeForm.franchisee_pass = createHash('mypassword');
                         franchiseeForm.franchisee_email = franchiseeForm.partner_email;
                         franchiseeForm.franchisee_mobile_number = franchiseeForm.partner_mobile_number;
