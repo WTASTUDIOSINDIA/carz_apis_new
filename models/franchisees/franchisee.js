@@ -73,7 +73,8 @@ var franchiseeSchema = new mongoose.Schema({
         "otp": String,
         "status": { type: Boolean, default: false } //verification status
     },  
-    "franchisee_created_on" : Date  
+    "franchisee_created_on" : Date,
+    "franchisee_length"  : String
 });
 
 var librarySchema = new mongoose.Schema({
