@@ -10,7 +10,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisee_email":String,
     "franchisee_pass":String,
     "franchisee_comfirm_pass": String,
-    "franchisee_profile_pic":{type: Schema.Types.Mixed, default : {}},
+    "franchisee_profile_pic": String,
     "franchisee_city":String,
     "franchisee_state":String,
     "franchisee_address":String,
