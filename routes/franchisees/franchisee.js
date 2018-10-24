@@ -117,9 +117,9 @@ router.get('/get_franchisees', function (req, res) {
                 // })
                 // console.log("---------------------"+franchisee_data);
                 res.send({
-                    "status": "200",
-                    "state": "success",
-                    "franchisees_list": franchiees
+                    status: "200",
+                    state: "success",
+                    franchisees_list: franchiees,
                 }, 200);
             }
         })
@@ -186,6 +186,7 @@ router.post('/get_all_leads', (req, res) => {
     var unassigned = 0
     var rejected = 0
     var franchisee = 0
+    var onhold = 0
     var total = 0
     Franchisee.aggregate([
         { $match: query },
@@ -225,6 +226,10 @@ router.post('/get_all_leads', (req, res) => {
                     franchisee = franchisee + lead.count
                     total = total + lead.count
                 }
+                if (lead._id.key == "On Hold") {
+                    onhold = onhold + lead.count
+                    total = total + lead.count
+                }
                 if (lead._id.key == undefined) {
                     cold_leads = 0
                 }
@@ -243,6 +248,9 @@ router.post('/get_all_leads', (req, res) => {
                 if (lead._id.key == undefined) {
                     franchisee = 0
                 }
+                if (lead._id.key == undefined) {
+                    onhold = 0
+                }
                 console.log(lead._id.key)
             });
             return res.json({
@@ -254,6 +262,7 @@ router.post('/get_all_leads', (req, res) => {
                 'unassigned': unassigned,
                 'rejected': rejected,
                 'franchisee': franchisee,
+                'on_hold': onhold,
                 'total_leads': total
             })
         })
@@ -412,7 +421,7 @@ router.post('/get_franchisee_status', (req, res) => {
 // to get total revenue 
 router.post('/get_total_revenue', (req, res) => {
     var query = { $exists: true };
-    let master_query = { master_franchisee_id: { $exists: false } }
+    let master_query = {}
     if (req.body._id) {
         master_query = { master_franchisee_id: req.body._id }
     }
