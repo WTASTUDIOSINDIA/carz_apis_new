@@ -619,4 +619,180 @@ router.put('/after_campaign_details',cpUpload, function(req,res){
    //     });
    // }
 });
+
+// Filters
+// All for franchisor login
+router.get('/get_all_filter_campaigns/:franchisor_id', function (req, res){
+    try{
+        Campaign.find({franchisor_id: req.params.franchisor_id}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
+// my campaigns for franchisor login
+router.get('/get_my_campaign_by_franchisor/:franchisor_id', function (req, res){
+    try{
+        Campaign.find({franchisor_id: req.params.franchisor_id, created_by:'franchisor'}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
+// franchisee filter for franchisor login
+router.get('/get_franchisee_filter_by_franchisor/:franchisor_id', function (req, res){
+    try{
+        Campaign.find({franchisor_id: req.params.franchisor_id, created_by:'franchisee'}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
+// filter for all franchisee login
+router.get('/get_all_franchisee_filter_campaigns/:franchisee_id', function (req, res){
+    try{
+        Campaign.find({franchisee_id: req.params.franchisee_id}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
+// my campaigns for franchisor login
+router.get('/get_filter_my_campaign/:franchisee_id', function (req, res){
+    try{
+        Campaign.find({franchisee_id: req.params.franchisee_id, created_by:'franchisee'}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
+// franchisee filter for franchisor login
+router.get('/get_franchisor_filter_specific_franchisee/:franchisee_id', function (req, res){
+    try{
+        Campaign.find({franchisee_id: req.params.franchisee_id, created_by:'franchisee', visible_to_franchisee_id:req.body.franchisee_id}, function (err, campaigns){
+            if(err){
+                return res.send(500, err)
+            }
+            if(!campaigns){
+                res.send({
+                    state:'failure',
+                    message:'Campaign not found'
+                },400)
+            }
+            else{
+                res.send({
+                    state:'success',
+                    data:campaigns
+                },200)
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state:'error',
+            message:err
+        })
+    }
+})
+
 module.exports = router;
