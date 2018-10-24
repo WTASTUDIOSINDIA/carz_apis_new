@@ -117,9 +117,9 @@ router.get('/get_franchisees', function (req, res) {
                 // })
                 // console.log("---------------------"+franchisee_data);
                 res.send({
-                    "status": "200",
-                    "state": "success",
-                    "franchisees_list": franchiees,
+                    status: "200",
+                    state: "success",
+                    franchisees_list: franchiees,
                 }, 200);
             }
         })
