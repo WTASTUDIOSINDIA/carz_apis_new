@@ -1439,7 +1439,7 @@ router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res)
                     var existing_franchisees_list=  get_resources_qualified(employeeDetails);
                     existing_franchisees_list.then(function(result){
                        // employees_list.push(result);
-                       console.log(result, '1435 - lisrt');
+                    //    console.log(result, '1435 - lisrt');
                        res.send({
                            state: 'success',
                            data: result
@@ -1461,19 +1461,21 @@ router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res)
 	}
 })
 async function get_resources_qualified(list){
-    var evaluated_assessments_list =  [];
+    
     var total_employees_list = [];
-    console.log(list, 'List_1458');
+    
     for(var i = 0; i < list.length; i++){
         //(function (i) {
+console.log(list[i], 'List_1458');        
     await EmployeeAssessmentTypeOfFranchisee.find({employee_id: list[i]._id}, function(err, data){
         console.log(data, "data 1435 of submitted");
-        if(data){
+var evaluated_assessments_list =  [];
+        if(data.length > 0){
             //assessment_qualified
             for(var j = 0; j<data.length; j++){
                 (function (j) {
                 if(data[j].assessment_qualified == true){
-                    console.log(data[j], 'yes this guy is qualified');
+                  //  console.log(data[j], 'yes this guy is qualified');
                     evaluated_assessments_list.push((data[j]));
                 }
             })(j);
@@ -1481,18 +1483,27 @@ async function get_resources_qualified(list){
             console.log(data.length, '1363 total assessments counts of employee');
             console.log(evaluated_assessments_list.length, '1363 qualified assessments counts of employee');
             if(data.length == evaluated_assessments_list.length){
-                console.log(list, 'Employee details;')
-                console.log('iterated_array_index', i);
-                console.log(list[i], 'employeeddata');
-                list[i]['evaluated_employee'] = true;
+                // console.log(list, 'Employee details;')
+                // console.log('iterated_array_index', i);
+                // console.log(list[i], 'employeeddata');
+                
+                for(var k=0; k<list.length; k++){
+                    console.log(list[k]._id, '444');
+                    console.log(data[0].employee_id, '444');
+                    if(list[k]._id === data[0].employee_id){
+                        console.log(k, '555');
+                        list[k].evaluated_employee = true;
+                    }
+                }
+                
                 
             }
-            total_employees_list.push(list[i]);
+            //total_employees_list.push(list[i]);
         }
 
     })
 }
-    console.log(list, 'employeeddata 1477');
+    //console.log(list, 'employeeddata 1477');
 
     return list;
 }

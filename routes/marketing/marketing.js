@@ -76,6 +76,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 campaign.franchisee_id = campaignForm.franchisee_id;
                 if(campaignForm.visible_to == 'franchisee'){
                   campaign.visible_to_franchisee_id = campaignForm.visible_to_franchisee_id;
+                  campaign.visible_to_franchisee_name = campaignForm.visible_to_franchisee_name;
                 }
                 campaign.visible_to = campaignForm.visible_to;
                 campaign.created_by = campaignForm.created_by;
@@ -189,6 +190,7 @@ router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
                 campaign.franchisee_id = campaignEditForm.franchisee_id;
                 if(campaignEditForm.visible_to == 'franchisee'){
                   campaign.visible_to_franchisee_id = campaignEditForm.visible_to_franchisee_id;
+                  campaign.visible_to_franchisee_name = campaignEditForm.visible_to_franchisee_name;
                 }
                 campaign.visible_to = campaignEditForm.visible_to;
                 campaign.amount_spent = campaignEditForm.amount_spent;
@@ -276,7 +278,7 @@ router.get('/get_all_campaigns', function(req,res){
 })
 router.get('/get_campaigns_by_franchisee/:franchisee_id', function(req, res){
   try{
-    Campaign.find({$or: [{franchisee_id: req.params.franchisee_id}, {visible_to: 'franchisee', visible_to_franchisee_id: req.params.franchisee_id, created_by: 'franchisor'}, {visible_to: 'All', created_by: 'franchisor'}]}, function(err, campaigns){
+    Campaign.find({$or: [{franchisee_id: req.params.franchisee_id}, {visible_to: 'franchisee', visible_to_franchisee_id: req.params.franchisee_id}, {visible_to: 'All', created_by: 'franchisor'}]}, function(err, campaigns){
       if(err){
           return res.send(500, err);
       }
