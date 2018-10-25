@@ -33,15 +33,20 @@ var upload = multer({
         }
     })
 });
-var fileupload = upload.fields([{
-    name: 'file_upload',
-    maxCount: 50
-  }, {
-    name: 'imgFields',
-    maxCount: 20
-  }])
+// var createCampaignFiles = upload.fields([{
+//     name: 'createCampaignFiles',
+//     maxCount: 50
+//   }, {
+//     name: 'imgFields',
+//     maxCount: 20
+//   }])
+
+
+
+
 // To create campaign
-router.post('/create_campaign', upload.single('campaign_file'), function(req, res) {
+var createCampaignFiles = upload.fields([{ name: 'createCampaignFiles', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
+router.post('/create_campaign', createCampaignFiles, function(req, res) {
 
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
@@ -79,13 +84,21 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                 }
                 campaign.visible_to = campaignForm.visible_to;
                 campaign.created_by = campaignForm.created_by;
-
-                if (req.file){
-
-                    campaign.campaign_file_attachment_file_url = req.file.location;
-                    campaign.campaign_file_attachment_file_name = req.file.key;
-                    campaign.campaign_file_attachment_file_type = req.file.contentType;
+                let files = req.files.createCampaignFiles;
+                let camp_file =[];
+                if(files.length != 0){
+                for(var i= 0; i<files.length; i++){
+                   
+                        let c_file = {
+                            "campaign_file_attachment_file_url" : files[i].location,
+                            "campaign_file_attachment_file_name" : files[i].key,
+                            "campaign_file_attachment_file_type" : files[i].contentType
+                        }
+                        camp_file.push(c_file);
+                    } 
                 }
+
+               campaign.campaign_files = camp_file;
                 campaign.save(function(err,campaign23){
                    if(err){
                      res.send({
@@ -93,11 +106,9 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                         message:"Something went wrong."
                     },500);
                    }
-                else{
-
+                else{    
                     campaign23.meta.campaign_id = campaign23._id;
                     campaign23.save(function(err,campaign24){
-                    
                     var folder = new Folder();
                     folder.marketing_folder = true;
                     folder.campaign_id = campaign._id;
@@ -110,35 +121,36 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
                     });
                   
                     if(folder){
-                    var library = new Library();
-                    library.path = campaign.campaign_file_attachment_file_url;
-                    library.key = campaign.campaign_file_attachment_file_type;
-                    library.file_name = campaign.campaign_file_attachment_file_name;
-                    if(campaign.mimetype == "application/pdf"){
-                        library.image_type = "pdf";
-                    }
-                    if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
-                        campaign.image_type = "image";
-                    }
-                    // library.uploaded_status = status;
-                    library.date_uploaded = Date.now();
-                    library.folder_Id = folder._id;
-                    library.campaign_id = campaign._id;
-                    library.franchisee_Id = campaignForm.franchisee_id;;
-                    library.save(function(err, library){
-                        console.log("campaign file created");
-                        console.log('library++++++++++', library);
-                        // console.log('folder_id++++++++++', folder_Id);
-                    });
+                        for (i = 0; i < campaign.campaign_files.length; i++) {
+                            var library = new Library();
+                            library.path = campaign.campaign_file_attachment_file_url;
+                            library.key = campaign.campaign_file_attachment_file_type;
+                            library.file_name = campaign.campaign_file_attachment_file_name;
+                            if(campaign.mimetype == "application/pdf"){
+                                library.image_type = "pdf";
+                            }
+                            if(campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif"){
+                                campaign.image_type = "image";
+                            }
+                            library.date_uploaded = Date.now();
+                            library.folder_Id = folder._id;
+                            library.campaign_id = campaign._id;
+                            library.franchisee_Id = campaignForm.franchisee_id;
+                            library.save(function(err, library){
+                                console.log("campaign file created");
+                                console.log('library++++++++++', library);
+                                // console.log('folder_id++++++++++', folder_Id);
+                            });
+                                console.log('library', library);
+                            return res.send({
+                                state:"success",
+                                message:"Campaign Created .",
+                                data:campaign24
+                            },200);
                         }
-                        console.log('library', library);
-                    return res.send({
-                        state:"success",
-                        message:"Campaign Created .",
-                        data:campaign24
-                    },200);
-                });
 
+                        }
+                });
 
                 }
                 });
@@ -160,7 +172,7 @@ router.post('/create_campaign', upload.single('campaign_file'), function(req, re
 });
 
 // To update campaign
-router.put('/update_campaign',upload.single('campaign_file'), function(req,res){
+router.put('/update_campaign',createCampaignFiles, function(req,res){
     ///console.log('campaign', campaignEditForm);
      var campaignEditForm = JSON.parse(req.body.campaign);
     //var campaignEditForm = req.body;
@@ -379,13 +391,14 @@ router.delete('/delete_campaign/:campaign_id', function(req,res){
         });
     }
 });
-// var fileupload = upload.fields([{
-//     name: 'files_upload',
-//     maxCount: 50
-//   }, {
-//     name: 'imgFields',
-//     maxCount: 20
-//   }])
+
+var fileupload = upload.fields([{
+    name: 'file_upload',
+    maxCount: 50
+  }, {
+    name: 'imgFields',
+    maxCount: 20
+  }])
 // To upload files
 router.post('/upload_campaign_file',  fileupload, function  (req,res){
     var file_details = JSON.parse(req.body.file_details);
@@ -427,7 +440,8 @@ router.post('/upload_campaign_file',  fileupload, function  (req,res){
                         if (parseInt(length)== parseInt(getNumber)) {
                             res.send({
                                 status: "success",
-                                message: "File uploaded"
+                                message: "File uploaded",
+                                data: campaign
                             },200);
                         }
                     }
@@ -469,14 +483,6 @@ router.get('/get_campaign_files/:id', function (req, res) {
 
 
 
-  var fileupload = upload.fields([{
-    name: 'file_upload',
-    maxCount: 50
-  }, {
-    name: 'imgFields',
-    maxCount: 20
-  }])
-
   //upload_campaign_files
   var cpUpload = upload.fields([{ name: 'after_campaign_files', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
   router.put('/upload_campaign_files',cpUpload, function(req,res){
@@ -509,7 +515,8 @@ router.get('/get_campaign_files/:id', function (req, res) {
                 if(library){
                     res.send({
                         state:"success",
-                        message:"Updated."
+                        message:"Updated.",
+                        data: folder
                     },200);
                 }
             });
@@ -552,7 +559,8 @@ router.get('/get_campaign_files/:id', function (req, res) {
                         if(library){
                             res.send({
                                 state:"success",
-                                message:"Updated."
+                                message:"Updated.",
+                                data: folder
                             },200);
                         }
                     });
@@ -563,7 +571,6 @@ router.get('/get_campaign_files/:id', function (req, res) {
     })
   });
 // after campaign details
-
 router.put('/after_campaign_details',cpUpload, function(req,res){
      var campaignDetails = JSON.parse(req.body.campaign);
     console.log(req.body.campaign);
