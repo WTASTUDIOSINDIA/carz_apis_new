@@ -303,7 +303,9 @@ router.put('/submit_application', cpUpload, function (req, res) {
         //     }
         //   }
         // }
+        console.log('777777777777',req.files.file_upload);
         if (req.files.file_upload) {
+        console.log('99999999',req.files.file_upload);
           for (var i = 0; i < req.files.file_upload.length; i++) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
@@ -311,13 +313,17 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
                 // application_form.application_list.file_type[j] = "doc";
-                i++;
-                if (req.files.file_upload[j].mimetype == "application/pdf") {
-                  application_form.file_type = "pdf";
-                }
-                if (req.files.file_upload[j].mimetype == "image/png" || req.files.file_upload[j].mimetype == "image/jpg" || req.files.file_upload[j].mimetype == "image/jpeg") {
-                  application_form.file_type = "image";
-                }
+              console.log('88888888',req.files.file_upload);
+
+                if (req.files.file_upload[i].mimetype == "application/pdf") {
+                  application_form.application_list[j].file_type = "pdf";
+              }
+              if (application_form.application_list[j].key == "image/png" || application_form.application_list[j].key == "image/jpg" || application_form.application_list[j].key == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                  application_form.application_list[j].file_type = "image";
+              }
+              i++;
+
+                console.log('55555555',application_form);
               }
             }
           }
@@ -338,11 +344,10 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 console.log(stage);
               })
             })
-            console.log(data);
+            // console.log('++++++++++++++++++++++++',data);
             return res.send({
               state: "success",
               message: "application submitted.",
-              data:application
             }, 200);
           }
         })
@@ -360,12 +365,13 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
                 // application_form.application_list.file_type[j] = "doc";
 
-                if (req.files.file_upload[j].mimetype == "application/pdf") {
-                  application_form.file_type = "pdf";
-                }
-                if (req.files.file_upload[j].mimetype == "image/png" || req.files.file_upload[j].mimetype == "image/jpg" || req.files.file_upload[j].mimetype == "image/jpeg") {
-                  application_form.file_type = "image";
-                }
+                if (application_form.application_list[j].key == "application/pdf") {
+                  application_form.application_list[j].file_type = "pdf";
+              }
+              if (application_form.application_list[j].key == "image/png" || application_form.application_list[j].key == "image/jpg" || application_form.application_list[j].key == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                application_form.application_list[j].file_type = "image";
+              }
+                console.log('4444444444',application_form);
               }
             }
 
@@ -390,7 +396,8 @@ router.put('/submit_application', cpUpload, function (req, res) {
             })
             return res.send({
               state: "success",
-              message: "application submitted."
+              message: "application submitted.",
+              data:application
             }, 200);
           }
         })
