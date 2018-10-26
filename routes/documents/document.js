@@ -112,25 +112,39 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
-router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,res){
+router.get('/get_business_type_list_by_franchisor/:franchisor_id', async function(req,res){
     try{
         var version_id = '';
-        FranchiseeType.find({},function(err,type){
-            if(err){
-                return res.send({
-                    state:"err",
-                    message:"Something went wrong.We are looking into it."
-                },500);
+     await   Versions.findOne({version_type : 'kyc_docs', default: true, franchisor_id: req.params.franchisor_id},async function(err, version){
+            if(version){
+                
+          await      FranchiseeType.find({version_id: version._id, franchisor_id: req.params.franchisor_id},function(err,type){
+            console.log(type, "version_id of default");
+                    if(err){
+                        return res.send({
+                            state:"err",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                    }
+                    else{
+        
+                        return res.send({
+                            state:"success",
+                            data:type
+                        },200);
+                    }
+        
+                })
             }
-            else{
-
+            else {
                 return res.send({
-                    state:"success",
-                    data:type
-                },200);
+                    state:"failure",
+                    message:"Business Types are not defined or May be Version is not default in Settings"
+                },201);
             }
-
-        })
+            
+        });
+        
     }
     catch(err){
         res.send({

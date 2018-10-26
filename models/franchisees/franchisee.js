@@ -203,7 +203,7 @@ var thirdPartyFileSchema =new mongoose.Schema({
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
     "description": String,
-    "version_id": String,
+    "version_id": { type: Schema.Types.ObjectId, ref: 'Versions'},
     "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
