@@ -310,7 +310,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
-                application_form.application_list.file_type[j] = "doc";
+                // application_form.application_list.file_type[j] = "doc";
                 i++;
                 if (req.files.file_upload[j].mimetype == "application/pdf") {
                   application_form.file_type = "pdf";
@@ -358,7 +358,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
-                application_form.application_list.file_type[j] = "doc";
+                // application_form.application_list.file_type[j] = "doc";
 
                 if (req.files.file_upload[j].mimetype == "application/pdf") {
                   application_form.file_type = "pdf";
@@ -428,7 +428,7 @@ router.post('/background_verification', docupload, function (req, res) {
         document.link = file[i].location;
         document.key = file[i].key;
         document.doc_name = file[i].originalname;
-        document.file_type = "doc";
+        // document.file_type = "doc";
         if (file[i].mimetype == "application/pdf") {
           document.file_type = "pdf";
         }
