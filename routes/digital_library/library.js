@@ -489,6 +489,7 @@ router.put('/edit_folder', function(req, res, next){
   var folderEditForm = req.body;
 
   try{
+    
     Folder.findOne({'_id': folderEditForm._id, 'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}}, function(err, folder){
       if(err){
         return res.send({
@@ -497,33 +498,31 @@ router.put('/edit_folder', function(req, res, next){
               message:"Something went wrong.We are looking into it."
           });
       }
-
+     
       if(folder){
         folder.folder_name = folderEditForm.folder_name
         folder.save(function(err, folder){
           if(err){
             res.send({
-               status:500,
                state:"err",
                message:"Something went wrong."
-           });
+           },500);
         }
         else{
             res.send({
-                status:200,
                 state:"success",
                 message:"Folder Updated."
-            });
+            },200);
         }
       });
-
     }
     if(!folder){
         res.send({
             state:'failure',
-            message:'Failed to edit'
+            message:'Failed to update'
         },400);
     }
+   
 
   })
 }
