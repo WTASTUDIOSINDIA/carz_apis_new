@@ -94,9 +94,9 @@ var upload = multer({
 //     });
 // });
 //get all franchisees
-router.get('/get_franchisees', function (req, res) {
+router.get('/get_franchisees/:franchisor_id', function (req, res) {
     try {
-        Franchisee.find({ archieve_franchisee: false }, {}).lean().exec(function (err, franchiees) {
+        Franchisee.find({ archieve_franchisee: false, franchisor_id: req.params.franchisor_id }, {}).lean().exec(function (err, franchiees) {
             if (err) {
                 return res.send(500, err);
             }
