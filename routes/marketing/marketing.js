@@ -132,10 +132,10 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
                                         library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
                                         library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
                                         library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
-                                        if (campaign.mimetype == "application/pdf") {
+                                        if (library.key == "application/pdf") {
                                             library.image_type = "pdf";
                                         }
-                                        if (campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif") {
+                                        if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
                                             library.image_type = "image";
                                         }
                                         library.date_uploaded = Date.now();
@@ -253,10 +253,10 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
                             library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
                             library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
                             library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
-                            if (campaign.mimetype == "application/pdf") {
+                            if (library.key == "application/pdf") {
                                 library.image_type = "pdf";
                             }
-                            if (campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif") {
+                            if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
                                 library.image_type = "image";
                             }
                             library.date_uploaded = Date.now();
@@ -292,10 +292,10 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
                                 library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
                                 library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
                                 library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
-                                if (campaign.mimetype == "application/pdf") {
+                                if (library.key == "application/pdf") {
                                     library.image_type = "pdf";
                                 }
-                                if (campaign.mimetype == "image/png" || campaign.mimetype == "image/jpg" || campaign.mimetype == "image/jpeg" || campaign.mimetype == "image/gif") {
+                                if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
                                     library.image_type = "image";
                                 }
                                 library.date_uploaded = Date.now();
@@ -516,7 +516,7 @@ router.post('/upload_campaign_file', fileupload, function (req, res) {
                 document.link = file[i].location;
                 document.key = file[i].key;
                 document.file_name = file[i].originalname;
-                document.files_type = "doc";
+                // document.files_type = "doc";
                 if (file[i].mimetype == "application/pdf") {
                     document.file_type = "pdf";
                 }
@@ -594,10 +594,10 @@ router.put('/upload_campaign_files', cpUpload, function (req, res) {
                 library.path = after_campaign_files[i].location;
                 library.key = after_campaign_files[i].key;
                 library.file_name = after_campaign_files[i].originalname;
-                if (after_campaign_files[i].mimetype == "application/pdf") {
+                if (library.key == "application/pdf") {
                     library.image_type = "pdf";
                 }
-                if (after_campaign_files[i].mimetype == "image/png" || after_campaign_files[i].mimetype == "image/jpg" || after_campaign_files[i].mimetype == "image/jpeg" || after_campaign_files[i].mimetype == "image/gif") {
+                if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
                     library.image_type = "image";
                 }
                 // library.uploaded_status = status;
