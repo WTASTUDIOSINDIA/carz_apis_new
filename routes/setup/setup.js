@@ -731,7 +731,7 @@ router.post('/upload_setup_checklist_task_file',  fileupload, function  (req,res
               document.link = file[i].location;
               document.key = file[i].key;
               document.file_name = file[i].originalname;
-              document.files_type = "doc";
+              // document.files_type = "doc";
               if (file[i].mimetype == "application/pdf") {
                   document.file_type = "pdf";
               }

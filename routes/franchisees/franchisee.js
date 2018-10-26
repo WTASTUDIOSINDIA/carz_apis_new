@@ -55,7 +55,35 @@ var upload = multer({
     })
 });
 
+//to get total franchisees count
 
+router.get('/total_franchisees_count/:franchisor_id', function(req, res){
+   // try {
+        Franchisee.count({franchisor_id: req.params.franchisor_id,archieve_franchisee: false}, function (err, count) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (count) {
+                res.send({
+                    state: 'success',
+                    count: count
+                }, 200);
+            } 
+            else  {
+                res.send({
+                    state: 'success',
+                    count: count
+                }, 201);
+            }          
+        })
+    // }
+    // catch (err) {
+    //     return res.send({
+    //         state: "error",
+    //         message: err
+    //     });
+    // }
+});
 // To upload profile pic
 // var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 // router.post('/profile_pic',cpUpload,function(req,res){
@@ -3014,4 +3042,5 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
+
 module.exports = router;
