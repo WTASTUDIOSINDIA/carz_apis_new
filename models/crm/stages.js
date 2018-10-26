@@ -60,7 +60,7 @@ var stagesSchema = new mongoose.Schema({
     "final_agreement_library_file_id": String,
     "final_agreement_status": { type: Boolean, default: false },
     "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    "4lac_payment_status": { type: String, default: 'pending' }, //pending, rejected, approved
+    "four_lac_payment_status": { type: String, default: 'pending' }, //pending, rejected, approved
   },
   "stage_setup": {
     "status": { type: Boolean, default: false },

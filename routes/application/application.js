@@ -97,24 +97,24 @@ router.get('/get_questions_list/:franchisee_id/:franchisor_id', function (req, r
     var version_id = '';
 
 
-    ApplicationSubmitted.findOne({franchisee_Id: req.params.franchisee_id}, function (err, questions) {
+    ApplicationSubmitted.findOne({ franchisee_Id: req.params.franchisee_id }, function (err, questions) {
       if (err) {
         return res.send({
           state: "error",
           message: err
         }, 500);
       } else
-      if (questions && questions.application_status == 'Submitted') {
-        return res.send({
-          state: 'success',
-          // message:"Questions not created",
-          questions_list: questions
-        }, 200);
-      }
-      else {
-        Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: 'application_form', default: true}, function(err, version){
-console.log(version, '120');
-            if(err){
+        if (questions && questions.application_status == 'Submitted') {
+          return res.send({
+            state: 'success',
+            // message:"Questions not created",
+            questions_list: questions
+          }, 200);
+        }
+        else {
+          Versions.findOne({ franchisor_id: req.params.franchisor_id, version_type: 'application_form', default: true }, function (err, version) {
+            console.log(version, '120');
+            if (err) {
               return res.send({
                 state: "error",
                 message: err
@@ -126,9 +126,9 @@ console.log(version, '120');
               get_all_questions(req, res, version_id);
             }
 
-        })
+          })
 
-      }
+        }
     })
   } catch (err) {
     return res.send({
@@ -140,7 +140,7 @@ console.log(version, '120');
 
 function get_all_questions(req, res, version_id) {
   console.log(version_id, "139");
-  Application.find({version_id: version_id}, function (err, ques) {
+  Application.find({ version_id: version_id }, function (err, ques) {
     if (err) {
       return res.send({
         state: "error",
@@ -168,7 +168,7 @@ function get_all_questions(req, res, version_id) {
 //get all questions
 router.get('/getAll/:version_id', function (req, res) {
   try {
-    Application.find({version_id: req.params.version_id}, function (err, ques) {
+    Application.find({ version_id: req.params.version_id }, function (err, ques) {
       if (err) {
         return res.send({
           state: "error",
@@ -338,9 +338,9 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
-            Stages.findOne({franchisee_id: application.franchisee_Id}, function(err, stage){
+            Stages.findOne({ franchisee_id: application.franchisee_Id }, function (err, stage) {
               stage.stage_discussion.application_status = application_form.application_status;
-              stage.save(function(err, stage){
+              stage.save(function (err, stage) {
                 console.log(stage);
               })
             })
@@ -348,6 +348,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
             return res.send({
               state: "success",
               message: "application submitted.",
+              data: application
             }, 200);
           }
         })
@@ -388,9 +389,9 @@ router.put('/submit_application', cpUpload, function (req, res) {
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
-            Stages.findOne({franchisee_id: application_stats.franchisee_Id}, function(err, stage){
+            Stages.findOne({ franchisee_id: application_stats.franchisee_Id }, function (err, stage) {
               stage.stage_discussion.application_status = application_form.application_status;
-              stage.save(function(err, stage){
+              stage.save(function (err, stage) {
                 console.log(stage);
               })
             })
@@ -566,15 +567,15 @@ router.delete('/delete_discussion_payment_file/:franchisee_id', function (req, r
               message: "Something went wrong."
             });
           } else {
-            Library.findByIdAndRemove({_id: file.stage_discussion.first_payment_library_file_id}, function(err, library){
-              if(err){
+            Library.findByIdAndRemove({ _id: file.stage_discussion.first_payment_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
 
                 res.send({
                   status: 200,
@@ -624,21 +625,21 @@ router.delete('/delete_discussion_nda_file/:franchisee_id', function (req, res, 
               message: "Something went wrong."
             });
           } else {
-            Library.findByIdAndRemove({_id: file.stage_discussion.nda_library_file_id}, function(err, library){
-              if(err){
+            Library.findByIdAndRemove({ _id: file.stage_discussion.nda_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
 
-                  res.send({
-                    status: 200,
-                    state: "success",
-                    message: "NDA file deleted successfully!"
-                  });
+                res.send({
+                  status: 200,
+                  state: "success",
+                  message: "NDA file deleted successfully!"
+                });
               }
             })
 
@@ -683,15 +684,15 @@ router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next
               message: "Something went wrong."
             });
           } else {
-            Library.findByIdAndRemove({_id: file.stage_agreenent.final_agreement_library_file_id}, function(err, library){
-              if(err){
+            Library.findByIdAndRemove({ _id: file.stage_agreenent.final_agreement_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
 
                 res.send({
                   status: 200,
@@ -719,7 +720,7 @@ router.delete('/delete_final_agreement/:franchisee_id', function (req, res, next
 router.delete('/delete_kyc_bg_files/:file_id', function (req, res, next) {
 
   try {
-    ThirdPartyFiles.findByIdAndRemove({'_id': req.params.file_id}, function (err, file) {
+    ThirdPartyFiles.findByIdAndRemove({ '_id': req.params.file_id }, function (err, file) {
       if (err) {
         return res.send({
           status: 500,
@@ -782,15 +783,15 @@ router.delete('/delete_agreement_payment/:franchisee_id', function (req, res, ne
               message: "Something went wrong."
             });
           } else {
-            Library.findByIdAndRemove({_id: file.stage_agreenent.second_payment_library_file_id}, function(err, library){
-              if(err){
+            Library.findByIdAndRemove({ _id: file.stage_agreenent.second_payment_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
 
                 res.send({
                   status: 200,
@@ -846,17 +847,17 @@ router.put('/edit_discussion_payment_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            Library.findById({_id: file.stage_discussion.first_payment_library_file_id}, function(err, library){
-              if(err){
+            Library.findById({ _id: file.stage_discussion.first_payment_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
                 library.file_name = file.stage_discussion.payment_file_name;
-                library.save(function(err, library){
+                library.save(function (err, library) {
                   res.send({
                     status: 200,
                     state: "success",
@@ -909,17 +910,17 @@ router.put('/edit_nda_file_name', function (req, res, next) {
             });
           } else {
             console.log(file, 'while editing nda file name');
-            Library.findById({_id: file.stage_discussion.nda_library_file_id}, function(err, library){
-              if(err){
+            Library.findById({ _id: file.stage_discussion.nda_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
                 library.file_name = file.stage_discussion.nda_file_name;
-                library.save(function(err, library){
+                library.save(function (err, library) {
                   res.send({
                     status: 200,
                     state: "success",
@@ -972,17 +973,17 @@ router.put('/edit_agreement_payment_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            Library.findById({_id: file.stage_agreenent.second_payment_library_file_id}, function(err, library){
-              if(err){
+            Library.findById({ _id: file.stage_agreenent.second_payment_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
                 library.file_name = file.stage_agreenent.agreement_file_name;
-                library.save(function(err, library){
+                library.save(function (err, library) {
                   res.send({
                     status: 200,
                     state: "success",
@@ -1033,17 +1034,17 @@ router.put('/edit_final_agreement_file_name', function (req, res, next) {
               message: "Something went wrong."
             });
           } else {
-            Library.findById({_id: file.stage_agreenent.final_agreement_library_file_id}, function(err, library){
-              if(err){
+            Library.findById({ _id: file.stage_agreenent.final_agreement_library_file_id }, function (err, library) {
+              if (err) {
                 res.send({
                   status: 500,
                   state: "error",
                   message: err
                 });
               }
-              if(library){
+              if (library) {
                 library.file_name = file.stage_agreenent.final_agreement_file_name;
-                library.save(function(err, library){
+                library.save(function (err, library) {
                   res.send({
                     status: 200,
                     state: "success",
@@ -1052,12 +1053,10 @@ router.put('/edit_final_agreement_file_name', function (req, res, next) {
                 })
               }
             })
-
           }
         });
 
       }
-
     })
   } catch (err) {
     return res.send({
@@ -1102,45 +1101,45 @@ router.put('/update_order', function (req, res) {
 
 
 // To approve or decline
-router.put('/application_form_status',function(req,res){
-  try{
-      ApplicationSubmitted.findById({franchisee_Id:req.body.franchisee_Id},function(err,application){
-          if(err){
-              return res.send(500, err);
-          }   if(application) {
-              console.log('application',application);
-              application.status=req.body.status;
-              console.log('status',req.body.status);
-              application.save(function(err,application){
-                  if (err) {
-                      res.send({
-                          state: "err",
-                          message: "Something went wrong."
-                      }, 500);
-                  }
-                  else {
-
-                      res.send({
-                          state: "success",
-                          message: "Application updated.",
-                          data: application
-                      }, 200);
-                  }
-              });
+router.put('/application_form_status', function (req, res) {
+  try {
+    ApplicationSubmitted.findById({ franchisee_Id: req.body.franchisee_Id }, function (err, application) {
+      if (err) {
+        return res.send(500, err);
+      } if (application) {
+        console.log('application', application);
+        application.status = req.body.status;
+        console.log('status', req.body.status);
+        application.save(function (err, application) {
+          if (err) {
+            res.send({
+              state: "err",
+              message: "Something went wrong."
+            }, 500);
           }
-                  if (!application) {
-                      res.send({
-                          state: "failure",
-                          message: "Failed."
-                      }, 400);
-                  }
-      });
+          else {
+
+            res.send({
+              state: "success",
+              message: "Application updated.",
+              data: application
+            }, 200);
+          }
+        });
+      }
+      if (!application) {
+        res.send({
+          state: "failure",
+          message: "Failed."
+        }, 400);
+      }
+    });
   }
-  catch(err){
-      res.send({
-          state:"error",
-          message:"Something went wrong"
-      },500);
+  catch (err) {
+    res.send({
+      state: "error",
+      message: "Something went wrong"
+    }, 500);
   }
 });
 
