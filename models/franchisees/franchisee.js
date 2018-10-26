@@ -306,10 +306,12 @@ var CampaignSchema = new mongoose.Schema({
     'created_by': {type: String, enum: ['franchisor', 'franchisee']},
     'key':String,
     'meta': Object,
-    'campaign_file_attachment_file_name': String,
-    'campaign_file_attachment_file_url': String,
-    'campaign_file_attachment_file_type': String,
-    'campaign_files': Array,
+    "campaign_files" : [{
+        'campaign_file_attachment_file_name': String,
+        'campaign_file_attachment_file_url': String,
+        'campaign_file_attachment_file_type': String,
+    }],
+    
     'visible_to':String,
     'visible_to_franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'visible_to_franchisee_name': { type: Schema.Types.ObjectId, ref: 'Franchisee'}, 

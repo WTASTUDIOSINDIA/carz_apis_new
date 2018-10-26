@@ -406,19 +406,19 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
-        EmployeeAssessment.findOne({ _id: employeeAssessmentForm.franchisee_id }, function (err, question) {
+        EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN, _id: employeeAssessmentForm.franchisee_id, question_EN:employeeAssessmentForm.question_EN }, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
                     message: 'Something went wrong. We are looking into it.'
                 }, 500);
             }
-            // if (question) {
-            //     return res.send({
-            //         state: 'failure',
-            //         message: "Question already exists"
-            //     }, 400);
-            // }
+            if (question) {
+                return res.send({
+                    state: 'failure',
+                    message: "Question already exists"
+                }, 400);
+            }
             else {
                 if (req.files.file_upload) {
                     console.log(req.files.file_upload);
