@@ -489,7 +489,7 @@ router.put('/edit_folder', function(req, res, next){
   var folderEditForm = req.body;
 
   try{
-    Folder.findOne({'_id': folderEditForm._id}, function(err, folder){
+    Folder.findOne({folder_name: {$regex: new RegExp(folderEditForm.folder_name,'i')},'_id': folderEditForm._id}, function(err, folder){
       if(err){
         return res.send({
               status:500,
@@ -630,7 +630,7 @@ router.put('/delete_folder_by_Id',function(req,res){
 
 // To create common folder
 router.post('/create_common_folder',function(req,res){
-    Folder.findOne({folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
                 status: 500,

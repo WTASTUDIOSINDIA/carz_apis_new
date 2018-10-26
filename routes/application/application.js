@@ -310,14 +310,14 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
-                // application_form.application_list.file_type = "doc";
+                application_form.application_list.file_type[j] = "doc";
                 i++;
-                // if (req.files.file_upload[i].mimetype == "application/pdf") {
-                //   application_form.file_type = "pdf";
-                // }
-                // if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg") {
-                //   application_form.file_type = "image";
-                // }
+                if (req.files.file_upload[j].mimetype == "application/pdf") {
+                  application_form.file_type = "pdf";
+                }
+                if (req.files.file_upload[j].mimetype == "image/png" || req.files.file_upload[j].mimetype == "image/jpg" || req.files.file_upload[j].mimetype == "image/jpeg") {
+                  application_form.file_type = "image";
+                }
               }
             }
           }
@@ -358,14 +358,14 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].answer = req.files.file_upload[i].location;
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
-                // application_form.application_list.file_type = "doc";
+                application_form.application_list.file_type[j] = "doc";
 
-                // if (req.files.file_upload[i].mimetype == "application/pdf") {
-                //   application_form.file_type = "pdf";
-                // }
-                // if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg") {
-                //   application_form.file_type = "image";
-                // }
+                if (req.files.file_upload[j].mimetype == "application/pdf") {
+                  application_form.file_type = "pdf";
+                }
+                if (req.files.file_upload[j].mimetype == "image/png" || req.files.file_upload[j].mimetype == "image/jpg" || req.files.file_upload[j].mimetype == "image/jpeg") {
+                  application_form.file_type = "image";
+                }
               }
             }
 
