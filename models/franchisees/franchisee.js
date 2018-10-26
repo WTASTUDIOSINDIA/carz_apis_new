@@ -313,7 +313,8 @@ var CampaignSchema = new mongoose.Schema({
     }],
     
     'visible_to':String,
-    'visible_to_franchisee_id':String,
+    'visible_to_franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    'visible_to_franchisee_name': { type: Schema.Types.ObjectId, ref: 'Franchisee'}, 
     'amount_spent':String,
     'leads_generated': String,
     'footfalls':String,
