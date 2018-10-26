@@ -406,19 +406,19 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
-        EmployeeAssessment.findOne({ _id: employeeAssessmentForm.franchisee_id }, function (err, question) {
+        EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN, _id: employeeAssessmentForm.franchisee_id, question_EN:employeeAssessmentForm.question_EN }, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
                     message: 'Something went wrong. We are looking into it.'
                 }, 500);
             }
-            // if (question) {
-            //     return res.send({
-            //         state: 'failure',
-            //         message: "Question already exists"
-            //     }, 400);
-            // }
+            if (question) {
+                return res.send({
+                    state: 'failure',
+                    message: "Question already exists"
+                }, 400);
+            }
             else {
                 if (req.files.file_upload) {
                     console.log(req.files.file_upload);
@@ -852,13 +852,34 @@ router.put('/submit_employee_assessmnent', function (req,res){
                             assessment_type.save(function(err, assessment_type){
                                 if(err){
                                     console.log('Swamy111_err',err);
-                                }
-                                console.log('Swamy111',assessment_type);
-                                return res.send({
+                                }                                
+                                else {
+                                    
+                                    //based on all assessment types making employee as evaluated
+                                    EmployeeAssessmentTypeOfFranchisee.find({employee_id: assessment_type.employee_id}, function(err, assessments){
+                                       var evaluated_assessments_list = [];
+                                        for(var j = 0; j<assessments.length; j++){
+                                            (function (j) {
+                                            if(assessments[j].assessment_qualified == true){
+                                            //  console.log(data[j], 'yes this guy is qualified');
+                                                evaluated_assessments_list.push((assessments[j]));
+                                            }
+                                        })(j);
+                                        }
+                                        if(evaluated_assessments_list.length == assessments.length){
+                                            //A.findOneAndUpdate(conditions, update)
+                                            EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id},  { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
+                                                console.log(employeeDetails, 'employeeDetails_swamy1');
+                                            })
+                                        }
+                                    })
+                                    return res.send({
                                     state: "success",
                                     message: "Question saved successfully!",
                                     data: assessment_type
                                 }, 200);
+                                }
+                                
                             });
                                 })
                             })                                                        
@@ -926,7 +947,24 @@ router.put('/submit_employee_assessmnent', function (req,res){
                             assessment_type.answered_questions_count = answered_correct_questions_count;
                             assessment_type.save(function(err, assessment_type){
                                 console.log('Swamy222',assessment_type);
-                                
+                                //based on all assessment types making employee as evaluated
+                                    EmployeeAssessmentTypeOfFranchisee.find({employee_id: assessment_type.employee_id}, function(err, assessments){
+                                       var evaluated_assessments_list = [];
+                                        for(var j = 0; j<assessments.length; j++){
+                                            (function (j) {
+                                            if(assessments[j].assessment_qualified == true){
+                                            //  console.log(data[j], 'yes this guy is qualified');
+                                                evaluated_assessments_list.push((assessments[j]));
+                                            }
+                                        })(j);
+                                        }
+                                        if(evaluated_assessments_list.length == assessments.length){
+                                            //A.findOneAndUpdate(conditions, update)
+                                            EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id},  { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
+                                                console.log(employeeDetails, 'employeeDetails_swamy2');
+                                            })
+                                        }
+                                    })
                                 return res.send({
                                     state: "success",
                                     message: "Question saved successfully!", 
@@ -1433,22 +1471,11 @@ router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res)
                     message:"No employees"
                 },400);
             }
-            if(employeeDetails.length > 0){
-                var evaluated_assessments_list = [];
-                //for(var i = 0; i <= employeeDetails.length; i++){
-                    var existing_franchisees_list=  get_resources_qualified(employeeDetails);
-                    existing_franchisees_list.then(function(result){
-                       // employees_list.push(result);
-                       console.log(result, '1435 - lisrt');
+            if(employeeDetails.length > 0){               
                        res.send({
                            state: 'success',
-                           data: result
-                       }, 200)
-
-                    })
-                //}
-                
-                
+                           data: employeeDetails
+                       }, 200)                
             }
             
         })
@@ -1460,42 +1487,6 @@ router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res)
 		},500);
 	}
 })
-async function get_resources_qualified(list){
-    var evaluated_assessments_list =  [];
-    var total_employees_list = [];
-    console.log(list, 'List_1458');
-    for(var i = 0; i < list.length; i++){
-        //(function (i) {
-    await EmployeeAssessmentTypeOfFranchisee.find({employee_id: list[i]._id}, function(err, data){
-        console.log(data, "data 1435 of submitted");
-        if(data){
-            //assessment_qualified
-            for(var j = 0; j<data.length; j++){
-                (function (j) {
-                if(data[j].assessment_qualified == true){
-                    console.log(data[j], 'yes this guy is qualified');
-                    evaluated_assessments_list.push((data[j]));
-                }
-            })(j);
-            }
-            console.log(data.length, '1363 total assessments counts of employee');
-            console.log(evaluated_assessments_list.length, '1363 qualified assessments counts of employee');
-            if(data.length == evaluated_assessments_list.length){
-                console.log(list, 'Employee details;')
-                console.log('iterated_array_index', i);
-                console.log(list[i], 'employeeddata');
-                list[i]['evaluated_employee'] = true;
-                
-            }
-            total_employees_list.push(list[i]);
-        }
-
-    })
-}
-    console.log(list, 'employeeddata 1477');
-
-    return list;
-}
 
 //To edit employee details 
 router.put('/update_employee_details', function (req, res) { 

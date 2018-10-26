@@ -764,6 +764,7 @@ router.put('/reject_doc',function(req,res){
                        
                         let user_data = {};
                         user_data.user_mail = req.body.franchisee_email;
+                        user_data.user_mail = req.body.partner_email;
                         user_data.subject = 'Kyc file rejected';
                         // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
                         user_data.html =  "<p>Hi, "+req.body.franchisee_name + "<br>" + "Your Kyc file has been rejected" + "<br> "+ " <b>Reason:</b>"+req.body.reason_listed +" <br>"+"<b>Comment:</b>"+req.body.reason_in_text+ "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
