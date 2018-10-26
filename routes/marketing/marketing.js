@@ -144,7 +144,7 @@ router.post('/create_campaign', createCampaignFiles, function(req, res) {
                                 console.log('library', library);
                             return res.send({
                                 state:"success",
-                                message:"Campaign Created .",
+                                message:"Campaign Created",
                                 data:campaign24
                             },200);
                         }
