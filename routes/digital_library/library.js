@@ -489,7 +489,7 @@ router.put('/edit_folder', function(req, res, next){
   var folderEditForm = req.body;
 
   try{
-    Folder.findOne({folder_name: {$regex: new RegExp(folderEditForm.folder_name,'i')},'_id': folderEditForm._id}, function(err, folder){
+    Folder.findOne({'_id': folderEditForm._id, 'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}}, function(err, folder){
       if(err){
         return res.send({
               status:500,
