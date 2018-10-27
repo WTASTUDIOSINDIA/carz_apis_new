@@ -46,6 +46,40 @@ var fileupload = upload.fields([{
     maxCount: 20
 }])
 
+
+//validate franchisee by email
+router.post('/validate_employee_email', function (req, res) {
+    var employeeValidateForm = req.body;
+    try {
+        EmployeeDetails.findOne({ 'employee_email': employeeValidateForm.employee_email }, function (err, employee) {
+            if (err) {
+                return res.send({
+                    state: "error",
+                    message: err
+                }, 500);
+            }
+            if (employee) {
+                return res.send({
+                    state: "failure",
+                    message: "This email already exists!"
+                }, 400);
+            }
+            else {
+                return res.send({
+                    state: "success",
+                    message: "Success!"
+                }, 200);
+            }
+        });
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
+});
+
 // To create assessment types
 router.post('/create_assessemnt_type', function (req, res) {
     try {
