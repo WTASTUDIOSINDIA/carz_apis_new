@@ -36,7 +36,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
     console.log('34', req.body.discussionquestion);
     try {
-        DiscussionQuestion.find({}, function (err, discussionquestion) {
+        DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
             console.log('37', discussionquestion);
             if (err) {
                 res.send({
@@ -44,12 +44,12 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                     message: "Something went wrong."
                 }, 500);
             }
-            // if (discussionquestion) {
-            //     res.send({
-            //         state: "failure",
-            //         message: "This question already exists."
-            //     }, 400);
-            // }
+            if (discussionquestion) {
+                res.send({
+                    state: "failure",
+                    message: "This question already exists."
+                }, 201);
+            }
             else {
                 discussionquestion = new DiscussionQuestion();
                 discussionquestion.discussion_question = discussinQuestionForm.discussion_question;
@@ -131,7 +131,7 @@ router.get('/get_all_discussion_questions', function (req, res) {
                     state: "failure",
                     message: "Qustions not found.",
                     discussionquestion: []
-                }, 400);
+                }, 201);
             }
             else {
                 for (var i = 0; i < discussionquestion.length; i++) {
@@ -192,7 +192,7 @@ router.put('/update_discussion_questions', upload.single('discussion_question_im
                 res.send({
                     state: "failure",
                     message: "Failed to update."
-                }, 400);
+                }, 201);
             }
         })
     }
@@ -236,6 +236,39 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
     }
 })
 
+// delete all questions
+//To delete question by id
+router.delete('/delete_all_discussion_questions', function (req, res) {
+    try {
+        DiscussionQuestion.remove({}, function (err, discussionquestion) {
+            if (err) {
+                return res.send({
+                    state: err,
+                    message: "Something went wrong, We are looking into it."
+                }, 500);
+            }
+            if (!discussionquestion) {
+                res.send({
+                    message: "Question not found.",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    message: "Questions deleted successfully.",
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+})
+
 
 //To get comments based on question id
 router.get('/getComments/:question_id', function (req, res) {
@@ -254,7 +287,7 @@ router.get('/getComments/:question_id', function (req, res) {
                 res.send({
                     state: 'failure',
                     messgae: 'No comments'
-                }, 400);
+                }, 201);
             }
         });
     }
@@ -303,7 +336,7 @@ router.put('/change_question_status', function (req, res) {
                 res.send({
                     state: "failure",
                     message: "Failed."
-                }, 400);
+                }, 201);
             }
         });
     }

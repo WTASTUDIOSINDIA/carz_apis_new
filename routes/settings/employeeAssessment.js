@@ -83,7 +83,7 @@ router.post('/validate_employee_email', function (req, res) {
 // To create assessment types
 router.post('/create_assessemnt_type', function (req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: {$regex: new RegExp(req.body.assessment_type_name, 'i')}, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
+        EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') }, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
             if (err) {
                 res.send({
                     state: "failure",
@@ -119,7 +119,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                         res.send({
                             state: "success",
                             message: "Assessment Type created successfully",
-                            data:assessment
+                            data: assessment
                         }, 200);
                     }
                 });
@@ -137,7 +137,7 @@ router.post('/create_assessemnt_type', function (req, res) {
 //To update assessment type
 router.put('/update_assessment_type', function (req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: {$regex: new RegExp(req.body.assessment_type_name,'i')} }, function (err, assessment) {
+        EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') } }, function (err, assessment) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -151,13 +151,13 @@ router.put('/update_assessment_type', function (req, res) {
                 }, 400);
             }
             if (!assessment) {
-                let data ={};
+                let data = {};
                 data.assessment_type_name = req.body.assessment_type_name;
                 data.description = req.body.description;
                 data.franchisor_id = req.body.franchisor_id;
                 data.pass_percentage = req.body.pass_percentage;
                 data.assessment_duration = req.body.assessment_duration;
-                EmployeeAssessmentType.findByIdAndUpdate(req.body._id, data, {new:true}, function (err, assessment) {
+                EmployeeAssessmentType.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, assessment) {
                     if (err) {
                         res.send({
                             state: 'error',
@@ -172,7 +172,7 @@ router.put('/update_assessment_type', function (req, res) {
                     }
                 })
             }
-            
+
         })
     }
     catch (err) {
@@ -213,7 +213,7 @@ router.get('/get_assessments_type_name/:model_id', function (req, res) {
 
 router.get('/get_assessments_type_name', function (req, res) {
     try {
-        EmployeeAssessmentType.find({ }, function (err, assessments) {
+        EmployeeAssessmentType.find({}, function (err, assessments) {
             if (err) {
                 return res.send(500, err);
             }
@@ -309,57 +309,57 @@ router.post('/save_employee_assessment_type', function (req, res) {
                 // Versions.findOne({franchisor_id: req.body.franchisor_id, 
                 //     version_type: 'e_assessments', 
                 //     default: true}, function(err, version){
-                        EmployeeAssessmentType.find({model_id: req.body.model_id}, function(err, assessments){
+                EmployeeAssessmentType.find({ model_id: req.body.model_id }, function (err, assessments) {
+                    if (err) {
+                        res.send({
+                            state: "failure",
+                            message: err
+                        }, 500);
+                    }
+                    console.log('166', err);
+                    console.log(assessments, '284');
+                    for (var i = 0; i < assessments.length; i++) {
+                        employeeType = new EmployeeAssessmentTypeOfFranchisee();
+                        employeeType.assessment_type_id = assessments[i]._id;
+                        employeeType.assessment_type_name = assessments[i].assessment_type_name;
+                        employeeType.employee_id = req.body.employee_id;
+                        employeeType.createdAt = assessments[i].createdAt;
+                        employeeType.pass_percentage = assessments[i].pass_percentage;
+                        employeeType.save(function (err, employeeType) {
                             if (err) {
                                 res.send({
                                     state: "failure",
-                                    message: err
+                                    message: "Something went wrong."
                                 }, 500);
                             }
-                            console.log('166', err);
-                            console.log(assessments, '284');
-                            for (var i = 0; i < assessments.length; i++) {
-                                employeeType = new EmployeeAssessmentTypeOfFranchisee();
-                                employeeType.assessment_type_id = assessments[i]._id;
-                                employeeType.assessment_type_name = assessments[i].assessment_type_name;
-                                employeeType.employee_id = req.body.employee_id;
-                                employeeType.createdAt = assessments[i].createdAt;
-                                employeeType.pass_percentage = assessments[i].pass_percentage;
-                                employeeType.save(function (err, employeeType) {
+                            else {
+                                // saveEmployeeAssessmentType(req.params.employee_id, res);
+                                EmployeeAssessmentTypeOfFranchisee.find({ employee_id: req.body.employee_id }, function (err, employeeType) {
                                     if (err) {
                                         res.send({
                                             state: "failure",
-                                            message: "Something went wrong."
-                                        }, 500);
+                                            data: err
+                                        }, 201);
+                                    }
+                                    if (!employeeType) {
+                                        res.send({
+                                            state: "failure",
+                                            employeeType: []
+                                        }, 201);
                                     }
                                     else {
-                                        // saveEmployeeAssessmentType(req.params.employee_id, res);
-                                        EmployeeAssessmentTypeOfFranchisee.find({ employee_id: req.body.employee_id }, function (err, employeeType) {
-                                            if (err) {
-                                                res.send({
-                                                    state: "failure",
-                                                    data: err
-                                                }, 201);
-                                            }
-                                            if (!employeeType) {
-                                                res.send({
-                                                    state: "failure",
-                                                    employeeType: []
-                                                }, 201);
-                                            }
-                                            else {
-                                                res.send({
-                                                    state: "success",
-                                                    data: employeeType
-                                                }, 200);
-                                                console.log('data', employeeType);
-                                            }
-                                        })
+                                        res.send({
+                                            state: "success",
+                                            data: employeeType
+                                        }, 200);
+                                        console.log('data', employeeType);
                                     }
-                                });
+                                })
                             }
-                        })
-                   // })
+                        });
+                    }
+                })
+                // })
 
             }
         });
@@ -374,7 +374,7 @@ router.post('/save_employee_assessment_type', function (req, res) {
 
 function getEmployeeAssessmentTypes(employee_id, res) {
     //EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id } , null, {sort: {date: 1}}, function (err, employeeType) {
-        EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id}).sort({createdAt: 1}).exec(function (err, employeeType) {
+    EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id }).sort({ createdAt: 1 }).exec(function (err, employeeType) {
         if (!employeeType) {
             res.send({
                 state: "failure",
@@ -403,6 +403,36 @@ router.get('/get_save_employee_assessment_type/:employee_id', function (req, res
         }, 500);
     }
 });
+
+
+// To get all employee percentage
+router.get('/get_all_evaluated_list_details', function (req, res) {
+    try {
+        EmployeeAssessmentTypeOfFranchisee.find({}, function (err, list) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!list) {
+                res.send({
+                    message: "List not found",
+                    state: "failure",
+                    data: []
+                }, 201);
+            } else {
+                res.send({
+                    state: "success",
+                    data: list
+                }, 200);
+            }
+        })
+    } catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
+
 //To delete saved assessment type
 router.delete('/delete_employee_assessment_type', function (req, res) {
     try {
@@ -440,7 +470,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
-        EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN, _id: employeeAssessmentForm.franchisee_id, question_EN:employeeAssessmentForm.question_EN }, function (err, question) {
+        EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN, _id: employeeAssessmentForm.franchisee_id, question_EN: employeeAssessmentForm.question_EN }, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -451,7 +481,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 return res.send({
                     state: 'failure',
                     message: "Question already exists"
-                }, 400);
+                }, 201);
             }
             else {
                 if (req.files.file_upload) {
@@ -476,7 +506,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
                 employeeAssessment.assessment_type_id = employeeAssessmentForm.assessment_type_id;
                 // question.franchisee_id = employeeAssessmentForm.franchisee_id;
                 employeeAssessment.question_duration = employeeAssessmentForm.question_duration,
-                employeeAssessment.question_percentage = employeeAssessmentForm.question_percentage
+                    employeeAssessment.question_percentage = employeeAssessmentForm.question_percentage
                 employeeAssessment.employee_answer = employeeAssessmentForm.employee_answer;
                 employeeAssessment.save(function (err, employeeAssessment) {
                     console.log('131', employeeAssessment);
@@ -577,7 +607,7 @@ router.put('/update_employee_assessment_question', fileupload, function (req, re
             res.send({
                 state: "failure",
                 message: "Failed to update"
-            }, 400);
+            }, 201);
         }
         else {
             if (req.files.file_upload) {
@@ -656,7 +686,7 @@ router.delete('/delete_employee_assessent_question/:id', function (req, res) {
 //To delete question by question id
 router.delete('/delete_employee_assessent_question', function (req, res) {
     try {
-        EmployeeAssessment.remove({ }, function (err, question) {
+        EmployeeAssessment.remove({}, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -702,7 +732,7 @@ router.put('/employee_assessment_answer', function (req, res) {
                 //answer.employee_assessment_list.push(question_data);
                 answer.correct_answer = req.body.correct_answer;
                 answer.employee_answer = req.body.employee_answer;
-                if(req.body.correct_answer === req.body.employee_answer){
+                if (req.body.correct_answer === req.body.employee_answer) {
                     answer.is_answer_correct = true;
                 }
                 answer.employee_id = req.body.employee_id;
@@ -734,18 +764,18 @@ router.put('/employee_assessment_answer', function (req, res) {
                 //answered_questions_list.push(question_data);
                 var answer = new EmployeeAssessmentSubmitted();
                 //answer.employee_assessment_list = answered_questions_list;
-                 //answer.employee_assessment_list.push(question_data);
-                 if(req.body.correct_answer === req.body.employee_answer){
+                //answer.employee_assessment_list.push(question_data);
+                if (req.body.correct_answer === req.body.employee_answer) {
                     answer.is_answer_correct = true;
                 }
-                 answer.correct_answer = req.body.correct_answer;
-                 answer.employee_answer = req.body.employee_answer;
-                 answer.employee_id = req.body.employee_id;
-                 answer.franchisee_id = req.body.franchisee_id;
-                 answer.question_id = req.body.question_id;
-                 answer.assessment_type_id = req.body.assessment_type_id;
-                 //answer.employee_assessment_status = req.body.employee_assessment_status;
-                 answer.total_questions = req.body.total_questions;
+                answer.correct_answer = req.body.correct_answer;
+                answer.employee_answer = req.body.employee_answer;
+                answer.employee_id = req.body.employee_id;
+                answer.franchisee_id = req.body.franchisee_id;
+                answer.question_id = req.body.question_id;
+                answer.assessment_type_id = req.body.assessment_type_id;
+                //answer.employee_assessment_status = req.body.employee_assessment_status;
+                answer.total_questions = req.body.total_questions;
                 answer.save(function (err, answer) {
                     if (err) {
                         return res.send({
@@ -773,247 +803,247 @@ router.put('/employee_assessment_answer', function (req, res) {
 });
 
 //To submit employee assessment question list
-router.put('/submit_employee_assessmnent', function (req,res){
+router.put('/submit_employee_assessmnent', function (req, res) {
     // try{
-        EmployeeAssessmentSubmitted.findOne({question_id: req.body.question_id, employee_id: req.body.employee_id}, function (err ,answer){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message: err,
-                },500)
+    EmployeeAssessmentSubmitted.findOne({ question_id: req.body.question_id, employee_id: req.body.employee_id }, function (err, answer) {
+        if (err) {
+            return res.send({
+                state: "error",
+                message: err,
+            }, 500)
+        }
+        if (answer) {
+            //answer.employee_assessment_list.push(question_data);
+            answer.correct_answer = req.body.correct_answer;
+            answer.employee_answer = req.body.employee_answer;
+            if (req.body.correct_answer === req.body.employee_answer) {
+                answer.is_answer_correct = true;
             }
-            if (answer) {
-                //answer.employee_assessment_list.push(question_data);
-                answer.correct_answer = req.body.correct_answer;
-                answer.employee_answer = req.body.employee_answer;
-                if(req.body.correct_answer === req.body.employee_answer){
-                    answer.is_answer_correct = true;
+            answer.employee_id = req.body.employee_id;
+            answer.franchisee_id = req.body.franchisee_id;
+            answer.question_id = req.body.question_id;
+            answer.assessment_type_id = req.body.assessment_type_id;
+            if (answer.correct_answer === req.body.employee_answer) {
+                answer.incorrect_answer = false;
+            }
+            //answer.employee_assessment_status = req.body.employee_assessment_status;
+            answer.total_questions = req.body.total_questions;
+            answer.save(function (err, answer) {
+                if (err) {
+                    return res.send({
+                        state: "error",
+                        message: err
+                    }, 500);
                 }
-                answer.employee_id = req.body.employee_id;
-                answer.franchisee_id = req.body.franchisee_id;
-                answer.question_id = req.body.question_id;
-                answer.assessment_type_id = req.body.assessment_type_id;
-                if(answer.correct_answer === req.body.employee_answer){
-                    answer.incorrect_answer = false;
-                }                
-                //answer.employee_assessment_status = req.body.employee_assessment_status;
-                answer.total_questions = req.body.total_questions;
-                answer.save(function (err, answer) {
-                    if (err) {
-                        return res.send({
-                            state: "error",
-                            message: err
-                        }, 500);
-                    }
-                    else {
-                        EmployeeAssessmentTypeOfFranchisee.findOne({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id}, function(err, assessment_type){
-                            console.log('assessment_type_111', assessment_type)
-                            assessment_type.assessment_status = true;
-                            var answered_correct_questions_count = 0;
-                            var total_questions_count_local = 0;                            
-                            EmployeeAssessmentSubmitted.count({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id, is_answer_correct: true}, function (err, saved_questions_count_server) {
-                                answered_correct_questions_count = saved_questions_count_server;
-                                console.log('answered_correct_questions_count', answered_correct_questions_count);
-                                EmployeeAssessment.count({assessment_type_id : req.body.assessment_type_id}, function (err, total_questions_count_server) {
-                                    total_questions_count_local = total_questions_count_server;
-                                    console.log('total_questions_count_local', total_questions_count_local);
-                                    var employee_percentage = 0;
-                            if(answered_correct_questions_count == 0){
-                                employee_percentage = 0;
-                                console.log('all are incorrect answeres');
-                            }
-                            else {
-                                employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
-                                console.log('no all are incorrect answeres');
-                            }
-                            
-                            console.log(employee_percentage, 'assessment_type.employee_percentage');
-                            if(employee_percentage >= assessment_type.pass_percentage){
-                                assessment_type.assessment_qualified = true;
-                            }
-                            else {
-                                assessment_type.assessment_qualified = false;
-                                EmployeeDetails.findById({ _id: req.body.employee_id}, (err, data) => {
-                                    if(err){
-                                        console.log(err), 'data802'; 
-                                        // return res.send({
-                                        //     state:'err',
-                                        //     message:'error'
-                                        // },500)
-                                    }
-                                    if (data) {
-                                       console.log(data), 'data803'; 
-                                       mailSend(data.employee_email);
-                                    }
-                                })
-                                function mailSend(reciever_mail) {
-
-                                    var mailOptions = {
-                                        to: reciever_mail,
-                                        subject: 'Carz Employee Assessment Videos',
-                                        from: "carzdev@gmail.com",
-                                        headers: {
-                                            "X-Laziness-level": 1000,
-                                            "charset": 'UTF-8'
-                                        },
-    
-                                        html: "<p>Your not qualified for employee assessment. Please click the below link to watch the videos and retake the test.</p><div><a href=https://www.youtube.com/watch?v=qHm9MG9xw1o> </a> </div><div><p>Best,</p><p>Carz.</p></div> "
-                                    }
-                                    var transporter = nodemailer.createTransport({
-                                        service: 'gmail',
-                                        secure: false, // use SSL
-                                        port: 25, // port for secure SMTP
-                                        auth: {
-                                            user: 'carzdev@gmail.com',
-                                            pass: 'Carz@123'
-                                        }
-                                    });
-                                    transporter.sendMail(mailOptions, function (error, response) {
-                                        if (error) {
-                                            // return res.send(error);
-                                            console.log(error);
-                                        }
-                                        else {
-                                            // return res.send(response);
-                                            console.log(response);
-                                        }
-                                    });
+                else {
+                    EmployeeAssessmentTypeOfFranchisee.findOne({ employee_id: req.body.employee_id, assessment_type_id: req.body.assessment_type_id }, function (err, assessment_type) {
+                        console.log('assessment_type_111', assessment_type)
+                        assessment_type.assessment_status = true;
+                        var answered_correct_questions_count = 0;
+                        var total_questions_count_local = 0;
+                        EmployeeAssessmentSubmitted.count({ employee_id: req.body.employee_id, assessment_type_id: req.body.assessment_type_id, is_answer_correct: true }, function (err, saved_questions_count_server) {
+                            answered_correct_questions_count = saved_questions_count_server;
+                            console.log('answered_correct_questions_count', answered_correct_questions_count);
+                            EmployeeAssessment.count({ assessment_type_id: req.body.assessment_type_id }, function (err, total_questions_count_server) {
+                                total_questions_count_local = total_questions_count_server;
+                                console.log('total_questions_count_local', total_questions_count_local);
+                                var employee_percentage = 0;
+                                if (answered_correct_questions_count == 0) {
+                                    employee_percentage = 0;
+                                    console.log('all are incorrect answeres');
                                 }
-                            }
-                            assessment_type.total_questions_count = total_questions_count_local;
-                            assessment_type.answered_questions_count = answered_correct_questions_count;
-                            assessment_type.employee_percentage = employee_percentage;
-                            assessment_type.save(function(err, assessment_type){
-                                if(err){
-                                    console.log('Swamy111_err',err);
-                                }                                
                                 else {
-                                    
-                                    //based on all assessment types making employee as evaluated
-                                    EmployeeAssessmentTypeOfFranchisee.find({employee_id: assessment_type.employee_id}, function(err, assessments){
-                                       var evaluated_assessments_list = [];
-                                        for(var j = 0; j<assessments.length; j++){
-                                            (function (j) {
-                                            if(assessments[j].assessment_qualified == true){
-                                            //  console.log(data[j], 'yes this guy is qualified');
-                                                evaluated_assessments_list.push((assessments[j]));
-                                            }
-                                        })(j);
+                                    employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
+                                    console.log('no all are incorrect answeres');
+                                }
+
+                                console.log(employee_percentage, 'assessment_type.employee_percentage');
+                                if (employee_percentage >= assessment_type.pass_percentage) {
+                                    assessment_type.assessment_qualified = true;
+                                }
+                                else {
+                                    assessment_type.assessment_qualified = false;
+                                    EmployeeDetails.findById({ _id: req.body.employee_id }, (err, data) => {
+                                        if (err) {
+                                            console.log(err), 'data802';
+                                            // return res.send({
+                                            //     state:'err',
+                                            //     message:'error'
+                                            // },500)
                                         }
-                                        if(evaluated_assessments_list.length == assessments.length){
-                                            //A.findOneAndUpdate(conditions, update)
-                                            EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id},  { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
-                                                console.log(employeeDetails, 'employeeDetails_swamy1');
-                                            })
+                                        if (data) {
+                                            console.log(data), 'data803';
+                                            mailSend(data.employee_email);
                                         }
                                     })
-                                    return res.send({
-                                    state: "success",
-                                    message: "Question saved successfully!",
-                                    data: assessment_type
-                                }, 200);
-                                }
-                                
-                            });
-                                })
-                            })                                                        
-                        });
-                        
-                    }
-                })
-                // return res.send({
-                //     state: "failure",
-                //     message: "This person has already attempt this test."
-                // }, 200);
-            }
-            else {
-                //answered_questions_list.push(question_data);
-                var answer = new EmployeeAssessmentSubmitted();
-                //answer.employee_assessment_list = answered_questions_list;
-                 //answer.employee_assessment_list.push(question_data);
-                 answer.correct_answer = req.body.correct_answer;
-                 answer.employee_answer = req.body.employee_answer;
-                 if(req.body.correct_answer === req.body.employee_answer){
-                    answer.is_answer_correct = true;
-                }
-                 answer.employee_id = req.body.employee_id;
-                 answer.franchisee_id = req.body.franchisee_id;
-                 answer.question_id = req.body.question_id;
-                 answer.assessment_type_id = req.body.assessment_type_id;
-                 //answer.employee_assessment_status = req.body.employee_assessment_status;
-                 answer.total_questions = req.body.total_questions;
-                answer.save(function (err, answer) {
-                    if (err) {
-                        return res.send({
-                            state: "error",
-                            message: err
-                        }, 500);
-                    }
-                    else {
-                        EmployeeAssessmentTypeOfFranchisee.findOne({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id}, function(err, assessment_type){
-                            console.log('assessment_type_222', assessment_type)
-                            assessment_type.assessment_status = true;
-                            var answered_correct_questions_count = 0;
-                            var total_questions_count_local = 0;                            
-                            EmployeeAssessmentSubmitted.count({employee_id:req.body.employee_id, assessment_type_id : req.body.assessment_type_id, is_answer_correct: true}, function (err, saved_questions_count_server) {
-                                answered_correct_questions_count = saved_questions_count_server;
-                                console.log('answered_correct_questions_count', answered_correct_questions_count);
-                                EmployeeAssessment.count({assessment_type_id : req.body.assessment_type_id}, function (err, total_questions_count_server) {
-                                    total_questions_count_local = total_questions_count_server;
-                                    console.log('total_questions_count_local', total_questions_count_local);
-                                    var employee_percentage = 0;
-                            if(answered_correct_questions_count == 0){
-                                employee_percentage = 0;
-                            }
-                            else {
-                                employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
-                            }
-                            
-                            console.log(employee_percentage, 'assessment_type.employee_percentage');
-                            if(employee_percentage >= assessment_type.pass_percentage){
-                                assessment_type.assessment_qualified = true;
-                            }
-                            else {
-                                assessment_type.assessment_qualified = false;
-                            }
-                            assessment_type.employee_percentage = employee_percentage;
-                            assessment_type.total_questions_count = total_questions_count_local;
-                            assessment_type.answered_questions_count = answered_correct_questions_count;
-                            assessment_type.save(function(err, assessment_type){
-                                console.log('Swamy222',assessment_type);
-                                //based on all assessment types making employee as evaluated
-                                    EmployeeAssessmentTypeOfFranchisee.find({employee_id: assessment_type.employee_id}, function(err, assessments){
-                                       var evaluated_assessments_list = [];
-                                        for(var j = 0; j<assessments.length; j++){
-                                            (function (j) {
-                                            if(assessments[j].assessment_qualified == true){
-                                            //  console.log(data[j], 'yes this guy is qualified');
-                                                evaluated_assessments_list.push((assessments[j]));
-                                            }
-                                        })(j);
+                                    function mailSend(reciever_mail) {
+
+                                        var mailOptions = {
+                                            to: reciever_mail,
+                                            subject: 'Carz Employee Assessment Videos',
+                                            from: "carzdev@gmail.com",
+                                            headers: {
+                                                "X-Laziness-level": 1000,
+                                                "charset": 'UTF-8'
+                                            },
+
+                                            html: "<p>Your not qualified for employee assessment. Please click the below link to watch the videos and retake the test.</p><div><a href=https://www.youtube.com/watch?v=qHm9MG9xw1o> </a> </div><div><p>Best,</p><p>Carz.</p></div> "
                                         }
-                                        if(evaluated_assessments_list.length == assessments.length){
+                                        var transporter = nodemailer.createTransport({
+                                            service: 'gmail',
+                                            secure: false, // use SSL
+                                            port: 25, // port for secure SMTP
+                                            auth: {
+                                                user: 'carzdev@gmail.com',
+                                                pass: 'Carz@123'
+                                            }
+                                        });
+                                        transporter.sendMail(mailOptions, function (error, response) {
+                                            if (error) {
+                                                // return res.send(error);
+                                                console.log(error);
+                                            }
+                                            else {
+                                                // return res.send(response);
+                                                console.log(response);
+                                            }
+                                        });
+                                    }
+                                }
+                                assessment_type.total_questions_count = total_questions_count_local;
+                                assessment_type.answered_questions_count = answered_correct_questions_count;
+                                assessment_type.employee_percentage = employee_percentage;
+                                assessment_type.save(function (err, assessment_type) {
+                                    if (err) {
+                                        console.log('Swamy111_err', err);
+                                    }
+                                    else {
+
+                                        //based on all assessment types making employee as evaluated
+                                        EmployeeAssessmentTypeOfFranchisee.find({ employee_id: assessment_type.employee_id }, function (err, assessments) {
+                                            var evaluated_assessments_list = [];
+                                            for (var j = 0; j < assessments.length; j++) {
+                                                (function (j) {
+                                                    if (assessments[j].assessment_qualified == true) {
+                                                        //  console.log(data[j], 'yes this guy is qualified');
+                                                        evaluated_assessments_list.push((assessments[j]));
+                                                    }
+                                                })(j);
+                                            }
+                                            if (evaluated_assessments_list.length == assessments.length) {
+                                                //A.findOneAndUpdate(conditions, update)
+                                                EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id }, { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
+                                                    console.log(employeeDetails, 'employeeDetails_swamy1');
+                                                })
+                                            }
+                                        })
+                                        return res.send({
+                                            state: "success",
+                                            message: "Question saved successfully!",
+                                            data: assessment_type
+                                        }, 200);
+                                    }
+
+                                });
+                            })
+                        })
+                    });
+
+                }
+            })
+            // return res.send({
+            //     state: "failure",
+            //     message: "This person has already attempt this test."
+            // }, 200);
+        }
+        else {
+            //answered_questions_list.push(question_data);
+            var answer = new EmployeeAssessmentSubmitted();
+            //answer.employee_assessment_list = answered_questions_list;
+            //answer.employee_assessment_list.push(question_data);
+            answer.correct_answer = req.body.correct_answer;
+            answer.employee_answer = req.body.employee_answer;
+            if (req.body.correct_answer === req.body.employee_answer) {
+                answer.is_answer_correct = true;
+            }
+            answer.employee_id = req.body.employee_id;
+            answer.franchisee_id = req.body.franchisee_id;
+            answer.question_id = req.body.question_id;
+            answer.assessment_type_id = req.body.assessment_type_id;
+            //answer.employee_assessment_status = req.body.employee_assessment_status;
+            answer.total_questions = req.body.total_questions;
+            answer.save(function (err, answer) {
+                if (err) {
+                    return res.send({
+                        state: "error",
+                        message: err
+                    }, 500);
+                }
+                else {
+                    EmployeeAssessmentTypeOfFranchisee.findOne({ employee_id: req.body.employee_id, assessment_type_id: req.body.assessment_type_id }, function (err, assessment_type) {
+                        console.log('assessment_type_222', assessment_type)
+                        assessment_type.assessment_status = true;
+                        var answered_correct_questions_count = 0;
+                        var total_questions_count_local = 0;
+                        EmployeeAssessmentSubmitted.count({ employee_id: req.body.employee_id, assessment_type_id: req.body.assessment_type_id, is_answer_correct: true }, function (err, saved_questions_count_server) {
+                            answered_correct_questions_count = saved_questions_count_server;
+                            console.log('answered_correct_questions_count', answered_correct_questions_count);
+                            EmployeeAssessment.count({ assessment_type_id: req.body.assessment_type_id }, function (err, total_questions_count_server) {
+                                total_questions_count_local = total_questions_count_server;
+                                console.log('total_questions_count_local', total_questions_count_local);
+                                var employee_percentage = 0;
+                                if (answered_correct_questions_count == 0) {
+                                    employee_percentage = 0;
+                                }
+                                else {
+                                    employee_percentage = answered_correct_questions_count * 100 / total_questions_count_local;
+                                }
+
+                                console.log(employee_percentage, 'assessment_type.employee_percentage');
+                                if (employee_percentage >= assessment_type.pass_percentage) {
+                                    assessment_type.assessment_qualified = true;
+                                }
+                                else {
+                                    assessment_type.assessment_qualified = false;
+                                }
+                                assessment_type.employee_percentage = employee_percentage;
+                                assessment_type.total_questions_count = total_questions_count_local;
+                                assessment_type.answered_questions_count = answered_correct_questions_count;
+                                assessment_type.save(function (err, assessment_type) {
+                                    console.log('Swamy222', assessment_type);
+                                    //based on all assessment types making employee as evaluated
+                                    EmployeeAssessmentTypeOfFranchisee.find({ employee_id: assessment_type.employee_id }, function (err, assessments) {
+                                        var evaluated_assessments_list = [];
+                                        for (var j = 0; j < assessments.length; j++) {
+                                            (function (j) {
+                                                if (assessments[j].assessment_qualified == true) {
+                                                    //  console.log(data[j], 'yes this guy is qualified');
+                                                    evaluated_assessments_list.push((assessments[j]));
+                                                }
+                                            })(j);
+                                        }
+                                        if (evaluated_assessments_list.length == assessments.length) {
                                             //A.findOneAndUpdate(conditions, update)
-                                            EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id},  { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
+                                            EmployeeDetails.findOneAndUpdate({ _id: assessment_type.employee_id }, { $set: { evaluated_employee: true } }, function (err, employeeDetails) {
                                                 console.log(employeeDetails, 'employeeDetails_swamy2');
                                             })
                                         }
                                     })
-                                return res.send({
-                                    state: "success",
-                                    message: "Question saved successfully!", 
-                                    data: assessment_type
-                                }, 200);
-                            });
-                                })
+                                    return res.send({
+                                        state: "success",
+                                        message: "Question saved successfully!",
+                                        data: assessment_type
+                                    }, 200);
+                                });
                             })
-                           
-                            
-                        });                        
-                    }
-                })
-            }
-        })
+                        })
+
+
+                    });
+                }
+            })
+        }
+    })
     // }
 })
 //To get reports
@@ -1142,7 +1172,7 @@ router.delete('/delete_employee_assessment_submitted_list/:employee_id', functio
 //To create employee fileds
 router.post('/create_employee_details', function (req, res) {
     // try {
-    EmployeeDetails.findOne({ _id: req.body.franchisee_id }, function (err, employeeDetails) {
+    EmployeeDetails.findOne({ employee_email: req.body.employee_email }, function (err, employeeDetails) {
         if (err) {
             res.send({
                 state: 'failure',
@@ -1152,8 +1182,8 @@ router.post('/create_employee_details', function (req, res) {
         if (employeeDetails) {
             res.send({
                 state: "failure",
-                message: "This Employee already exists."
-            }, 400);
+                message: "This email already exists."
+            }, 201);
         }
         else {
             employeeDetails = new EmployeeDetails();
@@ -1179,19 +1209,18 @@ router.post('/create_employee_details', function (req, res) {
                     }, 500)
                 }
                 else {
-                    CarModels.findOne({_id:req.body.model_id},function(err, models){
-                        console.log(models, "1105");
-                        if(err){
+                    CarModels.findOne({ _id: req.body.model_id }, function (err, models) {
+                        if (err) {
                             console.log(err, "1107");
                         }
-                        if(models){
-                            employeeDetails.model_name =  models.model_name;
-                        employeeDetails.save(function (err, employeeDetails){
-                          console.log(employeeDetails, "1108");
-                        })
+                        if (models) {
+                            employeeDetails.model_name = models.model_name;
+                            employeeDetails.save(function (err, employeeDetails) {
+                                console.log(employeeDetails, "1108");
+                            })
                         }
-                        
-                      })
+
+                    })
                     res.send({
                         state: 'success',
                         message: 'Employee created successfully'
@@ -1211,7 +1240,7 @@ router.post('/create_employee_details', function (req, res) {
 //To create employee fileds
 router.post('/create_model', function (req, res) {
     // try {
-    CarModels.findOne({ model_name: {$regex: new RegExp(req.body.model_name, 'i')} , version_id: req.body.version_id}, function (err, model) {
+    CarModels.findOne({ model_name: { $regex: new RegExp(req.body.model_name, 'i') }, version_id: req.body.version_id }, function (err, model) {
         if (err) {
             res.send({
                 state: 'failure',
@@ -1229,7 +1258,7 @@ router.post('/create_model', function (req, res) {
             model.model_name = req.body.model_name;
             model.version_id = req.body.version_id;
             model.franchisor_id = req.body.franchisor_id;
-           
+
             model.save(function (err, model) {
                 if (err) {
                     res.send({
@@ -1259,7 +1288,7 @@ router.post('/create_model', function (req, res) {
 //To get models by version id
 router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req, res) {
     try {
-        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: req.params.version_id}, function (err, carmodels) {
+        CarModels.find({ franchisor_id: req.params.franchisor_id, version_id: req.params.version_id }, function (err, carmodels) {
             if (err) {
                 return res.send({
                     state: 'error',
@@ -1292,31 +1321,33 @@ router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req
 //To get models by default version id
 router.get('/get_models_by_default_version/:franchisor_id', function (req, res) {
     try {
-        Versions.findOne({franchisor_id: req.params.franchisor_id, 
-            version_type: 'e_assessments', 
-            default: true}, function(err, version){
-        CarModels.find({franchisor_id: req.params.franchisor_id, version_id: version._id}, function (err, carmodels) {
-            if (err) {
-                return res.send({
-                    state: 'error',
-                    message: err
-                }, 500);
-            }
-            if (!carmodels) {
-                res.send({
-                    state: 'failure',
-                    message: 'Employees not found.',
-                    data: []
-                }, 400)
-            }
-            else {
-                res.send({
-                    state: 'success',
-                    data: carmodels
-                }, 200)
-            }
+        Versions.findOne({
+            franchisor_id: req.params.franchisor_id,
+            version_type: 'e_assessments',
+            default: true
+        }, function (err, version) {
+            CarModels.find({ franchisor_id: req.params.franchisor_id, version_id: version._id }, function (err, carmodels) {
+                if (err) {
+                    return res.send({
+                        state: 'error',
+                        message: err
+                    }, 500);
+                }
+                if (!carmodels) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Employees not found.',
+                        data: []
+                    }, 400)
+                }
+                else {
+                    res.send({
+                        state: 'success',
+                        data: carmodels
+                    }, 200)
+                }
+            })
         })
-    })
     }
     catch (err) {
         res.send({
@@ -1330,7 +1361,7 @@ router.get('/get_models_by_default_version/:franchisor_id', function (req, res) 
 //To edit model details
 router.put('/update_model_details', function (req, res) {
     try {
-        CarModels.findOne({ model_name: {$regex: new RegExp(req.body.model_name, 'i')} }, function (err, model) {
+        CarModels.findOne({ model_name: { $regex: new RegExp(req.body.model_name, 'i') } }, function (err, model) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -1344,10 +1375,10 @@ router.put('/update_model_details', function (req, res) {
                 }, 400);
             }
             if (!model) {
-                let data= {};
+                let data = {};
                 data.model_name = req.body.model_name;
-               
-                CarModels.findByIdAndUpdate(req.body._id, data, {new:true},function (err, model) {
+
+                CarModels.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, model) {
                     if (err) {
                         res.send({
                             state: 'error',
@@ -1362,7 +1393,7 @@ router.put('/update_model_details', function (req, res) {
                     }
                 })
             }
-         
+
         })
     }
     catch (err) {
@@ -1406,7 +1437,7 @@ router.delete('/delete_model_by_id/:id', function (req, res) {
     }
 })
 
-    
+
 //To get create employee details
 router.get('/get_all_employees', function (req, res) {
     try {
@@ -1426,18 +1457,18 @@ router.get('/get_all_employees', function (req, res) {
             }
             else {
                 var evaluated_assessments_list = [];
-                for(var i = 0; i<employeeDetails.length; i++){
-                    EmployeeAssessmentTypeOfFranchisee.findOne({employee_id: employeeDetails[i]._id}, function(err, data){
-                        if(data){
+                for (var i = 0; i < employeeDetails.length; i++) {
+                    EmployeeAssessmentTypeOfFranchisee.findOne({ employee_id: employeeDetails[i]._id }, function (err, data) {
+                        if (data) {
                             //assessment_qualified
-                            for(var j = 0; j<data.length; j++){
-                                if(data[j].assessment_qualified == true){
+                            for (var j = 0; j < data.length; j++) {
+                                if (data[j].assessment_qualified == true) {
                                     evaluated_assessments_list.push((data[j]));
                                 }
                             }
                             console.log(data.length, '1363 total assessments counts of employee');
                             console.log(evaluated_assessments_list.length, '1363 qualified assessments counts of employee');
-                            if(data.length == evaluated_assessments_list.length){
+                            if (data.length == evaluated_assessments_list.length) {
                                 employeeDetails[i].evaluated_employee = true;
                             }
                         }
@@ -1489,43 +1520,43 @@ router.get('/get_employee_details/:id', function (req, res) {
 });
 
 // to get employees by franchisee id 
-router.get('/get_employees_by_franchisee_id/:franchisee_id',  function(req, res){
-    try{
+router.get('/get_employees_by_franchisee_id/:franchisee_id', function (req, res) {
+    try {
         var employees_list = [];
-        EmployeeDetails.find({franchisee_id: req.params.franchisee_id},  function(err,employeeDetails){
-            if(err){
+        EmployeeDetails.find({ franchisee_id: req.params.franchisee_id }, function (err, employeeDetails) {
+            if (err) {
                 return res.send({
-                    state:"error",
-                    message:err
-                },500);
+                    state: "error",
+                    message: err
+                }, 500);
             }
-            if(employeeDetails.length == 0){
+            if (employeeDetails.length == 0) {
                 return res.send({
-                    state:"failure",
-                    message:"No employees"
-                },400);
+                    state: "failure",
+                    message: "No employees"
+                }, 400);
             }
-            if(employeeDetails.length > 0){               
-                       res.send({
-                           state: 'success',
-                           data: employeeDetails
-                       }, 200)                
+            if (employeeDetails.length > 0) {
+                res.send({
+                    state: 'success',
+                    data: employeeDetails
+                }, 200)
             }
-            
+
         })
     }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		},500);
-	}
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        }, 500);
+    }
 })
 
 //To edit employee details 
-router.put('/update_employee_details', function (req, res) { 
+router.put('/update_employee_details', function (req, res) {
     try {
-        EmployeeDetails.findById({ _id: req.body._id, franchisee_id:req.body.franchisee_id }, function (err, employeeDetails) {
+        EmployeeDetails.findById({ _id: req.body._id, franchisee_id: req.body.franchisee_id }, function (err, employeeDetails) {
             if (err) {
                 return res.send({
                     state: 'err',
@@ -1555,19 +1586,19 @@ router.put('/update_employee_details', function (req, res) {
                         }, 500)
                     }
                     else {
-                        CarModels.findOne({_id:req.body.model_id},function(err, models){
+                        CarModels.findOne({ _id: req.body.model_id }, function (err, models) {
                             console.log(models, "1427");
-                            if(err){
+                            if (err) {
                                 console.log(err, "1429");
                             }
-                            if(models){
-                                employeeDetails.model_name =  models.model_name;
-                            employeeDetails.save(function (err, employeeDetails){
-                              console.log(employeeDetails, "1434");
-                            })
+                            if (models) {
+                                employeeDetails.model_name = models.model_name;
+                                employeeDetails.save(function (err, employeeDetails) {
+                                    console.log(employeeDetails, "1434");
+                                })
                             }
-                            
-                          })
+
+                        })
                         res.send({
                             state: 'success',
                             message: 'Employee updated'
@@ -1657,25 +1688,25 @@ router.delete('/delete_all_employees', function (req, res) {
 
 //get franchisee specific questions
 
-router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', function(req, res){
-    try{
-      //  EmployeeAssessmentTypeOfFranchisee.findById({_id: req.params.assessment_id}, function(err, assessment){
+router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', function (req, res) {
+    try {
+        //  EmployeeAssessmentTypeOfFranchisee.findById({_id: req.params.assessment_id}, function(err, assessment){
 
-         //Saved employees   EmployeeAssessmentSubmitted
-         var e_a_id = req.params.assessment_id;
-    var e_id = objectId(req.params.employee_id);
-    console.log(e_a_id, e_id);
+        //Saved employees   EmployeeAssessmentSubmitted
+        var e_a_id = req.params.assessment_id;
+        var e_id = objectId(req.params.employee_id);
+        console.log(e_a_id, e_id);
 
-         get_merged_questions(e_a_id, e_id)
-         .then((response) => {
-             res.send({
-                 data: response 
-             })
-         })
-            
-      //  })
+        get_merged_questions(e_a_id, e_id)
+            .then((response) => {
+                res.send({
+                    data: response
+                })
+            })
+
+        //  })
     }
-    catch(err){
+    catch (err) {
         return res.send({
             state: 'err',
             message: err
@@ -1683,56 +1714,56 @@ router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id
     }
 })
 
-function get_merged_questions(e_a_id, e_id){
+function get_merged_questions(e_a_id, e_id) {
     var e_a_id_object_id = objectId(e_a_id);
     console.log(e_a_id_object_id);
     //EmployeeAssessmentTypeOfFranchisee.findById({assessment_type_id: req.params.assessment_id}, function(err, assessment){
-        return EmployeeAssessmentTypeOfFranchisee.aggregate([
-                {
-                    $match: {
-                        $and: [
-                            {assessment_type_id: e_a_id_object_id},
-                            {employee_id: e_id}
-                        ]
-                    }
-        
-                },
-                {
-                    $lookup: {
-                        from: EmployeeAssessment.collection.name,
-                        let: { assessment_type_id: e_a_id_object_id},
-                        pipeline: [
-                            {
-                                $match: {
-                                    $and: [
-                                        {$expr: {$eq: ["$assessment_type_id", e_a_id_object_id]}}
-                                    ]
-                                }
-                            },
-                            {
-                                $lookup: {
-                                    from: EmployeeAssessmentSubmitted.collection.name,
-                                    let: { question_id: "$_id"},
-                                    pipeline: [
-                                        {
-                                            $match: {
-                                                $and: [
-                                                {$expr: {$eq: ["$question_id", "$$question_id"]}},   
-                                                {$expr: {$eq: ["$employee_id", e_id]}}
-                                                ]
-                                            }
-                                        }
-                                    ],
-                                    as: 'employee_answered_data'
-                                }
-                            }
-                        ],
+    return EmployeeAssessmentTypeOfFranchisee.aggregate([
+        {
+            $match: {
+                $and: [
+                    { assessment_type_id: e_a_id_object_id },
+                    { employee_id: e_id }
+                ]
+            }
 
-                        as: 'questions_list'
-
+        },
+        {
+            $lookup: {
+                from: EmployeeAssessment.collection.name,
+                let: { assessment_type_id: e_a_id_object_id },
+                pipeline: [
+                    {
+                        $match: {
+                            $and: [
+                                { $expr: { $eq: ["$assessment_type_id", e_a_id_object_id] } }
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: EmployeeAssessmentSubmitted.collection.name,
+                            let: { question_id: "$_id" },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $and: [
+                                            { $expr: { $eq: ["$question_id", "$$question_id"] } },
+                                            { $expr: { $eq: ["$employee_id", e_id] } }
+                                        ]
+                                    }
+                                }
+                            ],
+                            as: 'employee_answered_data'
+                        }
                     }
-                }
-            ]).exec();
+                ],
+
+                as: 'questions_list'
+
+            }
+        }
+    ]).exec();
     //});
     // return EmployeeAssessment.aggregate([
     //     {
@@ -1744,39 +1775,39 @@ function get_merged_questions(e_a_id, e_id){
 
     //     }
     // ])
-        }
+}
 
-    router.get('/retake_exam/:employee_id/:assessment_id', function (req, res) {
-        try {
-            // { $set: { <field1>: <value1>, ... } }
-            EmployeeAssessmentSubmitted.updateMany({ employee_id: req.params.employee_id, assessment_type_id: req.params.assessment_id },{ $set: { employee_answer: '' }}, function (err, employeeQuestions) {
-                if (err) {
-                    return res.send({
-                        state: err,
-                        message: 'Something went wrong, we are looking into it.'
-                    }, 500);
-                }
-                if (!employeeQuestions) {
-                    res.send({
-                        state: 'failure',
-                        message: 'No questions found.'
-                    }, 201);
-                }
-                else {
-                    res.send({
-                        state: 'success',
-                        message: 'Success',
-                        data: employeeQuestions
-                    }, 200);
-                }
-            })
-        }
-        catch (err) {
-            return res.send({
-                state: 'err',
-                message: err
-            })
-        }
-    })
+router.get('/retake_exam/:employee_id/:assessment_id', function (req, res) {
+    try {
+        // { $set: { <field1>: <value1>, ... } }
+        EmployeeAssessmentSubmitted.updateMany({ employee_id: req.params.employee_id, assessment_type_id: req.params.assessment_id }, { $set: { employee_answer: '' } }, function (err, employeeQuestions) {
+            if (err) {
+                return res.send({
+                    state: err,
+                    message: 'Something went wrong, we are looking into it.'
+                }, 500);
+            }
+            if (!employeeQuestions) {
+                res.send({
+                    state: 'failure',
+                    message: 'No questions found.'
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: 'success',
+                    message: 'Success',
+                    data: employeeQuestions
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: 'err',
+            message: err
+        })
+    }
+})
 
 module.exports = router;
