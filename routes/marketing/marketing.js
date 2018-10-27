@@ -140,6 +140,7 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
                                         }
                                         library.date_uploaded = Date.now();
                                         library.folder_Id = folder._id;
+                                        library.is_campaign_file = true;
                                         library.campaign_id = campaign._id;
                                         library.franchisee_Id = campaignForm.franchisee_id;
                                         library.save(function (err, library) {
@@ -352,6 +353,33 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
     // }
 });
 
+router.delete('/delete_campaign_file/:id', function(req, res){
+    try {
+        Library.findByIdAndRemove({ _id: req.params.id }, function (err, library) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (!library) {
+                res.send({
+                    "message": "Unsuccessfull",
+                    "state": "failure"
+                }, 400);
+            }
+            else {
+                res.send({
+                    "message": "Campaign deleted.",
+                    "state": "success"
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+})
 //To get all campaign
 router.get('/get_all_campaigns', function (req, res) {
     try {
