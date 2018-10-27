@@ -55,7 +55,35 @@ var upload = multer({
     })
 });
 
+//to get total franchisees count
 
+router.get('/total_franchisees_count/:franchisor_id', function(req, res){
+   // try {
+        Franchisee.count({franchisor_id: req.params.franchisor_id,archieve_franchisee: false}, function (err, count) {
+            if (err) {
+                return res.send(500, err);
+            }
+            if (count) {
+                res.send({
+                    state: 'success',
+                    count: count
+                }, 200);
+            } 
+            else  {
+                res.send({
+                    state: 'success',
+                    count: count
+                }, 201);
+            }          
+        })
+    // }
+    // catch (err) {
+    //     return res.send({
+    //         state: "error",
+    //         message: err
+    //     });
+    // }
+});
 // To upload profile pic
 // var cpUpload = upload.fields([{ name: 'file_upload', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
 // router.post('/profile_pic',cpUpload,function(req,res){
@@ -456,11 +484,11 @@ router.post('/get_total_revenue', (req, res) => {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
             return Stages.aggregate([
-                { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
+                { $match: { $and: [{ 'stage_agreenent.four_lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
             ]).exec()
                 .then((four_lac) => {
-                    console.log(four_lac)
+                    console.log(four_lac, 'foor_laccc')
                     if (four_lac[0] !== undefined) {
                         four_lac_total = four_lac[0].four_lac_count * 400000;
                     }
@@ -552,7 +580,7 @@ router.post('/get_revenue_graph', (req, res) => {
                     }
                     console.log(one_lac, '_lac-------++++++-------------')
                     Stages.aggregate([
-                        { $match: { $and: [{ 'stage_agreenent.4lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
+                        { $match: { $and: [{ 'stage_agreenent.four_lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
                         { $group: { _id: null, four_lac_count: { $sum: 1 } } }
                     ]).exec()
                         .then((four_lac) => {
@@ -1813,6 +1841,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     // stage.stage_agreenent.status = false;
                     stage.stage_agreenent.agreement_value = 400000;
                     stage.stage_agreenent.agreement_file = req.file.location;
+                    stage.stage_agreenent.four_lac_payment_status = 'uploaded';
                     stage.stage_agreenent.four_lac_payment_uploaded_date = new Date();
                     stage.stage_agreenent.agreement_file_name = req.file.originalname;
                     franchisee_id = stageForm.franchisee_id;
@@ -3013,4 +3042,5 @@ function notify_user(req, res, message, reason, rejected_franchisee_reason) {
         }
     });
 }
+
 module.exports = router;
