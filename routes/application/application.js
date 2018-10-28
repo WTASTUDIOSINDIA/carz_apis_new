@@ -318,7 +318,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
               }
-              if (application_form.application_list[j].key == "image/png" || application_form.application_list[j].key == "image/jpg" || application_form.application_list[j].key == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+              if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
                   application_form.application_list[j].file_type = "image";
               }
               i++;
@@ -366,10 +366,10 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
                 // application_form.application_list.file_type[j] = "doc";
 
-                if (application_form.application_list[j].key == "application/pdf") {
+                if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
               }
-              if (application_form.application_list[j].key == "image/png" || application_form.application_list[j].key == "image/jpg" || application_form.application_list[j].key == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+              if (req.files.file_upload[i].mimetype  == "image/png" || req.files.file_upload[i].mimetype  == "image/jpg" || req.files.file_upload[i].mimetype  == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
                 application_form.application_list[j].file_type = "image";
               }
                 console.log('4444444444',application_form);

@@ -264,7 +264,7 @@ router.get('/get_business_types_list/:version_id',function(req,res){
 });
 router.post('/set_business_type',function(req,res){
     try{
-        FranchiseeType.findOne({bussiness_type_name:req.body.bussiness_type_name},function(err,type){
+        FranchiseeType.findOne({'bussiness_type_name':{$regex: new RegExp(req.body.bussiness_type_name,'i')}},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -359,7 +359,7 @@ router.put('/update_franchisee_type', function(req, res, next) {
 
 router.post('/create_business_type',function(req,res){
     try{
-        FranchiseeTypeList.findOne({doc_name:req.body.doc_name,businessType_id:req.body.businessType_id},function(err,type){
+        FranchiseeTypeList.findOne({'doc_name':{$regex: new RegExp(req.body.doc_name,'i')},businessType_id:req.body.businessType_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -370,7 +370,7 @@ router.post('/create_business_type',function(req,res){
                 return res.send({
                     state:"failure",
                     message:"Franchisee type with this name exist."
-                },400);
+                },201);
             }
             else{
                 var document_list_types = new FranchiseeTypeList();
