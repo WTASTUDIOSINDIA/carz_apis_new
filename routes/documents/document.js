@@ -312,7 +312,7 @@ router.post('/set_business_type',function(req,res){
 router.put('/update_franchisee_type', function(req, res) {
     var franchiseeTypeEdit = req.body;
     try {
-        FranchiseeType.findOne({_id:franchiseeTypeEdit._id},function(err,type){      
+        FranchiseeType.findById({_id:franchiseeTypeEdit._id},function(err,type){      
         if(err) {
           return res.send({
               state:"err",

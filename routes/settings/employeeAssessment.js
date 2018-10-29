@@ -94,7 +94,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                 res.send({
                     state: "failure",
                     message: "This assessment name already exists."
-                }, 200);
+                }, 201);
             }
             else {
                 console.log(assessment);
@@ -118,8 +118,7 @@ router.post('/create_assessemnt_type', function (req, res) {
                     else {
                         res.send({
                             state: "success",
-                            message: "Assessment Type created successfully",
-                            data: assessment
+                            message: "Assessment Type created successfully"
                         }, 200);
                     }
                 });
@@ -135,53 +134,78 @@ router.post('/create_assessemnt_type', function (req, res) {
 })
 
 //To update assessment type
-router.put('/update_assessment_type', function (req, res) {
+router.put('/update_assessment_type', function(req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') } }, function (err, assessment) {
-            if (err) {
-                return res.send({
-                    state: 'err',
-                    message: 'Something went wrong'
-                }, 500)
+        EmployeeAssessmentType.findById({ _id:req.body._id }, function (err, assessment) {
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!assessment){
+          res.send({
+            state:"failure",
+            message:"No assessments found"
+          },201);
+        }
+        if(assessment){
+         if(assessment.assessment_type_name == req.body.assessment_type_name){
+            assessment.assessment_type_name = req.body.assessment_type_name;
+            assessment.description = req.body.description;
+            assessment.franchisor_id = req.body.franchisor_id;
+            assessment.pass_percentage = req.body.pass_percentage;
+            assessment.assessment_duration = req.body.assessment_duration;
+              assessment.save(function (err, assessment){
+              res.send({
+                state:"success",
+                message:"Assessments updated"
+              },200);
+            })
+           
+        }
+        else{
+        EmployeeAssessmentType.find({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') } }, function (err, assess_name) {
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
             }
-            if (assessment) {
-                res.send({
-                    state: "failure",
-                    message: "Name already exists!"
-                }, 400);
+            if(assess_name == null || assess_name.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
             }
-            if (!assessment) {
-                let data = {};
-                data.assessment_type_name = req.body.assessment_type_name;
-                data.description = req.body.description;
-                data.franchisor_id = req.body.franchisor_id;
-                data.pass_percentage = req.body.pass_percentage;
-                data.assessment_duration = req.body.assessment_duration;
-                EmployeeAssessmentType.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, assessment) {
-                    if (err) {
-                        res.send({
-                            state: 'error',
-                            message: 'Something went wrong'
-                        }, 500)
-                    }
-                    else {
-                        res.send({
-                            state: 'success',
-                            message: 'Assessment type updated'
-                        }, 200)
-                    }
-                })
-            }
-
-        })
+         else{
+            assessment.assessment_type_name = req.body.assessment_type_name;
+            assessment.description = req.body.description;
+            assessment.franchisor_id = req.body.franchisor_id;
+            assessment.pass_percentage = req.body.pass_percentage;
+            assessment.assessment_duration = req.body.assessment_duration;
+              assessment.save(function (err, assessment){
+              res.send({
+                state:"success",
+                message:"Assessment updated"
+              },200);
+            })
+          }
+          })
+         
+        }
+       
+      }
+     
+      })
     }
-    catch (err) {
-        res.send({
-            state: 'err',
-            message: 'err'
-        })
+    catch(err){
+      return res.send({
+        state:"error",
+        message:err
+      });
     }
-})
+  });
 // TO get assessment type settings
 router.get('/get_assessments_type_name/:model_id', function (req, res) {
     try {
@@ -1262,7 +1286,7 @@ router.post('/create_model', function (req, res) {
             res.send({
                 state: "failure",
                 message: "This Model already exists."
-            }, 400);
+            }, 201);
         }
         else {
             model = new CarModels();
@@ -1370,50 +1394,70 @@ router.get('/get_models_by_default_version/:franchisor_id', function (req, res) 
 
 
 //To edit model details
-router.put('/update_model_details', function (req, res) {
+router.put('/update_model_details', function(req, res) {
     try {
-        CarModels.findOne({ model_name: { $regex: new RegExp(req.body.model_name, 'i') } }, function (err, model) {
-            if (err) {
-                return res.send({
-                    state: 'err',
-                    message: 'Something went wrong'
-                }, 500)
+        CarModels.findById({ _id: req.body._id }, function (err, model) {
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!model){
+          res.send({
+            state:"failure",
+            message:"No models found"
+          },201);
+        }
+        if(model){
+         if(model.model_name == req.body.model_name){
+            model.model_name = req.body.model_name;
+              model.save(function (err, model){
+              res.send({
+                state:"success",
+                message:"Model updated"
+              },200);
+            })
+           
+        }
+        else{
+            CarModels.find({ model_name: { $regex: new RegExp(req.body.model_name, 'i') } }, function (err, model_n) {
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
             }
-            if (model) {
-                res.send({
-                    state: "failure",
-                    message: "Name already exists!"
-                }, 400);
+            if(model_n == null || model_n.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
             }
-            if (!model) {
-                let data = {};
-                data.model_name = req.body.model_name;
-
-                CarModels.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, model) {
-                    if (err) {
-                        res.send({
-                            state: 'error',
-                            message: 'Something went wrong'
-                        }, 500)
-                    }
-                    else {
-                        res.send({
-                            state: 'success',
-                            message: 'Model updated'
-                        }, 200)
-                    }
-                })
-            }
-
-        })
+         else{
+            model.model_name = req.body.model_name;
+              model.save(function (err, model){
+              res.send({
+                state:"success",
+                message:"Model updated"
+              },200);
+            })
+          }
+          })
+         
+        }
+       
+      }
+     
+      })
     }
-    catch (err) {
-        res.send({
-            state: 'err',
-            message: 'err'
-        })
+    catch(err){
+      return res.send({
+        state:"error",
+        message:err
+      });
     }
-});
+  });
 
 
 // To delete employee details

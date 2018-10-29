@@ -49,7 +49,7 @@ router.post('/create_audit_checklist_type', function (req, res) {
           res.send({
             state: "failure",
             message: "This checklist type name already exists."
-          }, 200);
+          }, 201);
         }
         else {
           console.log(checklist_type);
@@ -83,49 +83,72 @@ router.post('/create_audit_checklist_type', function (req, res) {
   })
 
 //   to update checklist type name
-router.put('/update_audit_checklist_type', function (req,res){
-    try{
-        AuditChecklistType.findOne({audit_checklist_type_name:{$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}}, function(err, checklist_type){
-            if(err){
-                res.send(500);
-            }
-            if(checklist_type){
-              res.send({
-                  state:'failure',
-                  message:'Name already exists!'
-              },400);
+router.put('/update_audit_checklist_type', function(req, res) {
+  try {
+    AuditChecklistType.findById({_id: req.body._id}, function (err,checklist_type) {
+      if(err) {
+        return res.send({
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
+      }
+      if(!checklist_type){
+        res.send({
+          state:"failure",
+          message:"No versions found"
+        },201);
+      }
+      if(checklist_type){
+       if(checklist_type.audit_checklist_type_name == req.body.audit_checklist_type_name){
+        checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
+        checklist_type.franchisor_id = req.body.franchisor_id;
+            checklist_type.save(function (err, checklist_type){
+            res.send({
+              state:"success",
+              message:"Checklist Type updated"
+            },200);
+          })
+         
+      }
+      else{
+        AuditChecklistType.find({audit_checklist_type_name: {$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}}, function (err,audit_check_name) {
+          if(err) {
+            return res.send({
+                state:"err",
+                message:"Something went wrong. We are looking into it."
+            },500);
           }
-            if(!checklist_type){
-              let checklist_type = {};
-                checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
-                checklist_type.franchisor_id = req.body.franchisor_id;
-                AuditChecklistType.findByIdAndUpdate(req.body._id, checklist_type,{new:true},function(err, checklist_type){
-                    if(err){
-                        res.send({
-                            state:'err',
-                            message:'Something went wrong. We are looking into it.'
-                        },500);
-                    }
-                    else{
-                        res.send({
-                            state:'success',
-                            message:'Checklist Type updated!',
-                            data: checklist_type
-                        },200);
-                    }
-                })
-            }
-        
+          if(audit_check_name == null || audit_check_name.length != 0){
+            res.send({
+              state:"failure",
+              message:"Name already exists"
+            },201);
+          }
+       else{
+        checklist_type.audit_checklist_type_name = req.body.audit_checklist_type_name;
+        checklist_type.franchisor_id = req.body.franchisor_id;
+            checklist_type.save(function (err, checklist_type){
+            res.send({
+              state:"success",
+              message:"Checklist Type updated"
+            },200);
+          })
+        }
         })
-        
+       
+      }
+     
     }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		});
-	}
-})
+   
+    })
+  }
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
 // to get checklist type by id
 router.get('/get_audit_checklist_type_by_id/:checklist_type_id', function (req, res) {
     try {
@@ -269,7 +292,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 // to crete audit checklist
 router.post('/create_audit_checklist', function (req,res){
     try{
-        AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}, checklist_type_id:req.body.checklist_type_id}, function (err, auditChecklist){
+        AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}}, function (err, auditChecklist){
             if(err){
                return res.send(500, err)
             }
@@ -315,51 +338,80 @@ router.post('/create_audit_checklist', function (req,res){
 })
 
 // To update checklist
-router.put('/update_audit_checklist', function (req,res){
-    try{
-        AuditChecklist.findById({_id:req.body._id}, function(err, audit_checklist){
-            if(err){
-                return res.send(500, err);
-            }
-            if(audit_checklist){
-                audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
-               // audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
-                audit_checklist.audit_visible_to = req.body.audit_visible_to;
-                audit_checklist.created_at = req.body.created_at;
-                audit_checklist.audit_description = req.body.audit_description;
-                //audit_checklist.checklist_type_id = req.body.checklist_type_id;
-                audit_checklist.save(function(err, audit_checklist){
-                    if(err){
-                        res.send({
-                            state:'err',
-                            message:'Something went wrong. We are looking into it.'
-                        },500);
-                    }
-                    else{
-                        res.send({
-                            state:'success',
-                            message:'Checklist updated!',
-                            data: audit_checklist
-                        },200);
-                    }
-                })
-            }
-            if(!audit_checklist){
-                res.send({
-                    state:'failure',
-                    message:'Failed to update!'
-                },400);
-            }
+router.put('/update_audit_checklist', function(req, res) {
+  try {
+    AuditChecklist.findById({_id:req.body._id}, function(err, audit_checklist){
+      if(err) {
+        return res.send({
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
+      }
+      if(!audit_checklist){
+        res.send({
+          state:"failure",
+          message:"No Checklists found"
+        },201);
+      }
+      if(audit_checklist){
+       if(version.version_name == req.body.version_name){
+        audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
+        // audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
+         audit_checklist.audit_visible_to = req.body.audit_visible_to;
+         audit_checklist.created_at = req.body.created_at;
+         audit_checklist.audit_description = req.body.audit_description;
+         //audit_checklist.checklist_type_id = req.body.checklist_type_id;
+         audit_checklist.save(function(err, audit_checklist){
+            res.send({
+              state:"success",
+              message:"Checklist updated"
+            },200);
+          })
+         
+      }
+      else{
+        AuditChecklist.find({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}}, function (err,check_name) {
+          if(err) {
+            return res.send({
+                state:"err",
+                message:"Something went wrong. We are looking into it."
+            },500);
+          }
+          if(check_name == null || check_name.length != 0){
+            res.send({
+              state:"failure",
+              message:"Name already exists"
+            },201);
+          }
+       else{
+        audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
+        // audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
+         audit_checklist.audit_visible_to = req.body.audit_visible_to;
+         audit_checklist.created_at = req.body.created_at;
+         audit_checklist.audit_description = req.body.audit_description;
+         //audit_checklist.checklist_type_id = req.body.checklist_type_id;
+         audit_checklist.save(function (err, audit_checklist){
+            res.send({
+              state:"success",
+              message:"Checklist updated"
+            },200);
+          })
+        }
         })
-        
+       
+      }
+     
     }
-    catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		});
-	}
-})
+   
+    })
+  }
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
 
 // to get checklist by id
 router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) {

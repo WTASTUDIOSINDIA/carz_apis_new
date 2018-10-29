@@ -353,7 +353,7 @@ router.get('/get_question_by_id/:id',function(req,res){
 
 router.put('/update_question', function(req, res) {
     try {
-        Question.findOne({_id:req.body.question_id},function(err,ques){
+        Question.findById({_id:req.body.question_id},function(err,ques){
         if(err) {
           return res.send({
               state:"err",
