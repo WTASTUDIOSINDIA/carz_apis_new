@@ -219,7 +219,7 @@ router.post('/question_list',function(req,res){
             if(ques){
                 return res.send({
                     state:"failure",
-                    message:"Already created this question"
+                    message:"Question already exists"
                 },200);
             }
             else{
@@ -351,51 +351,76 @@ router.get('/get_question_by_id/:id',function(req,res){
 	}
 });
 
-router.put('/update_question',function(req,res){
-    try{
+router.put('/update_question', function(req, res) {
+    try {
         Question.findOne({_id:req.body.question_id},function(err,ques){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message:err
-                },500);
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!ques){
+          res.send({
+            state:"failure",
+            message:"No questions found"
+          },201);
+        }
+        if(ques){
+         if(ques.question_EN == req.body.question_EN){
+            ques.question_EN = req.body.question_EN;
+            ques.options = req.body.options;
+            ques.correct_answer = req.body.correct_answer;
+            ques.question_type = req.body.question_type;
+              ques.save(function (err, ques){
+              res.send({
+                state:"success",
+                message:"Question updated"
+              },200);
+            })
+           
+        }
+        else{
+            Question.find({question_EN: {$regex: new RegExp(req.body.question_EN, 'i')}}, function (err,q_name) {
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
             }
-            if(!ques){
-                return res.send({
-                    state:"failure",
-                    message:"No question found."
-                },200);
+            if(q_name == null || q_name.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
             }
-            if(ques){
-                ques.question_EN = req.body.question_EN;
-                ques.options = req.body.options;
-                ques.correct_answer = req.body.correct_answer;
-                ques.question_type = req.body.question_type;
-                ques.save(function(err,ques){
-                    if(err){
-                        return res.send({
-                            state:"error",
-                            message:err
-                        },500);
-                    }
-                    else{
-                        return res.send({
-                            state:"success",
-                            message:"Question created",
-                            data:ques
-                        },200);
-                    }
-                })
-            }
-        });
+         else{
+          ques.question_EN = req.body.question_EN;
+          ques.options = req.body.options;
+          ques.correct_answer = req.body.correct_answer;
+          ques.question_type = req.body.question_type;
+              ques.save(function (err, ques){
+              res.send({
+                state:"success",
+                message:"Question updated"
+              },200);
+            })
+          }
+          })
+         
+        }
+       
+      }
+     
+      })
     }
     catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		},500);
-	}
-});
+      return res.send({
+        state:"error",
+        message:err
+      });
+    }
+  });
 
 function create_folder(req,res,franchisee_Id,status){
     var folder = new Folder();
