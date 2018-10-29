@@ -374,6 +374,7 @@ router.post('/create_Folder',function(req,res){
                     res.send ({
                         status: 200,
                         message: "Folder created successfully.",
+                        data: folder,
                         state: "success"
                     });
                 }
