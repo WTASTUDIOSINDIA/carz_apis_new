@@ -405,15 +405,15 @@ router.get('/get_save_employee_assessment_type/:employee_id', function (req, res
 });
 
 
-router.get('/get_all_employee_percentage', function (req,res){
-    try{
-        EmployeeAssessmentTypeOfFranchisee.find({employee_id: employee_id}, function (err, percentage){
-            if(err){
-                return res.send(500,err)
-            }
-        })
-    }
-})
+// router.get('/get_all_employee_percentage', function (req,res){
+//     try{
+//         EmployeeAssessmentTypeOfFranchisee.find({employee_id: employee_id}, function (err, percentage){
+//             if(err){
+//                 return res.send(500,err)
+//             }
+//         })
+//     }
+// })
 
 
 // To get all employee percentage
