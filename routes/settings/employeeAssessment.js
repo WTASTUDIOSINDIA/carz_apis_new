@@ -481,7 +481,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
-        EmployeeAssessment.findOne({ question_EN: employeeAssessmentForm.question_EN, _id: employeeAssessmentForm.franchisee_id, question_EN: employeeAssessmentForm.question_EN }, function (err, question) {
+        EmployeeAssessment.findOne({ question_EN: {$regex: new RegExp(employeeAssessmentForm.question_EN,'i')}}, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',
