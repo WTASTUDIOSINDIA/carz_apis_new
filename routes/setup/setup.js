@@ -564,7 +564,7 @@ router.put('/edit_setup_checklist', function(req, res) {
         res.send({
           state:"failure",
           message:"Name already exists."
-        },400);
+        },201);
       }
       if(!checklist){
         let data = {};
