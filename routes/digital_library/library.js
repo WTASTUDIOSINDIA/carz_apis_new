@@ -460,7 +460,7 @@ router.get('/get_marketing_folders/:franchisee_id', function(req, res){
     try{
     Franchisee.findOne({_id: req.params.franchisee_id}, function(err, franchisee){
         if(franchisee){
-            Folder.find({ $or:[{franchisee_Id:req.params.franchisee_id, marketing_folder:true},{franchisor_id:franchisee.franchisor_id, marketing_folder:true} ]}, function(err, folder){
+            Folder.find({ $or:[{franchisee_Id:req.params.franchisee_id, marketing_folder:true},{franchisee_Id:franchisee.franchisor_id, marketing_folder:true} ]}, function(err, folder){
                 if(err){
                   return res.send(500, err);
                 }
