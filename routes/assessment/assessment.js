@@ -60,53 +60,76 @@ router.post('/add_assessment_type',function(req,res){
 });
 
 // to edit question type
-router.put('/update_question_type', function (req, res) {
+router.put('/update_question_type', function(req, res) {
     try {
-        Question_Type.findOne({ question_type_name:{$regex: new RegExp(req.body.question_type_name, 'i')} }, function (err, question_type) {
-        if (err) {
+        Question_Type.findOne({ _id: req.body._id }, function (err, question_type) {     
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!question_type){
           res.send({
-            state: "error",
-            message: "Something went wrong. We are looking into it."
-          }, 500);
+            state:"failure",
+            message:"No question types found"
+          },201);
         }
-        if (question_type) {
-            res.send({
-              state: "failure",
-              message: "Question type exists!"
-            }, 400);
+        if(question_type){
+         if(question_type.question_type_name == req.body.question_type_name){
+            question_type.question_type_name = req.body.question_type_name;
+            question_type.description = req.body.description;
+            question_type.version_id = req.body.version_id;
+            question_type.franchisor_id = req.body.franchisor_id;
+            question_type.save(function (err, question_type){
+              res.send({
+                state:"success",
+                message:"Question type updated"
+              },200);
+            })
+           
+        }
+        else{
+        Question_Type.find({ question_type_name:{$regex: new RegExp(req.body.question_type_name, 'i')} }, function (err, ques_name) {              
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
+            }
+            if(ques_name == null || ques_name.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
+            }
+         else{
+            question_type.question_type_name = req.body.question_type_name;
+            question_type.description = req.body.description;
+            question_type.version_id = req.body.version_id;
+            question_type.franchisor_id = req.body.franchisor_id;
+              question_type.save(function (err, question_type){
+              res.send({
+                state:"success",
+                message:"Question type updated"
+              },200);
+            })
           }
-        if (!question_type) {
-            let data= {};
-            data.question_type_name = req.body.question_type_name;
-            data.description = req.body.description;
-            data.version_id = req.body.version_id;
-            data.franchisor_id = req.body.franchisor_id;
-          console.log(question_type)
-          Question_Type.findByIdAndUpdate(req.body._id, data, {new: true}, function (err, question_type) {
-            if (err) {
-              res.send({
-                state: "err",
-                message: "Something went wrong."
-              }, 500);
-            }
-            else {
-              res.send({
-                state: "success",
-                message: "Question Type updated",
-                data:question_type
-              }, 200);
-            }
-          });
+          })
+         
         }
-      });
+       
+      }
+     
+      })
     }
-    catch (err) {
+    catch(err){
       return res.send({
-        state: "error",
-        message: err
+        state:"error",
+        message:err
       });
     }
-  })
+  });
 
 //in settings to get question types (sections)
 router.get('/question_types/:version_id/:franchisor_id',function(req,res){
@@ -196,7 +219,7 @@ router.post('/question_list',function(req,res){
             if(ques){
                 return res.send({
                     state:"failure",
-                    message:"Already created this question"
+                    message:"Question already exists"
                 },200);
             }
             else{
@@ -235,10 +258,10 @@ router.post('/question_list',function(req,res){
 	}
 });
 
- router.get('/get_question_list/:question_section_id',function(req,res){
+ router.get('/get_question_list/:question_section_id/:franchisor_id',function(req,res){
   //  router.get('/get_question_list',function(req,res){
     try{
-        Question.find({question_section_id: req.params.question_section_id},function(err,ques){
+        Question.find({question_section_id: req.params.question_section_id, franchisor_id: req.params.franchisor_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
@@ -266,28 +289,44 @@ router.post('/question_list',function(req,res){
 		},500);
 	}
 });
-router.get('/get_question_list',function(req,res){
+router.get('/get_question_list_by_franchisor_id/:franchisor_id/:franchisee_id',function(req,res){
     try{
-        Question.find({},function(err,ques){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message:err
-                },500);
-            }
-            if(ques.length == 0){
-                return res.send({
-                    state:"failure",
-                    message:"No questions"
-                },200);
-            }
-            if(ques.length > 0){
-                return res.send({
-                    state:"success",
-                    data:ques
-                },200);
-            }
+        var assessments_ids = [];
+        Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: "f_assessments", default: true}, function(err, version){
+            Question_Type.find({version_id: version._id},function(err,list){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                if(!list){
+                    return res.send({
+                        state:"failure",
+                        message:"There is no data"
+                    },200);
+                }
+                else{
+                    for(var i = 0; i<list.length; i++){
+                        assessments_ids.push(list[i]._id);
+                    }
+                    console.log(assessments_ids[0], '317');
+                    Question.find({question_section_id: {$in: [assessments_ids]}}, function(err, questions){
+                        if(questions){
+                            console.log(questions, '317');
+
+                            return res.send({
+                                state:"success",
+                                data:questions
+                            },200);
+                        }
+                    })                    
+                     
+
+                }
+            });
         })
+        
     }
     catch(err){
 		return res.send({
@@ -328,51 +367,76 @@ router.get('/get_question_by_id/:id',function(req,res){
 	}
 });
 
-router.put('/update_question',function(req,res){
-    try{
-        Question.findOne({_id:req.body.question_id},function(err,ques){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message:err
-                },500);
+router.put('/update_question', function(req, res) {
+    try {
+        Question.findById({_id:req.body.question_id},function(err,ques){
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!ques){
+          res.send({
+            state:"failure",
+            message:"No questions found"
+          },201);
+        }
+        if(ques){
+         if(ques.question_EN == req.body.question_EN){
+            ques.question_EN = req.body.question_EN;
+            ques.options = req.body.options;
+            ques.correct_answer = req.body.correct_answer;
+            ques.question_type = req.body.question_type;
+              ques.save(function (err, ques){
+              res.send({
+                state:"success",
+                message:"Question updated"
+              },200);
+            })
+           
+        }
+        else{
+            Question.find({question_EN: {$regex: new RegExp(req.body.question_EN, 'i')}}, function (err,q_name) {
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
             }
-            if(!ques){
-                return res.send({
-                    state:"failure",
-                    message:"No question found."
-                },200);
+            if(q_name == null || q_name.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
             }
-            if(ques){
-                ques.question_EN = req.body.question_EN;
-                ques.options = req.body.options;
-                ques.correct_answer = req.body.correct_answer;
-                ques.question_type = req.body.question_type;
-                ques.save(function(err,ques){
-                    if(err){
-                        return res.send({
-                            state:"error",
-                            message:err
-                        },500);
-                    }
-                    else{
-                        return res.send({
-                            state:"success",
-                            message:"Question created",
-                            data:ques
-                        },200);
-                    }
-                })
-            }
-        });
+         else{
+          ques.question_EN = req.body.question_EN;
+          ques.options = req.body.options;
+          ques.correct_answer = req.body.correct_answer;
+          ques.question_type = req.body.question_type;
+              ques.save(function (err, ques){
+              res.send({
+                state:"success",
+                message:"Question updated"
+              },200);
+            })
+          }
+          })
+         
+        }
+       
+      }
+     
+      })
     }
     catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		},500);
-	}
-});
+      return res.send({
+        state:"error",
+        message:err
+      });
+    }
+  });
 
 function create_folder(req,res,franchisee_Id,status){
     var folder = new Folder();

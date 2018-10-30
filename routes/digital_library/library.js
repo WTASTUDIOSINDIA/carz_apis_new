@@ -374,6 +374,7 @@ router.post('/create_Folder',function(req,res){
                     res.send ({
                         status: 200,
                         message: "Folder created successfully.",
+                        data: folder,
                         state: "success"
                     });
                 }
@@ -457,23 +458,27 @@ router.get('/get_crm_folders/:franchisee_id', function(req, res){
 
 router.get('/get_marketing_folders/:franchisee_id', function(req, res){
     try{
-     Folder.find({franchisee_Id:req.params.franchisee_id, marketing_folder:true}, function(err, folder){
-        if(err){
-          return res.send(500, err);
+    Franchisee.findOne({_id: req.params.franchisee_id}, function(err, franchisee){
+        if(franchisee){
+            Folder.find({ $or:[{franchisee_Id:req.params.franchisee_id, marketing_folder:true},{franchisee_Id:franchisee.franchisor_id, marketing_folder:true} ]}, function(err, folder){
+                if(err){
+                  return res.send(500, err);
+                }
+                if(folder){
+                  res.send({
+                      state:"success",
+                      data:folder
+                  },200);
+                }
+                else {
+                  res.send({
+                      state:"failure",
+                      data:[]
+                  });
+                }
+              })
         }
-        if(folder){
-          res.send({
-              state:"success",
-              data:folder
-          },200);
-        }
-        else {
-          res.send({
-              state:"failure",
-              data:[]
-          });
-        }
-      })
+    })     
     }
        catch(err){
         return res.send({
@@ -489,6 +494,7 @@ router.put('/edit_folder', function(req, res, next){
   var folderEditForm = req.body;
 
   try{
+    
     Folder.findOne({'_id': folderEditForm._id}, function(err, folder){
       if(err){
         return res.send({
@@ -497,33 +503,31 @@ router.put('/edit_folder', function(req, res, next){
               message:"Something went wrong.We are looking into it."
           });
       }
-
+     
       if(folder){
         folder.folder_name = folderEditForm.folder_name
         folder.save(function(err, folder){
           if(err){
             res.send({
-               status:500,
                state:"err",
                message:"Something went wrong."
-           });
+           },500);
         }
         else{
             res.send({
-                status:200,
                 state:"success",
                 message:"Folder Updated."
-            });
+            },200);
         }
       });
-
     }
     if(!folder){
         res.send({
             state:'failure',
-            message:'Failed to edit'
+            message:'Failed to update'
         },400);
     }
+   
 
   })
 }
@@ -630,7 +634,7 @@ router.put('/delete_folder_by_Id',function(req,res){
 
 // To create common folder
 router.post('/create_common_folder',function(req,res){
-    Folder.findOne({folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
                 status: 500,

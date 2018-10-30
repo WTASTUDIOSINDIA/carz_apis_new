@@ -96,7 +96,7 @@ router.put('/update_setup_department', function(req, res){
     res.send({
         state:"failure",
         message:"Department name already exists!"
-    },400);
+    },201);
 }
   if (!department){
     let data={};
@@ -161,7 +161,7 @@ router.post('/create_setup_checklist', function (req, res) {
           else {
             SetupDepartment.findById({_id:req.body.setup_department_id},function(err, department){
               console.log(department, "116");
-              department.tasks_length =  department.tasks_length+1;
+              department.checklists_length =  department.checklists_length-1;
               department.save(function (err, department){
                 console.log(department, "119");
               })
@@ -360,7 +360,7 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
         console.log(checklist, "216");
         SetupDepartment.findById({_id:checklist.setup_department_id},function(err, department){
           console.log(department, "218");
-          department.tasks_length =  department.tasks_length-1;
+          department.checklists_length =  department.checklists_length-1;
           department.save(function (err, department){
             console.log(department, "221");
           })
@@ -551,43 +551,66 @@ router.delete('/delete_checklist_task/:task_id', function (req, res) {
 //To edit setup checklists
 router.put('/edit_setup_checklist', function(req, res) {
   try {
-    SetupChecklist.findOne({setup_checklist_name_EN: {$regex: new RegExp(req.body.setup_checklist_name_EN, 'i')}}, function (err,checklist) {
-      console.log(req.body);
-      console.log(err);
+    SetupChecklist.findById({_id: req.body._id}, function (err,checklist) {
       if(err) {
         return res.send({
             state:"err",
             message:"Something went wrong. We are looking into it."
         },500);
       }
-      if(checklist){
+      if(!checklist){
         res.send({
           state:"failure",
-          message:"Name already exists."
-        },400);
+          message:"No checklists found"
+        },201);
       }
-      if(!checklist){
-        let data = {};
-        data.setup_checklist_name = req.body.setup_checklist_name_EN;
-        data.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
-        data.visible_to = req.body.visible_to;
-        data.setup_department_id = req.body.setup_department_id;
-        data.created_at = Date.now();
-        SetupChecklist.findByIdAndUpdate(req.body._id, data, {new: true}, function(err, ver){
-          if(err){
-            res.send({
-              state:"err",
-              message:"Something went wrong."
-            },500);
-          }
-          else{
+      if(checklist){
+       if(checklist.setup_checklist_name_EN == req.body.setup_checklist_name_EN){
+        checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
+        checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
+        checklist.visible_to = req.body.visible_to;
+        checklist.setup_department_id = req.body.setup_department_id;
+        checklist.created_at = Date.now();
+            checklist.save(function (err, checklist){
             res.send({
               state:"success",
-              message:"Setup checklist updated."
+              message:"Setup checklist updated"
             },200);
-          }
-        });
+          })
+         
       }
+      else{
+        SetupChecklist.find({setup_checklist_name_EN: {$regex: new RegExp(req.body.setup_checklist_name_EN, 'i')}}, function (err,check_name) {
+          if(err) {
+            return res.send({
+                state:"err",
+                message:"Something went wrong. We are looking into it."
+            },500);
+          }
+          if(check_name.length != 0){
+            res.send({
+              state:"failure",
+              message:"Name already  exists"
+            },201);
+          }
+       else{
+        checklist.setup_checklist_name = req.body.setup_checklist_name_EN;
+        checklist.setup_checklist_name_EN = req.body.setup_checklist_name_EN;
+        checklist.visible_to = req.body.visible_to;
+        checklist.setup_department_id = req.body.setup_department_id;
+        checklist.created_at = Date.now();
+            checklist.save(function (err, checklist){
+            res.send({
+              state:"success",
+              message:"Setup checklist updated"
+            },200);
+          })
+        }
+        })
+       
+      }
+     
+    }
    
     })
   }
@@ -731,7 +754,7 @@ router.post('/upload_setup_checklist_task_file',  fileupload, function  (req,res
               document.link = file[i].location;
               document.key = file[i].key;
               document.file_name = file[i].originalname;
-              document.files_type = "doc";
+              // document.files_type = "doc";
               if (file[i].mimetype == "application/pdf") {
                   document.file_type = "pdf";
               }
@@ -868,7 +891,7 @@ router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, r
       return res.send({
         status: 'failure',
         message: "No tasks are completed!"
-      },400);
+      },201);
     }
     if (tasks.length > 0) {
       return res.send({
@@ -977,8 +1000,7 @@ router.get('/get_versions_by_department_id/:department_id', function (req, res) 
 // To edit versions
 router.put('/edit_version', function(req, res){
   try {
-    console.log(req.body.version_name,'------------------------------++++');
-    Versions.findOne({'version_name': {$regex: new RegExp(req.body.version_name,'i')}}, function(err, version){
+    Versions.findOne({_id: req.body._id}, function(err, version){
       if(err){
         return res.send({
             state: "failure",

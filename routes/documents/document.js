@@ -112,25 +112,39 @@ router.get('/get_uploaded_files/:franchisee_Id/:stage_name',function(req,res){
         }
     });
 });
-router.get('/get_business_type_list_by_franchisor/:franchisor_id' ,function(req,res){
+router.get('/get_business_type_list_by_franchisor/:franchisor_id', async function(req,res){
     try{
         var version_id = '';
-        FranchiseeType.find({},function(err,type){
-            if(err){
-                return res.send({
-                    state:"err",
-                    message:"Something went wrong.We are looking into it."
-                },500);
+     await   Versions.findOne({version_type : 'kyc_docs', default: true, franchisor_id: req.params.franchisor_id},async function(err, version){
+            if(version){
+                
+          await      FranchiseeType.find({version_id: version._id, franchisor_id: req.params.franchisor_id},function(err,type){
+            console.log(type, "version_id of default");
+                    if(err){
+                        return res.send({
+                            state:"err",
+                            message:"Something went wrong.We are looking into it."
+                        },500);
+                    }
+                    else{
+        
+                        return res.send({
+                            state:"success",
+                            data:type
+                        },200);
+                    }
+        
+                })
             }
-            else{
-
+            else {
                 return res.send({
-                    state:"success",
-                    data:type
-                },200);
+                    state:"failure",
+                    message:"Business Types are not defined or May be Version is not default in Settings"
+                },201);
             }
-
-        })
+            
+        });
+        
     }
     catch(err){
         res.send({
@@ -250,7 +264,7 @@ router.get('/get_business_types_list/:version_id',function(req,res){
 });
 router.post('/set_business_type',function(req,res){
     try{
-        FranchiseeType.findOne({bussiness_type_name:req.body.bussiness_type_name},function(err,type){
+        FranchiseeType.findOne({'bussiness_type_name':{$regex: new RegExp(req.body.bussiness_type_name,'i')}},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -260,8 +274,8 @@ router.post('/set_business_type',function(req,res){
             if(type){
                 return res.send({
                     state:"failure",
-                    message:"Business type with this name exist."
-                },400);
+                    message:"name already exists."
+                },201);
             }
             else{
                 var document_list = new FranchiseeType();
@@ -295,57 +309,78 @@ router.post('/set_business_type',function(req,res){
         },500);
     }
 });
-router.put('/update_franchisee_type', function(req, res, next) {
+router.put('/update_franchisee_type', function(req, res) {
     var franchiseeTypeEdit = req.body;
-    console.log(req.body);
-    try{
-        FranchiseeType.findOne({_id:franchiseeTypeEdit._id},function(err,type){
-            console.log('franchiseeTypeEdit', franchiseeTypeEdit);
-            if(err){
-                return res.send({
-                        state:"err",
-                        message:"Something went wrong.We are looking into it."
-                    },500);
+    try {
+        FranchiseeType.findById({_id:franchiseeTypeEdit._id},function(err,type){      
+        if(err) {
+          return res.send({
+              state:"err",
+              message:"Something went wrong. We are looking into it."
+          },500);
+        }
+        if(!type){
+          res.send({
+            state:"failure",
+            message:"No types found"
+          },201);
+        }
+        if(type){
+         if(type.bussiness_type_name == req.body.bussiness_type_name){
+            type.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
+            type.description=franchiseeTypeEdit.description;
+            type.save(function(err,type){
+              res.send({
+                state:"success",
+                message:"Business Type updated"
+              },200);
+            })
+           
+        }
+        else{
+            FranchiseeType.find({bussiness_type_name: {$regex: new RegExp(req.body.bussiness_type_name, 'i')}}, function (err,type_name) {
+            if(err) {
+              return res.send({
+                  state:"err",
+                  message:"Something went wrong. We are looking into it."
+              },500);
             }
-            if(type){
-                type.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
-                type.description=franchiseeTypeEdit.description;
-                type.save(function(err,type){
-                   if(err){
-                     res.send({
-                        state:"err",
-                        message:"Something went wrong."
-                    },500);
-                   }
-                else{
-                    res.send({
-                        state:"success",
-                        message:"FranchiseeType Updated.",
-                        data: type
-                    },200);
-                }
-                });
+            if(type_name == null || type_name.length != 0){
+              res.send({
+                state:"failure",
+                message:"Name already exists"
+              },201);
             }
-            if(!type){
-                res.send({
-                    state:"failure",
-                    message:"Failed to edit."
-                },400);
-            }
-        })
+         else{
+            type.bussiness_type_name=franchiseeTypeEdit.bussiness_type_name;
+            type.description=franchiseeTypeEdit.description;
+            type.save(function(err,type_name){
+              res.send({
+                state:"success",
+                message:"Business Type updated"
+              },200);
+            })
+          }
+          })
+         
+        }
+       
+      }
+     
+      })
     }
     catch(err){
-		return res.send({
-			state:"error",
-			message:err
-		});
-	}
-});
+      return res.send({
+        state:"error",
+        message:err
+      });
+    }
+  });
 
 
 router.post('/create_business_type',function(req,res){
     try{
-        FranchiseeTypeList.findOne({doc_name:req.body.doc_name,businessType_id:req.body.businessType_id},function(err,type){
+        FranchiseeTypeList.findOne({'doc_name':{$regex: new RegExp(req.body.doc_name,'i')},businessType_id:req.body.businessType_id},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
@@ -356,7 +391,7 @@ router.post('/create_business_type',function(req,res){
                 return res.send({
                     state:"failure",
                     message:"Franchisee type with this name exist."
-                },400);
+                },201);
             }
             else{
                 var document_list_types = new FranchiseeTypeList();

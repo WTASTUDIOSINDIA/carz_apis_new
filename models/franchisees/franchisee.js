@@ -203,7 +203,7 @@ var thirdPartyFileSchema =new mongoose.Schema({
 var BussinessTypeSchema = new mongoose.Schema({
     "bussiness_type_name": String,
     "description": String,
-    "version_id": String,
+    "version_id": { type: Schema.Types.ObjectId, ref: 'Versions'},
     "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
 });
 
@@ -313,8 +313,8 @@ var CampaignSchema = new mongoose.Schema({
     }],
     
     'visible_to':String,
-    'visible_to_franchisee_id':{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    'visible_to_franchisee_name': { type: Schema.Types.ObjectId, ref: 'Franchisee'}, 
+    'visible_to_franchisee_id':Array,
+    'visible_to_franchisee_name': Array, 
     'amount_spent':String,
     'leads_generated': String,
     'footfalls':String,

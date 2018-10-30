@@ -235,51 +235,77 @@ router.delete('/delete_version/:version_id', function(req, res){
     }, 500);
   }
 })
-router.put('/edit_version', function(req, res){
+
+router.put('/edit_version', function(req, res) {
   try {
-    Versions.findOne({version_name:{$regex: new RegExp (req.body.version_name,'i')}, version_type: req.body.version_type}, function(err, version){
-      if(err){
+    Versions.findById({_id: req.body._id}, function (err,version) {
+      if(err) {
         return res.send({
-            state: "failure",
-            message: err
-        }, 500);
-      }
-      if(version){
-        return res.send({
-            state: "failure",
-            message: "Name already exists!"
-        }, 200);
+            state:"err",
+            message:"Something went wrong. We are looking into it."
+        },500);
       }
       if(!version){
-        let data ={};
-        data.version_name = req.body.version_name;
-        data.version_description = req.body.version_description;
-        data.version_type = req.body.version_type;
-        data.franchisor_id = req.body.franchisor_id;
-        data.default = req.body.default;
-        Versions.findByIdAndUpdate(req.body._id, data, {new: true} ,function(err, version){
-          if(err){
-            return res.send({
-                state: 'err',
-                message: 'Something went wrong'
-            }, 500);
-          }
-          else{
-            return res.send({
-                state: "success",
-                message: "Version updated succssfully!",
-                data: version
-            }, 200);
-          }
-        })
+        res.send({
+          state:"failure",
+          message:"No versions found"
+        },201);
       }
-
+      if(version){
+       if(version.version_name == req.body.version_name){
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.default = req.body.default;
+            version.save(function (err, version){
+            res.send({
+              state:"success",
+              message:"Version updated"
+            },200);
+          })
+         
+      }
+      else{
+        Versions.find({version_name: {$regex: new RegExp(req.body.version_name, 'i')}}, function (err,version_name) {
+          if(err) {
+            return res.send({
+                state:"err",
+                message:"Something went wrong. We are looking into it."
+            },500);
+          }
+          if(version_name == null || version_name.length != 0){
+            res.send({
+              state:"failure",
+              message:"Name already exists"
+            },201);
+          }
+       else{
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.default = req.body.default;
+            version.save(function (err, version){
+            res.send({
+              state:"success",
+              message:"Version updated"
+            },200);
+          })
+        }
+        })
+       
+      }
+     
+    }
+   
     })
-  } catch (err){
-    return res.send({
-      state: "failure",
-      message: err
-    }, 500);
   }
-})
+  catch(err){
+    return res.send({
+      state:"error",
+      message:err
+    });
+  }
+});
 module.exports = router;
