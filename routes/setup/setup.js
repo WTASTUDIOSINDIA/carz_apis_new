@@ -161,8 +161,8 @@ router.post('/create_setup_checklist', function (req, res) {
           else {
             SetupDepartment.findById({ _id: req.body.setup_department_id }, function (err, department) {
               console.log(department, "116");
-              department.tasks_length = department.tasks_length + 1;
-              department.save(function (err, department) {
+              department.checklists_length =  department.checklists_length-1;
+              department.save(function (err, department){
                 console.log(department, "119");
               })
             })
@@ -360,8 +360,8 @@ router.delete('/delete_setup_checklist/:checklist_id', function (req, res) {
         console.log(checklist, "216");
         SetupDepartment.findById({ _id: checklist.setup_department_id }, function (err, department) {
           console.log(department, "218");
-          department.tasks_length = department.tasks_length - 1;
-          department.save(function (err, department) {
+          department.checklists_length =  department.checklists_length-1;
+          department.save(function (err, department){
             console.log(department, "221");
           })
         })
@@ -891,7 +891,7 @@ router.get('/get_completed_tasks/:checklist_id/:franchisee_id', function (req, r
       return res.send({
         status: 'failure',
         message: "No tasks are completed!"
-      }, 400);
+      },201);
     }
     if (tasks.length > 0) {
       return res.send({
