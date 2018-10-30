@@ -327,9 +327,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
         //     }
         //   }
         // }
-        console.log('777777777777',req.files.file_upload);
         if (req.files.file_upload) {
-        console.log('99999999',req.files.file_upload);
           for (var i = 0; i < req.files.file_upload.length; i++) {
             for (var j = 0; j < application_form.application_list.length; j++) {
               if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
@@ -337,7 +335,6 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 application_form.application_list[j].key = req.files.file_upload[i].key;
                 application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
                 // application_form.application_list.file_type[j] = "doc";
-              console.log('88888888',req.files.file_upload);
 
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
@@ -346,8 +343,6 @@ router.put('/submit_application', cpUpload, function (req, res) {
                   application_form.application_list[j].file_type = "image";
               }
               i++;
-
-                console.log('55555555',application_form);
               }
             }
           }
@@ -368,7 +363,6 @@ router.put('/submit_application', cpUpload, function (req, res) {
                 console.log(stage);
               })
             })
-            // console.log('++++++++++++++++++++++++',data);
             return res.send({
               state: "success",
               message: "application submitted.",
@@ -396,7 +390,6 @@ router.put('/submit_application', cpUpload, function (req, res) {
               if (req.files.file_upload[i].mimetype  == "image/png" || req.files.file_upload[i].mimetype  == "image/jpg" || req.files.file_upload[i].mimetype  == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
                 application_form.application_list[j].file_type = "image";
               }
-                console.log('4444444444',application_form);
               }
             }
 
@@ -416,7 +409,6 @@ router.put('/submit_application', cpUpload, function (req, res) {
             Stages.findOne({ franchisee_id: application_stats.franchisee_Id }, function (err, stage) {
               stage.stage_discussion.application_status = application_form.application_status;
               stage.save(function (err, stage) {
-                console.log(stage);
               })
             })
             return res.send({
