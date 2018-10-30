@@ -163,8 +163,6 @@ router.get('/get_franchisees/:franchisor_id', function (req, res) {
 });
 
 router.get('/get_franchisees_new', function (req, res) {
-    console.log("-----ch-----");
-    console.log("----",req.query);
    
         let query;
         let sk;
@@ -242,26 +240,7 @@ router.get('/get_franchisees_new', function (req, res) {
             }
         })
     })
-    //   count: function (cb) {
-    //     var returnedBlogs
-        
-    //     if (req.query.search) {
-          
-    //       const findConditions = Object.assign({}, {$text: {$search: req.query.search}})
-    //       returnedBlogs = Franchisee.find(findConditions)
-          
-    //     } else {
-          
-    //       returnedBlogs = Franchisee.find()
-          
-    //     }
-    //     returnedBlogs
-    //       .where(req.query.where || '')
-    //       .count()
-    //       .exec(cb)
-    //   }
    
- 
   
     router.get('/get_franchisees_new_one', function (req, res) {
     
@@ -286,17 +265,32 @@ router.get('/get_franchisees_new', function (req, res) {
         if (data_query.search) {
 
             if(data_body.lead_type){
+                if(data_body.franchisee_franchise_type){
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type,$text: {$search: data_query.search}})
+                }else{
                 query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,$text: {$search: data_query.search}})
+                }
             }else{
-          
-          query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,$text: {$search: data_query.search}})
+                if(data_body.franchisee_franchise_type){
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type,$text: {$search: data_query.search}})
+                }else{
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,$text: {$search: data_query.search}})
             }
+        }
           
         } else {
             if(data_body.lead_type){
-            query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type});
+                if(data_body.franchisee_franchise_type){
+                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type});
+                }else{
+                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type});
+                }    
+        }else{
+            if(data_body.franchisee_franchise_type){
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type});
             }else{
                 query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id});  
+            }
             }
         }
         console.log(data_body.franchisor_id);
@@ -316,7 +310,7 @@ router.get('/get_franchisees_new', function (req, res) {
             if (!franchiees) {
                 console.log("not found");
                 res.send({
-                    "status": 400,
+                    "status": 200,
                     "message": "Franchiees not found",
                     "message": "failure",
                     "franchisees_list": []
@@ -335,7 +329,7 @@ router.get('/get_franchisees_new', function (req, res) {
                   if (!count) {
                       console.log("not found");
                       res.send({
-                          "status": 400,
+                          "status": 200,
                           "message": "Franchiees not found",
                           "message": "failure",
                           "franchisees_list": []
