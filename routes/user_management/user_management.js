@@ -45,19 +45,19 @@ var fileupload = upload.fields([{
 router.post('/create_user', function (req, res) {
     let userCreateForm = req.body;
     // try {
-      Admin.findOne({ franchisor_id:userCreateForm.franchisor_id }, function (err, user) {
+      Admin.findOne({ user_mail:userCreateForm.user_mail, user_phone_number:userCreateForm.user_phone_number}, function (err, user) {
         if (err) {
           res.send({
             state: "error",
             message: "Something went wrong."
           }, 500);
         }
-        // if (user) {
-        //   res.send({
-        //     state: "failure",
-        //     message: "This user already exists."
-        //   }, 400);
-        // }
+        if (user) {
+          res.send({
+            state: "failure",
+            message: "This details already exists."
+          }, 201);
+        }
         else {
           user = new Admin();
            if(userCreateForm.user_img){
@@ -126,6 +126,72 @@ router.post('/create_user', function (req, res) {
     //   });
     // }
   })
+
+//validate user email
+router.post('/validate_user_mail', function (req, res) {
+  try {
+      Admin.findOne({ 'user_mail': req.body.user_mail }, function (err, user) {
+          if (err) {
+              return res.send({
+                  state: "error",
+                  message: err
+              }, 500);
+          }
+          if (user) {
+              return res.send({
+                  state: "failure",
+                  message: "This email already exists!"
+              }, 400);
+          }
+          else {
+              return res.send({
+                  state: "success",
+                  message: "Success!"
+              }, 200);
+          }
+      });
+  }
+  catch (err) {
+      return res.send({
+          state: "error",
+          message: err
+      }, 500);
+  }
+});
+
+
+//validate user email
+router.post('/validate_user_phone_number', function (req, res) {
+  try {
+      Admin.findOne({ 'user_phone_number': req.body.user_phone_number }, function (err, user) {
+          if (err) {
+              return res.send({
+                  state: "error",
+                  message: err
+              }, 500);
+          }
+          if (user) {
+              return res.send({
+                  state: "failure",
+                  message: "This number already exists!"
+              }, 400);
+          }
+          else {
+              return res.send({
+                  state: "success",
+                  message: "Success!"
+              }, 200);
+          }
+      });
+  }
+  catch (err) {
+      return res.send({
+          state: "error",
+          message: err
+      }, 500);
+  }
+});
+
 
   router.put('/update_user', function (req, res, next) {
     let userEditForm = req.body;

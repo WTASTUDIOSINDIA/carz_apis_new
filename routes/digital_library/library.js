@@ -594,7 +594,7 @@ router.put('/delete_file_by_Id',function(req,res){
         if(err){
             res.send ({
                 status: 500,
-                message: "File deleted successfully.",
+                message: "Error.",
                 state: "error"
             });
         }

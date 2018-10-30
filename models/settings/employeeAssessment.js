@@ -84,7 +84,8 @@ var employeeDetailsSchema = new mongoose.Schema({
     'evaluated_employee': {type: Boolean, default: false},
     'created_on' : { type: Date, default: Date.now },
     'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    'employee_id': { type: Schema.Types.ObjectId, ref: 'Employee' }
+    'employee_id': { type: Schema.Types.ObjectId, ref: 'Employee' },
+    'pass_percentage': Number
 })
 var sectionsSchema = new mongoose.Schema({
     "section_name":String,
