@@ -19,6 +19,8 @@ var Meeting = mongoose.model('Meeting');
 var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
+
+var auto = require('run-auto');
 // var Discussion = mongoose.model('Discussion');
 // import { utils } from '../../common/utils';
 var utils = require('../../common/utils');
@@ -160,6 +162,193 @@ router.get('/get_franchisees/:franchisor_id', function (req, res) {
     }
 });
 
+router.get('/get_franchisees_new', function (req, res) {
+   
+        let query;
+        let sk;
+        let lt;
+        if(req.query.skip){
+            sk=Number(req.query.skip);
+        }else{
+            sk = '';   
+        }
+
+        if(req.query.limit){
+            lt=Number(req.query.limit);
+        }else{
+            lt = '';   
+        }
+        
+        if (req.query.search) {
+          
+          query =  Object.assign(req.query.filter || '',{$text: {$search: req.query.search}})
+          
+        } else {
+            if(req.query.filter){
+            query = req.query.filter || '';
+            }
+        }
+ 
+        Franchisee
+          .find(query)
+          .sort(req.query.sort || '')
+          .select(req.query.select || '')
+          .limit(lt || '')
+          .skip(sk || '')
+          .exec(function (err, franchiees) {
+            if (err) {
+                console.log(err);
+                return res.send(500, err);
+            }
+            if (!franchiees) {
+                console.log("not found");
+                res.send({
+                    "status": 400,
+                    "message": "Franchiees not found",
+                    "message": "failure",
+                    "franchisees_list": []
+                }, 404);
+            }
+            else {
+                Franchisee
+                .find(query)
+                .count()
+                .exec(function (err, count) {
+                  if (err) {
+                      console.log(err);
+                      return res.send(500, err);
+                  }
+                  if (!count) {
+                      console.log("not found");
+                      res.send({
+                          "status": 400,
+                          "message": "Franchiees not found",
+                          "message": "failure",
+                          "franchisees_list": []
+                      }, 404);
+                  }
+                  else {
+                      console.log(count);
+                      res.send({
+                          status: "200",
+                          state: "success",
+                          items: franchiees,
+                          count: count
+                      }, 200);
+                  }
+              })
+            }
+        })
+    })
+   
+  
+    router.get('/get_franchisees_new_one', function (req, res) {
+    
+        let query;
+        let sk;
+        let lt;
+        let data_body = req.query;
+        let data_query = req.query;
+        if(data_query.skip){
+            sk=Number(data_query.skip);
+        }else{
+            sk = 0;   
+        }
+
+        if(data_query.limit){
+            lt=Number(data_query.limit);
+        }else{
+            lt = '';   
+        }
+
+    
+        if (data_query.search) {
+
+            if(data_body.lead_type){
+                if(data_body.franchisee_franchise_type){
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type,$text: {$search: data_query.search}})
+                }else{
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,$text: {$search: data_query.search}})
+                }
+            }else{
+                if(data_body.franchisee_franchise_type){
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type,$text: {$search: data_query.search}})
+                }else{
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,$text: {$search: data_query.search}})
+            }
+        }
+          
+        } else {
+            if(data_body.lead_type){
+                if(data_body.franchisee_franchise_type){
+                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type});
+                }else{
+                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type});
+                }    
+        }else{
+            if(data_body.franchisee_franchise_type){
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type});
+            }else{
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id});  
+            }
+            }
+        }
+        console.log(data_body.franchisor_id);
+        console.log(query);
+        Franchisee
+          .find(query)
+          .sort(data_query.sort || '')
+          .select(data_query.select || '')
+          .limit(lt || '')
+          .skip(sk || '')
+          .lean()
+          .exec(function (err, franchiees) {
+            if (err) {
+                console.log(err);
+                return res.send(500, err);
+            }
+            if (!franchiees) {
+                console.log("not found");
+                res.send({
+                    "status": 200,
+                    "message": "Franchiees not found",
+                    "message": "failure",
+                    "franchisees_list": []
+                }, 404);
+            }
+            else {
+                Franchisee
+                .find(query)
+                .count()
+                .lean()
+                .exec(function (err, count) {
+                  if (err) {
+                      console.log(err);
+                      return res.send(500, err);
+                  }
+                  if (!count) {
+                      console.log("not found");
+                      res.send({
+                          "status": 200,
+                          "message": "Franchiees not found",
+                          "message": "failure",
+                          "franchisees_list": []
+                      }, 404);
+                  }
+                  else {
+                      console.log(count);
+                      res.send({
+                          status: "200",
+                          state: "success",
+                          items: franchiees,
+                          count: count,
+                          skip:sk
+                      }, 200);
+                  }
+              })
+            }
+        })
+    })
 
 //get franchisee by id
 router.get('/get_franchisee/:id', function (req, res) {
