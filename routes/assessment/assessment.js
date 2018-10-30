@@ -258,10 +258,10 @@ router.post('/question_list',function(req,res){
 	}
 });
 
- router.get('/get_question_list/:question_section_id',function(req,res){
+ router.get('/get_question_list/:question_section_id/:franchisor_id',function(req,res){
   //  router.get('/get_question_list',function(req,res){
     try{
-        Question.find({question_section_id: req.params.question_section_id},function(err,ques){
+        Question.find({question_section_id: req.params.question_section_id, franchisor_id: req.params.franchisor_id},function(err,ques){
             if(err){
                 return res.send({
                     state:"error",
@@ -289,28 +289,44 @@ router.post('/question_list',function(req,res){
 		},500);
 	}
 });
-router.get('/get_question_list',function(req,res){
+router.get('/get_question_list_by_franchisor_id/:franchisor_id/:franchisee_id',function(req,res){
     try{
-        Question.find({},function(err,ques){
-            if(err){
-                return res.send({
-                    state:"error",
-                    message:err
-                },500);
-            }
-            if(ques.length == 0){
-                return res.send({
-                    state:"failure",
-                    message:"No questions"
-                },200);
-            }
-            if(ques.length > 0){
-                return res.send({
-                    state:"success",
-                    data:ques
-                },200);
-            }
+        var assessments_ids = [];
+        Versions.findOne({franchisor_id: req.params.franchisor_id, version_type: "f_assessments", default: true}, function(err, version){
+            Question_Type.find({version_id: version._id},function(err,list){
+                if(err){
+                    return res.send({
+                        state:"error",
+                        message:err
+                    },500);
+                }
+                if(!list){
+                    return res.send({
+                        state:"failure",
+                        message:"There is no data"
+                    },200);
+                }
+                else{
+                    for(var i = 0; i<list.length; i++){
+                        assessments_ids.push(list[i]._id);
+                    }
+                    console.log(assessments_ids[0], '317');
+                    Question.find({question_section_id: {$in: [assessments_ids]}}, function(err, questions){
+                        if(questions){
+                            console.log(questions, '317');
+
+                            return res.send({
+                                state:"success",
+                                data:questions
+                            },200);
+                        }
+                    })                    
+                     
+
+                }
+            });
         })
+        
     }
     catch(err){
 		return res.send({
