@@ -344,11 +344,11 @@ router.get('/get_franchisees_new', function (req, res) {
                 .lean()
                 .exec(function (err, count) {
                   if (err) {
-                      console.log(err);
+                      
                       return res.send(500, err);
                   }
                   if (!count) {
-                      console.log("not found");
+                      
                       res.send({
                           "status": 200,
                           "message": "Franchiees not found",
