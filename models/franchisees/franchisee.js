@@ -327,7 +327,7 @@ var CampaignSchema = new mongoose.Schema({
     'campaign_status': String
 });
 
-franchiseeSchema.index({franchisee_name: 'text'})
+franchiseeSchema.index({franchisee_name: 'text',partner_name:'text',franchisee_address:'text',franchisee_city:'text',franchisee_pincode:'text',franchisee_franchise_type:'text'}, {unique: true})
 // franchiseeSchema.index({partner_name: 'text'})
 // franchiseeSchema.index({franchisee_address: 'text'})
 // franchiseeSchema.index({franchisee_city: 'text'})
