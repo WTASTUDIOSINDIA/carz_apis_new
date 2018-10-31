@@ -85,34 +85,59 @@ router.post('/create_setup_department', function (req, res) {
 // To update setup department
 router.put('/update_setup_department', function (req, res) {
   try {
-    SetupDepartment.findOne({ setup_department_name_EN: { $regex: new RegExp(req.body.setup_department_name_EN, 'i') } }, function (err, department) {
+    SetupDepartment.findOne({  _id: req.body._id }, function (err, department) {
       if (err) {
         return res.send({
           state: "err",
-          message: "Something went wrong.We are looking into it.",
-          data: err
+          message: "Something went wrong. We are looking into it."
         }, 500);
       }
-      if (department) {
+      if (!department) {
         res.send({
           state: "failure",
-          message: "Department name already exists!"
+          message: "No departments found"
         }, 201);
       }
-      if (!department) {
-        let data = {};
-        data.setup_department_name_EN = req.body.setup_department_name_EN;
-        data.franchisor_id = req.body.franchisor_id;
-        SetupDepartment.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, dep) {
-
-          if (dep) {
+      if (department) {
+        if (department.setup_department_name_EN == req.body.setup_department_name_EN) {
+          department.setup_department_name_EN = req.body.setup_department_name_EN;
+          department.franchisor_id = req.body.franchisor_id;
+          department.save(function (err, department) {
             res.send({
               state: "success",
-              message: "Department Updated.",
-              data: department
+              message: "Setup department updated"
             }, 200);
-          }
-        });
+          })
+
+        }
+        else {
+          SetupDepartment.find({ setup_department_name_EN: { $regex: new RegExp(req.body.setup_department_name_EN, 'i') } }, function (err, dep_name) {
+            if (err) {
+              return res.send({
+                state: "err",
+                message: "Something went wrong. We are looking into it."
+              }, 500);
+            }
+            if (dep_name.length != 0) {
+              res.send({
+                state: "failure",
+                message: "Name already  exists"
+              }, 201);
+            }
+            else {
+              department.setup_department_name_EN = req.body.setup_department_name_EN;
+              department.franchisor_id = req.body.franchisor_id;
+              department.save(function (err, department) {
+                res.send({
+                  state: "success",
+                  message: "Setup department updated"
+                }, 200);
+              })
+            }
+          })
+
+        }
+
       }
 
     })
@@ -123,7 +148,7 @@ router.put('/update_setup_department', function (req, res) {
       message: err
     });
   }
-})
+});
 
 
 //To create setup checklist
