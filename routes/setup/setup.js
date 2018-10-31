@@ -4,6 +4,7 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var multer = require('multer');
 var path = require('path');
+const objectId = mongoose.Types.ObjectId;
 var Partner = mongoose.model('Partner');
 var SetupTask = mongoose.model('SetupTask');
 var SetupDepartment = mongoose.model('SetupDepartment');
@@ -161,7 +162,7 @@ router.post('/create_setup_checklist', function (req, res) {
           else {
             SetupDepartment.findById({_id:req.body.setup_department_id},function(err, department){
               console.log(department, "116");
-              department.checklists_length =  department.checklists_length-1;
+              department.checklists_length =  department.checklists_length+1;
               department.save(function (err, department){
                 console.log(department, "119");
               })
@@ -185,31 +186,77 @@ router.post('/create_setup_checklist', function (req, res) {
 })
 //To get setup departments by franchisor id
 router.get('/get_setup_departments/:franchisor_id', function (req, res) {
-  try {
-    SetupDepartment.find({ franchisor_id: req.params.franchisor_id }, function (err, departments) {
-      if (err) {
-        return res.send(500, err);
-      }
-      if (!departments) {
-        res.send({
-          message: "Departments are not found",
-          state: "failure",
-        }, 201);
-      }
-      else {
-        res.send({
-          state: "success",
-          data: departments
-        }, 200);
-      }
-    })
+  // try {
+    // SetupDepartment.aggregate([{
+    //   $match: {
+    //     $and: [
+    //       {franchisor_id : req.params.franchisor_id}
+    //     ]
+    //   }
+    //   { $group: { _id: null, count: { $sum: 1 } } }
+    var query = {
+      "franchisor_id" : mongoose.Types.ObjectId(req.params.franchisor_id)
+    };
+    
+    // }])
+  SetupDepartment.aggregate([{
+    $match: {          
+        "franchisor_id" : mongoose.Types.ObjectId(req.params.franchisor_id)          
+        },
+      },
+      {
+    $lookup: {
+      from: "setupchecklists",
+      localField: "_id",
+      foreignField: "setup_department_id",
+      as: "setupchecklists"
+    } 
+    }
+    ,
+   
+    {
+        $addFields:
+        {checklists_length:{$size:"$setupchecklists"}
+        }
+    },
+    {
+      $project: {setupchecklists: 0}        
+      
   }
-  catch (err) {
-    return res.send({
-      state: "error",
-      message: err
-    });
-  }
+  ]).exec().then((departments) => {
+      res.send({
+              state: "success",
+              data: departments
+            }, 200);
+  })
+  .catch((err) => {
+    console.log(err)
+    return res.json(500, err)
+})
+    // SetupDepartment.find({ franchisor_id: req.params.franchisor_id }, function (err, departments) {
+    //   if (err) {
+    //     return res.send(500, err);
+    //   }
+    //   if (!departments) {
+    //     res.send({
+    //       message: "Departments are not found",
+    //       state: "failure",
+    //     }, 201);
+    //   }
+    //   else {
+    //     res.send({
+    //       state: "success",
+    //       data: departments
+    //     }, 200);
+    //   }
+    // })
+  // }
+  // catch (err) {
+  //   return res.send({
+  //     state: "error",
+  //     message: err
+  //   });
+  // }
 });
 
 // To get department by id
