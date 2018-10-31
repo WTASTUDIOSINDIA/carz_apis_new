@@ -354,7 +354,7 @@ router.put('/update_audit_checklist', function(req, res) {
         },201);
       }
       if(audit_checklist){
-       if(version.version_name == req.body.version_name){
+       if(audit_checklist.audit_checklist_title == req.body.audit_checklist_title){
         audit_checklist.audit_checklist_title = req.body.audit_checklist_title;
         // audit_checklist.audit_checklist_type = req.body.audit_checklist_type;
          audit_checklist.audit_visible_to = req.body.audit_visible_to;
