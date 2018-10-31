@@ -295,11 +295,30 @@ router.get('/get_franchisees_new', function (req, res) {
             }
             }
         }
-        console.log(data_body.franchisor_id);
-        console.log(query);
+        let sortquery = "";
+        if(data_query.sort){
+           
+            let sortname = data_query.sort;
+            if(sortname == "franchisee_name" ){
+            sortquery = { franchisee_name : data_query.order };
+            }
+            if(sortname == "franchisee_address" ){
+            sortquery = { franchisee_address : data_query.order };
+            }
+            if(sortname == "franchisee_pincode" ){
+            sortquery = { franchisee_address : data_query.order };
+            }
+            if(sortname == "franchisee_franchise_model" ){
+            sortquery = { franchisee_address : data_query.order };
+            }
+            if(sortname == "franchisee_franchise_type" ){
+            sortquery = { franchisee_franchise_type : data_query.order };
+            }
+        }
+        
         Franchisee
           .find(query)
-          .sort(data_query.sort || '')
+          .sort(sortquery)
           .select(data_query.select || '')
           .limit(lt || '')
           .skip(sk || '')
