@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var mongoose = require('mongoose');;
+var mongoose = require('mongoose');
+const objectId = mongoose.Types.ObjectId;
 var multer = require('multer');
 var path = require('path');
 var Franchisee = mongoose.model('Franchisee');
+var franchiseeService = require('./franchisee-service');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 var Library = mongoose.model('Library');
 var Folder = mongoose.model('Folder');
@@ -351,6 +353,84 @@ router.get('/get_franchisees_new', function (req, res) {
     })
 
 //get franchisee by id
+
+
+router.post('/get_franchiseelist_counts', function (req, res) {
+    
+    let data = req.body;
+    if(data.franchisor_id) {
+    if(data.franchisor_id.length == 24) {
+    data.franchisor_id = objectId(data.franchisor_id);
+    franchiseeService.findandCount({franchisor_id:data.franchisor_id})
+    .then((response) => {
+      if(response){
+        let data = {};
+        let total = 0;
+        response.forEach((resp) => {
+          if(resp._id.key == "Hot"){
+            data.Hot = resp.count;
+          }
+          if(resp._id.key == "Warm"){
+            data.Warm = resp.count;
+          }
+          if(resp._id.key == "Cold"){
+            data.Cold = resp.count;
+          }
+          if(resp._id.key == "On Hold"){
+            data.On_Hold = resp.count;
+          }
+          if(resp._id.key == "Franchisees"){
+            data.Franchisees = resp.count;
+          }
+          if(resp._id.key == "Rejected"){
+            data.Rejected = resp.count;
+          }
+          if(resp._id.key == "Unassigned"){
+            data.Unassigned = resp.count;
+          }
+          total += resp.count;
+        });
+        if(data.Hot == undefined){
+          data.Hot = 0;
+        }
+        if(data.Warm == undefined){
+          data.Warm = 0;
+        }
+        if(data.Cold == undefined){
+          data.Cold = 0;
+        }
+         if(data.On_Hold == undefined){
+          data.On_Hold = 0;
+        }
+         if(data.Franchisees == undefined){
+          data.Franchisees = 0;
+        }
+         if(data.Rejected == undefined){
+          data.Rejected = 0;
+        }
+         if(data.Unassigned == undefined){
+          data.Unassigned = 0;
+        }
+        data.all = total;
+       
+        res.status(201).json({ error: "0", message: "Successfully fetched", data: data});
+      }else{
+        res.status(404).json({ error: "1", message: "Error in fetching"});
+      }
+      
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "4", message: "Internal server error"});
+    });
+  }else{
+    res.status(400).json({error:'2',message:"Please enter valid doctor id."});
+  }}
+  else{
+    res.status(403).json({error:'2',message:"doctor id is required, Missing required parameters."});
+  }
+    })
+
+
 router.get('/get_franchisee/:id', function (req, res) {
     try {
         Franchisee.findById({ _id: req.params.id }, function (err, franchisee) {
