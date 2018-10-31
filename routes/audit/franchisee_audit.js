@@ -625,10 +625,13 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
             .then((resp) => {
               if(resp){
 
-                if(resp.audit_file_upload_required == true && !req.file){
+                if(resp.audit_file_upload_required == true && req.file){
                   res.status(203).json({ error: "2", message: "File upload is mandetory for this task"});
-                }else{
-
+                }else if(resp.audit_task_type == 'Radio Button' && !req.body.task_data.radio_option_answer){
+                  console.log(req, "631 list of request data");
+                  res.status(203).json({ error: "2", message: "Please select the radio option before submitting!"});
+                }
+                else {
                 auditService.create(data)
                 .then((response) => {
                   if(response)
@@ -649,11 +652,21 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
           auditService.findOneTaskById({_id:task_id})
             .then((resp) => {
               if(resp){
-
+                
+                var task_data = JSON.parse(req.body.task_data)
                 if(resp.audit_file_upload_required == true && !req.file){
 
                   res.status(203).json({ error: "2", message: "File upload is mandetory"});
-                }else{
+                }
+                else if(resp.audit_task_type == 'Radio Button' && !task_data.radio_option_answer){
+                  
+                  res.status(203).json({ error: "2", message: "Please select the radio option before submitting!"});
+                }
+                else if(resp.audit_task_type == 'Short Answer' && !task_data.reason){
+                  
+                  res.status(203).json({ error: "2", message: "Please enter the reason before submitting!"});
+                }
+                else{
 
                 auditService.create(data)
                 .then((response) => {

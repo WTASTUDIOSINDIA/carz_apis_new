@@ -38,6 +38,7 @@ var FranchiseeAuditTaskSchema = new mongoose.Schema({
     'franchisee_id':  {type: Schema.Types.ObjectId, ref: 'Franchisee'},
     'task_status' : {type:Boolean,default:false},
     'reason' : String,
+    'radio_option_answer': String,
     'file_name' : String,
     'file_url' : String, 
     'file_type' : String,
