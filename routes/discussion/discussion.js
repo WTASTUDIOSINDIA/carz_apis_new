@@ -34,10 +34,9 @@ var upload = multer({
 
 router.post('/create_discussion_question', upload.single('discussion_question_img'), function (req, res) {
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
-    console.log('34', req.body.discussionquestion);
+    console.log('34', req.body.discussionquestion, typeof(req.body.discussionquestion), 'typeoflfjsal;fskfsad');
     try {
         DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
-            console.log('37', discussionquestion);
             if (err) {
                 res.send({
                     state: "failure",
@@ -51,23 +50,24 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                 }, 201);
             }
             else {
-                discussionquestion = new DiscussionQuestion();
-                discussionquestion.discussion_question = discussinQuestionForm.discussion_question;
-                discussionquestion.created_by = discussinQuestionForm.created_by;
-                discussionquestion.created_at = discussinQuestionForm.created_at;
-                discussionquestion.user_id = discussinQuestionForm.user_id;
-                discussionquestion.franchisee_name = discussinQuestionForm.franchisee_name;
-                discussionquestion.user_name = discussinQuestionForm.user_name;
-                discussionquestion.franchisee_address = discussinQuestionForm.franchisee_address;
-                discussionquestion.franchisee_profic_pic = discussinQuestionForm.franchisee_profile_pic;
+                dquestion = new DiscussionQuestion();
+                dquestion.discussion_question = discussinQuestionForm.discussion_question;
+                dquestion.created_by = discussinQuestionForm.created_by;
+                dquestion.created_at = discussinQuestionForm.created_at;
+                dquestion.user_id = discussinQuestionForm.user_id;
+                dquestion.franchisee_name = discussinQuestionForm.franchisee_name;
+                dquestion.user_name = discussinQuestionForm.user_name;
+                dquestion.franchisee_address = discussinQuestionForm.franchisee_address;
+                dquestion.user_profile_pic = discussinQuestionForm.user_profile_pic;
                 if (req.file) {
                     console.log(req.file);
                     var discussion_question_img = {};
-                    discussionquestion.franchisor_question_file_attachment_file_url = req.file.location;
-                    discussionquestion.franchisor_question_file_attachment_file_name = req.file.key;
-                    discussionquestion.franchisor_question_file_attachment_file_type = req.file.contentType;
+                    dquestion.franchisor_question_file_attachment_file_url = req.file.location;
+                    dquestion.franchisor_question_file_attachment_file_name = req.file.key;
+                    dquestion.franchisor_question_file_attachment_file_type = req.file.contentType;
                 }
-                discussionquestion.save(function (err, discussionquestion) {
+                dquestion.save(function (err, discussques) {
+                console.log('*******', discussques);
                     if (err) {
                         res.send({
                             state: "failure",
@@ -78,7 +78,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                         res.send({
                             state: "success",
                             message: "Question created successfully",
-                            data: discussionquestion
+                            data: discussques
                         }, 200);
                     }
                 });
@@ -465,14 +465,12 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
             }
             else {
                 discussionquestion.commentsCount = discussionquestion.commentsCount + 1;
+                // discussionquestion.user_profile_pic = discussionComments.franchisee_profile_pic;
                 if (req.file) {
                     var comment_img = {};
                     discussionComments.comment.comment_file_attachment_file_url = req.file.location;
                     discussionComments.comment.comment_file_attachment_file_name = req.file.key;
                     discussionComments.comment.comment_file_attachment_file_type = req.file.contentType;
-                }
-                if (!discussionquestion.discussion_comments) {
-                    discussionquestion.discussion_comments = [];
                 }
                 discussionquestion.discussion_comments.push(discussionComments.comment);
                 console.log('423', discussionquestion.discussion_comments);
@@ -500,6 +498,12 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
                     }
                 });
             }
+            if (!discussionquestion) {
+                res.send({
+                    state:"failure",
+                    message:"No comments found."
+                },201);
+            }
         });
     }
     catch (err) {
@@ -510,4 +514,4 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
     }
 })
 
-module.exports = router;
+module.exports = router

@@ -19,8 +19,8 @@ var DiscussionQuestionSchema = new mongoose.Schema({
      'franchisee_name':String, 
      'user_name': String,
      'franchisee_address': String,
-      'franchisee_profile_pic':{type: Schema.Types.Mixed, default : {}},
-      'user_profile_pic':{type: Schema.Types.Mixed, default : {}},
+      'franchisee_profile_pic':String,
+      'user_profile_pic':String,
       'comment_text' :String,
       'comment_file_attachment_file_name': String,
       'comment_file_attachment_file_url': String,
@@ -35,8 +35,8 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     user_name: String,
     franchisee_name: String,
     franchisee_address: String,
-    franchisee_profile_pic:{type: Schema.Types.Mixed, default : {}},
-    user_profile_pic:{type: Schema.Types.Mixed, default : {}},
+    franchisee_profile_pic:String,
+    user_profile_pic:String
 
 });
 // var questionSchema = new mongoose.Schema({

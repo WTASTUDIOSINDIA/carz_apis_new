@@ -47,7 +47,7 @@ var fileupload = upload.fields([{
 }])
 
 
-//validate franchisee by email
+//validate employee email
 router.post('/validate_employee_email', function (req, res) {
     var employeeValidateForm = req.body;
     try {
@@ -397,6 +397,8 @@ router.post('/save_employee_assessment_type', function (req, res) {
 })
 
 function getEmployeeAssessmentTypes(employee_id, res) {
+    let total_percentage = 0;
+    let no_of_assessments = 0;
     //EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id } , null, {sort: {date: 1}}, function (err, employeeType) {
     EmployeeAssessmentTypeOfFranchisee.find({ employee_id: employee_id }).sort({ createdAt: 1 }).exec(function (err, employeeType) {
         if (!employeeType) {
@@ -406,9 +408,27 @@ function getEmployeeAssessmentTypes(employee_id, res) {
             }, 201);
         }
         else {
+            employeeType.forEach(percentage => {
+                if(percentage.assessment_status === true){
+                    total_percentage = total_percentage + percentage.employee_percentage;
+                    no_of_assessments++;
+                }
+            });
+            console.log('--------------------',total_percentage);
+            console.log('////////////////', no_of_assessments);
+            percentage = (total_percentage / (no_of_assessments * 100)) * 100
+            EmployeeDetails.findOneAndUpdate({ _id: employee_id }, { $set: { pass_percentage: percentage } }, {new: true}, function (err, employeeDetails) {
+                if (err) {
+                    console.log(err , 'error');
+                }
+                console.log(employeeDetails, 'employeeDetails');
+            })
+            console.log('*******', percentage);
+            console.log(employeeType);
             res.send({
                 state: "success",
-                data: employeeType
+                data: employeeType,
+                percentage: percentage
             }, 200);
             console.log('data', employeeType);
         }
