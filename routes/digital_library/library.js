@@ -505,27 +505,37 @@ router.put('/edit_folder', function(req, res, next){
       }
      
       if(folder){
-        folder.folder_name = folderEditForm.folder_name
-        folder.save(function(err, folder){
-          if(err){
+          console.log('-------', folderEditForm.folder_name);
+        if (!folderEditForm.folder_name || folderEditForm.folder_name == "") {
             res.send({
-               state:"err",
-               message:"Something went wrong."
-           },500);
+                state:'failure',
+                message:'Folder name required'
+            },201)
+        }else{
+            folder.folder_name = folderEditForm.folder_name
+            folder.save(function(err, folder){
+              if(err){
+                res.send({
+                   state:"err",
+                   message:"Something went wrong."
+               },500);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Folder Updated."
+                },200);
+            }
+          });
+
         }
-        else{
-            res.send({
-                state:"success",
-                message:"Folder Updated."
-            },200);
-        }
-      });
+      
     }
     if(!folder){
         res.send({
             state:'failure',
             message:'Failed to update'
-        },400);
+        },201);
     }
    
 
