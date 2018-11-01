@@ -316,7 +316,7 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
 });
 
 router.post('/create_Folder',function(req,res){
-    Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({franchisee_Id:req.body.franchisee_Id,'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
                 status: 500,

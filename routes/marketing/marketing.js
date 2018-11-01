@@ -52,7 +52,7 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
     try {
-        Campaign.findOne({ 'title': campaignForm.title }, function (err, campaign) {
+        Campaign.findOne({ 'title': {$regex: new RegExp(campaignForm.title, 'i')} }, function (err, campaign) {
 
             if (err) {
                 return res.send({
