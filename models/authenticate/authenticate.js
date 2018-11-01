@@ -27,14 +27,14 @@ var adminSchema = new mongoose.Schema({
   "user_pass": String,
   "user_confirm_pass": String,
   "user_type_role":{
-      'audit_management': {type:Boolean, default:false},
-      'crm':{type: Boolean, default:false},
-      'library':{type: Boolean, default:false},
-      'marketing':{type: Boolean, default:false},
-      'discussion_forum': {type: Boolean, default:false},
-      'ticketing_system': {type: Boolean, default:false},
-      'settings': {type: Boolean, default: false},
-      'assessment': {type: Boolean, default: false}
+      'audit_management': {type:String, default:false},
+      'crm':{type: String, default:false},
+      'library':{type: String, default:false},
+      'marketing':{type: String, default:false},
+      'discussion_forum': {type: String, default:false},
+      'ticketing_system': {type: String, default:false},
+      'settings': {type: String, default: false},
+      'assessment': {type: String, default: false}
   },
   "user_name": String,
   "created_on": Date,
