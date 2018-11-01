@@ -244,7 +244,7 @@ router.put('/edit_question', function(req, res) {
         ques.question_type = applicationForm.question_type;
         ques.options = applicationForm.options;
         ques.isRequire = applicationForm.isRequire,
-            version.save(function (err, version){
+        ques.save(function (err, version){
             res.send({
               state:"success",
               message:"Question updated"
