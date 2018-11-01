@@ -462,14 +462,14 @@ router.post('/create', function (req,res){
 
   let query = {_id:id};
   var existed_response = "";
-  var prof_pic_url = "";
+
   franchisorservice.findOneFranchisor(query)
   .then((response) => {
     if(response){
       let fileExt = "";
             if(data.user_img){
                     if(data.user_img != ""){
-                        
+                      var prof_pic_url = "";
                      
                       if (data.user_img.indexOf("image/png") != -1)
                           fileExt = "png";
@@ -490,6 +490,11 @@ router.post('/create', function (req,res){
                       
                     }
                       prof_pic_url = utils.awsFileUrl()+imageKey + "." + fileExt;
+                      response.profile_pic = {
+                        "image_url" : prof_pic_url,
+                        "image_type" : fileExt,
+                        "created_on" : new Date()
+                    }
                    
                     }
                     //   else{
@@ -502,11 +507,7 @@ router.post('/create', function (req,res){
                       
                     // }
       
-          response.profile_pic = {
-              "image_url" : prof_pic_url,
-              "image_type" : fileExt,
-              "created_on" : new Date()
-          }
+         
       if(response.user_mail == data.user_mail){
         response.description =  data.description;
         response.user_website = data.user_website;
