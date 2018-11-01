@@ -358,6 +358,8 @@ router.get('/get_franchisees_new', function (req, res) {
             if(sortname == "franchisee_franchise_type" ){
             sortquery = { franchisee_franchise_type : data_query.order };
             }
+        }else{
+            sortquery = {franchisee_created_on : 1};
         }
         
         Franchisee
