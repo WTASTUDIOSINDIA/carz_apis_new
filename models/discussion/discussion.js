@@ -12,7 +12,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     //0 = unapproved; 1 = approved, 2 = declined
     status: {type: String, default: 0},
 	votes: {type: Number, default: 0},
-    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee'}],
+    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee', }],
     commentsCount: {type: Number, default: 0},
     discussion_comments: [{'franchisee_id':String,
     'user_id': String,
@@ -35,10 +35,9 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     user_name: String,
     franchisee_name: String,
     franchisee_address: String,
-    franchisee_profile_pic:String,
-    user_profile_pic:String
-
-});
+    franchisee_profile_pic:{type: Schema.Types.Mixed, default : {}},
+    user_profile_pic:{type: Schema.Types.Mixed, default : {}}
+})
 // var questionSchema = new mongoose.Schema({
 // 	created_by: String,		//should be changed to ObjectId, ref "User"
 // 	participantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Audience'},
