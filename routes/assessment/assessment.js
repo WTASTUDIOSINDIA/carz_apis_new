@@ -69,57 +69,64 @@ router.put('/update_question_type', function(req, res) {
               message:"Something went wrong. We are looking into it."
           },500);
         }
+        if(question_type){
+            if(!req.body.description || req.body.description == ""){
+                res.send({
+                    state:'failure',
+                    message:'Please fill all the fields'
+                },201)
+            }
+            else{
+                if(question_type.question_type_name == req.body.question_type_name){
+                    question_type.question_type_name = req.body.question_type_name;
+                    question_type.description = req.body.description;
+                    question_type.version_id = req.body.version_id;
+                    question_type.franchisor_id = req.body.franchisor_id;
+                    question_type.save(function (err, question_type){
+                      res.send({
+                        state:"success",
+                        message:"Question type updated"
+                      },200);
+                    })
+                   
+                }
+                else{
+                Question_Type.find({ question_type_name:{$regex: new RegExp(req.body.question_type_name, 'i')} }, function (err, ques_name) {              
+                    if(err) {
+                      return res.send({
+                          state:"err",
+                          message:"Something went wrong. We are looking into it."
+                      },500);
+                    }
+                    if(ques_name == null || ques_name.length != 0){
+                      res.send({
+                        state:"failure",
+                        message:"Name already exists"
+                      },201);
+                    }
+                 else{
+                    question_type.question_type_name = req.body.question_type_name;
+                    question_type.description = req.body.description;
+                    question_type.version_id = req.body.version_id;
+                    question_type.franchisor_id = req.body.franchisor_id;
+                      question_type.save(function (err, question_type){
+                      res.send({
+                        state:"success",
+                        message:"Question type updated"
+                      },200);
+                    })
+                  }
+                  })
+                 
+                }
+            }
+        }
         if(!question_type){
           res.send({
             state:"failure",
             message:"No question types found"
           },201);
         }
-        if(question_type){
-         if(question_type.question_type_name == req.body.question_type_name){
-            question_type.question_type_name = req.body.question_type_name;
-            question_type.description = req.body.description;
-            question_type.version_id = req.body.version_id;
-            question_type.franchisor_id = req.body.franchisor_id;
-            question_type.save(function (err, question_type){
-              res.send({
-                state:"success",
-                message:"Question type updated"
-              },200);
-            })
-           
-        }
-        else{
-        Question_Type.find({ question_type_name:{$regex: new RegExp(req.body.question_type_name, 'i')} }, function (err, ques_name) {              
-            if(err) {
-              return res.send({
-                  state:"err",
-                  message:"Something went wrong. We are looking into it."
-              },500);
-            }
-            if(ques_name == null || ques_name.length != 0){
-              res.send({
-                state:"failure",
-                message:"Name already exists"
-              },201);
-            }
-         else{
-            question_type.question_type_name = req.body.question_type_name;
-            question_type.description = req.body.description;
-            question_type.version_id = req.body.version_id;
-            question_type.franchisor_id = req.body.franchisor_id;
-              question_type.save(function (err, question_type){
-              res.send({
-                state:"success",
-                message:"Question type updated"
-              },200);
-            })
-          }
-          })
-         
-        }
-       
-      }
      
       })
     }
