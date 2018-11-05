@@ -265,62 +265,29 @@ router.get('/get_franchisees_new', function (req, res) {
 
     
         if (data_query.search) {
-
+            let search_query = {
+                "$or": [
+                    { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
+                    { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
+                    { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
+                    { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
+                    { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
+                    { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
+                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
+                ]
+            };
             if(data_body.lead_type){
+                
                 if(data_body.franchisee_franchise_type){
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type},
-                {
-                    "$or": [
-                        { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
-                        { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
-                        { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                        { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
-                    ]
-                })
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type},search_query)
                 }else{
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type},
-                    {
-                    "$or": [
-                        { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
-                        { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
-                        { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
-                        { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                        { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
-                    ]
-                })
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type},search_query)
                 }
             }else{
                 if(data_body.franchisee_franchise_type){
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type},
-                    {
-                        "$or": [
-                            { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
-                            { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
-                            { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                            { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
-                        ]
-                    })
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type},search_query)
                 }else{
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id},
-                    {
-                        "$or": [
-                            { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
-                            { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
-                            { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
-                            { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                            { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
-                        ]
-                    })
+                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id},search_query)
             }
         }
           

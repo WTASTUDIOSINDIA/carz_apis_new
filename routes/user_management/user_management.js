@@ -241,7 +241,6 @@ router.post('/validate_user_phone_number', function (req, res) {
                         user.user_phone_number = userEditForm.user_phone_number;
                         user.franchisor_id = userEditForm.franchisor_id;
                         user.user_type_role = userEditForm.user_type_role;
-                        user.user_pass = createHash(userEditForm.user_pass);
                         user.user_profile_pic =userEditForm.user_profile_pic;
                         user.save(function (err, user) {
                     if (err) {
