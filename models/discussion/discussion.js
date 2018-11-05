@@ -12,7 +12,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     //0 = unapproved; 1 = approved, 2 = declined
     status: {type: String, default: 0},
 	votes: {type: Number, default: 0},
-    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee', }],
+    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee' }],
     commentsCount: {type: Number, default: 0},
     discussion_comments: [{'franchisee_id':String,
     'user_id': String,
