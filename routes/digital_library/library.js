@@ -316,7 +316,7 @@ router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
     });
 });
 
-router.post('/create_Folder',utils.authenticated,function(req,res){
+router.post('/create_Folder',function(req,res){
     Folder.findOne({franchisee_Id:req.body.franchisee_Id,'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
@@ -644,7 +644,7 @@ router.put('/delete_folder_by_Id',function(req,res){
 
 
 // To create common folder
-router.post('/create_common_folder', utils.authenticated,function(req,res){
+router.post('/create_common_folder', function(req,res){
     Folder.findOne({'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({

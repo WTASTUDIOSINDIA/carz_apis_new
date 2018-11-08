@@ -1226,7 +1226,7 @@ router.delete('/delete_employee_assessment_submitted_list/:employee_id', functio
 })
 
 //To create employee fileds
-router.post('/create_employee_details', utils.authenticated, function (req, res) {
+router.post('/create_employee_details', function (req, res) {
     // try {
     EmployeeDetails.findOne({ employee_email: req.body.employee_email }, function (err, employeeDetails) {
         if (err) {

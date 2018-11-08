@@ -90,6 +90,7 @@ module.exports = function (passport) {
                 // check in mongo if a user with username exists or not
                 Franchisee.findOne({ 'franchisee_email': username },
                     function (err, franchisee) {
+                        console.log('**********', franchisee)
                         // In case of any error, return using the done method
                         if (err) {
 

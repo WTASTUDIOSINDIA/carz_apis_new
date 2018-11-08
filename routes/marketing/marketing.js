@@ -48,7 +48,7 @@ var upload = multer({
 
 // To create campaign
 var createCampaignFiles = upload.fields([{ name: 'createCampaignFiles', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
-router.post('/create_campaign', createCampaignFiles, utils.authenticated, function (req, res) {
+router.post('/create_campaign', createCampaignFiles, function (req, res) {
 
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
