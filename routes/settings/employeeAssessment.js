@@ -236,7 +236,7 @@ router.get('/get_assessments_type_name/:model_id', function (req, res) {
     }
 });
 
-router.get('/get_assessments_type_name', utils.authenticated, function (req, res) {
+router.get('/get_assessments_type_name', function (req, res) {
     try {
         EmployeeAssessmentType.find({}, function (err, assessments) {
             if (err) {
@@ -1375,7 +1375,7 @@ router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req
 })
 
 //To get models by default version id
-router.get('/get_models_by_default_version/:franchisor_id', utils.authenticated, function (req, res) {
+router.get('/get_models_by_default_version/:franchisor_id',function (req, res) {
     try {
         Versions.findOne({
             franchisor_id: req.params.franchisor_id,
@@ -1596,7 +1596,7 @@ router.get('/get_employee_details/:id', utils.authenticated, function (req, res)
 });
 
 // to get employees by franchisee id 
-router.get('/get_employees_by_franchisee_id/:franchisee_id',  utils.authenticated,  function (req, res) {
+router.get('/get_employees_by_franchisee_id/:franchisee_id', function (req, res) {
     try {
         var employees_list = [];
         EmployeeDetails.find({ franchisee_id: req.params.franchisee_id }, function (err, employeeDetails) {
@@ -1853,7 +1853,7 @@ function get_merged_questions(e_a_id, e_id) {
     // ])
 }
 
-router.get('/retake_exam/:employee_id/:assessment_id', utils.authenticated, function (req, res) {
+router.get('/retake_exam/:employee_id/:assessment_id', function (req, res) {
     try {
         // { $set: { <field1>: <value1>, ... } }
         EmployeeAssessmentSubmitted.updateMany({ employee_id: req.params.employee_id, assessment_type_id: req.params.assessment_id }, { $set: { employee_answer: '' } }, function (err, employeeQuestions) {
