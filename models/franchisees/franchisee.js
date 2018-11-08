@@ -63,7 +63,7 @@ var franchiseeSchema = new mongoose.Schema({
     "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "rejected_franchisee_reason": String,
     "verified": {type:Boolean, default:false},
-    "stage_profile": String,
+    "stage_profile": {type: String, default:'completed'},
     "verification": {
           "otp": String,
           "status": { type: Boolean, default: false }, //verification status

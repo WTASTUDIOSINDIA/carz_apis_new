@@ -1395,9 +1395,7 @@ router.post('/create_franchisee', function (req, res) {
 });
 //Creating kyc table for the frachisee
 function kyc_Upload(req, res, partner, franchisee, franchiseeForm) {
-    console.log(partner, "partner");
-    console.log(franchisee, "franchisee");
-    console.log(franchiseeForm, "franchiseeForm");
+
     //FranchiseeTypeList.find({businessType_id:franchiseeForm.bussiness_type_id},function(err,type){
     //5aacf0e9be01b01e4456acd4
     var business_type_id = '';
@@ -2802,8 +2800,7 @@ router.post('/import_franchisee', function (req, res) {
 
                 var existing_franchisees_list = get_existing_mails(franchiseeMultipleForm);
                 existing_franchisees_list.then(function (list) {
-                    console.log(list.join());
-                    console.log(list);
+                    
                     if (list.length != 0) {
                         return res.send({
                             state: "failure",
@@ -2858,20 +2855,31 @@ router.post('/import_franchisee', function (req, res) {
                                 franchisee.partner_country = franchiseeMultipleForm[i].partner_country;
                                 franchisee.bussiness_type_id = franchiseeMultipleForm[i].bussiness_type_id;
                                 franchisee.lead_type = franchiseeMultipleForm[i].lead_type;
+                                franchisee.stage_profile = "completed";
                                 franchisee.save(function (err, franchisee) {
 
                                     if (err) {
-                                        console.log(err, "error 1188");
-                                        return res.send({
+                                return res.send({
                                             state: "err",
                                             message: "Something went wrong."
                                         }, 500);
                                     }
                                     else {
                                         //  if(franchisee_length==i){
+                                            var stage = new Stages();
+                                stage.franchisee_id = franchisee._id,
+                                    stage.stage_profile = 'completed'
+                                stage.save((err) => {
+                                    if (err, stage) {
+                                        console.log(err, 'errorrrr');
+                                    }
+                                    if (stage) {
+                                        console.log('Stage saved', stage)
+                                    }
+                                });
 
                                         var partner = new Partner();
-                                        console.log(franchisee);
+                                        
 
                                         partner.partner_name = franchisee.partner_name;
                                         partner.partner_occupation = franchisee.partner_occupation;
@@ -2900,8 +2908,7 @@ router.post('/import_franchisee', function (req, res) {
                                                     state: "success",
                                                     message: "Franchisee Created."
                                                 });
-                                                console.log(partner);
-                                                console.log(franchisee);
+                                                
                                                 var folder = new Folder();
                                                 folder.crm_folder = true;
                                                 folder.franchisee_Id = franchisee._id;
