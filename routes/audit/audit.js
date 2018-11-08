@@ -5,6 +5,7 @@ var multer = require('multer');
 var AuditChecklist = mongoose.model('AuditChecklist');
 var AuditChecklistType = mongoose.model('AuditChecklistType');
 var AuditTask = mongoose.model('AuditTask');
+var utils = require('../../common/utils');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 aws.config.loadFromPath('./config.json');
@@ -36,7 +37,7 @@ var fileupload = upload.fields([{
   }])
 
 //   To create checklist type
-router.post('/create_audit_checklist_type', function (req, res) {
+router.post('/create_audit_checklist_type', utils.authenticated, function (req, res) {
     try {
       AuditChecklistType.findOne({ audit_checklist_type_name: {$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}, franchisor_id: req.body.franchisor_id }, function (err, checklist_type) {
         if (err) {
@@ -179,7 +180,7 @@ router.get('/get_audit_checklist_type_by_id/:checklist_type_id', function (req, 
   });
 
 // To get all checklists types
-router.get('/get_audit_all_checklist_types/:franchisor_id', function (req, res) {
+router.get('/get_audit_all_checklist_types/:franchisor_id', utils.authenticated, function (req, res) {
     try {
       AuditChecklistType.find({ franchisor_id:req.params.franchisor_id}, function (err, audit_checklist) {
         if (err) {
@@ -290,7 +291,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 })
 
 // to crete audit checklist
-router.post('/create_audit_checklist', function (req,res){
+router.post('/create_audit_checklist', utils.authenticated, function (req,res){
     try{
         AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}}, function (err, auditChecklist){
             if(err){
@@ -414,7 +415,7 @@ router.put('/update_audit_checklist', function(req, res) {
 });
 
 // to get checklist by id
-router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) {
+router.get('/get_audit_checklist_by_id/:checklist_type_id', utils.authenticated, function (req, res) {
     try {
       AuditChecklist.find({ checklist_type_id: req.params.checklist_type_id }, function (err, audit_checklist) {
         if (err) {
@@ -443,7 +444,7 @@ router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) 
   });
 
 // To get all checklists
-router.get('/get_audit_all_checklists', function (req, res) {
+router.get('/get_audit_all_checklists', utils.authenticated, function (req, res) {
     try {
       AuditChecklist.find({ }, function (err, audit_checklist) {
         if (err) {
@@ -530,7 +531,7 @@ router.delete('/delete_all_checklists', function(req,res){
   })   
 
 // To create task
-router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'), function (req, res) {
+router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'),utils.authenticated, function (req, res) {
     var auditChecklistTaskForm = JSON.parse(req.body.task);
     
     try {
@@ -657,7 +658,7 @@ router.put('/update_audit_checklist_tasks', upload.single('audit_checklist_task_
   })
 
 // to get checklist tasks by checklist id
-router.get('/get_audit_checklist_tasks/:checklist_id', function (req, res) {
+router.get('/get_audit_checklist_tasks/:checklist_id', utils.authenticated, function (req, res) {
     try {
       AuditTask.find({ checklist_id: req.params.checklist_id }, function (err, task) {
         if (err) {

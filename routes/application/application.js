@@ -16,6 +16,7 @@ var nodemailer = require('nodemailer');
 var Reasons = mongoose.model('Reasons');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
+var utils = require('../../common/utils');
 var bCrypt = require('bcrypt-nodejs');
 var fs = require('fs');
 var pdf = require('dynamic-html-pdf');
@@ -44,7 +45,7 @@ var upload = multer({
 
 
 // application form
-router.post('/application_form', function (req, res) {
+router.post('/application_form', utils.authenticated, function (req, res) {
   var applicationForm = req.body;
   try {
     Application.findOne({question_EN: {$regex: new RegExp(applicationForm.question_EN, 'i')} }, function (err, ques) {

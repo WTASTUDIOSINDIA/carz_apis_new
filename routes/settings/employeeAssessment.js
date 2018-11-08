@@ -15,6 +15,7 @@ var EmployeeDetails = mongoose.model('EmployeeDetails');
 var EmployeeAssessmentType = mongoose.model('EmployeeAssessmentType');
 var EmployeeAssessmentTypeOfFranchisee = mongoose.model('EmployeeAssessmentTypeOfFranchisee');
 var Versions = mongoose.model('Versions');
+var utils = require('../../common/utils');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -81,7 +82,7 @@ router.post('/validate_employee_email', function (req, res) {
 });
 
 // To create assessment types
-router.post('/create_assessemnt_type', function (req, res) {
+router.post('/create_assessemnt_type', utils.authenticated, function (req, res) {
     try {
         EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') }, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
             if (err) {
@@ -235,7 +236,7 @@ router.get('/get_assessments_type_name/:model_id', function (req, res) {
     }
 });
 
-router.get('/get_assessments_type_name', function (req, res) {
+router.get('/get_assessments_type_name', utils.authenticated, function (req, res) {
     try {
         EmployeeAssessmentType.find({}, function (err, assessments) {
             if (err) {
@@ -316,7 +317,7 @@ router.delete('/delete_assessment_type_name_by_id/:id', function (req, res) {
     }
 });
 //To save employee assessment type
-router.post('/save_employee_assessment_type', function (req, res) {
+router.post('/save_employee_assessment_type', utils.authenticated, function (req, res) {
     try {
         EmployeeAssessmentTypeOfFranchisee.findOne({ 'employee_id': req.body.employee_id }, function (err, employeeType) {
             if (err) {
@@ -436,7 +437,7 @@ function getEmployeeAssessmentTypes(employee_id, res) {
 }
 
 //To get  employee assessment type
-router.get('/get_save_employee_assessment_type/:employee_id', function (req, res) {
+router.get('/get_save_employee_assessment_type/:employee_id', utils.authenticated, function (req, res) {
     try {
         getEmployeeAssessmentTypes(req.params.employee_id, res);
     }
@@ -521,7 +522,7 @@ router.delete('/delete_employee_assessment_type', function (req, res) {
 
 
 //To create employee assessment questions
-router.post('/create_employee_assessment_question', fileupload, function (req, res) {
+router.post('/create_employee_assessment_question', fileupload, utils.authenticated, function (req, res) {
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
@@ -591,7 +592,7 @@ router.post('/create_employee_assessment_question', fileupload, function (req, r
 
 
 //to get assessment type questions by type id
-router.get('/get_assessment_questions/:assessment_type_id', function (req, res) {
+router.get('/get_assessment_questions/:assessment_type_id', utils.authenticated, function (req, res) {
     try {
         EmployeeAssessment.find({ assessment_type_id: req.params.assessment_type_id }, function (err, question) {
             if (err) {
@@ -1102,7 +1103,7 @@ router.put('/submit_employee_assessmnent', function (req, res) {
     // }
 })
 //To get reports
-router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
+router.get('/get_emp_assessment_report/:employee_id', utils.authenticated, function (req, res) {
     try {
         EmployeeAssessmentSubmitted.findOne({ employee_id: req.params.employee_id }, function (err, report) {
             if (err) {
@@ -1160,7 +1161,7 @@ router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
     }
 });
 //To get reports
-router.get('/get_emp_assessment_submitted_list/:employee_id', function (req, res) {
+router.get('/get_emp_assessment_submitted_list/:employee_id',utils.authenticated, function (req, res) {
     try {
         EmployeeAssessmentSubmitted.find({ employee_id: req.params.employee_id }, function (err, list) {
             if (err) {
@@ -1225,7 +1226,7 @@ router.delete('/delete_employee_assessment_submitted_list/:employee_id', functio
 })
 
 //To create employee fileds
-router.post('/create_employee_details', function (req, res) {
+router.post('/create_employee_details', utils.authenticated, function (req, res) {
     // try {
     EmployeeDetails.findOne({ employee_email: req.body.employee_email }, function (err, employeeDetails) {
         if (err) {
@@ -1293,7 +1294,7 @@ router.post('/create_employee_details', function (req, res) {
     // }
 })
 //To create employee fileds
-router.post('/create_model', function (req, res) {
+router.post('/create_model', utils.authenticated, function (req, res) {
     // try {
     CarModels.findOne({ model_name: { $regex: new RegExp(req.body.model_name, 'i') }, version_id: req.body.version_id }, function (err, model) {
         if (err) {
@@ -1374,7 +1375,7 @@ router.get('/get_models_by_version_id/:franchisor_id/:version_id', function (req
 })
 
 //To get models by default version id
-router.get('/get_models_by_default_version/:franchisor_id', function (req, res) {
+router.get('/get_models_by_default_version/:franchisor_id', utils.authenticated, function (req, res) {
     try {
         Versions.findOne({
             franchisor_id: req.params.franchisor_id,
@@ -1514,7 +1515,7 @@ router.delete('/delete_model_by_id/:id', function (req, res) {
 
 
 //To get create employee details
-router.get('/get_all_employees', function (req, res) {
+router.get('/get_all_employees', utils.authenticated, function (req, res) {
     try {
         EmployeeDetails.find({}, function (err, employeeDetails) {
             if (err) {
@@ -1566,7 +1567,7 @@ router.get('/get_all_employees', function (req, res) {
 })
 
 // To get employee details by id
-router.get('/get_employee_details/:id', function (req, res) {
+router.get('/get_employee_details/:id', utils.authenticated, function (req, res) {
     try {
         EmployeeDetails.findById({ _id: req.params.id }, function (err, employeeDetails) {
             if (err) {
@@ -1595,7 +1596,7 @@ router.get('/get_employee_details/:id', function (req, res) {
 });
 
 // to get employees by franchisee id 
-router.get('/get_employees_by_franchisee_id/:franchisee_id', function (req, res) {
+router.get('/get_employees_by_franchisee_id/:franchisee_id',  utils.authenticated,  function (req, res) {
     try {
         var employees_list = [];
         EmployeeDetails.find({ franchisee_id: req.params.franchisee_id }, function (err, employeeDetails) {
@@ -1763,7 +1764,7 @@ router.delete('/delete_all_employees', function (req, res) {
 
 //get franchisee specific questions
 
-router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', function (req, res) {
+router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', utils.authenticated, function (req, res) {
     try {
         //  EmployeeAssessmentTypeOfFranchisee.findById({_id: req.params.assessment_id}, function(err, assessment){
 
@@ -1852,7 +1853,7 @@ function get_merged_questions(e_a_id, e_id) {
     // ])
 }
 
-router.get('/retake_exam/:employee_id/:assessment_id', function (req, res) {
+router.get('/retake_exam/:employee_id/:assessment_id', utils.authenticated, function (req, res) {
     try {
         // { $set: { <field1>: <value1>, ... } }
         EmployeeAssessmentSubmitted.updateMany({ employee_id: req.params.employee_id, assessment_type_id: req.params.assessment_id }, { $set: { employee_answer: '' } }, function (err, employeeQuestions) {

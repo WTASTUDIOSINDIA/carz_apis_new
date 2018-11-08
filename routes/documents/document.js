@@ -262,7 +262,7 @@ router.get('/get_business_types_list/:version_id',function(req,res){
         },500);
     }
 });
-router.post('/set_business_type',function(req,res){
+router.post('/set_business_type',utils.authenticated,function(req,res){
     try{
         FranchiseeType.findOne({'bussiness_type_name':{$regex: new RegExp(req.body.bussiness_type_name,'i')}},function(err,type){
             if(err){
@@ -378,7 +378,7 @@ router.put('/update_franchisee_type', function(req, res) {
   });
 
 
-router.post('/create_business_type',function(req,res){
+router.post('/create_business_type',utils.authenticated, function(req,res){
     try{
         FranchiseeTypeList.findOne({'doc_name':{$regex: new RegExp(req.body.doc_name,'i')},businessType_id:req.body.businessType_id},function(err,type){
             if(err){

@@ -73,6 +73,22 @@ const generateJwtToken = (data, requestFrom) => {
     });
   };
 
+  function verifyToken(req, res, next) {
+    if(!req.headers.authorization) {
+      return res.status(401).send('Unauthorized request')
+    }
+    let token = req.headers.authorization.split(' ')[1]
+    if(token === 'null') {
+      return res.status(401).send('Unauthorized request')    
+    }
+    let payload = jwt.verify(token, 'secretKey')
+    if(!payload) {
+      return res.status(401).send('Unauthorized request')    
+    }
+    req.userId = payload.subject
+    next()
+  }
+
 
 
 const getPreSignedURL = (awsFileKey) => {
@@ -226,11 +242,30 @@ const sendMailOTP = (otp, mail) => {
     });
 };   
 
+
+const authenticated = (req, res, next) => {
+    const token = req.headers['x-access-code'];
+    console.log(token);
+    if (token) {
+        decodeJwtToken(token)
+            .then(decoded => {
+                req.decoded = decoded.data;
+                next();
+            })
+            .catch((error) => {
+              res.status(401).json({ success: false, error:"2", message: "Your Login Token Expired. Please Login." });
+            });
+    } else {
+        res.status(401).json({ success: false, error:"1", message: "You are not authorised." });
+    }
+};
+
 const generateOTP = () => {
     return otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
   }  
 
 module.exports =  {
+    verifyToken,
     generateJwtToken,
     decodeJwtToken,
     send_mail,
@@ -243,5 +278,6 @@ module.exports =  {
     sendMobileOTP,
     sendMailOTP,
     generateOTP,
-    awsFileUrl
+    awsFileUrl,
+    authenticated
   };

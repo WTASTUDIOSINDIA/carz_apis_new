@@ -387,8 +387,8 @@ router.get('/get_franchisees_new', function (req, res) {
 //get franchisee by id
 
 
-router.post('/get_franchiseelist_counts', function (req, res) {
-    
+router.post('/get_franchiseelist_counts',utils.authenticated, function (req, res) {
+   
     let data = req.body;
     if(data.franchisor_id) {
     if(data.franchisor_id.length == 24) {
@@ -458,7 +458,7 @@ router.post('/get_franchiseelist_counts', function (req, res) {
     res.status(400).json({error:'2',message:"Please enter valid doctor id."});
   }}
   else{
-    res.status(403).json({error:'2',message:"doctor id is required, Missing required parameters."});
+    res.status(403).json({error:'2',message:"id is required, Missing required parameters."});
   }
     })
 
@@ -471,7 +471,6 @@ router.get('/get_franchisee/:id', function (req, res) {
             }
             if (!franchisee) {
                 res.send({
-                    "status": 400,
                     "state": "failure",
                     "franchisees_data": []
                 }, 400);
@@ -498,7 +497,7 @@ router.get('/get_franchisee/:id', function (req, res) {
 });
 
 // get all leads count
-router.post('/get_all_leads', (req, res) => {
+router.post('/get_all_leads', utils.authenticated, (req, res) => {
     let master_query = { master_franchisee_id: { $exists: false } }
     if (req.body._id) {
         master_query = { master_franchisee_id: req.body._id }
@@ -629,7 +628,7 @@ router.post('/get_leads_by_location', (req, res) => {
 })
 
 // get franchisee status
-router.post('/get_franchisee_status', (req, res) => {
+router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
     let status = {
         profile_pending: 0,
         discussion_pending: 0,
@@ -748,7 +747,7 @@ router.post('/get_franchisee_status', (req, res) => {
 })
 
 // to get total revenue 
-router.post('/get_total_revenue', (req, res) => {
+router.post('/get_total_revenue', utils.authenticated, (req, res) => {
     var query = { $exists: true };
     let master_query = {}
     if (req.body._id) {
@@ -824,7 +823,7 @@ router.post('/get_total_revenue', (req, res) => {
         })
 })
 
-router.post('/get_revenue_graph', (req, res) => {
+router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
     var year = req.body.date;
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var date;
@@ -1174,7 +1173,7 @@ router.post('/validate_mobile_number', function (req, res) {
     }
 });
 //create franchisee
-router.post('/create_franchisee', function (req, res) {
+router.post('/create_franchisee', utils.authenticated, function (req, res) {
 
     let franchiseeForm = req.body;
 
