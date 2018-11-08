@@ -9,6 +9,7 @@ var DiscussionQuestion = mongoose.model('DiscussionQuestion');
 var io = require('socket.io')(http);
 var http = require('http').Server(app);
 var app = express();
+var utils = require('../../common/utils');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -32,7 +33,7 @@ var upload = multer({
     })
 });
 
-router.post('/create_discussion_question', upload.single('discussion_question_img'), function (req, res) {
+router.post('/create_discussion_question', upload.single('discussion_question_img'), utils.authenticated, function (req, res) {
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
     console.log('34', req.body.discussionquestion, typeof(req.body.discussionquestion), 'typeoflfjsal;fskfsad');
     try {
@@ -94,7 +95,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
 })
 
 //Get question by question id
-router.get('/get_discussion_question/:question_id', function (req, res) {
+router.get('/get_discussion_question/:question_id', utils.authenticated, function (req, res) {
     try {
         DiscussionQuestion.find({ _id: req.params.question_id }, function (err, discussionquestion) {
             if (err) {
@@ -117,7 +118,7 @@ router.get('/get_discussion_question/:question_id', function (req, res) {
 })
 
 //Get all questions
-router.get('/get_all_discussion_questions', function (req, res) {
+router.get('/get_all_discussion_questions', utils.authenticated, function (req, res) {
     try {
         DiscussionQuestion.find({}, function (err, discussionquestion) {
             if (err) {

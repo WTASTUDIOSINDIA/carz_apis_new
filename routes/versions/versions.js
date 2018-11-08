@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+var utils = require('../../common/utils');
 var Versions = mongoose.model('Versions');
-router.post('/create_version', function (req, res) {
+router.post('/create_version', utils.authenticated, function (req, res) {
   try {
     Versions.findOne({
       'franchisor_id': req.body.franchisor_id,

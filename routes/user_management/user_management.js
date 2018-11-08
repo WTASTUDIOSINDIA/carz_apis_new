@@ -42,7 +42,7 @@ var fileupload = upload.fields([{
     maxCount: 20
 }]) 
 // To create user
-router.post('/create_user', function (req, res) {
+router.post('/create_user', utils.authenticated, function (req, res) {
     let userCreateForm = req.body;
     // try {
       Admin.findOne({ user_mail:userCreateForm.user_mail, user_phone_number:userCreateForm.user_phone_number}, function (err, user) {

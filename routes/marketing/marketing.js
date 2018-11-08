@@ -10,6 +10,7 @@ var Library = mongoose.model('Library');
 var _ = require('lodash');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
+var utils = require('../../common/utils');
 var bCrypt = require('bcrypt-nodejs');
 aws.config.loadFromPath('./config.json');
 aws.config.update({
@@ -47,7 +48,7 @@ var upload = multer({
 
 // To create campaign
 var createCampaignFiles = upload.fields([{ name: 'createCampaignFiles', maxCount: 50 }, { name: 'imgFields', maxCount: 20 }])
-router.post('/create_campaign', createCampaignFiles, function (req, res) {
+router.post('/create_campaign', createCampaignFiles, utils.authenticated, function (req, res) {
 
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
@@ -400,7 +401,7 @@ router.delete('/delete_campaign_file/:id', function(req, res){
     }
 })
 //To get all campaign
-router.get('/get_all_campaigns', function (req, res) {
+router.get('/get_all_campaigns', utils.authenticated, function (req, res) {
     try {
         Campaign.find({}, function (err, campaign) {
             if (err) {

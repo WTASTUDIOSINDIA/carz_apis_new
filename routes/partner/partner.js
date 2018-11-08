@@ -137,7 +137,7 @@ router.post('/validate_partner_email', function (req, res) {
 });
 
 // To Create Partner Franchisee
-router.post('/create_partner_franchisee', function (req, res) {
+router.post('/create_partner_franchisee',utils.authenticated, function (req, res) {
     // var partnerForm = JSON.parse(req.body.partner);
     var partnerForm = req.body;
     try {

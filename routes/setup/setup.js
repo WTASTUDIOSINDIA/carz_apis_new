@@ -16,6 +16,7 @@ var Franchisee = mongoose.model('Franchisee');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var KycUploads = mongoose.model('KycUploads');
+var utils = require('../../common/utils');
 var bCrypt = require('bcrypt-nodejs');
 var FranchiseeTypeList = mongoose.model('FranchiseeTypeList');
 aws.config.loadFromPath('./config.json');
@@ -37,7 +38,7 @@ var upload = multer({
     }
   })
 });
-router.post('/create_setup_department', function (req, res) {
+router.post('/create_setup_department',utils.authenticated, function (req, res) {
   try {
     SetupDepartment.findOne({ 'setup_department_name_EN': { $regex: new RegExp(req.body.setup_department_name_EN, 'i') }, franchisor_id: req.body.franchisor_id }, function (err, department) {
       if (err) {
@@ -152,7 +153,7 @@ router.put('/update_setup_department', function (req, res) {
 
 
 //To create setup checklist
-router.post('/create_setup_checklist', function (req, res) {
+router.post('/create_setup_checklist', utils.authenticated, function (req, res) {
   try {
     SetupChecklist.findOne({ setup_checklist_name_EN: { $regex: new RegExp(req.body.setup_checklist_name_EN, 'i') }, setup_department_id: req.body.setup_department_id, version_id: req.body.version_id }, function (err, checklist) {
       if (err) {
@@ -484,7 +485,7 @@ router.delete('/delete_checklists', function (req, res) {
 
 
 //Create Task for checklists
-router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), function (req, res) {
+router.post('/create_setup_checklist_task', upload.single('checklist_task_img'), utils.authenticated, function (req, res) {
   var checklistTaskForm = JSON.parse(req.body.task);
   // console.log(checklistTaskForm);
   try {
@@ -1004,7 +1005,7 @@ router.get('/get_user_updated_checklist_list/:setup_department_id/:franchisee_id
 })
 
 // To create versions by department
-router.post('/create_version_by_department_id', function (req, res) {
+router.post('/create_version_by_department_id', utils.authenticated, function (req, res) {
   try {
     Versions.findOne({
       version_name: { $regex: new RegExp(req.body.version_name, 'i') }, 'franchisor_id': req.body.franchisor_id, 'version_type': req.body.version_type,
