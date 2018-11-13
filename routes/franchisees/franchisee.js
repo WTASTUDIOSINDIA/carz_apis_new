@@ -1173,7 +1173,7 @@ router.post('/validate_mobile_number', function (req, res) {
     }
 });
 //create franchisee
-router.post('/create_franchisee', utils.authenticated, function (req, res) {
+router.post('/create_franchisee', function (req, res) {
 
     let franchiseeForm = req.body;
 
