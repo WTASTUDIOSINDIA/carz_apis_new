@@ -29,6 +29,7 @@ module.exports = function (passport) {
         //if user role is franchisor
         if (user.user_role === "franchisor") {
             Franchisor.findById(user.id, function (err, franchisor) {
+                console.log('franchisor32', franchisor);
                 done(err, franchisor);
             });
         };
@@ -36,6 +37,7 @@ module.exports = function (passport) {
         //if user role is franchisee
         if (user.user_role === "franchisee") {
             Franchisee.findById(user.id, function (err, franchisee) {
+                console.log('franchisee39', franchisee);
                 done(err, franchisee);
             });
         };
@@ -54,6 +56,7 @@ module.exports = function (passport) {
                 // check in mongo if a user with username exists or not
                 Franchisor.findOne({ 'user_mail': username },
                     function (err, franchisor) {
+                        console.log('franchisor58', franchisor);
                         // In case of any error, return using the done method
                         if (err) {
                             return done(err + "Error data");
@@ -90,7 +93,7 @@ module.exports = function (passport) {
                 // check in mongo if a user with username exists or not
                 Franchisee.findOne({ 'franchisee_email': username },
                     function (err, franchisee) {
-                        console.log('**********', franchisee)
+                        console.log('**********93passport', franchisee)
                         // In case of any error, return using the done method
                         if (err) {
 
@@ -122,6 +125,7 @@ module.exports = function (passport) {
         }
     ));
 
+    
     passport.use('admin-login', new LocalStrategy({
         usernameField: 'user_mail',
         passwordField: 'user_pass',
@@ -132,6 +136,7 @@ module.exports = function (passport) {
                 // check in mongo if a user with username exists or not
                 Admin.findOne({ 'user_mail': username },
                     function (err, admin) {
+                        console.log('**********138passport', admin)
                         // In case of any error, return using the done method
                         if (err) {
 
@@ -149,7 +154,7 @@ module.exports = function (passport) {
                         }
                         // User and password both match, return user from done method
                         // which will be treated like success
-
+                        console.log('nulladmin', admin);
                         return done(null, admin);
                     }
                 );
@@ -255,8 +260,8 @@ module.exports = function (passport) {
     var isValidPasswordOfFranchisee = function (franchisee, password) {
         return bCrypt.compareSync(password, franchisee.franchisee_pass);
     };
-    var isValidPasswordOfAdmin = function (franchisee, password) {
-        return bCrypt.compareSync(password, franchisee.user_pass);
+    var isValidPasswordOfAdmin = function (franchisor, password) {
+        return bCrypt.compareSync(password, franchisor.user_pass);
     };
     // Generates hash using bCrypt
     var createHash = function (password) {
