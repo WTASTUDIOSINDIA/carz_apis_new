@@ -475,7 +475,7 @@ router.get('/get_marketing_folders/:franchisee_id', function(req, res){
                   res.send({
                       state:"failure",
                       data:[]
-                  });
+                  },201);
                 }
               })
         }
