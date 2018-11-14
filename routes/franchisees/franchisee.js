@@ -1313,9 +1313,9 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
                             else {
 
                                 var stage = new Stages();
-                                    stage.franchisee_id = franchisee._id,
+                                stage.franchisee_id = franchisee._id,
                                     stage.stage_profile = franchisee.stage_profile
-                                    stage.save((err) => {
+                                stage.save((err) => {
                                     if (err, stage) {
                                         console.log(err, 'errorrrr');
                                     }
@@ -1327,7 +1327,7 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
                                 var partner = new Partner();
 
 
-                                    partner.partner_name = franchiseeForm.partner_name,
+                                partner.partner_name = franchiseeForm.partner_name,
                                     partner.partner_occupation = franchiseeForm.partner_occupation,
                                     partner.partner_email = franchisee.franchisee_email,
                                     partner.country_code = franchiseeForm.country_code,
@@ -1341,10 +1341,10 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
                                     partner.partner_country = franchiseeForm.partner_country,
                                     partner.main_partner = true,
                                     partner.bussiness_type_id = franchiseeForm.bussiness_type_id;
-                                    partner.franchisee_id = franchisee._id;
-                                    partner.partner_profile_pic = franchisee.franchisee_profile_pic;
-                                    partner.partner_occupation_others = franchisee.partner_occupation_others;
-                                    partner.save(function (err, partner) {
+                                partner.franchisee_id = franchisee._id;
+                                partner.partner_profile_pic = franchisee.franchisee_profile_pic;
+                                partner.partner_occupation_others = franchisee.partner_occupation_others;
+                                partner.save(function (err, partner) {
                                     if (err) {
                                         res.send({
                                             state: "err",
