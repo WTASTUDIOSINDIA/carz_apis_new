@@ -629,7 +629,7 @@ router.put('/answer',function(req,res){
 	}
 });
 
-router.get('/get_report/:franchisor_id/:franchisee_Id/:partner_Id',utils.authenticated, function(req, res){
+router.get('/get_report/:franchisor_id/:franchisee_Id/:partner_Id', function(req, res){
     try{
         Assessment.findOne({franchisee_id:req.params.franchisee_Id,partner_id:req.params.partner_Id},function(err,report){
             if(err){
