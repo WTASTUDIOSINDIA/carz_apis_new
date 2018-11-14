@@ -180,7 +180,7 @@ router.get('/get_audit_checklist_type_by_id/:checklist_type_id', function (req, 
   });
 
 // To get all checklists types
-router.get('/get_audit_all_checklist_types/:franchisor_id', utils.authenticated, function (req, res) {
+router.get('/get_audit_all_checklist_types/:franchisor_id', function (req, res) {
     try {
       AuditChecklistType.find({ franchisor_id:req.params.franchisor_id}, function (err, audit_checklist) {
         if (err) {
