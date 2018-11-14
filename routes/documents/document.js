@@ -264,7 +264,7 @@ router.get('/get_business_types_list/:version_id',function(req,res){
 });
 router.post('/set_business_type',utils.authenticated,function(req,res){
     try{
-        FranchiseeType.findOne({'bussiness_type_name':{$regex: new RegExp(req.body.bussiness_type_name,'i')}},function(err,type){
+        FranchiseeType.findOne({'bussiness_type_name':{$regex: new RegExp(req.body.bussiness_type_name,'i'), version_id: req.body.version_id}},function(err,type){
             if(err){
                 return res.send({
                     state:"err",
