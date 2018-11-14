@@ -44,6 +44,30 @@ module.exports = function(passport){
     //sends successful login state back to angular
 
 
+
+
+
+    router.get('/success', function (req, res) {
+        console.log(req.user)
+        res.send({
+          state: 'success',
+          user: req.user,
+          status: 200
+        })
+      })
+    
+      // sends failure login state back to angular
+      router.get('/failure', function (req, res) {
+        res.send({
+          state: 'failure',
+          user: null,
+          status: 201,
+          message: req.flash('error')
+        })
+      })
+
+
+
     router.post('/verify', function(req, res){
         console.log(req.body);
         Franchisee.findById(req.body.id,function(err,franchisee){
@@ -165,6 +189,7 @@ module.exports = function(passport){
             user: req.user ? req.user : null,
             status:200
         });
+        console.log('success-admin168', req.user);
     });
 
     //sends failure login state back to angular
@@ -179,16 +204,15 @@ module.exports = function(passport){
     });
 
     //franchisor log in
-    /*
-    router.post('/franchisor-login', passport.authenticate('franchisor-login', {
-        failureRedirect: '/authenticate/failure-franchisor',
-        successRedirect: '/authenticate/success-franchisor',
-        failureFlash: true
-    }));
-    */
+    
+    // router.post('/franchisor-login', passport.authenticate('franchisor-login', {
+    //     failureRedirect: '/authenticate/failure-franchisor',
+    //     successRedirect: '/authenticate/success-franchisor',
+    //     failureFlash: true
+    // }));
+    
    
 router.post('/franchisor-login', function (req,res){
-    console.log('+++++++++++++++++++', req.headers);
     let data = req.body;
    // data.user_pass = createHash(data.user_pass);
     let query = {};
@@ -201,7 +225,7 @@ router.post('/franchisor-login', function (req,res){
                 let dataset = {};
                 dataset.userdata = response;
                 let requestForm = response.platform;
-                 dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',

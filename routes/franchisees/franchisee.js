@@ -528,7 +528,6 @@ router.post('/get_all_leads', utils.authenticated, (req, res) => {
         }
     ]).exec()
         .then((total_leads) => {
-            console.log(total_leads)
             total_leads.forEach(lead => {
                 if (lead._id.key == "Cold") {
                     cold_leads = cold_leads + lead.count
@@ -579,7 +578,6 @@ router.post('/get_all_leads', utils.authenticated, (req, res) => {
                 if (lead._id.key == undefined) {
                     onhold = 0
                 }
-                console.log(lead._id.key)
             });
             return res.json({
                 state: 'success',
@@ -601,7 +599,6 @@ router.post('/get_leads_by_location', (req, res) => {
     if (req.body._id) {
         master_query = { master_franchisee_id: req.body._id }
     }
-    console.log(req.body);
     if (req.body.country && !req.body.state && !req.body.city) {
         query = { $and: [{ 'franchisee_country': req.body.country }, master_query] }
     }
@@ -611,7 +608,6 @@ router.post('/get_leads_by_location', (req, res) => {
     if (req.body.country && req.body.state && req.body.city) {
         query = { $and: [{ 'franchisee_country': req.body.country, 'franchisee_state': req.body.state, 'franchisee_city': req.body.city }, master_query] }
     }
-    console.log(query, 'query');
     Franchisee.find(query, (err, data) => {
         if (err) {
             return res.json(500, err);
@@ -646,7 +642,6 @@ router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
         { $group: { _id: null, profile_complete: { $sum: 1 } } }
     ]).exec()
         .then((stat) => {
-            console.log(stat, 'statuss');
             // status.discussion_pending = stat[0].discussion_pending;
             if (stat[0] == undefined) {
                 status.profile_pending = 0;
@@ -654,7 +649,6 @@ router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
             else {
                 status.profile_pending = stat[0].profile_complete
             }
-            console.log(status.profile_pending);
         })
         .then(() => {
             return Stages.aggregate([
@@ -733,7 +727,6 @@ router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
                 })
         })
         .then(() => {
-            console.log(status, 'status');
             return res.json({
                 state: 'success',
                 message: 'Successfully fetched status data',
@@ -741,7 +734,6 @@ router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
             })
         })
         .catch((err) => {
-            console.log(err)
             return res.json(500, err)
         })
 })
@@ -756,7 +748,6 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
     if (req.body.type === 'yearly') {
         var first_day_of_year = new Date(req.body.date, 0, 1);
         var last_day_of_year = new Date(req.body.date, 11, 31);
-        console.log(first_day_of_year, '/////////', last_day_of_year);
         query = { $gte: first_day_of_year, $lte: last_day_of_year }
     }
     if (req.body.type === 'monthly') {
@@ -766,10 +757,8 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
         // var lastDay = new Date(req.body.date);
         var fdt = new Date(firstDay.setHours(0, 0, 0, 0));
         var ldt = new Date(lastDay.setHours(23, 59, 59, 999));
-        console.log(firstDay, lastDay, 'first, last', fdt, ldt);
         query = { $gte: fdt, $lte: ldt }
     }
-    console.log(query, '------>');
     var one_lac_total = 0;
     var four_lac_total = 0;
     var total_leads = 0;
@@ -779,7 +768,6 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
     ]).exec()
         .then((one_lac) => {
-            console.log(one_lac)
             if (one_lac[0] !== undefined) {
                 one_lac_total = one_lac[0].one_lac_count * 100000;
             }
@@ -788,7 +776,6 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
                 { $group: { _id: null, four_lac_count: { $sum: 1 } } }
             ]).exec()
                 .then((four_lac) => {
-                    console.log(four_lac, 'foor_laccc')
                     if (four_lac[0] !== undefined) {
                         four_lac_total = four_lac[0].four_lac_count * 400000;
                     }
@@ -801,7 +788,6 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
                 { $group: { _id: null, count: { $sum: 1 } } }
             ]).exec()
                 .then((leads_count) => {
-                    console.log(leads_count);
                     total_leads = leads_count[0].count * 5 * 100000;
                 })
         })
@@ -818,7 +804,6 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
             })
         })
         .catch((err) => {
-            console.log(err)
             return res.json(500, err)
         })
 })
@@ -835,7 +820,6 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
         let lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
         let fdt = new Date(firstDay.setHours(0, 0, 0, 0));
         let ldt = new Date(lastDay.setHours(23, 59, 59, 999));
-        console.log(month, fdt, ldt);
         let one_lac_total = 0;
         let four_lac_total = 0;
         let total_leads = 0;
@@ -845,8 +829,6 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
         if (req.body._id) {
             master_query = { master_franchisee_id: req.body._id }
         }
-        console.log(query);
-        console.log(master_query);
         Stages.aggregate([
             { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }, master_query] } },
             { $group: { _id: null, one_lac_count: { $sum: 1 } } }
@@ -854,15 +836,12 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
             .then((one_lac) => {
 
                 if (one_lac == "" || one_lac == null || one_lac.length == 0) {
-                    console.log(one_lac, 'one_lac--------------------')
-                    console.log(month, fdt, ldt);
                     months_data.push({ "month": fdt, "total": 0 });
                     if (months_data.length == months.length) {
                         months_data.sort((x, y) => {
                             return x.month - y.month;
                         })
                         // return months_data;
-                        console.log(months_data);
                         for (let j = 0; j < months_data.length; j++) {
                             data.push(months_data[j].total);
                         }
@@ -872,19 +851,16 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
                             'total_yearly_revenue': data
                         })
                     }
-                    console.log(months_data);
                 }
                 else {
                     if (one_lac[0].one_lac_count) {
                         one_lac_total = one_lac[0].one_lac_count * 100000;
                     }
-                    console.log(one_lac, '_lac-------++++++-------------')
                     Stages.aggregate([
                         { $match: { $and: [{ 'stage_agreenent.four_lac_payment_status': 'uploaded' }, { 'stage_agreenent.four_lac_payment_uploaded_date': query }, master_query] } },
                         { $group: { _id: null, four_lac_count: { $sum: 1 } } }
                     ]).exec()
                         .then((four_lac) => {
-                            console.log(four_lac, 'four_lac')
 
                             if (four_lac[0] !== undefined) {
                                 four_lac_total = four_lac[0].four_lac_count * 400000;
@@ -899,8 +875,6 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
                                     data.push(months_data[j].total);
                                 }
                                 // return months_data;
-                                console.log(months_data);
-                                console.log(data, 'ads----------============');
                                 return res.json({
                                     state: 'success',
                                     message: 'Successfully fetched total revenue',
@@ -910,7 +884,6 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
                             // return (one_lac, four_lac);
                         })
                         .catch((err) => {
-                            console.log(err)
                             return res.json(500, err)
                         })
                 }
