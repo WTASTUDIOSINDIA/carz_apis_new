@@ -14,7 +14,7 @@ var Schema = mongoose.Schema;
 var stagesSchema = new mongoose.Schema({
   "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
   "folder_id": String,
-  "stage_profile": String,
+  "stage_profile": {type: String, default: 'completed'},
   "master_franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee' },
   "stage_discussion": {
     "status": { type: Boolean, default: false },

@@ -1042,7 +1042,7 @@ router.post('/create_version_by_department_id', utils.authenticated, function (r
               .then((count) => {
                 console.log(count, '////////////3323333')
                 if (count[0].count === 1) {
-                  Versions.findOneAndUpdate({ version_type: version.version_type }, { $set: { default: true } }, { new: true }).sort({ field: 'asc', _id: -1 }).exec((err, versions) => {
+                  Versions.findOneAndUpdate({ version_type: version.version_type, department_id: req.body.department_id }, { $set: { default: true } }, { new: true }).sort({ field: 'asc', _id: -1 }).exec((err, versions) => {
                     if (err) {
                       console.log(err, 'verions_err');
                     }

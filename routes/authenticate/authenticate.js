@@ -247,7 +247,7 @@ router.post('/franchisor-login', function (req,res){
                 let dataset = {};
                 dataset.userdata = response;
                let requestForm = response.platform;
-               dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
@@ -271,8 +271,8 @@ router.post('/franchisor-login', function (req,res){
                 console.log(response, 'test244');
                 let dataset = {};
                 dataset.userdata = response;
-                let requestForm = response.platform;
-                dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
+                 let requestForm = response.platform;
+                 dataset.token = utils.generateJwtToken({ userID: response._id, user_mail: response.user_mail }, requestForm)
                 response.user_pass = undefined;
                 res.send({
                     state: 'success',
