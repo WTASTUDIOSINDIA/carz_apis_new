@@ -592,7 +592,7 @@ router.post('/create_employee_assessment_question', fileupload, utils.authentica
 
 
 //to get assessment type questions by type id
-router.get('/get_assessment_questions/:assessment_type_id', utils.authenticated, function (req, res) {
+router.get('/get_assessment_questions/:assessment_type_id', function (req, res) {
     try {
         EmployeeAssessment.find({ assessment_type_id: req.params.assessment_type_id }, function (err, question) {
             if (err) {

@@ -13,7 +13,7 @@ var env = require('./env.json');
 // };
 console.log(process.env.NODE_ENV, 'process.env.process.env.NODE_ENV');
 var config = function() {
-    var node_env = process.env.NODE_ENV || 'prod';
+    var node_env = process.env.NODE_ENV || 'dev';
     return env[node_env];
   };
 
