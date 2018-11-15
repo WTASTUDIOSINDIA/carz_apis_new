@@ -228,7 +228,7 @@ router.delete('/delete_version/:version_id', function (req, res) {
         ]).exec()
           .then((count) => {
             console.log(count[0], '////////////3323')
-            if (count[0] === undefined) {
+            if (count[0] === undefined || count[0].count >0) {
               Versions.findOneAndUpdate({ version_type: version.version_type }, { $set: { default: true } }, { new: true }).sort({ field: 'asc', _id: -1 }).exec((err, versions) => {
                 if (err) {
                   console.log(err, 'verions_err');
