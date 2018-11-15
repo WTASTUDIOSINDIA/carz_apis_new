@@ -166,7 +166,7 @@ var notificationSchema = new mongoose.Schema({
 
 var FolderSchema = new mongoose.Schema({
     "folder_name":String,
-    "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    "franchisee_Id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
     "create_date":Date,
     "parent_folder_id": String,
     "path": Array,

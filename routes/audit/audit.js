@@ -293,7 +293,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 // to crete audit checklist
 router.post('/create_audit_checklist', utils.authenticated, function (req,res){
     try{
-        AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}}, function (err, auditChecklist){
+        AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}, checklist_type_id: req.body.checklist_type_id}, function (err, auditChecklist){
             if(err){
                return res.send(500, err)
             }
