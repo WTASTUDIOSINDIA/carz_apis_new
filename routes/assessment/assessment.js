@@ -14,7 +14,7 @@ var Stages = mongoose.model('Stages');
 var utils = require('../../common/utils');
 var _ = require('lodash');
 
-router.post('/add_assessment_type',utils.authenticated,function(req,res){
+router.post('/add_assessment_type',function(req,res){
     try{
         Question_Type.findOne({'question_type_name':{$regex: new RegExp (req.body.question_type_name,'i')}},function(err,questionType){
             if(err){
@@ -215,7 +215,7 @@ router.get('/question_types_by_version/:franchisor_id',function(req,res){
 });
 
 
-router.post('/question_list', utils.authenticated,function(req,res){
+router.post('/question_list',function(req,res){
     try{
         Question.findOne({'question_EN':req.body.question_EN,'question_type':req.body.question_type},function(err,ques){
             if(err){

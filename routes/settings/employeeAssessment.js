@@ -84,7 +84,7 @@ router.post('/validate_employee_email', function (req, res) {
 // To create assessment types
 router.post('/create_assessemnt_type', utils.authenticated, function (req, res) {
     try {
-        EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') }, franchisor_id: req.body.franchisor_id }, function (err, assessment) {
+        EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') }, franchisor_id: req.body.franchisor_id, model_id: req.body.model_id }, function (err, assessment) {
             if (err) {
                 res.send({
                     state: "failure",
@@ -526,7 +526,7 @@ router.post('/create_employee_assessment_question', fileupload, utils.authentica
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
-        EmployeeAssessment.findOne({ question_EN: {$regex: new RegExp(employeeAssessmentForm.question_EN,'i')}}, function (err, question) {
+        EmployeeAssessment.findOne({ question_EN: {$regex: new RegExp(employeeAssessmentForm.question_EN,'i')}, assessment_type_id: employeeAssessmentForm.assessment_type_id}, function (err, question) {
             if (err) {
                 return res.send({
                     state: 'err',

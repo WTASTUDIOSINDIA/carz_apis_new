@@ -20,6 +20,7 @@ var DiscussionQuestionSchema = new mongoose.Schema({
      'user_name': String,
      'franchisee_address': String,
       'franchisee_profile_pic':String,
+      'created_at': {type: Date, default: Date.now},
       'user_profile_pic':String,
       'comment_text' :String,
       'comment_file_attachment_file_name': String,
