@@ -322,7 +322,7 @@ schedule.scheduleJob(month_rule, function(req,res){
     });
 })
 
-router.post('/get_checklist',Utils.authenticated, function (req,res){
+router.post('/get_checklist', function (req,res){
     let data = req.body;
 
     if(data.checklist_type && data.franchisee_id){
@@ -455,7 +455,7 @@ router.post('/get_checklist',Utils.authenticated, function (req,res){
     
 })
 
-router.post('/save_franchisee_audit_task',upload.single('file'),Utils.authenticated, function (req,res){
+router.post('/save_franchisee_audit_task',upload.single('file'), function (req,res){
   let data = JSON.parse(req.body.task_data);
   
   var not_act = false;
@@ -729,7 +729,7 @@ router.get('/get_franchisee_task_by_id/:id',function(req,res){
 }
 });
 
-router.post('/get_tasks_at_checklist_id',Utils.authenticated, function (req,res){
+router.post('/get_tasks_at_checklist_id', function (req,res){
   let data = req.body;
 
   if(data.checklist_id && data.checklist_type && data.franchisee_id){
@@ -861,7 +861,7 @@ router.post('/get_tasks_at_checklist_id',Utils.authenticated, function (req,res)
   
 })
 
-router.post('/save_non_working_day',Utils.authenticated, function (req,res){
+router.post('/save_non_working_day', function (req,res){
   let data = req.body;
 
   if(data.franchisee_id  && data.checklist_type && data.on_date){
@@ -950,7 +950,7 @@ router.post('/delete_non_working_day', function (req,res){
 }
 })
 
-router.post('/get_calender_list',Utils.authenticated, function (req,res){
+router.post('/get_calender_list', function (req,res){
   let data = req.body;
 
   if(data.franchisee_id && data.checklist_type && data.date){
