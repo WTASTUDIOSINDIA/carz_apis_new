@@ -158,33 +158,37 @@ router.post('/create_partner_franchisee',utils.authenticated, function (req, res
             }
             if (!partner) {
                 var partner = new Partner();
-                if(partnerForm.partner_pic){
-                    if(partnerForm.partner_pic != ""){
-                
-                  let fileExt = "";
-                if (partnerForm.partner_pic.indexOf("image/png") != -1)
-                  fileExt = "png";
-              else if (partnerForm.partner_pic.indexOf("image/jpeg") != -1)
-                  fileExt = "jpeg";
-              else if (partnerForm.partner_pic.indexOf("image/jpg") != -1)
-                  fileExt = "jpg";
-              else if (partnerForm.partner_pic.indexOf("video/mp4") != -1)
-                  fileExt = "mp4";  
-              else
-                  fileExt = "png";
-            
-              let imageKey = "partner_pic/img_" + moment().unix();
-              if (partnerForm.partner_pic){
-                  utils.uploadToS3(imageKey, fileExt, partnerForm.partner_pic);
-            }
-              partnerForm.prof_pic_org_url = utils.awsFileUrl()+imageKey + "." + fileExt;
-              partnerForm.partner_profile_pic = partnerForm.prof_pic_org_url;
-            
-                }else{
-                partnerForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
-              }}else{
-                partnerForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
-              }
+                if (partnerForm.partner_pic) {
+                    if (partnerForm.partner_pic != "") {
+
+                        let fileExt = "";
+                        if (partnerForm.partner_pic.indexOf("image/png") != -1)
+                            fileExt = "png";
+                        else if (partnerForm.partner_pic.indexOf("image/jpeg") != -1)
+                            fileExt = "jpeg";
+                        else if (partnerForm.partner_pic.indexOf("image/jpg") != -1)
+                            fileExt = "jpg";
+                        else if (partnerForm.partner_pic.indexOf("video/mp4") != -1)
+                            fileExt = "mp4";
+                        else
+                            fileExt = "png";
+
+                        let imageKey = "partner_pic/img_" + moment().unix();
+                        console.log(imageKey)
+                        if (partnerForm.partner_pic) {
+                            // console.log('++++++++++++++++716',uploadToS3(imageKey, fileExt, partnerForm.partner_pic));
+                            utils.uploadToS3(imageKey, fileExt, partnerForm.partner_pic);
+                            delete partnerForm.partner_pic;
+                        }
+                        partnerForm.prof_pic_org_url = utils.awsFileUrl() + imageKey + "." + fileExt;
+                        partnerForm.partner_profile_pic = partnerForm.prof_pic_org_url;
+
+                    } else {
+                        partnerForm.partner_profile_pic = utils.awsFileUrl() + "partner_pic/fallout.png";
+                    }
+                } else {
+                    partnerForm.partner_profile_pic = utils.awsFileUrl() + "partner_pic/fallout.png";
+                }
                 partner.partner_name = partnerForm.partner_name;
                 partner.partner_occupation = partnerForm.partner_occupation;
                 partner.partner_email = partnerForm.partner_email;
@@ -195,11 +199,13 @@ router.post('/create_partner_franchisee',utils.authenticated, function (req, res
                 partner.partner_city = partnerForm.partner_city;
                 partner.partner_state = partnerForm.partner_state;
                 partner.partner_country = partnerForm.partner_country;
+                partner.country_code = partnerForm.country_code;
                 partner.partner_pincode = partnerForm.partner_pincode;
                 partner.partner_house_number = partnerForm.partner_house_number;
                 partner.bussiness_type = partnerForm.bussiness_type;
                 partner.bussiness_type_id = partnerForm.bussiness_type_id;
                 partner.partner_occupation_others = partnerForm.partner_occupation_others;
+                partner.partner_profile_pic = partnerForm.partner_profile_pic;
                 partner.save(function (err, partner) {
                     if (err) {
                         res.send({
@@ -358,21 +364,23 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                         partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }
 
-                partner.partner_name = partnerEditForm.partner_name;
-                partner.partner_occupation = partnerEditForm.partner_occupation;
-                partner.partner_email = partnerEditForm.partner_email;
-                partner.partner_address = partnerEditForm.partner_address;
-                partner.partner_city = partnerEditForm.partner_city;
-                partner.partner_state = partnerEditForm.partner_state;
-                partner.partner_country = partnerEditForm.partner_country;
-                partner.partner_pincode = partnerEditForm.partner_pincode;
-                partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
-                partner.partner_age = partnerEditForm.partner_age;
-                partner.country_code = partnerEditForm.country_code;
-                partner.partner_house_number = partnerEditForm.partner_house_number;
-                partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
-                partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-                partner.partner_profile_pic =  partnerEditForm.partner_profile_pic;
+                      partner.partner_name = partnerEditForm.partner_name;
+                      partner.partner_occupation = partnerEditForm.partner_occupation;
+                      partner.partner_email = partnerEditForm.partner_email;
+                      partner.partner_mobile_number = partnerEditForm.partner_mobile_number;
+                      partner.partner_age = partnerEditForm.partner_age;
+                      partner.franchisee_id = partnerEditForm.franchisee_id;
+                      partner.partner_address = partnerEditForm.partner_address;
+                      partner.partner_city = partnerEditForm.partner_city;
+                      partner.partner_state = partnerEditForm.partner_state;
+                      partner.partner_country = partnerEditForm.partner_country;
+                      partner.country_code = partnerEditForm.country_code;
+                      partner.partner_pincode = partnerEditForm.partner_pincode;
+                      partner.partner_house_number = partnerEditForm.partner_house_number;
+                      partner.bussiness_type = partnerEditForm.bussiness_type;
+                      partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
+                      partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
+                      partner.partner_profile_pic = partnerEditForm.partner_profile_pic;
                 partner.save(function (err, partner) {
                     if (err) {
 
