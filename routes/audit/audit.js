@@ -37,7 +37,7 @@ var fileupload = upload.fields([{
   }])
 
 //   To create checklist type
-router.post('/create_audit_checklist_type', utils.authenticated, function (req, res) {
+router.post('/create_audit_checklist_type', function (req, res) {
     try {
       AuditChecklistType.findOne({ audit_checklist_type_name: {$regex: new RegExp(req.body.audit_checklist_type_name, 'i')}, franchisor_id: req.body.franchisor_id }, function (err, checklist_type) {
         if (err) {
@@ -291,7 +291,7 @@ router.delete('/delete_all_checklists_types', function(req,res){
 })
 
 // to crete audit checklist
-router.post('/create_audit_checklist', utils.authenticated, function (req,res){
+router.post('/create_audit_checklist', function (req,res){
     try{
         AuditChecklist.findOne({audit_checklist_title: {$regex: new RegExp(req.body.audit_checklist_title, 'i')}, checklist_type_id: req.body.checklist_type_id}, function (err, auditChecklist){
             if(err){
@@ -444,7 +444,7 @@ router.get('/get_audit_checklist_by_id/:checklist_type_id', function (req, res) 
   });
 
 // To get all checklists
-router.get('/get_audit_all_checklists', utils.authenticated, function (req, res) {
+router.get('/get_audit_all_checklists', function (req, res) {
     try {
       AuditChecklist.find({ }, function (err, audit_checklist) {
         if (err) {
@@ -531,7 +531,7 @@ router.delete('/delete_all_checklists', function(req,res){
   })   
 
 // To create task
-router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'),utils.authenticated, function (req, res) {
+router.post('/create_audit_checklist_task', upload.single('audit_checklist_task_img'), function (req, res) {
     var auditChecklistTaskForm = JSON.parse(req.body.task);
     
     try {
