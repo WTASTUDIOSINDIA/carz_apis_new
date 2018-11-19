@@ -287,9 +287,9 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_status = meetingEditForm.meeting_status,
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
-                if (meetingForm.meeting_reason) {
-                    meeting.meeting_reason = meetingForm.meeting_reason
-                };
+                    if (meetingForm.meeting_reason) {
+                        meeting.meeting_reason = meetingForm.meeting_reason
+                    };
                 meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
