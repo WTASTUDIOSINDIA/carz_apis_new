@@ -287,13 +287,13 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_status = meetingEditForm.meeting_status,
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
-                if (meetingForm.meeting_reason) {
-                    meeting.meeting_reason = meetingForm.meeting_reason
-                };
+                    if (meetingEditForm.meeting_reason) {
+                        meeting.meeting_reason = meetingEditForm.meeting_reason
+                    };
                 meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
-                            state: "err",
+                            state: "failure",
                             message: "Something went wrong.",
                             data: err
                         }, 500);
@@ -534,6 +534,7 @@ function saveMeetingNotification(request, response) {
     notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
     notific.meeting_status = getNotifications.meeting_status;
+    notific.notification_to = getNotifications.notification_to;
     if (!getNotifications.meeting_status == 'pending') {
         notific.notification_to = getNotifications.notification_to;
     }
@@ -544,16 +545,17 @@ function saveMeetingNotification(request, response) {
     if (getNotifications.meeting_status) {
         notific.approved_by = getNotifications.approved_by;
     }
-    if (getNotifications.meeting_status) {
-        if (getNotifications.notification_to == 'franchisee') {
-            notific.notification_to = "franchisor",
-                console.log(notific.notification_to, '1', getNotifications.notification_to);
-        }
-        else if (getNotifications.notification_to == 'franchisor') {
-            notific.notification_to = "franchisee",
-                console.log(notific.notification_to, '2', getNotifications.notification_to);
-        }
-    }
+    // if (getNotifications.meeting_status) {
+    //     if (getNotifications.notification_to == 'franchisee') {
+    //         notific.notification_to = "franchisor",
+    //         console.log('notification_to_1', notific); 
+    //     }
+    //     else if (getNotifications.notification_to == 'franchisor') {
+    //         notific.notification_to = "franchisee",
+    //         console.log('notification_to_2', notific);         
+    //     }
+    //     console.log('notification_to_3', notific); 
+    // }
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {
@@ -858,11 +860,13 @@ router.put('/change_meeting_status', function (req, res) {
                 if (req.body.meeting_status == 'approved') {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
+                    meeting.notification_to = req.body.notification_to;
                 }
                 if (req.body.meeting_status == 'declined' && req.body.meeting_reason != null) {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
                     meeting.meeting_reason = req.body.meeting_reason;
+                    meeting.notification_to = req.body.notification_to;
                 }
                 meeting.save(function (err, meeting) {
                     if (err) {
