@@ -317,7 +317,7 @@ router.delete('/delete_assessment_type_name_by_id/:id', function (req, res) {
     }
 });
 //To save employee assessment type
-router.post('/save_employee_assessment_type', utils.authenticated, function (req, res) {
+router.post('/save_employee_assessment_type', function (req, res) {
     try {
         EmployeeAssessmentTypeOfFranchisee.findOne({ 'employee_id': req.body.employee_id }, function (err, employeeType) {
             if (err) {

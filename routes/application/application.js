@@ -303,7 +303,121 @@ var cpUpload = upload.fields([{
   name: 'imgFields',
   maxCount: 20
 }])
+//update_application_after_approval_by_franchisor
+router.put('/update_application_after_approval_by_franchisor', cpUpload, function (req, res) {
+  // console.log(req.body);
+  var application_form = JSON.parse(req.body.data);
+  try {
+    ApplicationSubmitted.findOne({ franchisee_Id: application_form.franchisee_Id
+    }, function (err, application) {
+      if (err) {
+        return res.send({
+          state: "err",
+          message: "Something went wrong.We are looking into it."
+        }, 500);
+      }
+      if (application) {
 
+        // if (req.files.file_upload) {
+        //   for (var i = 0; i < req.files.file_upload.length; i++) {
+        //     for (var j = 0; j < application_form.application_list.length; j++) {
+        //       if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
+        //         application_form.application_list[j].answer = req.files.file_upload[i].location;
+        //         application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+        //       }
+        //     }
+        //   }
+        // }
+        if (req.files.file_upload) {
+          for (var i = 0; i < req.files.file_upload.length; i++) {
+            for (var j = 0; j < application_form.application_list.length; j++) {
+              if (application_form.application_list[j].question_type === 'File Upload' && application_form.application_list[j].answer.length == undefined) {
+                application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].key = req.files.file_upload[i].key;
+                application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                // application_form.application_list.file_type[j] = "doc";
+
+                if (req.files.file_upload[i].mimetype == "application/pdf") {
+                  application_form.application_list[j].file_type = "pdf";
+              }
+              if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                  application_form.application_list[j].file_type = "image";
+              }
+              i++;
+              }
+            }
+          }
+        }
+        application.franchisee_Id = application_form.franchisee_Id;      
+        application.answers = application_form.application_list;
+        application.save(function (err, application) {
+          if (err) {
+            return res.send({
+              state: "err",
+              message: "Something went wrong.We are looking into it."
+            }, 500);
+          } else {
+            
+            return res.send({
+              state: "success",
+              message: "application submitted.",
+              data: application
+            }, 200);
+          }
+        })
+      }
+      if (!application) {
+        var application_stats = new ApplicationSubmitted();
+
+        if (req.files.file_upload) {
+          console.log(req.files);
+          for (var i = 0; i < req.files.file_upload.length; i++) {
+            for (var j = 0; j < application_form.application_list.length; j++) {
+              if (application_form.application_list[j].question_type === 'File Upload') {
+                application_form.application_list[j].answer = req.files.file_upload[i].location;
+                application_form.application_list[j].key = req.files.file_upload[i].key;
+                application_form.application_list[j].file_name = req.files.file_upload[i].originalname;
+                // application_form.application_list.file_type[j] = "doc";
+
+                if (req.files.file_upload[i].mimetype == "application/pdf") {
+                  application_form.application_list[j].file_type = "pdf";
+              }
+              if (req.files.file_upload[i].mimetype  == "image/png" || req.files.file_upload[i].mimetype  == "image/jpg" || req.files.file_upload[i].mimetype  == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                application_form.application_list[j].file_type = "image";
+              }
+              }
+            }
+
+          }
+
+        }
+        application_stats.franchisee_Id = application_form.franchisee_Id;        
+        application_stats.answers = application_form.application_list;
+        application_stats.save(function (err, application_stats) {
+          if (err) {
+            return res.send({
+              state: "err",
+              message: "Something went wrong.We are looking into it."
+            }, 500);
+          } else {            
+            return res.send({
+              state: "success",
+              message: "application submitted.",
+              data:application
+            }, 200);
+          }
+        })
+      }
+
+    })
+  } catch (err) {
+    res.send({
+      state: "error",
+      message: err
+    }, 500);
+  }
+
+})
 router.put('/submit_application', cpUpload, function (req, res) {
   // console.log(req.body);
   var application_form = JSON.parse(req.body.data);
