@@ -390,6 +390,7 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                             } else {
 
                                 if (partner.main_partner) {
+                                    franchiees.franchisee_email = partner.partner_email;
                                     franchiees.franchisee_profile_pic = partner.partner_profile_pic;
                                     franchiees.franchisee_mobile_number = partner.partner_mobile_number;
                                     franchiees.franchisee_occupation = partner.partner_occupation;

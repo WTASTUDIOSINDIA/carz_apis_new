@@ -147,7 +147,7 @@ app.use(require('express-session')({
     cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
 }));
 // app.use(cors('cors'))
-app.use(cors({credentials: true, origin: 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com'}));
+app.use(cors({credentials: true, origin: 'http://localhost:4200'}));
 app.use(logger('dev'));
 app.use(session({
   secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9',
