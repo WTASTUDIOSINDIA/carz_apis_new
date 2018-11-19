@@ -499,6 +499,7 @@ router.delete('/delete_campaigns', function (req, res) {
             else {
                 res.send({
                     "message": "Campaigns deleted.",
+                    "state": "success"
                 }, 200);
             }
         })
@@ -526,6 +527,7 @@ router.delete('/delete_campaign/:campaign_id', function (req, res) {
             else {
                 res.send({
                     "message": "Campaign deleted.",
+                    "state": "success"
                 }, 200);
             }
         })
