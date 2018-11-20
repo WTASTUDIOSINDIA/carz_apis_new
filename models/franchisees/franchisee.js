@@ -327,26 +327,6 @@ var CampaignSchema = new mongoose.Schema({
     'campaign_status': String
 });
 
-var PaymentFileUploadSchema =new mongoose.Schema({
-    "one_lakh_payment_files" : {
-        "payment_file_url" : String,
-        "payment_file_type" : String,
-        "payment_file_name": String,
-        "created_on" : Date
-    },
-    "four_lakh_payment_file": {
-        "payment_file_url" : String,
-        "payment_file_type" : String,
-        "payment_file_name": String,
-        "created_on" : Date
-    },
-    // "payment_file_name": String,
-    // "payment_file_url": {type: Schema.Types.Mixed, default : {}},
-    // "payment_file_type":String,
-    "franchisee_id": {type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "date_uploaded":Date,
-});
-
 //franchiseeSchema.index({franchisee_name: 'text',partner_name:'text',franchisee_address:'text',franchisee_city:'text',franchisee_pincode:'text',franchisee_franchise_type:'text'}, {unique: true})
 // franchiseeSchema.index({partner_name: 'text'})
 // franchiseeSchema.index({franchisee_address: 'text'})
@@ -374,5 +354,3 @@ mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
 mongoose.model('ThirdPartyFiles', thirdPartyFileSchema);
 mongoose.model('Campaign', CampaignSchema);
 mongoose.model('Notification', notificationSchema);
-mongoose.model('PaymentFileUpload', PaymentFileUploadSchema);
-

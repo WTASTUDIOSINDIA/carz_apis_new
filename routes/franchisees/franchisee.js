@@ -12,7 +12,6 @@ var Folder = mongoose.model('Folder');
 var Doc = mongoose.model('Doc');
 var KycUploads = mongoose.model('KycUploads');
 var Franchisor = mongoose.model('Franchisor');
-var PaymentFileUpload = mongoose.model('PaymentFileUpload');
 var Admin = mongoose.model('Admin');
 var Auth = mongoose.model('Auth');
 var fs = require('fs');
@@ -274,7 +273,9 @@ router.get('/get_franchisees_new', function (req, res) {
                     { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
                     { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
                     { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
+                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} },
+                    { "franchisee_email":     { "$regex": data_query.search, "$options":"i"} },
+                    { "partner_email":     { "$regex": data_query.search, "$options":"i"} }
                 ]
             };
             if(data_body.lead_type){
@@ -465,36 +466,64 @@ router.post('/get_franchiseelist_counts',utils.authenticated, function (req, res
 
 
 router.get('/get_franchisee/:id', function (req, res) {
-    try {
-        Franchisee.findById({ _id: req.params.id }, function (err, franchisee) {
-            if (err) {
-                return res.send(500, err);
-            }
-            if (!franchisee) {
+    // try {
+        // Franchisee.findById({ _id: req.params.id}, function (err, franchisee) {
+            Franchisee.aggregate([
+                { $match: { _id:  mongoose.Types.ObjectId(req.params.id)} },
+                { $lookup: {
+                    from: "stages",
+                    localField: "_id",
+                    foreignField: "franchisee_id",
+                    as: "stagesData"
+                    }}
+            ]).exec()
+            .then((franchisee) => {
+                console.log(franchisee[0].stagesData);
+                // return res.send(200, franchisee[0]);
                 res.send({
-                    "state": "failure",
-                    "franchisees_data": []
-                }, 400);
-            }
-            else {
-                //     let franchisee_data =[];
-                //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
-                //     franchisee_data.push(franchisee);
-                res.send({
-                    status: 200,
-                    state: "success",
-                    franchisees_data: franchisee
-                }, 200);
+                            status: 200,
+                            state: "success",
+                            franchisees_data: franchisee[0]
+                        }, 200);
+            })
 
-            }
-        })
-    }
-    catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        });
-    }
+            
+            // .then(() => {
+            //     console.log(franchisee, 'franchisee');
+            //     return res.json({
+            //         state: 'success',
+            //         franchisee_date: franchisee
+            //     })
+            // })
+
+            // if (err) {
+            //     return res.send(500, err);
+            // }
+            // if (!franchisee) {
+            //     res.send({
+            //         "state": "failure",
+            //         "franchisees_data": []
+            //     }, 400);
+            // }
+            // else {
+            //     //     let franchisee_data =[];
+            //     //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
+            //     //     franchisee_data.push(franchisee);
+            //     res.send({
+            //         status: 200,
+            //         state: "success",
+            //         franchisees_data: franchisee
+            //     }, 200);
+
+            // }
+        // })
+    // }
+    // catch (err) {
+    //     return res.send({
+    //         state: "error",
+    //         message: err
+    //     });
+    // }
 });
 
 // get all leads count
@@ -3314,108 +3343,5 @@ router.get('/get_admins', function (req, res) {
         });
     }
 });
-
-
-var paymentfile = upload.fields([{
-    name: 'file_upload',
-    maxCount: 50
-  }, {
-    name: 'imgFields',
-    maxCount: 20
-  }])
-
-
-  router.post('/franchisee_payment_files', paymentfile, function (req, res) {
-    var file_details = JSON.parse(req.body.file_details);
-    var files = [];
-    PaymentFileUpload.find({}, function (err, file) {
-
-      if (err) {
-        return res.send(err);
-      } else {
-        var file = [];
-        var getNumber = 0;
-        var length = req.files.file_upload.length;
-        file = req.files.file_upload;
-        for (var i = 0; i < file.length; i++) {
-          var paymentFile = new PaymentFileUpload();
-
-          if (file_details === 'one_lakh_payment_files') {
-          paymentFile.one_lakh_payment_files = {
-            "payment_file_url" :  file[i].location,
-            "payment_file_type" : file[i].key,
-            "payment_file_name":  file[i].originalname,
-            "created_on" : new Date()
-        }
-    }
-        // files.push(paymentFile.one_payment_files)
-        if (file_details === 'four_lakh_payment_files') {
-        paymentFile.four_lakh_payment_files = {
-            "payment_file_url" :  file[i].location,
-            "payment_file_type" : file[i].key,
-            "payment_file_name":  file[i].originalname,
-            "created_on" : new Date()
-        }
-    }
-        // files.push(paymentFile.four_lakh_payment_files)
-
-          if (file[i].mimetype == "application/pdf") {
-            paymentFile.file_type = "pdf";
-          }
-          if (file[i].mimetype == "image/png" || file[i].mimetype == "image/jpg" || file[i].mimetype == "image/jpeg") {
-            paymentFile.file_type = "image";
-          }
-          paymentFile.date_uploaded = Date.now();
-          paymentFile.franchisee_id = file_details.franchisee_id;
-          files.push(paymentFile);
-        }
-        for (var i = 0; i < files.length; i++) {
-          getNumber = getNumber + 1;
-          files.save(function (err, files) {
-            if (err) {
-              return res.send(err);
-            } 
-            else {
-              if (parseInt(length) == parseInt(getNumber)) {
-                res.send({
-                  status: 'success',
-                  message: "File uploaded!"
-                },200);
-              }
-            }
-          })
-        }
-      }
-    });
-  });
-  
-
-
-
-
-
-  router.get('/get_payment_files/:id', function (req, res) {
-    PaymentFileUpload.find({
-      franchisee_id: req.params.id
-    }, function (err, file) {
-      if (err) {
-        return res.send(err);
-      }
-      if (file.length == 0) {
-        return res.send({
-          state: 200,
-          status: 'failure',
-          message: "file not found !"
-        });
-      }
-      if (file.length > 0) {
-        return res.send({
-          state: 200,
-          status: 'success',
-          files: file
-        });
-      }
-    })
-  })
 
 module.exports = router;
