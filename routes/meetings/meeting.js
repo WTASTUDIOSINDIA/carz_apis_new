@@ -857,11 +857,13 @@ router.put('/change_meeting_status', function (req, res) {
                 if (req.body.meeting_status == 'approved') {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
+                    meeting.notification_to = req.body.notification_to;
                 }
                 if (req.body.meeting_status == 'declined' && req.body.meeting_reason != null) {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
                     meeting.meeting_reason = req.body.meeting_reason;
+                    meeting.notification_to = req.body.notification_to;
                 }
                 meeting.save(function (err, meeting) {
                     if (err) {

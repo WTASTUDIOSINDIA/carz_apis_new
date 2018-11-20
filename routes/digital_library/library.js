@@ -465,6 +465,7 @@ router.get('/get_marketing_folders/:franchisor_id', function(req, res){
                 if(err){
                   return res.send(500, err);
                 }
+            console.log('----------', folder);
                 if(folder){
                   res.send({
                       state:"success",
@@ -475,7 +476,7 @@ router.get('/get_marketing_folders/:franchisor_id', function(req, res){
                   res.send({
                       state:"failure",
                       data:[]
-                  });
+                  },201);
                 }
               })
     //     }
