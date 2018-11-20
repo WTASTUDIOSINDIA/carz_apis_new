@@ -80,6 +80,7 @@ var employeeDetailsSchema = new mongoose.Schema({
     'employee_gender': String,
     'employee_department':String,
     'employee_languages':String,
+    'employee_previous_experience_details': String,
     'model_id': String,
     'model_name': String,
     'employee_vertical': String,

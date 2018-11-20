@@ -1253,6 +1253,7 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_age = req.body.employee_age;
             employeeDetails.employee_gender = req.body.employee_gender;
             employeeDetails.employee_department = req.body.employee_department;
+            employeeDetails.employee_previous_experience_details = req.body.employee_previous_experience_details;
             employeeDetails.employee_languages = req.body.employee_languages;
             employeeDetails.model_id = req.body.model_id;
             employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
@@ -1653,6 +1654,7 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_age = req.body.employee_age;
                 employeeDetails.employee_gender = req.body.employee_gender;
                 employeeDetails.employee_department = req.body.employee_department;
+                employeeDetails.employee_previous_experience_details = req.body.employee_previous_experience_details;
                 employeeDetails.employee_languages = req.body.employee_languages;
                 employeeDetails.model_id = req.body.model_id;
                 employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
