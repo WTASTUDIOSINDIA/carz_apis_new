@@ -126,7 +126,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-  var allowedOrigins = ['http://localhost:4200','http://localhost:8000', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com'];
+  var allowedOrigins = ['http://localhost:4200',"https://carz-franchiseefrom-frontend.herokuapp.com",'http://localhost:8000', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com'];
   //var origin = req.headers.origin;
   //res.setHeader('Access-Control-Allow-Origin', origin);
   var origin = req.headers.origin;
@@ -147,7 +147,7 @@ app.use(require('express-session')({
     cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
 }));
 // app.use(cors('cors'))
-app.use(cors({credentials: true, origin: ['http://localhost:4200','http://localhost:8000', 'http://localhost:4200/#/', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/']}));
+app.use(cors({credentials: true, origin: ['http://localhost:4200',"https://carz-franchiseefrom-frontend.herokuapp.com",'http://localhost:8000', 'http://localhost:4200/#/', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/']}));
 app.use(logger('dev'));
 app.use(session({
   secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9',
