@@ -96,7 +96,6 @@ router.post('/create_meeting', function (req, res) {
                         console.log(err);
                     } else {
                         attendies.push(franchisor.user_mail);
-
                         Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
                             if (err) {
                                 console.log(err);
@@ -119,7 +118,7 @@ router.post('/create_meeting', function (req, res) {
                                                 //console.log(data, "42_meeting.js");
                                                 var meeting_data = saveMeetingNotification(data, res);
                                                 //console.log(meeting_data, "44_meeting.js");
-                                                io.emit('message', { type: 'new-message-23', text: meeting_data });
+                                                socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
                                             });
@@ -534,8 +533,7 @@ function saveMeetingNotification(request, response) {
     notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
     notific.meeting_status = getNotifications.meeting_status;
-    notific.notification_to = getNotifications.notification_to;
-    if (!getNotifications.meeting_status == 'pending') {
+    if (getNotifications.meeting_status === 'pending') {
         notific.notification_to = getNotifications.notification_to;
     }
     notific.discussion_notification = getNotifications.discussion_notification;
@@ -545,17 +543,16 @@ function saveMeetingNotification(request, response) {
     if (getNotifications.meeting_status) {
         notific.approved_by = getNotifications.approved_by;
     }
-    // if (getNotifications.meeting_status) {
-    //     if (getNotifications.notification_to == 'franchisee') {
-    //         notific.notification_to = "franchisor",
-    //         console.log('notification_to_1', notific); 
-    //     }
-    //     else if (getNotifications.notification_to == 'franchisor') {
-    //         notific.notification_to = "franchisee",
-    //         console.log('notification_to_2', notific);         
-    //     }
-    //     console.log('notification_to_3', notific); 
-    // }
+    if (getNotifications.meeting_status != "pending") {
+        if (getNotifications.notification_to == 'franchisee') {
+            notific.notification_to = "franchisor",
+                console.log(notific.notification_to, '1////', getNotifications.notification_to);
+        }
+        else if (getNotifications.notification_to == 'franchisor') {
+            notific.notification_to = "franchisee",
+                console.log(notific.notification_to, '2/////', getNotifications.notification_to);
+        }
+    }
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {
