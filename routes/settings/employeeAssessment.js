@@ -82,7 +82,7 @@ router.post('/validate_employee_email', function (req, res) {
 });
 
 // To create assessment types
-router.post('/create_assessemnt_type', utils.authenticated, function (req, res) {
+router.post('/create_assessemnt_type', function (req, res) {
     try {
         EmployeeAssessmentType.findOne({ assessment_type_name: { $regex: new RegExp(req.body.assessment_type_name, 'i') }, franchisor_id: req.body.franchisor_id, model_id: req.body.model_id }, function (err, assessment) {
             if (err) {
@@ -437,7 +437,7 @@ function getEmployeeAssessmentTypes(employee_id, res) {
 }
 
 //To get  employee assessment type
-router.get('/get_save_employee_assessment_type/:employee_id', utils.authenticated, function (req, res) {
+router.get('/get_save_employee_assessment_type/:employee_id', function (req, res) {
     try {
         getEmployeeAssessmentTypes(req.params.employee_id, res);
     }
@@ -522,7 +522,7 @@ router.delete('/delete_employee_assessment_type', function (req, res) {
 
 
 //To create employee assessment questions
-router.post('/create_employee_assessment_question', fileupload, utils.authenticated, function (req, res) {
+router.post('/create_employee_assessment_question', fileupload, function (req, res) {
     var employeeAssessmentForm = JSON.parse(req.body.employeeAssessment);
     console.log(employeeAssessmentForm);
     try {
@@ -1103,7 +1103,7 @@ router.put('/submit_employee_assessmnent', function (req, res) {
     // }
 })
 //To get reports
-router.get('/get_emp_assessment_report/:employee_id', utils.authenticated, function (req, res) {
+router.get('/get_emp_assessment_report/:employee_id', function (req, res) {
     try {
         EmployeeAssessmentSubmitted.findOne({ employee_id: req.params.employee_id }, function (err, report) {
             if (err) {
@@ -1251,6 +1251,10 @@ router.post('/create_employee_details', function (req, res) {
             employeeDetails.employee_address = req.body.employee_address;
             employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
             employeeDetails.employee_age = req.body.employee_age;
+            employeeDetails.employee_gender = req.body.employee_gender;
+            employeeDetails.employee_department = req.body.employee_department;
+            employeeDetails.employee_previous_experience_details = req.body.employee_previous_experience_details;
+            employeeDetails.employee_languages = req.body.employee_languages;
             employeeDetails.model_id = req.body.model_id;
             employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
             employeeDetails.employee_experience_in = req.body.employee_experience_in;
@@ -1294,7 +1298,7 @@ router.post('/create_employee_details', function (req, res) {
     // }
 })
 //To create employee fileds
-router.post('/create_model', utils.authenticated, function (req, res) {
+router.post('/create_model', function (req, res) {
     // try {
     CarModels.findOne({ model_name: { $regex: new RegExp(req.body.model_name, 'i') }, version_id: req.body.version_id }, function (err, model) {
         if (err) {
@@ -1515,7 +1519,7 @@ router.delete('/delete_model_by_id/:id', function (req, res) {
 
 
 //To get create employee details
-router.get('/get_all_employees', utils.authenticated, function (req, res) {
+router.get('/get_all_employees', function (req, res) {
     try {
         EmployeeDetails.find({}, function (err, employeeDetails) {
             if (err) {
@@ -1567,7 +1571,7 @@ router.get('/get_all_employees', utils.authenticated, function (req, res) {
 })
 
 // To get employee details by id
-router.get('/get_employee_details/:id', utils.authenticated, function (req, res) {
+router.get('/get_employee_details/:id', function (req, res) {
     try {
         EmployeeDetails.findById({ _id: req.params.id }, function (err, employeeDetails) {
             if (err) {
@@ -1648,6 +1652,10 @@ router.put('/update_employee_details', function (req, res) {
                 employeeDetails.employee_address = req.body.employee_address;
                 employeeDetails.employee_mobile_number = req.body.employee_mobile_number;
                 employeeDetails.employee_age = req.body.employee_age;
+                employeeDetails.employee_gender = req.body.employee_gender;
+                employeeDetails.employee_department = req.body.employee_department;
+                employeeDetails.employee_previous_experience_details = req.body.employee_previous_experience_details;
+                employeeDetails.employee_languages = req.body.employee_languages;
                 employeeDetails.model_id = req.body.model_id;
                 employeeDetails.employee_company_of_experience = req.body.employee_company_of_experience;
                 employeeDetails.employee_experience_in = req.body.employee_experience_in;
@@ -1764,7 +1772,7 @@ router.delete('/delete_all_employees', function (req, res) {
 
 //get franchisee specific questions
 
-router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', utils.authenticated, function (req, res) {
+router.get('/get_all_and_employee_specific_questions/:assessment_id/:employee_id', function (req, res) {
     try {
         //  EmployeeAssessmentTypeOfFranchisee.findById({_id: req.params.assessment_id}, function(err, assessment){
 
