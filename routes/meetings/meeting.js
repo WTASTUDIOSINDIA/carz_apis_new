@@ -877,7 +877,7 @@ router.put('/change_meeting_status', function (req, res) {
                     }
                     else {
                         console.log(meeting, 'here');
-                        if (meeting.meeting_status === 'declined') {
+                        if (meeting.meeting_status == 'declined') {
                             var reciever_mail;
                             var sender_name;
                             if (meeting.approved_by == 'franchisor') {
