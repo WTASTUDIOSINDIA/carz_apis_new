@@ -50,7 +50,6 @@ const uploadToS3 = (fileName, fileExt, fileData, isCampaign, callback) => {
     });
 };
 
-
 const generateJwtToken = (data, requestFrom) => {
 
     let secretCode = config.jwt.normal.secret;

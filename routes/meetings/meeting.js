@@ -53,7 +53,6 @@ router.post('/create_meeting', function (req, res) {
     var attendies = [];
     try {
         Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id, 'meeting_date': meetingForm.meeting_date, 'meeting_title': meetingForm.meeting_title }, function (err, meeting) {
-            // console.log(meetingForm);
             if (err) {
                 return res.send({
                     state: "err",
@@ -82,7 +81,6 @@ router.post('/create_meeting', function (req, res) {
                 meeting.notification_to = meetingForm.notification_to;
                 meeting.meeting_status = meetingForm.meeting_status;
                 meeting.created_by = meetingForm.created_by;
-                // console.log(meetingForm.meeting_assigned_people);
                 if (meetingForm.meeting_assigned_people) {
                     meetingForm.meeting_assigned_people.forEach(function (element) {
 
@@ -94,6 +92,12 @@ router.post('/create_meeting', function (req, res) {
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
                         console.log(err);
+                    }
+                    if (!franchisor) {
+                        return res.json({
+                            'state': err,
+                            'message': 'Franchisor doesnt exist'
+                        })
                     } else {
                         attendies.push(franchisor.user_mail);
                         Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
@@ -112,12 +116,9 @@ router.post('/create_meeting', function (req, res) {
                                     else {
 
                                         io.on('connection', function (socket) {
-                                            //console.log(socket);
                                             socket.emit('news', { hello: 'world' });
                                             socket.on('message', function (data, response) {
-                                                //console.log(data, "42_meeting.js");
                                                 var meeting_data = saveMeetingNotification(data, res);
-                                                //console.log(meeting_data, "44_meeting.js");
                                                 socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
@@ -133,13 +134,11 @@ router.post('/create_meeting', function (req, res) {
                                                 io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
                                             });
                                         });
-                                        //console.log('sda', meetingForm.franchisor_id);
                                         Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
                                             if (err) {
                                                 return res.json(500, err);
                                             }
                                             if (user) {
-                                                //console.log(user, "90");
                                                 meeting.user_name = user.user_name;
                                                 meeting.save();
                                                 let i = 0;
@@ -260,10 +259,8 @@ router.post('/create_meeting', function (req, res) {
 //update meeting
 router.put('/edit_meeting', function (req, res, next) {
     var meetingEditForm = req.body;
-    console.log(req.body);
     try {
         Meeting.findOne({ '_id': meetingEditForm._id }, function (err, meeting) {
-            console.log('req.body', req.body);
             if (err) {
                 return res.send({
                     state: "err",
@@ -434,22 +431,14 @@ router.get('/get_all_meetings', function (req, res) {
 router.post('/get_meetings_count', async (req, res) => {
     if (req.body.date) {
         date = new Date(req.body.date);
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     if (!req.body.date || req.body.date == null) {
         date = new Date();
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     // console.log(query);
@@ -521,16 +510,15 @@ router.post('/get_meetings_count', async (req, res) => {
  */
 function saveMeetingNotification(request, response) {
     var getNotifications = request;
-    // console.log(getNotifications);
-    console.log(request, "225");
     var notific = new Notification();
     notific.franchisor_id = getNotifications.franchisor_id;
     notific.franchisee_id = getNotifications.franchisee_id;
     notific.created_at = getNotifications.created_at;
-    notific.meeting_title = getNotifications.meeting_title;
-    notific.meeting_date = getNotifications.meeting_date;
-    notific.meeting_time = getNotifications.meeting_time;
-    notific.meeting_location = getNotifications.meeting_location;
+    notific.notification_type = getNotifications.notification_type;
+    // notific.meeting_title = getNotifications.meeting_title;
+    // notific.meeting_date = getNotifications.meeting_date;
+    // notific.meeting_time = getNotifications.meeting_time;
+    // notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
     notific.meeting_status = getNotifications.meeting_status;
     if (getNotifications.meeting_status === 'pending') {
@@ -830,7 +818,7 @@ router.get('/change_read_status/:id', (req, res) => {
                 // data[i].save();
                 id_array.push(data[i]._id);
             }
-            Notification.update({ _id: { $in: id_array } }, { read_status: true }, { multi: true }, (err, success) => {
+            Notification.update({ _id: { $in: id_array } }, { new: true }, { read_status: true }, { multi: true }, (err, success) => {
                 if (err) {
                     return res.json(err);
                 }
