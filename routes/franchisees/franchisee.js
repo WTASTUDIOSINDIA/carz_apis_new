@@ -273,7 +273,9 @@ router.get('/get_franchisees_new', function (req, res) {
                     { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
                     { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
                     { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} }
+                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} },
+                    { "franchisee_email":     { "$regex": data_query.search, "$options":"i"} },
+                    { "partner_email":     { "$regex": data_query.search, "$options":"i"} }
                 ]
             };
             if(data_body.lead_type){
@@ -464,36 +466,64 @@ router.post('/get_franchiseelist_counts',utils.authenticated, function (req, res
 
 
 router.get('/get_franchisee/:id', function (req, res) {
-    try {
-        Franchisee.findById({ _id: req.params.id }, function (err, franchisee) {
-            if (err) {
-                return res.send(500, err);
-            }
-            if (!franchisee) {
+    // try {
+        // Franchisee.findById({ _id: req.params.id}, function (err, franchisee) {
+            Franchisee.aggregate([
+                { $match: { _id:  mongoose.Types.ObjectId(req.params.id)} },
+                { $lookup: {
+                    from: "stages",
+                    localField: "_id",
+                    foreignField: "franchisee_id",
+                    as: "stagesData"
+                    }}
+            ]).exec()
+            .then((franchisee) => {
+                console.log(franchisee[0].stagesData);
+                // return res.send(200, franchisee[0]);
                 res.send({
-                    "state": "failure",
-                    "franchisees_data": []
-                }, 400);
-            }
-            else {
-                //     let franchisee_data =[];
-                //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
-                //     franchisee_data.push(franchisee);
-                res.send({
-                    status: 200,
-                    state: "success",
-                    franchisees_data: franchisee
-                }, 200);
+                            status: 200,
+                            state: "success",
+                            franchisees_data: franchisee[0]
+                        }, 200);
+            })
 
-            }
-        })
-    }
-    catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        });
-    }
+            
+            // .then(() => {
+            //     console.log(franchisee, 'franchisee');
+            //     return res.json({
+            //         state: 'success',
+            //         franchisee_date: franchisee
+            //     })
+            // })
+
+            // if (err) {
+            //     return res.send(500, err);
+            // }
+            // if (!franchisee) {
+            //     res.send({
+            //         "state": "failure",
+            //         "franchisees_data": []
+            //     }, 400);
+            // }
+            // else {
+            //     //     let franchisee_data =[];
+            //     //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
+            //     //     franchisee_data.push(franchisee);
+            //     res.send({
+            //         status: 200,
+            //         state: "success",
+            //         franchisees_data: franchisee
+            //     }, 200);
+
+            // }
+        // })
+    // }
+    // catch (err) {
+    //     return res.send({
+    //         state: "error",
+    //         message: err
+    //     });
+    // }
 });
 
 // get all leads count
