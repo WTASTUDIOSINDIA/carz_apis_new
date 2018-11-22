@@ -15,6 +15,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var ical = require("ical-generator");
+var utils = require('../../common/utils');
 const { google } = require('googleapis');
 
 const { GoogleAuth } = require('google-auth-library');
@@ -118,7 +119,7 @@ router.post('/create_meeting', function (req, res) {
                                         io.on('connection', function (socket) {
                                             socket.emit('news', { hello: 'world' });
                                             socket.on('message', function (data, response) {
-                                                var meeting_data = saveMeetingNotification(data, res);
+                                                var meeting_data = utils.saveMeetingNotification(data, res);
                                                 socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
@@ -283,9 +284,9 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_status = meetingEditForm.meeting_status,
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
-                    if (meetingEditForm.meeting_reason) {
-                        meeting.meeting_reason = meetingEditForm.meeting_reason
-                    };
+                if (meetingEditForm.meeting_reason) {
+                    meeting.meeting_reason = meetingEditForm.meeting_reason
+                };
                 meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
@@ -508,66 +509,68 @@ router.post('/get_meetings_count', async (req, res) => {
  * @param {Object} response - The Response Object for the http request
  * @returns {string} - The Access Token string
  */
-function saveMeetingNotification(request, response) {
-    var getNotifications = request;
-    var notific = new Notification();
-    notific.franchisor_id = getNotifications.franchisor_id;
-    notific.franchisee_id = getNotifications.franchisee_id;
-    notific.created_at = getNotifications.created_at;
-    notific.notification_type = getNotifications.notification_type;
-    // notific.meeting_title = getNotifications.meeting_title;
-    // notific.meeting_date = getNotifications.meeting_date;
-    // notific.meeting_time = getNotifications.meeting_time;
-    // notific.meeting_location = getNotifications.meeting_location;
-    notific.status = getNotifications.status;
-    notific.meeting_status = getNotifications.meeting_status;
-    if (getNotifications.meeting_status === 'pending') {
-        notific.notification_to = getNotifications.notification_to;
-    }
-    notific.discussion_notification = getNotifications.discussion_notification;
-    if (getNotifications.meeting_reason) {
-        notific.meeting_reason = getNotifications.meeting_reason;
-    }
-    if (getNotifications.meeting_status) {
-        notific.approved_by = getNotifications.approved_by;
-    }
-    if (getNotifications.meeting_status != "pending") {
-        if (getNotifications.notification_to == 'franchisee') {
-            notific.notification_to = "franchisor",
-                console.log(notific.notification_to, '1////', getNotifications.notification_to);
-        }
-        else if (getNotifications.notification_to == 'franchisor') {
-            notific.notification_to = "franchisee",
-                console.log(notific.notification_to, '2/////', getNotifications.notification_to);
-        }
-    }
-    notific.save(function (err, application) {
-        console.log(application, "235");
-        if (err) {
-            console.log(err);
-        }
-        else {
 
-            console.log("Successss");
-            return "Test sdsds";
-        }
-        return "Test sdsds";
-    })
-}
-
+// router.get('/get_notifications/:user_id', function (req, res) {
+//     try {
+//         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
+//             if (err) {
+//                 return res.send(500, err);
+//             }
+//             else {
+//                 res.send({
+//                     state: "success",
+//                     data: meeting
+//                 }, 200);
+//             }
+//         }).sort({ date: -1 })
+//     }
+//     catch (err) {
+//         return res.send({
+//             state: "error",
+//             message: err
+//         });
+//     }
+// })
 router.get('/get_notifications/:user_id', function (req, res) {
+    var notifications = {
+        franchisor_id: null,
+        franchisee_id: null,
+        notification_title: null,
+        notification_status: null,
+        location: null,
+        notification_date: null,
+        read_status: null,
+        notification_to: null
+    }
     try {
-        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
-            if (err) {
-                return res.send(500, err);
-            }
-            else {
-                res.send({
-                    state: "success",
-                    data: meeting
-                }, 200);
-            }
-        }).sort({ date: -1 })
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }).
+            populate('meeting_id').
+            exec((err, notification) => {
+                if (err) {
+                    console.log(err);
+                }
+                if (notification) {
+                    console.log(notification[0].franchisee_id, 'francfasdjlas;laj;ald')
+                    notification.forEach(element => {
+                        if (element.meeting_id) {
+                            notifications.franchisor_id = element.franchisor_id,
+                                notifications.franchisee_id = element.franchisee_id;
+                            notifications.notification_title = element.meeting_id.meeting_title,
+                                notifications.notification_status = element.meeting_id.meeting_status,
+                                notifications.location = element.meeting_id.meeting_location,
+                                notifications.notification_date = element.meeting_id.meeting_date,
+                                notifications.read_status = element.read_status;
+                                notifications.notification_to = 'franchisor'
+                        }
+                    });
+                    console.log(notifications, '/////////////////')
+                    return res.json({
+                        'state': 'success',
+                        'message': 'Successfully fetched notifications',
+                        'data': notifications
+                    })
+                }
+            })
     }
     catch (err) {
         return res.send({
@@ -818,7 +821,7 @@ router.get('/change_read_status/:id', (req, res) => {
                 // data[i].save();
                 id_array.push(data[i]._id);
             }
-            Notification.update({ _id: { $in: id_array } }, { new: true }, { read_status: true }, { multi: true }, (err, success) => {
+            Notification.update({ _id: { $in: id_array } }, { read_status: true }, { multi: true }, (err, success) => {
                 if (err) {
                     return res.json(err);
                 }
@@ -973,4 +976,3 @@ router.put('/change_meeting_status', function (req, res) {
 });
 
 module.exports = router;
-module.exports.saveMeetingNotification = saveMeetingNotification;
