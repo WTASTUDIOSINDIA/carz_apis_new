@@ -34,6 +34,11 @@ var stagesSchema = new mongoose.Schema({
     "nda_file_type": { type: String, default: 'docs' },
     "franchisee_id": String,
     "application_status": { type: String, default: 'pending' }, //pending, rejected, approved
+    "nda_file_rejected_reason":String,
+    "application_rejected_reason": String,
+    "franchisee_email": String,
+    "franchisee_name": String,
+    "partner_name": String
   },
   "stage_kycupload": {
     "status": { type: Boolean, default: false },

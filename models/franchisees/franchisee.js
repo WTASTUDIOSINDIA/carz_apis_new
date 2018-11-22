@@ -120,23 +120,25 @@ var partnerSchema = new mongoose.Schema({
 
 });
 var meetingSchema = new mongoose.Schema({
-    "meeting_title": String,
-    "meeting_location": String,
-    "meeting_date": Date,
-    "meeting_time": String,
-    "meeting_assigned_people": Array,
-    "meeting_additional_services": String,
-    "meeting_remarks": String,
-    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor' },
-    "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    "stage_id": String,
-    "meeting_franchisor_remarks": String,
-    "notification_to": String,
-    "user_name": String,
-    "meeting_status": { type: String, default: 'pending' }, //pending, rejected, approved
-    "created_by": { type: String, enum: ['franchisor', 'franchisee'] },
-    "meeting_reason": String,
-    "approved_by": { type: String, enum: ['franchisor', 'franchisee'] }
+   "meeting_title" : String,
+   "meeting_location": String,
+   "meeting_date": Date,
+   "meeting_time": String,
+   "meeting_assigned_people": Array,
+   "meeting_additional_services": String,
+   "meeting_remarks": String,
+   "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
+   "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+   "stage_id": String,
+   "meeting_franchisor_remarks":String,
+   "notification_to": String,
+   "user_name": String,
+   "meeting_status": {type: String, default: 'pending'}, //pending, rejected, approved
+   "created_by": {type: String, enum: ['franchisor', 'franchisee']},
+   "meeting_reason":String,
+   "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
+   "franchisee_name": String,
+   "partner_name": String,
 
 });
 
@@ -178,6 +180,7 @@ var notificationSchema = new mongoose.Schema({
 
 //     "date_uploaded":Date
 // });
+
 
 // duplicate notification schema
 var notificationsSchema = new mongoose.Schema({
@@ -383,4 +386,3 @@ mongoose.model('ApplicationSubmitted', ApplicationSubmittedSchema);
 mongoose.model('ThirdPartyFiles', thirdPartyFileSchema);
 mongoose.model('Campaign', CampaignSchema);
 mongoose.model('Notification', notificationSchema);
-mongoose.model('Notigivsyions', notificationsSchema);

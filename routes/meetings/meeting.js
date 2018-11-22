@@ -12,6 +12,7 @@ var Stages = mongoose.model('Stages');
 var Admin = mongoose.model('Admin');
 var nodemailer = require('nodemailer');
 var app = express();
+var utils = require('../../common/utils');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var ical = require("ical-generator");
@@ -35,7 +36,7 @@ function createGmailCalenderEVent(options) {
     return {
         from: "sasirekhachinthas@gmail.com",//options.from,
         to: options.mail,//options.to.required,
-        subject: "New Calendar Event from Carz",//options.subject,
+        subject: "Meeting request approved",//options.subject,
         //html: "test",//options.html,
         alternatives: [{
             contentType: "text/calendar",
@@ -89,7 +90,6 @@ router.post('/create_meeting', function (req, res) {
 
                     });
                 }
-
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
                         console.log(err);
@@ -101,6 +101,7 @@ router.post('/create_meeting', function (req, res) {
                         })
                     } else {
                         attendies.push(franchisor.user_mail);
+
                         Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
                             if (err) {
                                 console.log(err);
@@ -115,10 +116,10 @@ router.post('/create_meeting', function (req, res) {
                                         }, 500);
                                     }
                                     else {
-
                                         io.on('connection', function (socket) {
                                             socket.emit('news', { hello: 'world' });
                                             socket.on('message', function (data, response) {
+
                                                 var meeting_data = utils.saveMeetingNotification(data, res);
                                                 socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
@@ -144,81 +145,104 @@ router.post('/create_meeting', function (req, res) {
                                                 meeting.save();
                                                 let i = 0;
 
-                                                var time = meeting.meeting_time;
-                                                var hours = Number(time.match(/^(\d+)/)[1]);
-                                                var minutes = Number(time.match(/:(\d+)/)[1]);
-                                                var AMPM = time.match(/\s(.*)$/)[1];
-                                                if (AMPM == "PM" && hours < 12) hours = hours + 12;
-                                                if (AMPM == "AM" && hours == 12) hours = hours - 12;
-                                                var sHours = hours.toString();
-                                                var sMinutes = minutes.toString();
+                                                // var time = meeting.meeting_time;
+                                                // var hours = Number(time.match(/^(\d+)/)[1]);
+                                                // var minutes = Number(time.match(/:(\d+)/)[1]);
+                                                // var AMPM = time.match(/\s(.*)$/)[1];
+                                                // if (AMPM == "PM" && hours < 12) hours = hours + 12;
+                                                // if (AMPM == "AM" && hours == 12) hours = hours - 12;
+                                                // var sHours = hours.toString();
+                                                // var sMinutes = minutes.toString();
 
-                                                if (hours < 10) sHours = "0" + sHours;
-                                                if (minutes < 10) sMinutes = "0" + sMinutes;
+                                                // if (hours < 10) sHours = "0" + sHours;
+                                                // if (minutes < 10) sMinutes = "0" + sMinutes;
 
-                                                var d = meeting.meeting_date;
-                                                d.setHours(d.getHours() + sHours);
-                                                d.setMinutes(d.getMinutes() + sMinutes);
+                                                // var d = meeting.meeting_date;
+                                                // d.setHours(d.getHours() + sHours);
+                                                // d.setMinutes(d.getMinutes() + sMinutes);
 
-                                                attendies.forEach(function (mail) {
+                                                    attendies.forEach(function (mail) {
                                                     i++;
-                                                    var options = {
-                                                        'summary': meeting.meeting_title,
-                                                        'location': meeting.meeting_location,
-                                                        'description': 'A test calandar.',
-                                                        'start': d,
-                                                        'hours': sHours,
-                                                        'minutes': sMinutes,
-                                                        'mail': mail,
-                                                        'end': {
-                                                            'dateTime': '2015-05-28T17:00:00-07:00',
-                                                            'timeZone': 'America/Los_Angeles',
-                                                        },
-                                                        'recurrence': [
-                                                            'RRULE:FREQ=DAILY;COUNT=2'
-                                                        ],
-                                                        'attendees': [
-                                                            { 'email': 'lpage@example.com' },
-                                                            { 'email': 'sbrin@example.com' },
-                                                        ],
-                                                        'reminders': {
-                                                            'useDefault': false,
-                                                            'overrides': [
-                                                                { 'method': 'email', 'minutes': 24 * 60 },
-                                                                { 'method': 'popup', 'minutes': 10 },
-                                                            ],
-                                                        },
-                                                    };
+                                                    let user_data = {};
+                                                   
+                                                    user_data.user_mail = mail;
+                                                    if(req.body.franchisee_name){
+                                                        user_data.franchisee_name = req.body.franchisee_name;
+                                                        user_data.subject = 'Meeting Created';
+                                                        user_data.html =  "<p>Hi, "+user_data.franchisee_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisor to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    }
+                                                   else if(req.body.partner_name){
+                                                        user_data.partner_name = req.body.partner_name;
+                                                        user_data.subject = 'Meeting Created';
+                                                        user_data.html =  "<p>Hi, "+user_data.partner_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisor to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    }
+                                                    // else if(req.body.user_name){
+                                                    //     user_data.user_name = req.body.user_name;
+                                                    //     user_data.subject = 'Meeting Created';
+                                                    //     user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisee to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    // }
+                                                    // console.log(user_data.user_name,'--------username-------');
+                                                   
 
-                                                    calendar.events.insert({
-                                                        auth: auth,
-                                                        calendarId: 'primary',
-                                                        resource: options,
-                                                    }, function (err, event) {
-                                                        if (err) {
-                                                            console.log('There was an error contacting the Calendar service: ' + err);
-                                                            return;
-                                                        }
-                                                        console.log('Event created: %s', event.htmlLink);
-                                                    });
+                                                    utils.send_mail(user_data)
 
-                                                    var transporter = nodemailer.createTransport({
-                                                        service: 'Gmail',
-                                                        secure: false, // use SSL
-                                                        //    host: "smtp.gmail.com",
-                                                        port: 25, // port for secure SMTP
-                                                        auth: {
-                                                            user: 'carzdev@gmail.com',
-                                                            pass: 'Carz@123'
-                                                        }
-                                                    });
-                                                    transporter.sendMail(createGmailCalenderEVent(options), (err, info) => {
-                                                        if (err) {
-                                                            console.log(err, "Swamy Mail Error");
-                                                        } else {
-                                                            console.log(info, "Swamy Mail Info");
-                                                        }
-                                                    })
+                                                    // var options = {
+                                                    //     'summary': meeting.meeting_title,
+                                                    //     'location': meeting.meeting_location,
+                                                    //     'description': 'A test calandar.',
+                                                    //     'start': d,
+                                                    //     'hours': sHours,
+                                                    //     'minutes': sMinutes,
+                                                    //     'mail': mail,
+                                                    //     'end': {
+                                                    //         'dateTime': '2015-05-28T17:00:00-07:00',
+                                                    //         'timeZone': 'America/Los_Angeles',
+                                                    //     },
+                                                    //     'recurrence': [
+                                                    //         'RRULE:FREQ=DAILY;COUNT=2'
+                                                    //     ],
+                                                    //     'attendees': [
+                                                    //         { 'email': 'lpage@example.com' },
+                                                    //         { 'email': 'sbrin@example.com' },
+                                                    //     ],
+                                                    //     'reminders': {
+                                                    //         'useDefault': false,
+                                                    //         'overrides': [
+                                                    //             { 'method': 'email', 'minutes': 24 * 60 },
+                                                    //             { 'method': 'popup', 'minutes': 10 },
+                                                    //         ],
+                                                    //     },
+                                                    // };
+
+                                                    // calendar.events.insert({
+                                                    //     auth: auth,
+                                                    //     calendarId: 'primary',
+                                                    //     resource: options,
+                                                    // }, function (err, event) {
+                                                    //     if (err) {
+                                                    //         console.log('There was an error contacting the Calendar service: ' + err);
+                                                    //         return;
+                                                    //     }
+                                                    //     console.log('Event created: %s', event.htmlLink);
+                                                    // });
+
+                                                    // var transporter = nodemailer.createTransport({
+                                                    //     service: 'Gmail',
+                                                    //     secure: false, // use SSL
+                                                    //     //    host: "smtp.gmail.com",
+                                                    //     port: 25, // port for secure SMTP
+                                                    //     auth: {
+                                                    //         user: 'carzdev@gmail.com',
+                                                    //         pass: 'Carz@123'
+                                                    //     }
+                                                    // });
+                                                    // transporter.sendMail(createGmailCalenderEVent(options), (err, info) => {
+                                                    //     if (err) {
+                                                    //         console.log(err, "Swamy Mail Error");
+                                                    //     } else {
+                                                    //         console.log(info, "Swamy Mail Info");
+                                                    //     }
+                                                    // })
                                                     if (i == attendies.length) {
                                                         return res.send({
                                                             state: "success",
@@ -509,7 +533,58 @@ router.post('/get_meetings_count', async (req, res) => {
  * @param {Object} response - The Response Object for the http request
  * @returns {string} - The Access Token string
  */
+/*
+function saveMeetingNotification(request, response) {
+    var getNotifications = request;
+    // console.log(getNotifications);
+    console.log(request, "225");
+    var notific = new Notification();
+    notific.franchisor_id = getNotifications.franchisor_id;
+    notific.franchisee_id = getNotifications.franchisee_id;
+    notific.created_at = getNotifications.created_at;
+    notific.meeting_title = getNotifications.meeting_title;
+    notific.meeting_date = getNotifications.meeting_date;
+    notific.meeting_time = getNotifications.meeting_time;
+    notific.meeting_location = getNotifications.meeting_location;
+    notific.status = getNotifications.status;
+    notific.meeting_status = getNotifications.meeting_status;
+    notific.notification_to = getNotifications.notification_to;
+    if (!getNotifications.meeting_status == 'pending') {
+        notific.notification_to = getNotifications.notification_to;
+    }
+    notific.discussion_notification = getNotifications.discussion_notification;
+    if (getNotifications.meeting_reason) {
+        notific.meeting_reason = getNotifications.meeting_reason;
+    }
+    if (getNotifications.meeting_status) {
+        notific.approved_by = getNotifications.approved_by;
+    }
+    // if (getNotifications.meeting_status) {
+    //     if (getNotifications.notification_to == 'franchisee') {
+    //         notific.notification_to = "franchisor",
+    //         console.log('notification_to_1', notific); 
+    //     }
+    //     else if (getNotifications.notification_to == 'franchisor') {
+    //         notific.notification_to = "franchisee",
+    //         console.log('notification_to_2', notific);         
+    //     }
+    //     console.log('notification_to_3', notific); 
+    // }
+    notific.save(function (err, application) {
+        console.log(application, "235");
+        if (err) {
+            console.log(err);
+        }
+        else {
 
+            console.log("Successss");
+            return "Test sdsds";
+        }
+        return "Test sdsds";
+    })
+}
+
+*/
 // router.get('/get_notifications/:user_id', function (req, res) {
 //     try {
 //         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
@@ -779,7 +854,7 @@ router.get('/get_meeting_franchisee/:franchisee_id', function (req, res) {
         // })
         Meeting.find({ 'franchisee_id': req.params.franchisee_id }).populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
             .exec(function (err, meeting) {
-                if (err) return handleError(err);
+                // if (err) return handleError(err);
                 // if (err) {
                 //             return res.send(500, err);
                 //         }
@@ -839,7 +914,11 @@ router.get('/change_read_status/:id', (req, res) => {
 // To approve or decline
 router.put('/change_meeting_status', function (req, res) {
     try {
-        Meeting.findById({ _id: req.body.meeting_id }, function (err, meeting) {
+        str = JSON.stringify(req.body);
+        str1 = JSON.parse(str);
+        var attendies = [];
+        // Meeting.findById({ _id: req.body.meeting_id }, function (err, meeting) {
+        Meeting.findById({ '_id': req.body.meeting_id ,'franchisee_id': req.body.franchisee_id }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }
@@ -848,13 +927,173 @@ router.put('/change_meeting_status', function (req, res) {
                 if (req.body.meeting_status == 'approved') {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
-                    meeting.notification_to = req.body.notification_to;
+
+                   ///////////////// //google calendar///////////////////////
+                   if (req.body.meeting_assigned_people) {
+                    req.body.meeting_assigned_people.forEach(function (element) {
+
+                        attendies.push(element['user_mail'])
+
+                    });
+                }
+                    Franchisor.findById(req.body.franchisor_id, function (err, franchisor) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            attendies.push(franchisor.user_mail);
+    
+                            Franchisee.findById(req.body.franchisee_id, function (err, franchisee) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    attendies.push(franchisee.franchisee_email);
+    
+                                    meeting.save(function (err, meeting) {
+                                        if (err) {
+                                            res.send({
+                                                state: "err",
+                                                message: "Something went wrong."
+                                            }, 500);
+                                        }
+                                        else {
+    
+                                            io.on('connection', function (socket) {
+                                                //console.log(socket);
+                                                socket.emit('news', { hello: 'world' });
+                                                socket.on('message', function (data, response) {
+                                                    //console.log(data, "42_meeting.js");
+                                                    var meeting_data = saveMeetingNotification(data, res);
+                                                    //console.log(meeting_data, "44_meeting.js");
+                                                    io.emit('message', { type: 'new-message-23', text: meeting_data });
+                                                    // Function above that stores the message in the database
+    
+                                                });
+    
+                                                socket.on('join', (params, callback) => {
+                                                    // if(!isRealString(params.name) || !isRealString(params.room)) {
+                                                    //     callback('Name and room are required.');
+                                                    // }
+                                                    socket.join(params.id);
+                                                    socket.emit('newNotification'.generateMessage('You have a new notification'));
+                                                    socket.broadcast.to(params.id).emit('newNotification', params);
+                                                    io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
+                                                });
+                                            });
+                                            //console.log('sda', meetingForm.franchisor_id);
+                                            Admin.find({ franchisor_id: req.body.franchisor_id }, function (err, user) {
+                                                if (err) {
+                                                    return res.json(500, err);
+                                                }
+                                                if (user) {
+                                                    //console.log(user, "90");
+                                                    meeting.user_name = user.user_name;
+                                                    meeting.save();
+                                                    let i = 0;
+    
+                                                    var time = meeting.meeting_time;
+                                                    var hours = Number(time.match(/^(\d+)/)[1]);
+                                                    var minutes = Number(time.match(/:(\d+)/)[1]);
+                                                    var AMPM = time.match(/\s(.*)$/)[1];
+                                                    if (AMPM == "PM" && hours < 12) hours = hours + 12;
+                                                    if (AMPM == "AM" && hours == 12) hours = hours - 12;
+                                                    var sHours = hours.toString();
+                                                    var sMinutes = minutes.toString();
+    
+                                                    if (hours < 10) sHours = "0" + sHours;
+                                                    if (minutes < 10) sMinutes = "0" + sMinutes;
+    
+                                                    var d = meeting.meeting_date;
+                                                    d.setHours(d.getHours() + sHours);
+                                                    d.setMinutes(d.getMinutes() + sMinutes);
+    
+                                                    attendies.forEach(function (mail) {
+                                                        i++;
+                                                        var options = {
+                                                            'summary': meeting.meeting_title,
+                                                            'location': meeting.meeting_location,
+                                                            'description': 'A test calandar.',
+                                                            'start': d,
+                                                            'hours': sHours,
+                                                            'minutes': sMinutes,
+                                                            'mail': mail,
+                                                            'end': {
+                                                                'dateTime': '2015-05-28T17:00:00-07:00',
+                                                                'timeZone': 'America/Los_Angeles',
+                                                            },
+                                                            'recurrence': [
+                                                                'RRULE:FREQ=DAILY;COUNT=2'
+                                                            ],
+                                                            'attendees': [
+                                                                { 'email': 'lpage@example.com' },
+                                                                { 'email': 'sbrin@example.com' },
+                                                            ],
+                                                            'reminders': {
+                                                                'useDefault': false,
+                                                                'overrides': [
+                                                                    { 'method': 'email', 'minutes': 24 * 60 },
+                                                                    { 'method': 'popup', 'minutes': 10 },
+                                                                ],
+                                                            },
+                                                        };
+    
+                                                        calendar.events.insert({
+                                                            auth: auth,
+                                                            calendarId: 'primary',
+                                                            resource: options,
+                                                        }, function (err, event) {
+                                                            if (err) {
+                                                                console.log('There was an error contacting the Calendar service: ' + err);
+                                                                return;
+                                                            }
+                                                            console.log('Event created: %s', event.htmlLink);
+                                                        });
+    
+                                                        var transporter = nodemailer.createTransport({
+                                                            service: 'Gmail',
+                                                            secure: false, // use SSL
+                                                            //    host: "smtp.gmail.com",
+                                                            port: 25, // port for secure SMTP
+                                                            auth: {
+                                                                user: 'carzdev@gmail.com',
+                                                                pass: 'Carz@123'
+                                                            }
+                                                        });
+                                                        transporter.sendMail(createGmailCalenderEVent(options), (err, info) => {
+                                                            if (err) {
+                                                                console.log(err, "Swamy Mail Error");
+                                                            } else {
+                                                                console.log(info, "Swamy Mail Info");
+                                                            }
+                                                        })
+                                                        if (i == attendies.length) {
+                                                            return res.send({
+                                                                state: "success",
+                                                                message: "Meeting Scheduled .",
+                                                                meeting: meeting
+                                                            }, 200);
+                                                        }
+                                                    });
+    
+    
+                                                }
+                                            })
+                                            //}
+                                        }
+                                    });
+    
+                                }
+    
+                            });
+                        }
+    
+                    });
+
+
                 }
                 if (req.body.meeting_status == 'declined' && req.body.meeting_reason != null) {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
                     meeting.meeting_reason = req.body.meeting_reason;
-                    meeting.notification_to = req.body.notification_to;
                 }
                 meeting.save(function (err, meeting) {
                     if (err) {
@@ -865,7 +1104,7 @@ router.put('/change_meeting_status', function (req, res) {
                     }
                     else {
                         console.log(meeting, 'here');
-                        if (meeting.meeting_status == 'declined') {
+                        if (meeting.meeting_status === 'declined') {
                             var reciever_mail;
                             var sender_name;
                             if (meeting.approved_by == 'franchisor') {
