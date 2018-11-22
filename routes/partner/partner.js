@@ -361,7 +361,7 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                         }else{
                         partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }}else{
-                        partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
+                       // partnerEditForm.partner_profile_pic = utils.awsFileUrl()+"franchisee_img/fallout.png";
                       }
 
                       partner.partner_name = partnerEditForm.partner_name;
@@ -380,7 +380,10 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                       partner.bussiness_type = partnerEditForm.bussiness_type;
                       partner.bussiness_type_id = partnerEditForm.bussiness_type_id;
                       partner.partner_occupation_others = partnerEditForm.partner_occupation_others;
-                      partner.partner_profile_pic = partnerEditForm.partner_profile_pic;
+                      if(partnerEditForm.partner_profile_pic){
+                        partner.partner_profile_pic = partnerEditForm.partner_profile_pic;
+                      }
+                      
                 partner.save(function (err, partner) {
                     if (err) {
 

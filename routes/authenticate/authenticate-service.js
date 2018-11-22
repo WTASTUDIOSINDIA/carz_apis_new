@@ -16,7 +16,12 @@ const findSuperAdmin = (query) => {
     return SuperAdmin.findOne(query).exec();
   }  
 const findFranchisee = (query) => {
-  return Franchisee.findOne(query).exec();
+    console.log(query, 'log 19');
+  return Franchisee.findById(query, function(err, res){
+    console.log(err, 'err21');
+    console.log(res, 'err22');
+    return res;
+  });
 }  
   // jwt tokens
   let isUser = {};

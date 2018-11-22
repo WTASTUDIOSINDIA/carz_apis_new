@@ -810,7 +810,7 @@ router.post('/franchisor-login', function (req,res){
       
   })
 
-  router.post('/save_profile',utils.authenticated, function (req,res){
+  router.post('/save_profile', function (req,res){
 
     let data = req.body;
     var otp = utils.generateOTP();
@@ -908,7 +908,7 @@ router.post('/franchisor-login', function (req,res){
               });
 
         }else if(data.user_role == "franchisee"){
-
+            console.log(data.id);
             authService.findFranchisee({_id:objectId(data.id)}, '')
             .then((response) => {
                 if(response) {
@@ -924,7 +924,9 @@ router.post('/franchisor-login', function (req,res){
                        //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
                     }
                     else{
-                        response.franchisee_name = data.franchisee_name;
+                        console.log(response.franchisee_name, "927");
+                        console.log(data.user_name, "928");
+                        response.franchisee_name = data.user_name;
                         return response.save();
                         //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
                     }
