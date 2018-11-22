@@ -16,6 +16,7 @@ var utils = require('../../common/utils');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var ical = require("ical-generator");
+var utils = require('../../common/utils');
 const { google } = require('googleapis');
 
 const { GoogleAuth } = require('google-auth-library');
@@ -54,7 +55,6 @@ router.post('/create_meeting', function (req, res) {
     var attendies = [];
     try {
         Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id, 'meeting_date': meetingForm.meeting_date, 'meeting_title': meetingForm.meeting_title }, function (err, meeting) {
-            // console.log(meetingForm);
             if (err) {
                 return res.send({
                     state: "err",
@@ -83,7 +83,6 @@ router.post('/create_meeting', function (req, res) {
                 meeting.notification_to = meetingForm.notification_to;
                 meeting.meeting_status = meetingForm.meeting_status;
                 meeting.created_by = meetingForm.created_by;
-                // console.log(meetingForm.meeting_assigned_people);
                 if (meetingForm.meeting_assigned_people) {
                     meetingForm.meeting_assigned_people.forEach(function (element) {
 
@@ -94,6 +93,12 @@ router.post('/create_meeting', function (req, res) {
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
                         console.log(err);
+                    }
+                    if (!franchisor) {
+                        return res.json({
+                            'state': err,
+                            'message': 'Franchisor doesnt exist'
+                        })
                     } else {
                         attendies.push(franchisor.user_mail);
 
@@ -112,13 +117,11 @@ router.post('/create_meeting', function (req, res) {
                                     }
                                     else {
                                         io.on('connection', function (socket) {
-                                            //console.log(socket);
                                             socket.emit('news', { hello: 'world' });
                                             socket.on('message', function (data, response) {
-                                                //console.log(data, "42_meeting.js");
-                                                var meeting_data = saveMeetingNotification(data, res);
-                                                //console.log(meeting_data, "44_meeting.js");
-                                                io.emit('message', { type: 'new-message-23', text: meeting_data });
+
+                                                var meeting_data = utils.saveMeetingNotification(data, res);
+                                                socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
                                             });
@@ -133,13 +136,11 @@ router.post('/create_meeting', function (req, res) {
                                                 io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
                                             });
                                         });
-                                        //console.log('sda', meetingForm.franchisor_id);
                                         Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
                                             if (err) {
                                                 return res.json(500, err);
                                             }
                                             if (user) {
-                                                //console.log(user, "90");
                                                 meeting.user_name = user.user_name;
                                                 meeting.save();
                                                 let i = 0;
@@ -283,10 +284,8 @@ router.post('/create_meeting', function (req, res) {
 //update meeting
 router.put('/edit_meeting', function (req, res, next) {
     var meetingEditForm = req.body;
-    console.log(req.body);
     try {
         Meeting.findOne({ '_id': meetingEditForm._id }, function (err, meeting) {
-            console.log('req.body', req.body);
             if (err) {
                 return res.send({
                     state: "err",
@@ -309,9 +308,9 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_status = meetingEditForm.meeting_status,
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
-                    if (meetingEditForm.meeting_reason) {
-                        meeting.meeting_reason = meetingEditForm.meeting_reason
-                    };
+                if (meetingEditForm.meeting_reason) {
+                    meeting.meeting_reason = meetingEditForm.meeting_reason
+                };
                 meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
@@ -457,22 +456,14 @@ router.get('/get_all_meetings', function (req, res) {
 router.post('/get_meetings_count', async (req, res) => {
     if (req.body.date) {
         date = new Date(req.body.date);
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     if (!req.body.date || req.body.date == null) {
         date = new Date();
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     // console.log(query);
@@ -542,6 +533,7 @@ router.post('/get_meetings_count', async (req, res) => {
  * @param {Object} response - The Response Object for the http request
  * @returns {string} - The Access Token string
  */
+/*
 function saveMeetingNotification(request, response) {
     var getNotifications = request;
     // console.log(getNotifications);
@@ -592,19 +584,68 @@ function saveMeetingNotification(request, response) {
     })
 }
 
+*/
+// router.get('/get_notifications/:user_id', function (req, res) {
+//     try {
+//         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
+//             if (err) {
+//                 return res.send(500, err);
+//             }
+//             else {
+//                 res.send({
+//                     state: "success",
+//                     data: meeting
+//                 }, 200);
+//             }
+//         }).sort({ date: -1 })
+//     }
+//     catch (err) {
+//         return res.send({
+//             state: "error",
+//             message: err
+//         });
+//     }
+// })
 router.get('/get_notifications/:user_id', function (req, res) {
+    var notifications = {
+        franchisor_id: null,
+        franchisee_id: null,
+        notification_title: null,
+        notification_status: null,
+        location: null,
+        notification_date: null,
+        read_status: null,
+        notification_to: null
+    }
     try {
-        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
-            if (err) {
-                return res.send(500, err);
-            }
-            else {
-                res.send({
-                    state: "success",
-                    data: meeting
-                }, 200);
-            }
-        }).sort({ date: -1 })
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }).
+            populate('meeting_id').
+            exec((err, notification) => {
+                if (err) {
+                    console.log(err);
+                }
+                if (notification) {
+                    console.log(notification[0].franchisee_id, 'francfasdjlas;laj;ald')
+                    notification.forEach(element => {
+                        if (element.meeting_id) {
+                            notifications.franchisor_id = element.franchisor_id,
+                                notifications.franchisee_id = element.franchisee_id;
+                            notifications.notification_title = element.meeting_id.meeting_title,
+                                notifications.notification_status = element.meeting_id.meeting_status,
+                                notifications.location = element.meeting_id.meeting_location,
+                                notifications.notification_date = element.meeting_id.meeting_date,
+                                notifications.read_status = element.read_status;
+                                notifications.notification_to = 'franchisor'
+                        }
+                    });
+                    console.log(notifications, '/////////////////')
+                    return res.json({
+                        'state': 'success',
+                        'message': 'Successfully fetched notifications',
+                        'data': notifications
+                    })
+                }
+            })
     }
     catch (err) {
         return res.send({
@@ -1174,4 +1215,3 @@ router.put('/change_meeting_status', function (req, res) {
 });
 
 module.exports = router;
-module.exports.saveMeetingNotification = saveMeetingNotification;
