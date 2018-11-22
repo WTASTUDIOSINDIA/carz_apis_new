@@ -2061,6 +2061,7 @@ var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function (req, res) {
 
     stageForm = JSON.parse(req.body.franchisee_id);
+    console.log(req.body,'-------req body ---------------')
     activity_data.franchisor_id = stageForm.franchisor_id;
     activity_data.franchisee_id = stageForm.franchisee_id;
     var stage_Completed = 0;
@@ -2094,19 +2095,51 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         stage.stage_discussion.nda_status = "approved";
                         activity_data.name = 'NDA Uploaded';
                     }
-                    if (stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee') {
+                  else if (stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.nda_status = "uploaded";
                         activity_data.name = 'NDA Uploaded';
-
                     }
-                    if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.user_role == 'franchisor') {
-                        stage.stage_discussion.nda_status = stageForm.nda_status;
-                        activity_data.name = 'NDA ' + stageForm.nda_status;
-                    }
-                    if (stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisee') {
+                 else if (stage.stage_discussion.nda_status == 'declined' &&  stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.nda_status = 'uploaded';
                         activity_data.name = 'NDA Reuploaded';
                     }
+                else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'declined' &&  stageForm.user_role == 'franchisor') {
+                        stage.stage_discussion.nda_status = 'declined';
+                        stage.stage_discussion.nda_file_rejected_reason = stageForm.nda_file_rejected_reason;
+                        activity_data.name = 'NDA Declined due to' +'' + stageForm.nda_file_rejected_reason;
+
+                        let user_data = {};
+                        user_data.user_mail = stage.stage_discussion.franchisee_email;
+                        if(stage.stage_discussion.franchisee_name){
+                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        }else{
+                            user_data.user_name = stage.stage_discussion.partner_name;
+                        }
+                        user_data.subject = 'NDA Declined';
+                        user_data.html =  "<p>Hi, "+user_data.user_name  + "<br>" + "Franchisor has Declined your NDA Document due to "+stage.stage_discussion.nda_file_rejected_reason +". "+"Please upload again. <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        utils.send_mail(user_data)
+
+                    }
+                    else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'approved' &&  stageForm.user_role == 'franchisor') {
+                        stage.stage_discussion.nda_status = 'approved';
+                        activity_data.name = 'NDA approved'
+                        let user_data = {};
+                        user_data.user_mail = stage.stage_discussion.franchisee_email;
+                        if(stage.stage_discussion.franchisee_name){
+                        user_data.user_name = stage.stage_discussion.franchisee_name;
+                    }else{
+                        user_data.user_name = stage.stage_discussion.partner_name;
+                    }
+                        console.log(stage.stage_discussion.partner_name,'77777777777777777777777777777777777777777777');
+                        user_data.subject = 'NDA Approved';
+                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has approved your NDA Document." + "<br> "+" <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        utils.send_mail(user_data)
+                    }
+                    // if (stage.stage_discussion.nda_status == 'declined' && stage.stage_discussion.nda_status.nda_file_rejected_reason != null &&){
+                    //     stage.stage_discussion.nda_file_rejected_reason = stageForm.nda_file_rejected_reason;
+                    //     stage.stage_discussion.nda_status = 'uploaded';
+                    //     activity_data.name = 'NDA Reuploaded';
+                    // }
                     // if(stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor'){
                     //   stage.stage_discussion.nda_status = 'approved';
                     //   activity_data.name = 'NDA Reuploaded';
@@ -2124,6 +2157,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                             stage.stage_discussion.nda_file_type = "image";
                         }
                         stage.stage_discussion.nda_file_uploaded = Date.now();
+                        stage.stage_discussion.nda_file_rejected_reason = stageForm.nda_file_rejected_reason;
                     }
                 }
                 //kyc background verification upload
@@ -2139,20 +2173,48 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     if (stageForm.user_role == 'franchisor' && stage.stage_discussion.application_status == 'pending') {
                         stage.stage_discussion.application_status = "approved";
                     }
-                    if (stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee') {
+                   else if (stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.application_status = "Submitted";
                     }
-                    if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
-                        stage.stage_discussion.application_status = stageForm.application_status;
-                    }
-                    if (stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor') {
+                //    else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
+                //         stage.stage_discussion.application_status = stageForm.application_status;
+                //        console.log(stage.stage_discussion.application_status,'-----------submitted-----');
+                //     }
+                    
+                   else if (stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.status = true;
                     }
-                    if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
-                        stage.stage_discussion.application_status = stageForm.application_status;
+                    
+                    // else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
+                    //     stage.stage_discussion.application_status = stageForm.application_status;
+                    // }
+                   else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.application_status == 'declined' &&  stageForm.user_role == 'franchisor') {
+                        stage.stage_discussion.application_status = 'declined';
+                        stage.stage_discussion.application_rejected_reason = stageForm.application_rejected_reason
+                        let user_data = {};
+
+                        user_data.user_mail = stage.stage_discussion.franchisee_email;
+                        if(stage.stage_discussion.franchisee_name){
+                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        }else{
+                            user_data.user_name = stage.stage_discussion.partner_name;
+                        }
+                        user_data.subject = 'Application form Rejected';
+                        user_data.html =  "<p>Hi, "+stage.stage_discussion.user_name + "<br>" + "Franchisor has Declined your Application form due to" +stage.stage_discussion.application_rejected_reason + "." +" <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        utils.send_mail(user_data)
                     }
-                    if (stage.stage_discussion.application_status == 'declined' && stageForm.user_role == 'franchisee') {
-                        stage.stage_discussion.application_status = 'Submitted';
+               else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
+                        stage.stage_discussion.application_status = stageForm.application_status;
+                        let user_data = {};
+                        user_data.user_mail = stage.stage_discussion.franchisee_email;
+                        if(stage.stage_discussion.franchisee_name){
+                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        }else{
+                            user_data.user_name = stage.stage_discussion.partner_name;
+                        }
+                        user_data.subject = 'Application form Approved';
+                        user_data.html =  "<p>Hi, "+stage.stage_discussion.user_name + "<br>" + "Franchisor has approved your Application form." + "<br>" + "Best," + "<br>"+ "Carz.</p>"
+                        utils.send_mail(user_data)
                     }
                     //  send_mail(req,res,stageForm);
                     // stage_Completed = 1;
@@ -2192,7 +2254,6 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     if (req.file) {
                         var get_id_of_crm_file = upload_folder_file(req, res, req.file, stageForm.fileStatus, stageForm.folder_Id, stageForm.franchisee_id, stageForm.sub_stage);
                         get_id_of_crm_file.then(result => {
-                            console.log(result, 883);
                         })
 
                     }
@@ -2203,7 +2264,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         }, 500);
                     }
                     else {
-                        console.log(activity_data);
+                        console.log(activity_data)
 
 
                         //
@@ -2337,6 +2398,8 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     }
                     if (stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.nda_status = 'approved';
+                        stage.stage_discussion.nda_file_rejected_reason = stageForm.nda_file_rejected_reason;
+
                     }
 
 
