@@ -390,6 +390,7 @@ router.put('/edit_partner_franchisee', function (req, res, next) {
                         }, 500);
                     } else {
                         Franchisee.findOne({_id: partner.franchisee_id}, function (err, franchiees) {
+                            console.log(franchiees, 'HelloSwamy393');
                             if (err) {
                                 return res.send({
                                     state: "err",
