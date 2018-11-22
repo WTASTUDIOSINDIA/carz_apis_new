@@ -35,7 +35,7 @@ function createGmailCalenderEVent(options) {
     return {
         from: "sasirekhachinthas@gmail.com",//options.from,
         to: options.mail,//options.to.required,
-        subject: "New Calendar Event from Carz",//options.subject,
+        subject: "Meeting request approved",//options.subject,
         //html: "test",//options.html,
         alternatives: [{
             contentType: "text/calendar",
@@ -96,6 +96,7 @@ router.post('/create_meeting', function (req, res) {
                         console.log(err);
                     } else {
                         attendies.push(franchisor.user_mail);
+
                         Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
                             if (err) {
                                 console.log(err);
@@ -117,7 +118,7 @@ router.post('/create_meeting', function (req, res) {
                                                 //console.log(data, "42_meeting.js");
                                                 var meeting_data = saveMeetingNotification(data, res);
                                                 //console.log(meeting_data, "44_meeting.js");
-                                                socket.emit('message', { type: 'new-message-23', text: meeting_data });
+                                                io.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
                                             });
@@ -164,10 +165,23 @@ router.post('/create_meeting', function (req, res) {
                                                     let user_data = {};
                                                    
                                                     user_data.user_mail = mail;
+                                                    if(req.body.franchisee_name){
+                                                        user_data.franchisee_name = req.body.franchisee_name;
+                                                        user_data.subject = 'Meeting Created';
+                                                        user_data.html =  "<p>Hi, "+user_data.franchisee_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisor to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    }
+                                                   else if(req.body.partner_name){
+                                                        user_data.partner_name = req.body.partner_name;
+                                                        user_data.subject = 'Meeting Created';
+                                                        user_data.html =  "<p>Hi, "+user_data.partner_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisor to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    }
+                                                    // else if(req.body.user_name){
+                                                    //     user_data.user_name = req.body.user_name;
+                                                    //     user_data.subject = 'Meeting Created';
+                                                    //     user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Meeting invite has been sent. Please wait for the Franchisee to accept your meeting request." + "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
+                                                    // }
+                                                    // console.log(user_data.user_name,'--------username-------');
                                                    
-                                                    user_data.subject = 'meeting approved';
-                                                    // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
-                                                    user_data.html =  "<p>Hi, "+req.body.franchisee_name + "<br>" + "Meeting created" + "<b>Comment:</b>"+req.body.meeting_title+ "<br><br>" + "Best," + "<br>"+ "Carz.</p>"
 
                                                     utils.send_mail(user_data)
 
@@ -542,7 +556,8 @@ function saveMeetingNotification(request, response) {
     notific.meeting_location = getNotifications.meeting_location;
     notific.status = getNotifications.status;
     notific.meeting_status = getNotifications.meeting_status;
-    if (getNotifications.meeting_status === 'pending') {
+    notific.notification_to = getNotifications.notification_to;
+    if (!getNotifications.meeting_status == 'pending') {
         notific.notification_to = getNotifications.notification_to;
     }
     notific.discussion_notification = getNotifications.discussion_notification;
@@ -552,16 +567,17 @@ function saveMeetingNotification(request, response) {
     if (getNotifications.meeting_status) {
         notific.approved_by = getNotifications.approved_by;
     }
-    if (getNotifications.meeting_status != "pending") {
-        if (getNotifications.notification_to == 'franchisee') {
-            notific.notification_to = "franchisor",
-                console.log(notific.notification_to, '1////', getNotifications.notification_to);
-        }
-        else if (getNotifications.notification_to == 'franchisor') {
-            notific.notification_to = "franchisee",
-                console.log(notific.notification_to, '2/////', getNotifications.notification_to);
-        }
-    }
+    // if (getNotifications.meeting_status) {
+    //     if (getNotifications.notification_to == 'franchisee') {
+    //         notific.notification_to = "franchisor",
+    //         console.log('notification_to_1', notific); 
+    //     }
+    //     else if (getNotifications.notification_to == 'franchisor') {
+    //         notific.notification_to = "franchisee",
+    //         console.log('notification_to_2', notific);         
+    //     }
+    //     console.log('notification_to_3', notific); 
+    // }
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {

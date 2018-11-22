@@ -2109,11 +2109,12 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         activity_data.name = 'NDA Declined due to' +'' + stageForm.nda_file_rejected_reason;
 
                         let user_data = {};
-                        user_data.user_mail = stage.stage_discussion.franchisee_email;
-                        if(stage.stage_discussion.franchisee_name){
-                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        console.log(stageForm.franchisee_email,'77777777777777777777777777777777777777777777');
+                        user_data.user_mail = stageForm.franchisee_email;
+                        if(stageForm.franchisee_name){
+                            user_data.user_name = stageForm.franchisee_name;
                         }else{
-                            user_data.user_name = stage.stage_discussion.partner_name;
+                            user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'NDA Declined';
                         user_data.html =  "<p>Hi, "+user_data.user_name  + "<br>" + "Franchisor has Declined your NDA Document due to "+stage.stage_discussion.nda_file_rejected_reason +". "+"Please upload again. <br>" + "Best," + "<br>"+ "Carz.</p>"
@@ -2124,13 +2125,13 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         stage.stage_discussion.nda_status = 'approved';
                         activity_data.name = 'NDA approved'
                         let user_data = {};
-                        user_data.user_mail = stage.stage_discussion.franchisee_email;
-                        if(stage.stage_discussion.franchisee_name){
-                        user_data.user_name = stage.stage_discussion.franchisee_name;
+                        user_data.user_mail = stageForm.franchisee_email;
+                        if(stageForm.franchisee_name){
+                        user_data.user_name = stageForm.franchisee_name;
                     }else{
-                        user_data.user_name = stage.stage_discussion.partner_name;
+                        user_data.user_name = stageForm.partner_name;
                     }
-                        console.log(stage.stage_discussion.partner_name,'77777777777777777777777777777777777777777777');
+                        console.log(stageForm.partner_name,'77777777777777777777777777777777777777777777');
                         user_data.subject = 'NDA Approved';
                         user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has approved your NDA Document." + "<br> "+" <br>" + "Best," + "<br>"+ "Carz.</p>"
                         utils.send_mail(user_data)
@@ -2193,27 +2194,27 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         stage.stage_discussion.application_rejected_reason = stageForm.application_rejected_reason
                         let user_data = {};
 
-                        user_data.user_mail = stage.stage_discussion.franchisee_email;
-                        if(stage.stage_discussion.franchisee_name){
-                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        user_data.user_mail = stageForm.franchisee_email;
+                        if(stageForm.franchisee_name){
+                            user_data.user_name = stageForm.franchisee_name;
                         }else{
-                            user_data.user_name = stage.stage_discussion.partner_name;
+                            user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'Application form Rejected';
-                        user_data.html =  "<p>Hi, "+stage.stage_discussion.user_name + "<br>" + "Franchisor has Declined your Application form due to" +stage.stage_discussion.application_rejected_reason + "." +" <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has Declined your Application form due to"+" " +stage.stage_discussion.application_rejected_reason + "." +" <br>" + "Best," + "<br>"+ "Carz.</p>"
                         utils.send_mail(user_data)
                     }
                else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.application_status = stageForm.application_status;
                         let user_data = {};
-                        user_data.user_mail = stage.stage_discussion.franchisee_email;
-                        if(stage.stage_discussion.franchisee_name){
-                            user_data.user_name = stage.stage_discussion.franchisee_name;
+                        user_data.user_mail = stageForm.franchisee_email;
+                        if(stageForm.franchisee_name){
+                            user_data.user_name = stageForm.franchisee_name;
                         }else{
-                            user_data.user_name = stage.stage_discussion.partner_name;
+                            user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'Application form Approved';
-                        user_data.html =  "<p>Hi, "+stage.stage_discussion.user_name + "<br>" + "Franchisor has approved your Application form." + "<br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has approved your Application form." + "<br>" + "Best," + "<br>"+ "Carz.</p>"
                         utils.send_mail(user_data)
                     }
                     //  send_mail(req,res,stageForm);
@@ -3406,177 +3407,5 @@ router.get('/get_admins', function (req, res) {
         });
     }
 });
-
-function notify_user(req, res, message, reason, rejected_franchisee_reason) {
-    var fromName = "CARZ";
-    var mailOptions = {
-        to: 'vishnu@wtastudios.com',
-        subject: 'notify',
-        from: "ikshitnodemailer@gmail.com",
-        headers: {
-            "X-Laziness-level": 1000,
-            "charset": 'UTF-8'
-        },
-
-        html: 'File rejected.'
-    }
-    var transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        secure: false, // use SSL
-        port: 25, // port for secure SMTP
-        auth: {
-            user: 'ikshitnodemailer@gmail.com',
-            pass: 'ikshit1007007'
-        }
-    });
-    transporter.sendMail(mailOptions, function (error, response) {
-        if (error) {
-            return res.send(error);
-        }
-        else {
-            return res.send({
-                state: "success",
-                message: message,
-                data: kyc_data
-            }, 200);
-        }
-    });
-}
-
-
-//create franchisee from web
-
-router.post('/create_franchisee_web', function (req, res) {
-
-    let franchiseeForm = req.body;
-    try {
-        Franchisee.findOne({ $and: [{ franchisee_pincode: franchiseeForm.franchisee_pincode }, { lead_type: 'Franchisees' }] }, function (err, franchisee) {
-            if (franchisee) {
-                return res.send({
-                    status: 500,
-                    state: "failure",
-                    message: "This franchisee pincode already exists!"
-                });
-            }
-            else {
-                Franchisee.findOne({ 'franchisee_email': franchiseeForm.franchisee_email }, function (err, franchisee) {
-                    if (err) {
-                        return res.send({
-                            status: 500,
-                            state: "err",
-                            message: "Something went wrong.We are looking into it."
-                        });
-                    }
-                    if (franchisee) {
-                        res.send({
-                            status: 200,
-                            state: "failure",
-                            message: "This email already exists!"
-                        });
-                    }
-                    if (!franchisee) {
-                        
-                        var franchisee = new Franchisee();
-                        let franchisee_details = {};
-                        franchisee_details.franchisee_name = franchiseeForm.franchiseeForm;
-                        franchisee_details.franchisee_pass = createHash('mypassword');
-                        franchisee_details.franchisee_email = franchiseeForm.franchisee_email;
-                        franchisee_details.franchisee_mobile_number = franchiseeForm.franchisee_mobile_number;
-                        franchisee_details.partner_name = franchiseeForm.franchisee_name;
-                        franchisee_details.stage_profile = "completed";
-                        franchisee_details.franchisee_city = franchiseeForm.franchisee_city;
-                        franchisee_details.franchisee_state = franchiseeForm.franchisee_state;
-                        franchisee_details.franchisee_preferred_date = franchiseeForm.preferred_date;
-                        franchisee_details.franchisee_pincode = franchiseeForm.franchisee_pincode;
-                        franchisee_details.lead_source = "Websites";
-                        franchisee_details.partners_list = 1;
-                        franchisee_details.franchisee_franchise_model = "CarZ Grande"
-                        franchisee_details.franchisee_franchise_type = "Independent"
-                        franchisee_details.franchisor_id = "5afe878c750c1a0014c62a11";
-                        franchisee_details.partner_email = franchiseeForm.franchisee_email;
-                        franchisee_details.partner_mobile_number = franchiseeForm.franchisee_mobile_number;
-                        franchisee_details.partner_city = franchiseeForm.franchisee_city;
-                        franchisee_details.partner_state = franchiseeForm.franchisee_state;
-                        franchisee_details.partner_pincode = franchiseeForm.franchisee_pincode;
-                        
-                        Franchisee.create(franchisee_details, function (err, franchisee) {
-                            if (err) {
-                                res.send({
-                                    status: 500,
-                                    state: "err",
-                                    message: "Something went wrong."
-                                }, 500);
-                            }
-                            else {
-
-                                var stage = new Stages();
-                                stage.franchisee_id = franchisee._id,
-                                    stage.stage_profile = franchisee.stage_profile
-                                stage.save((err) => {
-                                    if (err, stage) {
-                                     
-                                    }
-                                    if (stage) {
-                                        
-                                    }
-                                });
-
-                                var partner = new Partner();
-                                partner.partner_name = franchiseeForm.franchiseeForm,
-                                partner.partner_email = franchiseeForm.franchisee_email,
-                                partner.partner_mobile_number = franchiseeForm.franchisee_mobile_number,
-                                partner.partner_city = franchiseeForm.franchisee_city,
-                                partner.partner_state = franchiseeForm.franchisee_state,
-                                partner.partner_pincode = franchiseeForm.franchisee_pincode,
-                                partner.main_partner = true,
-                                partner.franchisee_id = franchisee._id;
-                                
-                                partner.save(function (err, partner) {
-                                    if (err) {
-                                        res.send({
-                                            state: "err",
-                                            message: "Something went wrong."
-                                        }, 500);
-                                    }
-                                    else {
-                                        if (franchiseeForm.master_franchisee_id) {
-                                            Franchisee.findById({ _id: franchiseeForm.master_franchisee_id }, function (err, franchisee) {
-                                               
-                                                franchisee.sub_franchisee_count = franchisee.sub_franchisee_count + 1;
-                                                franchisee.save(function (err, franchisee) {
-                                                
-                                                })
-                                            })
-                                        }
-                                        kyc_Upload(req, res, partner, franchisee, franchiseeForm);
-
-                                        var library = new Library();
-                                        library.franchisee_Id = franchisee._id;
-                                        library.folder_name = 'Discussion';
-                                        library.save(function (err, library) {
-                                          
-                                        });
-                                        res.send({
-                                            state: "success",
-                                            message: "Franchisee created successfully.",
-                                            data: franchisee
-                                        }, 200);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
-    catch (err) {
-        return res.send({
-            state: "error",
-            message: err
-        });
-    }
-});
-
 
 module.exports = router;
