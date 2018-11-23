@@ -28,6 +28,7 @@ var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
 var saveMeetingNotification = meeting.saveMeetingNotification;
+var send_notifications = meeting.send_notifications;
 var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
@@ -63,10 +64,11 @@ var connectedSocketUsers = [];
 var socketusers = [];
 io.on('connection', function(socket) {
 //   console.log("stwa");
+
     socket.emit('news', {hello: 'world'});
     socket.on('add-user', function(data, response){
     //  connectedSocketUsers.push(data);
-      console.log(data, "57");
+      console.log(data, "57Swamy");
       socketusers[data.socket_id] = socket;
       for (var i = 0; i < connectedSocketUsers.length; i++) {
         if (connectedSocketUsers[i].user_id === data.user_id) { // modify whatever property you need
@@ -86,6 +88,9 @@ io.on('connection', function(socket) {
   //   socket.on('disconnect', function() {
   //   connectedSocketUsers = [];
   // });
+  socket.on('chat_message', function(data, response){
+      console.log(data, '42appJS91');
+  })
     socket.on('message', function (data, response) {
          console.log(data, "42");
 
@@ -101,12 +106,14 @@ io.on('connection', function(socket) {
          //
          //  }
          // }
-        var meeting_data = saveMeetingNotification(data);
-        //console.log(meeting_data, "44");
+        // var meeting_data = saveMeetingNotification(data);
+        var notification_data = send_notifications('notification',data, io);
+        console.log(notification_data, "44notification");
 
 
 
     });
+    
     socket.on('discussionMessage', function (data, response){
         io.emit('discussionMessage', data);
     })

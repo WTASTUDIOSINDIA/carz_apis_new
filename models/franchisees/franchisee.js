@@ -129,6 +129,7 @@ var meetingSchema = new mongoose.Schema({
    "meeting_remarks": String,
    "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
    "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
+   "franchisee_name": String,
    "stage_id": String,
    "meeting_franchisor_remarks":String,
    "notification_to": String,
@@ -152,6 +153,7 @@ var notificationSchema = new mongoose.Schema({
     "notification_data": {
         
     },
+    "notification_title":  String,
     "status" : Boolean,
     "notification_to": String,
     "discussion_notification": String,
