@@ -20,6 +20,7 @@ require('./models/activity_tracker/activity_tracker');
 require('./models/versions/versions');
 require('./models/user_management/user_management');
 require('./models/audit/audit');
+var utils = require('./common/utils');
 var franchisee = require('./routes/franchisees/franchisee');
 var franchisor = require('./routes/franchisor/franchisor');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
