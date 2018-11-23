@@ -1526,13 +1526,13 @@ router.post('/create_multiple_franchisee', function (req, res) {
                 var franchisee_length = (franchiseeMultipleForm.length - 1);
                 for (var i = 0; i < franchiseeMultipleForm.length - 1; i++) {
                     var franchisee = new Franchisee();
-                    franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name,
-                        franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email,
-                        franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode,
-                        franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country,
-                        franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state,
-                        franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city,
-                        franchisee.franchisee_area = franchiseeMultipleForm[i].franchisee_area
+                    franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name
+                    franchisee.franchisee_email = franchiseeMultipleForm[i].franchisee_email
+                    franchisee.franchisee_pincode = franchiseeMultipleForm[i].franchisee_pincode
+                    franchisee.franchisee_country = franchiseeMultipleForm[i].franchisee_country
+                    franchisee.franchisee_state = franchiseeMultipleForm[i].franchisee_state
+                    franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city
+                    franchisee.franchisee_area = franchiseeMultipleForm[i].franchisee_area
                     franchisee.master_franchisee_id = franchiseeMultipleForm[i].master_franchisee_id
 
                     franchisee.save(function (err, franchisee) {
