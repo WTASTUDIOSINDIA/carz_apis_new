@@ -810,7 +810,7 @@ router.post('/franchisor-login', function (req,res){
       
   })
 
-  router.post('/save_profile',utils.authenticated, function (req,res){
+  router.post('/save_profile', function (req,res){
 
     let data = req.body;
     var otp = utils.generateOTP();
@@ -907,13 +907,11 @@ router.post('/franchisor-login', function (req,res){
                   res.status(500).json({error:'3',message:"Internal Sever Error"});
               });
 
-        }else if(data.user_role == "franchisee"){
-
+        }else if(data.user_role == "franchisee"){            
             authService.findFranchisee({_id:objectId(data.id)}, '')
             .then((response) => {
                 if(response) {
-                    if(data.user_pass){
-                        console.log('mobileotp', franchisee_mobile_number);
+                    if(data.user_pass){                        
                         utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
                         utils.sendMailOTP(otp,response.franchisee_email);
                         response.pass_verification = {
@@ -923,8 +921,8 @@ router.post('/franchisor-login', function (req,res){
                       
                        //res.status(200).json({ error: "0", message: "Seems you want to change your password. OTP has been sent. Please verify!", data: resp_data});
                     }
-                    else{
-                        response.franchisee_name = data.franchisee_name;
+                    else{                        
+                        response.franchisee_name = data.user_name;
                         return response.save();
                         //res.status(200).json({ error: "0", message: "Succefully updated", data: resp_data});
                     }

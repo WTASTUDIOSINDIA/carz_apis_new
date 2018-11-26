@@ -54,7 +54,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                 dquestion = new DiscussionQuestion();
                 dquestion.discussion_question = discussinQuestionForm.discussion_question;
                 dquestion.created_by = discussinQuestionForm.created_by;
-                dquestion.created_at = discussinQuestionForm.created_at;
+                dquestion.created_at = new Date();
                 dquestion.user_id = discussinQuestionForm.user_id;
                 dquestion.franchisee_name = discussinQuestionForm.franchisee_name;
                 dquestion.user_name = discussinQuestionForm.user_name;
@@ -120,7 +120,7 @@ router.get('/get_discussion_question/:question_id', function (req, res) {
 //Get all questions
 router.get('/get_all_discussion_questions', function (req, res) {
     try {
-        DiscussionQuestion.find({}, function (err, discussionquestion) {
+        DiscussionQuestion.find({},{}, { sort: { 'created_at' : -1 } }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
                     state: "err",

@@ -11,13 +11,15 @@ var Notification = mongoose.model('Notification');
 var Stages = mongoose.model('Stages');
 var Admin = mongoose.model('Admin');
 var nodemailer = require('nodemailer');
-var app = express();
-var utils = require('../../common/utils');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var dateFormat = require('dateformat');
+// var app = express();
+// var http = require('http').createServer(app);
+var io = require('socket.io-client');
+// var socket = io('http://localhost:3010?k=foo&p=bar');
 var ical = require("ical-generator");
+var utils = require('../../common/utils');
 const { google } = require('googleapis');
-
+var socket = io("http://locahost:3000");
 const { GoogleAuth } = require('google-auth-library');
 const auth = new GoogleAuth();
 
@@ -47,14 +49,335 @@ function createGmailCalenderEVent(options) {
 
 // to create meeting
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
+socket.once('connect', function(){
+    console.log("new client connected");
+    console.log("new client connectsed");
+});
 router.post('/create_meeting', function (req, res) {
+    
+    var meetingForm = req.body;
+    str = JSON.stringify(req.body);
+    str1 = JSON.parse(str);
+    var attendies = [];
+    try {
+        // io.emit('meeting_request_notification', data);
+        // io.sockets.on('connection', function(socket){
+        //     console.log("new client connected");
+        // });
+        // console.log(socket, "55Socket");
+        // console.log(io, "56Socket");
+        // socket.emit('chat_message', req);
+
+        // io.on('connect',function(socket){
+        //     console.log("SwamyTech");
+        //     socket.on('some event',myfunction);
+        // })
+        Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id, 'meeting_date': meetingForm.meeting_date, 'meeting_title': meetingForm.meeting_title }, function (err, meeting) {
+            // console.log(meetingForm);
+            if (err) {
+                return res.send({
+                    state: "err",
+                    message: "Something went wrong.We are looking into it."
+                }, 500);
+            }
+            if (meeting) {
+                return res.send({
+                    state: "failure",
+                    message: "This meeting already exists!"
+                }, 200);
+            }
+            if (!meeting) {
+                var meeting = new Meeting();
+                console.log(meetingForm, "buis");
+                meeting.meeting_title = meetingForm.meeting_title;
+                meeting.meeting_location = meetingForm.meeting_location;
+                meeting.meeting_date = meetingForm.meeting_date;
+                meeting.meeting_time = meetingForm.meeting_time;
+                meeting.meeting_assigned_people = meetingForm.meeting_assigned_people;
+                meeting.meeting_additional_services = meetingForm.meeting_additional_services;
+                meeting.meeting_remarks = meetingForm.meeting_remarks
+                meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
+                meeting.franchisor_id = meetingForm.franchisor_id;
+                if(meetingForm.franchisee_name){
+                    meeting.franchisee_name = meetingForm.franchisee_name;
+                }          
+                if(meeting.partner_name){
+                    meeting.franchisee_name = meetingForm.partner_name;
+                }      
+                meeting.franchisee_id = meetingForm.franchisee_id;
+                meeting.stage_id = meetingForm.stage_id;
+                meeting.notification_to = meetingForm.notification_to;
+                meeting.meeting_status = meetingForm.meeting_status;
+                meeting.created_by = meetingForm.created_by;
+                // console.log(meetingForm.meeting_assigned_people);
+                if (meetingForm.meeting_assigned_people) {
+                    meetingForm.meeting_assigned_people.forEach(function (element) {
+
+                        attendies.push(element['user_mail'])
+
+                    });
+                }
+
+                Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        attendies.push(franchisor.user_mail);
+                        Franchisee.findById(meetingForm.franchisee_id, function (err, franchisee) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                attendies.push(franchisee.franchisee_email);
+
+                                meeting.save(function (err, meeting) {
+                                    if (err) {
+                                        res.send({
+                                            state: "err",
+                                            message: "Something went wrong."
+                                        }, 500);
+                                    }
+                                    else {
+                                        // io.sockets.on('connection', function( socket ) {
+                                        //     console.log("Krishna Geramany");
+                                        //     socket.emit('meeting_request_notification', meeting);
+                                        // });
+                                         
+                                                // socket.broadcast.to(params.id).emit('newNotification', params);
+                                                // io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
+                                                
+
+                                        // io.on('connect', function (socket) {
+                                            
+                                        //     console.log("Rockstar");
+                                        //     //console.log(socket);
+                                        //     // socket.emit('news', { hello: 'world' });
+                                        //     // socket.on('message', function (data, response) {
+                                        //     //     //console.log(data, "42_meeting.js");
+                                        //     //     var meeting_data = saveMeetingNotification(data, res);
+                                        //     //     //console.log(meeting_data, "44_meeting.js");
+                                        //     //     socket.emit('message', { type: 'new-message-23', text: meeting_data });
+                                        //     //     // Function above that stores the message in the database
+
+                                        //     // });
+                                        //     send_notifications('meeting_request', meeting);
+
+                                            
+
+                                        //     socket.on('join', (params, callback) => {
+                                        //         // if(!isRealString(params.name) || !isRealString(params.room)) {
+                                        //         //     callback('Name and room are required.');
+                                        //         // }
+                                        //         socket.join(params.id);
+                                        //         socket.emit('newNotification'.generateMessage('You have a new notification'));
+                                        //         socket.broadcast.to(params.id).emit('newNotification', params);
+                                        //         io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
+                                        //     });
+                                        // });
+                                        //console.log('sda', meetingForm.franchisor_id);
+                                        Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
+                                            if (err) {
+                                                return res.json(500, err);
+                                            }
+                                            if (user) {
+                                                //console.log(user, "90");
+                                                meeting.user_name = user.user_name;
+                                                meeting.save();
+                                                let i = 0;
+
+                                                var time = meeting.meeting_time;
+                                                var hours = Number(time.match(/^(\d+)/)[1]);
+                                                var minutes = Number(time.match(/:(\d+)/)[1]);
+                                                var AMPM = time.match(/\s(.*)$/)[1];
+                                                if (AMPM == "PM" && hours < 12) hours = hours + 12;
+                                                if (AMPM == "AM" && hours == 12) hours = hours - 12;
+                                                var sHours = hours.toString();
+                                                var sMinutes = minutes.toString();
+
+                                                if (hours < 10) sHours = "0" + sHours;
+                                                if (minutes < 10) sMinutes = "0" + sMinutes;
+
+                                                var d = meeting.meeting_date;
+                                                d.setHours(d.getHours() + sHours);
+                                                d.setMinutes(d.getMinutes() + sMinutes);
+
+                                                attendies.forEach(function (mail) {
+                                                    i++;
+                                                    var options = {
+                                                        'summary': meeting.meeting_title,
+                                                        'location': meeting.meeting_location,
+                                                        'description': 'A test calandar.',
+                                                        'start': d,
+                                                        'hours': sHours,
+                                                        'minutes': sMinutes,
+                                                        'mail': mail,
+                                                        'end': {
+                                                            'dateTime': '2015-05-28T17:00:00-07:00',
+                                                            'timeZone': 'America/Los_Angeles',
+                                                        },
+                                                        'recurrence': [
+                                                            'RRULE:FREQ=DAILY;COUNT=2'
+                                                        ],
+                                                        'attendees': [
+                                                            { 'email': 'lpage@example.com' },
+                                                            { 'email': 'sbrin@example.com' },
+                                                        ],
+                                                        'reminders': {
+                                                            'useDefault': false,
+                                                            'overrides': [
+                                                                { 'method': 'email', 'minutes': 24 * 60 },
+                                                                { 'method': 'popup', 'minutes': 10 },
+                                                            ],
+                                                        },
+                                                    };
+
+                                                    calendar.events.insert({
+                                                        auth: auth,
+                                                        calendarId: 'primary',
+                                                        resource: options,
+                                                    }, function (err, event) {
+                                                        if (err) {
+                                                            console.log('There was an error contacting the Calendar service: ' + err);
+                                                            return;
+                                                        }
+                                                        console.log('Event created: %s', event.htmlLink);
+                                                    });
+
+                                                    var transporter = nodemailer.createTransport({
+                                                        service: 'Gmail',
+                                                        secure: false, // use SSL
+                                                        //    host: "smtp.gmail.com",
+                                                        port: 25, // port for secure SMTP
+                                                        auth: {
+                                                            user: 'carzdev@gmail.com',
+                                                            pass: 'Carz@123'
+                                                        }
+                                                    });
+                                                    transporter.sendMail(createGmailCalenderEVent(options), (err, info) => {
+                                                        if (err) {
+                                                            console.log(err, "Swamy Mail Error");
+                                                        } else {
+                                                            console.log(info, "Swamy Mail Info");
+                                                        }
+                                                    })
+                                                    if (i == attendies.length) {
+                                                        return res.send({
+                                                            state: "success",
+                                                            message: "Meeting Scheduled .",
+                                                            meeting: meeting
+                                                        }, 200);
+                                                    }
+                                                });
+
+
+                                            }
+                                        })
+                                        //}
+                                    }
+                                });
+
+                            }
+
+                        });
+                    }
+
+                });
+
+
+
+            }
+        });
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
+
+//router.po
+function send_notifications(notification_type, data, iofromapp ){
+    // iofromapp.emit('message', data);
+    var notific = new Notification();
+    notific.franchisor_id = data.franchisor_id;
+    notific.franchisee_id = data.franchisee_id;
+    data.meeting_date = dateFormat(data.meeting_date, "dd-mm-yyyy");
+    notific.created_at = new Date();
+    console.log(data, "Robotooo");
+    if(notification_type == 'meeting_request'){
+        console.log("Hello Motto 365");
+        
+    }
+    var franchisee_name = '';
+    if(data.notification_to == "franchisor"){
+        
+        notific.notification_title = "You have a new meeting request regarding "+ data.meeting_title +" with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
+    }
+    if(data.notification_to == "franchisee"){
+        notific.notification_title = "You have a new meeting request regarding "+ data.meeting_title +" with Franchisor on " + data.meeting_date + " at  " + data.meeting_time;
+    }
+    console.log()
+    
+    // notific.meeting_title = getNotifications.meeting_title;
+    // notific.meeting_date = getNotifications.meeting_date;
+    // notific.meeting_time = getNotifications.meeting_time;
+    // notific.meeting_location = getNotifications.meeting_location;
+    // notific.status = getNotifications.status;
+    // notific.meeting_status = getNotifications.meeting_status;
+    // if (getNotifications.meeting_status === 'pending') {
+    //     notific.notification_to = getNotifications.notification_to;
+    // }
+    // notific.discussion_notification = getNotifications.discussion_notification;
+    // if (getNotifications.meeting_reason) {
+    //     notific.meeting_reason = getNotifications.meeting_reason;
+    // }
+    // if (getNotifications.meeting_status) {
+    //     notific.approved_by = getNotifications.approved_by;
+    // }
+    // if (data.meeting_status != "pending") {
+        // if (data.notification_to == 'franchisee') {
+        //     notific.notification_to = "franchisor";
+        //         // console.log(notific.notification_to, '1////', getNotifications.notification_to);
+        // }
+        // else if (data.notification_to == 'franchisor') {
+        //     notific.notification_to = "franchisee";
+        //         // console.log(notific.notification_to, '2/////', getNotifications.notification_to);
+        // }
+        notific.notification_to = data.notification_to;
+    // }
+    notific.save(function (err, application) {
+        console.log(application, "235");
+        if (err) {
+            console.log(err);
+        }
+        else {
+
+          //for socket
+          
+    socket.on('join', (params, callback) => {
+        // if(!isRealString(params.name) || !isRealString(params.room)) {
+        //     callback('Name and room are required.');
+        // }
+        socket.join(params.id);
+        // socket.emit('newNotification'.generateMessage('You have a new notification'));
+        socket.broadcast.to(params.id).emit('newNotification', params);
+        io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: application });
+    });
+        }
+        // return "Test sdsds";
+    })
+
+    
+
+};
+// 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
+router.post('/create_meeting_old', function (req, res) {
     var meetingForm = req.body;
     str = JSON.stringify(req.body);
     str1 = JSON.parse(str);
     var attendies = [];
     try {
         Meeting.findOne({ 'franchisee_id': meetingForm.franchisee_id, 'meeting_date': meetingForm.meeting_date, 'meeting_title': meetingForm.meeting_title }, function (err, meeting) {
-            // console.log(meetingForm);
             if (err) {
                 return res.send({
                     state: "err",
@@ -77,13 +400,13 @@ router.post('/create_meeting', function (req, res) {
                 meeting.meeting_additional_services = meetingForm.meeting_additional_services;
                 meeting.meeting_remarks = meetingForm.meeting_remarks
                 meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
+                meeting.franchisee_name = meetingForm.franchisee_name;
                 meeting.franchisor_id = meetingForm.franchisor_id;
                 meeting.franchisee_id = meetingForm.franchisee_id;
                 meeting.stage_id = meetingForm.stage_id;
                 meeting.notification_to = meetingForm.notification_to;
                 meeting.meeting_status = meetingForm.meeting_status;
                 meeting.created_by = meetingForm.created_by;
-                // console.log(meetingForm.meeting_assigned_people);
                 if (meetingForm.meeting_assigned_people) {
                     meetingForm.meeting_assigned_people.forEach(function (element) {
 
@@ -94,6 +417,12 @@ router.post('/create_meeting', function (req, res) {
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
                         console.log(err);
+                    }
+                    if (!franchisor) {
+                        return res.json({
+                            'state': err,
+                            'message': 'Franchisor doesnt exist'
+                        })
                     } else {
                         attendies.push(franchisor.user_mail);
 
@@ -112,13 +441,11 @@ router.post('/create_meeting', function (req, res) {
                                     }
                                     else {
                                         io.on('connection', function (socket) {
-                                            //console.log(socket);
                                             socket.emit('news', { hello: 'world' });
                                             socket.on('message', function (data, response) {
-                                                //console.log(data, "42_meeting.js");
-                                                var meeting_data = saveMeetingNotification(data, res);
-                                                //console.log(meeting_data, "44_meeting.js");
-                                                io.emit('message', { type: 'new-message-23', text: meeting_data });
+
+                                                var meeting_data = utils.saveMeetingNotification(data, res);
+                                                socket.emit('message', { type: 'new-message-23', text: meeting_data });
                                                 // Function above that stores the message in the database
 
                                             });
@@ -133,13 +460,11 @@ router.post('/create_meeting', function (req, res) {
                                                 io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
                                             });
                                         });
-                                        //console.log('sda', meetingForm.franchisor_id);
                                         Admin.find({ franchisor_id: meetingForm.franchisor_id }, function (err, user) {
                                             if (err) {
                                                 return res.json(500, err);
                                             }
                                             if (user) {
-                                                //console.log(user, "90");
                                                 meeting.user_name = user.user_name;
                                                 meeting.save();
                                                 let i = 0;
@@ -277,16 +602,11 @@ router.post('/create_meeting', function (req, res) {
         });
     }
 });
-
-
-
 //update meeting
 router.put('/edit_meeting', function (req, res, next) {
     var meetingEditForm = req.body;
-    console.log(req.body);
     try {
         Meeting.findOne({ '_id': meetingEditForm._id }, function (err, meeting) {
-            console.log('req.body', req.body);
             if (err) {
                 return res.send({
                     state: "err",
@@ -309,9 +629,9 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_status = meetingEditForm.meeting_status,
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
-                    if (meetingEditForm.meeting_reason) {
-                        meeting.meeting_reason = meetingEditForm.meeting_reason
-                    };
+                if (meetingEditForm.meeting_reason) {
+                    meeting.meeting_reason = meetingEditForm.meeting_reason
+                };
                 meeting.save(function (err, meeting) {
                     if (err) {
                         res.send({
@@ -457,22 +777,14 @@ router.get('/get_all_meetings', function (req, res) {
 router.post('/get_meetings_count', async (req, res) => {
     if (req.body.date) {
         date = new Date(req.body.date);
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     if (!req.body.date || req.body.date == null) {
         date = new Date();
-        console.log(typeof (date));
-        console.log(date);
         var fdt = date.setHours(0, 0, 0, 0);
-        console.log(fdt, 'fdt');
         var tdt = date.setHours(23, 59, 59, 999);
-        console.log(tdt, 'tdt');
         query = { meeting_date: { $gte: fdt, $lte: tdt } }
     }
     // console.log(query);
@@ -542,6 +854,7 @@ router.post('/get_meetings_count', async (req, res) => {
  * @param {Object} response - The Response Object for the http request
  * @returns {string} - The Access Token string
  */
+
 function saveMeetingNotification(request, response) {
     var getNotifications = request;
     // console.log(getNotifications);
@@ -592,19 +905,100 @@ function saveMeetingNotification(request, response) {
     })
 }
 
+
+// router.get('/get_notifications/:user_id', function (req, res) {
+//     try {
+//         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
+//             if (err) {
+//                 return res.send(500, err);
+//             }
+//             else {
+//                 res.send({
+//                     state: "success",
+//                     data: meeting
+//                 }, 200);
+//             }
+//         }).sort({ date: -1 })
+//     }
+//     catch (err) {
+//         return res.send({
+//             state: "error",
+//             message: err
+//         });
+//     }
+// })
 router.get('/get_notifications/:user_id', function (req, res) {
+    var notifications = {
+        franchisor_id: null,
+        franchisee_id: null,
+        notification_title: null,
+        notification_status: null,
+        location: null,
+        notification_date: null,
+        read_status: null,
+        notification_to: null
+    }
     try {
         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }
             else {
+                
                 res.send({
                     state: "success",
                     data: meeting
                 }, 200);
             }
         }).sort({ date: -1 })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+})
+router.get('/get_notifications_old/:user_id', function (req, res) {
+    var notifications = {
+        franchisor_id: null,
+        franchisee_id: null,
+        notification_title: null,
+        notification_status: null,
+        location: null,
+        notification_date: null,
+        read_status: null,
+        notification_to: null
+    }
+    try {
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }).
+            populate('meeting_id').
+            exec((err, notification) => {
+                if (err) {
+                    console.log(err);
+                }
+                if (notification) {
+                    console.log(notification[0].franchisee_id, 'francfasdjlas;laj;ald')
+                    notification.forEach(element => {
+                        if (element.meeting_id) {
+                            notifications.franchisor_id = element.franchisor_id,
+                                notifications.franchisee_id = element.franchisee_id;
+                            notifications.notification_title = element.meeting_id.meeting_title,
+                                notifications.notification_status = element.meeting_id.meeting_status,
+                                notifications.location = element.meeting_id.meeting_location,
+                                notifications.notification_date = element.meeting_id.meeting_date,
+                                notifications.read_status = element.read_status;
+                                notifications.notification_to = 'franchisor'
+                        }
+                    });
+                    console.log(notifications, '/////////////////')
+                    return res.json({
+                        'state': 'success',
+                        'message': 'Successfully fetched notifications',
+                        'data': notifications
+                    })
+                }
+            })
     }
     catch (err) {
         return res.send({
@@ -1175,3 +1569,4 @@ router.put('/change_meeting_status', function (req, res) {
 
 module.exports = router;
 module.exports.saveMeetingNotification = saveMeetingNotification;
+module.exports.send_notifications = send_notifications;
