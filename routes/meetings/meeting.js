@@ -854,7 +854,7 @@ router.post('/get_meetings_count', async (req, res) => {
  * @param {Object} response - The Response Object for the http request
  * @returns {string} - The Access Token string
  */
-/*
+
 function saveMeetingNotification(request, response) {
     var getNotifications = request;
     // console.log(getNotifications);
@@ -905,7 +905,7 @@ function saveMeetingNotification(request, response) {
     })
 }
 
-*/
+
 // router.get('/get_notifications/:user_id', function (req, res) {
 //     try {
 //         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
