@@ -3408,4 +3408,48 @@ router.get('/get_admins', function (req, res) {
     }
 });
 
+
+router.post('/get_franchisees_by_dates', async (req, res) => {
+    if (req.body.date) {
+        date = new Date(req.body.date);
+        console.log(typeof (date),'-------------------------------------');
+        console.log(date,'++++++++++++++++++++++++++');
+        var fdt = date.setHours(0, 0, 0, 0);
+        console.log(fdt, '------------fdt-------------');
+        var tdt = date.setHours(23, 59, 59, 999);
+        console.log(tdt, '+++++++tdt+++++++');
+        query = { franchisee_created_on: { $gte: fdt, $lte: tdt } }
+    }
+    if (!req.body.date || req.body.date == null) {
+        date = new Date();
+        console.log(typeof (date));
+        console.log(date);
+        var fdt = date.setHours(0, 0, 0, 0);
+        console.log(fdt, 'fdt');
+        var tdt = date.setHours(23, 59, 59, 999);
+        console.log(tdt, 'tdt');
+        query = { franchisee_created_on: { $gte: fdt, $lte: tdt } }
+    }
+    console.log('473', query);
+    Franchisee.find(query)
+        .exec(function (err, franchisee) {
+            if (err) return handleError(err);
+            if (!franchisee) {
+                return res.json({
+                    state: 'error',
+                    message: 'No meetings found',
+                })
+            }
+            if (franchisee) {
+                return res.json({
+                    state: 'success',
+                    message: 'Successfully fetched franchisee data',
+                    data: franchisee,
+                    franchisee_created_on: franchisee.length
+                });
+            }
+        });
+
+})
+
 module.exports = router;
