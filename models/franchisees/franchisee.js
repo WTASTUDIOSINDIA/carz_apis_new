@@ -140,6 +140,7 @@ var meetingSchema = new mongoose.Schema({
    "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
    "franchisee_name": String,
    "partner_name": String,
+   "notification_type": { type: String, default: 'meeting_request' }
 
 });
 
