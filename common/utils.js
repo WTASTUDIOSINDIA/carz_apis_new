@@ -258,22 +258,6 @@ const saveMeetingNotification = (request, response) => {
     notific.status = getNotifications.status;
     // notific.discussion_notification = getNotifications.discussion_notification;
     notific.meeting_id = getNotifications._id;
-    // if (getNotifications.meeting_reason) {
-    //     notific.meeting_reason = getNotifications.meeting_reason;
-    // }
-    // if (getNotifications.meeting_status) {
-    //     notific.approved_by = getNotifications.approved_by;
-    // }
-    // if (getNotifications.meeting_status != "pending") {
-    //     if (getNotifications.notification_to == 'franchisee') {
-    //         notific.notification_to = "franchisor",
-    //             console.log(notific.notification_to, '1////', getNotifications.notification_to);
-    //     }
-    //     else if (getNotifications.notification_to == 'franchisor') {
-    //         notific.notification_to = "franchisee",
-    //             console.log(notific.notification_to, '2/////', getNotifications.notification_to);
-    //     }
-    // }
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {
