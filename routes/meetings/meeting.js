@@ -296,7 +296,7 @@ router.post('/create_meeting', function (req, res) {
 });
 
 //router.po
-function send_notifications(notification_type, data, iofromapp) {
+function send_notifications(notification_type, data, iofromp) {
     // iofromapp.emit('message', data);
     var notific = new Notification();
     notific.franchisor_id = data.franchisor_id;
@@ -304,51 +304,58 @@ function send_notifications(notification_type, data, iofromapp) {
     data.meeting_date = dateFormat(data.meeting_date, "dd-mm-yyyy");
     notific.created_at = new Date();
     console.log(data, "Robotooo");
-    notific.meeting_status = data.meeting_status;
-    if (data.meeting_status === 'pending') {
-        notific.notification_to = data.notification_to;
+    if (data.meeting_status) {
+        notific.meeting_status = data.meeting_status;
+        if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
+            console.log("Hello Motto 365");
+            var franchisee_name = '';
+            if (data.notification_to == "franchisor") {
+    
+                notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
+            }
+            if (data.notification_to == "franchisee") {
+                notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisor on " + data.meeting_date + " at  " + data.meeting_time;
+            }
+        }
+        else if (data.meeting_status === 'approved') {
+            console.log("Approved meeting notification");
+            if (data.notification_to == "franchisor") {
+    
+                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been approved. ";
+            }
+            if (data.notification_to == "franchisee") {
+                notific.notification_title = "Your meeting with franchisor has been approved";
+            }
+        }
+        else if (data.meeting_status === 'declined') {
+            console.log("Declined meeting notification");
+            if (data.notification_to == "franchisor") {
+    
+                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been declined. ";
+            }
+            if (data.notification_to == "franchisee") {
+                notific.notification_title = "Your meeting with franchisor has been declined";
+            }
+        }
+        if (data.meeting_status === 'edited') {
+            console.log("Edited meeting notification");
+            if (data.notification_to == "franchisor") {
+    
+                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been edited, please look below for further details.";
+            }
+            if (data.notification_to == "franchisee") {
+                notific.notification_title = "Your meeting with franchisor has been edited, please look below for further details.";
+            }
+        }
     }
-    if (data.meeting_status !== "pending") {
-        if (data.notification_to === 'franchisee') {
-            notific.notification_to = "franchisor",
-                console.log(notific.notification_to, '1////', data.notification_to);
-        }
-        else if (data.notification_to === 'franchisor') {
-            notific.notification_to = "franchisee",
-                console.log(notific.notification_to, '2/////', data.notification_to);
+    else {
+        if (data.status === 'approved') {
+            notific.notification_title = data.franchisee_name + "has approved your NDA file."
+        }if (data.status === 'declined') {
+            notific.notification_title = data.franchisee_name + "has declined your NDA file."
         }
     }
-    if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
-        console.log("Hello Motto 365");
-        var franchisee_name = '';
-        if (data.notification_to == "franchisor") {
-
-            notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
-        }
-        if (data.notification_to == "franchisee") {
-            notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisor on " + data.meeting_date + " at  " + data.meeting_time;
-        }
-    }
-    else if (data.meeting_status === 'approved') {
-        console.log("Approved meeting notification");
-        if (data.notification_to == "franchisor") {
-
-            notific.notification_title = "Your meeting with " + data.franchisee_name + "titled" + data.meeting_title + " has been approved. ";
-        }
-        if (data.notification_to == "franchisee") {
-            notific.notification_title = "Your meeting with franchisor has been approved";
-        }
-    }
-    else if (data.meeting_status === 'declined') {
-        console.log("Declined meeting notification");
-        if (data.notification_to == "franchisor") {
-
-            notific.notification_title = "Your meeting with " + data.franchisee_name + "titled" + data.meeting_title + " has been declined. ";
-        }
-        if (data.notification_to == "franchisee") {
-            notific.notification_title = "Your meeting with franchisor has been declined";
-        }
-    }
+    notific.notification_to = data.notification_to;
     notific.save(function (err, application) {
         console.log(application, "235");
         if (err) {
@@ -627,7 +634,7 @@ router.put('/edit_meeting', function (req, res, next) {
                     meeting.meeting_remarks = meetingEditForm.meeting_remarks,
                     meeting.meeting_franchisor_remarks = meetingEditForm.meeting_franchisor_remarks,
                     meeting.notification_to - meetingEditForm.notification_to,
-                    meeting.meeting_status = meetingEditForm.meeting_status,
+                    meeting.meeting_status = 'edited',
                     meeting.created_by = meetingEditForm.created_by,
                     meeting.approved_by = meetingEditForm.approved_by;
                 if (meetingEditForm.meeting_reason) {
@@ -644,7 +651,8 @@ router.put('/edit_meeting', function (req, res, next) {
                     else {
                         res.send({
                             state: "success",
-                            message: "Meeting Updated."
+                            message: "Meeting Updated.",
+                            data: meeting
                         }, 200);
                     }
                 });
@@ -1271,26 +1279,22 @@ router.put('/change_meeting_status', function (req, res) {
         str = JSON.stringify(req.body);
         str1 = JSON.parse(str);
         var attendies = [];
-        // Meeting.findById({ _id: req.body.meeting_id }, function (err, meeting) {
         Meeting.findById({ '_id': req.body.meeting_id, 'franchisee_id': req.body.franchisee_id }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }
             if (meeting) {
-                console.log('meet', req.body.meeting_status);
+                if (meeting.meeting_status === "approved" || "declined") {
+                    if (meeting.notification_to == 'franchisee') {
+                        meeting.notification_to = "franchisor"
+                    }
+                    else if (meeting.notification_to == 'franchisor') {
+                        meeting.notification_to = "franchisee"
+                    }
+                }
                 if (req.body.meeting_status == 'approved') {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
-                    if (meeting.meeting_status != "pending") {
-                        if (meeting.notification_to == 'franchisee') {
-                            meeting.notification_to = "franchisor",
-                                console.log(notific.notification_to, '1////', meeting.notification_to);
-                        }
-                        else if (meeting.notification_to == 'franchisor') {
-                            meeting.notification_to = "franchisee"
-                                // console.log(notific.notification_to, '2/////', meeting.notification_to);
-                        }
-                    }
                     ///////////////// //google calendar///////////////////////
                     if (req.body.meeting_assigned_people) {
                         req.body.meeting_assigned_people.forEach(function (element) {
@@ -1317,30 +1321,6 @@ router.put('/change_meeting_status', function (req, res) {
                                             }, 500);
                                         }
                                         else {
-
-                                            // io.on('connection', function (socket) {
-                                            //     //console.log(socket);
-                                            //     socket.emit('news', { hello: 'world' });
-                                            //     socket.on('message', function (data, response) {
-                                            //         //console.log(data, "42_meeting.js");
-                                            //         var meeting_data = saveMeetingNotification(data, res);
-                                            //         //console.log(meeting_data, "44_meeting.js");
-                                            //         io.emit('message', { type: 'new-message-23', text: meeting_data });
-                                            //         // Function above that stores the message in the database
-
-                                            //     });
-
-                                            //     socket.on('join', (params, callback) => {
-                                            //         // if(!isRealString(params.name) || !isRealString(params.room)) {
-                                            //         //     callback('Name and room are required.');
-                                            //         // }
-                                            //         socket.join(params.id);
-                                            //         socket.emit('newNotification'.generateMessage('You have a new notification'));
-                                            //         socket.broadcast.to(params.id).emit('newNotification', params);
-                                            //         io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: meeting_data });
-                                            //     });
-                                            // });
-                                            //console.log('sda', meetingForm.franchisor_id);
                                             Admin.find({ franchisor_id: req.body.franchisor_id }, function (err, user) {
                                                 if (err) {
                                                     return res.json(500, err);
@@ -1455,6 +1435,7 @@ router.put('/change_meeting_status', function (req, res) {
                     meeting.meeting_status = req.body.meeting_status;
                     meeting.approved_by = req.body.approved_by;
                     meeting.meeting_reason = req.body.meeting_reason;
+                    meeting.franchisee_name = req.body.franchisee_name;
                 }
                 meeting.save(function (err, meeting) {
                     if (err) {
@@ -1464,7 +1445,6 @@ router.put('/change_meeting_status', function (req, res) {
                         }, 500);
                     }
                     else {
-                        console.log(meeting, 'here');
                         if (meeting.meeting_status === 'declined') {
                             var reciever_mail;
                             var sender_name;
@@ -1474,9 +1454,7 @@ router.put('/change_meeting_status', function (req, res) {
                                         console.log(err);
                                     }
                                     if (data) {
-                                        console.log(data, 'mail_data');
                                         reciever_mail = data.franchisee_email;
-                                        console.log(reciever_mail, 'receiver_mail');
                                         mailSend(reciever_mail, "carz");
                                     }
                                 })
@@ -1487,9 +1465,7 @@ router.put('/change_meeting_status', function (req, res) {
                                         console.log(err);
                                     }
                                     if (data) {
-                                        console.log(data, 'mail_data');
                                         reciever_mail = data.user_mail;
-                                        console.log(reciever_mail, 'receiver_mail');
                                         Franchisee.findById({ _id: meeting.franchisee_id }, (err, success) => {
                                             if (err) {
                                                 console.log(err);
@@ -1537,17 +1513,6 @@ router.put('/change_meeting_status', function (req, res) {
                                 });
                             }
                         }
-                        // io.on('connection', function (socket) {
-                        //     console.log(socket);
-                        //     socket.emit('news', { hello: 'world' });
-                        //     socket.on('message', function (data, response) {
-                        //         console.log(data, "42_meeting.js");
-                        //         var meeting_data = saveMeetingNotification(data, response);
-                        //         console.log(meeting_data, "44_meeting.js");
-                        //         io.emit('message', { type: 'new-message-23', text: meeting_data });
-
-                        //     });
-                        // });
                         res.send({
                             state: "success",
                             message: "Meeting updated.",

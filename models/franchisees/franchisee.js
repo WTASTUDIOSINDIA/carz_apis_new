@@ -163,7 +163,8 @@ var notificationSchema = new mongoose.Schema({
     "read_status": { type: Boolean, default: false},
     "meeting_reason":String,
     "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
-    "meeting_status": {type: String, default: 'pending'}
+    "meeting_status": {type: String, default: 'pending'},
+    "nda_status": { type: String, default: "pending" }
     // "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     // "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     // "created_at" : { type: Date, default: Date.now },

@@ -264,7 +264,6 @@ const saveMeetingNotification = (request, response) => {
             console.log(err);
         }
         else {
-
             console.log("Successss");
             return "Test sdsds";
         }

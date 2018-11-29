@@ -61,25 +61,25 @@ var upload = multer({
 
 //to get total franchisees count
 
-router.get('/total_franchisees_count/:franchisor_id', function(req, res){
-   // try {
-        Franchisee.count({franchisor_id: req.params.franchisor_id,archieve_franchisee: false}, function (err, count) {
-            if (err) {
-                return res.send(500, err);
-            }
-            if (count) {
-                res.send({
-                    state: 'success',
-                    count: count
-                }, 200);
-            } 
-            else  {
-                res.send({
-                    state: 'success',
-                    count: count
-                }, 201);
-            }          
-        })
+router.get('/total_franchisees_count/:franchisor_id', function (req, res) {
+    // try {
+    Franchisee.count({ franchisor_id: req.params.franchisor_id, archieve_franchisee: false }, function (err, count) {
+        if (err) {
+            return res.send(500, err);
+        }
+        if (count) {
+            res.send({
+                state: 'success',
+                count: count
+            }, 200);
+        }
+        else {
+            res.send({
+                state: 'success',
+                count: count
+            }, 201);
+        }
+    })
     // }
     // catch (err) {
     //     return res.send({
@@ -165,39 +165,39 @@ router.get('/get_franchisees/:franchisor_id', function (req, res) {
 });
 
 router.get('/get_franchisees_new', function (req, res) {
-   
-        let query;
-        let sk;
-        let lt;
-        if(req.query.skip){
-            sk=Number(req.query.skip);
-        }else{
-            sk = '';   
-        }
 
-        if(req.query.limit){
-            lt=Number(req.query.limit);
-        }else{
-            lt = '';   
-        }
-        
-        if (req.query.search) {
-          
-          query =  Object.assign(req.query.filter || '',{$text: {$search: req.query.search}})
-          
-        } else {
-            if(req.query.filter){
+    let query;
+    let sk;
+    let lt;
+    if (req.query.skip) {
+        sk = Number(req.query.skip);
+    } else {
+        sk = '';
+    }
+
+    if (req.query.limit) {
+        lt = Number(req.query.limit);
+    } else {
+        lt = '';
+    }
+
+    if (req.query.search) {
+
+        query = Object.assign(req.query.filter || '', { $text: { $search: req.query.search } })
+
+    } else {
+        if (req.query.filter) {
             query = req.query.filter || '';
-            }
         }
- 
-        Franchisee
-          .find(query)
-          .sort(req.query.sort || '')
-          .select(req.query.select || '')
-          .limit(lt || '')
-          .skip(sk || '')
-          .exec(function (err, franchiees) {
+    }
+
+    Franchisee
+        .find(query)
+        .sort(req.query.sort || '')
+        .select(req.query.select || '')
+        .limit(lt || '')
+        .skip(sk || '')
+        .exec(function (err, franchiees) {
             if (err) {
                 console.log(err);
                 return res.send(500, err);
@@ -213,132 +213,132 @@ router.get('/get_franchisees_new', function (req, res) {
             }
             else {
                 Franchisee
-                .find(query)
-                .count()
-                .exec(function (err, count) {
-                  if (err) {
-                      console.log(err);
-                      return res.send(500, err);
-                  }
-                  if (!count) {
-                      console.log("not found");
-                      res.send({
-                          "status": 400,
-                          "message": "Franchiees not found",
-                          "message": "failure",
-                          "franchisees_list": []
-                      }, 404);
-                  }
-                  else {
-                      console.log(count);
-                      res.send({
-                          status: "200",
-                          state: "success",
-                          items: franchiees,
-                          count: count
-                      }, 200);
-                  }
-              })
+                    .find(query)
+                    .count()
+                    .exec(function (err, count) {
+                        if (err) {
+                            console.log(err);
+                            return res.send(500, err);
+                        }
+                        if (!count) {
+                            console.log("not found");
+                            res.send({
+                                "status": 400,
+                                "message": "Franchiees not found",
+                                "message": "failure",
+                                "franchisees_list": []
+                            }, 404);
+                        }
+                        else {
+                            console.log(count);
+                            res.send({
+                                status: "200",
+                                state: "success",
+                                items: franchiees,
+                                count: count
+                            }, 200);
+                        }
+                    })
             }
         })
-    })
-   
-  
-    router.get('/get_franchisees_new_one', function (req, res) {
-    
-        let query;
-        let sk;
-        let lt;
-        let data_body = req.query;
-        let data_query = req.query;
-        if(data_query.skip){
-            sk=Number(data_query.skip);
-        }else{
-            sk = 0;   
-        }
+})
 
-        if(data_query.limit){
-            lt=Number(data_query.limit);
-        }else{
-            lt = '';   
-        }
 
-    
-        if (data_query.search) {
-            let search_query = {
-                "$or": [
-                    { "franchisee_name" : { "$regex": data_query.search, "$options":"i"} },
-                    { "franchisee_address" :   { "$regex": data_query.search, "$options":"i"} }, 
-                    { "franchisee_pincode" :           { "$regex": data_query.search, "$options":"i"} }, 
-                    { "franchisee_franchise_model" :        { "$regex": data_query.search, "$options":"i"} }, 
-                    { "franchisee_franchise_type" :    { "$regex": data_query.search, "$options":"i"} }, 
-                    { "partner_name" :      { "$regex": data_query.search, "$options":"i"} },
-                    { "franchisee_city":     { "$regex": data_query.search, "$options":"i"} },
-                    { "franchisee_email":     { "$regex": data_query.search, "$options":"i"} },
-                    { "partner_email":     { "$regex": data_query.search, "$options":"i"} }
-                ]
-            };
-            if(data_body.lead_type){
-                
-                if(data_body.franchisee_franchise_type){
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type},search_query)
-                }else{
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type},search_query)
-                }
-            }else{
-                if(data_body.franchisee_franchise_type){
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type},search_query)
-                }else{
-                query =  Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id},search_query)
+router.get('/get_franchisees_new_one', function (req, res) {
+
+    let query;
+    let sk;
+    let lt;
+    let data_body = req.query;
+    let data_query = req.query;
+    if (data_query.skip) {
+        sk = Number(data_query.skip);
+    } else {
+        sk = 0;
+    }
+
+    if (data_query.limit) {
+        lt = Number(data_query.limit);
+    } else {
+        lt = '';
+    }
+
+
+    if (data_query.search) {
+        let search_query = {
+            "$or": [
+                { "franchisee_name": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_address": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_pincode": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_franchise_model": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_franchise_type": { "$regex": data_query.search, "$options": "i" } },
+                { "partner_name": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_city": { "$regex": data_query.search, "$options": "i" } },
+                { "franchisee_email": { "$regex": data_query.search, "$options": "i" } },
+                { "partner_email": { "$regex": data_query.search, "$options": "i" } }
+            ]
+        };
+        if (data_body.lead_type) {
+
+            if (data_body.franchisee_franchise_type) {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, lead_type: data_body.lead_type, franchisee_franchise_type: data_body.franchisee_franchise_type }, search_query)
+            } else {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, lead_type: data_body.lead_type }, search_query)
             }
-        }
-          
         } else {
-            if(data_body.lead_type){
-                if(data_body.franchisee_franchise_type){
-                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type,franchisee_franchise_type:data_body.franchisee_franchise_type});
-                }else{
-                    query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,lead_type: data_body.lead_type});
-                }    
-        }else{
-            if(data_body.franchisee_franchise_type){
-                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id,franchisee_franchise_type:data_body.franchisee_franchise_type});
-            }else{
-                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id});  
-            }
+            if (data_body.franchisee_franchise_type) {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, franchisee_franchise_type: data_body.franchisee_franchise_type }, search_query)
+            } else {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id }, search_query)
             }
         }
-        let sortquery = "";
-        if(data_query.sort){
-           
-            let sortname = data_query.sort;
-            if(sortname == "franchisee_name" ){
-            sortquery = { franchisee_name : data_query.order };
+
+    } else {
+        if (data_body.lead_type) {
+            if (data_body.franchisee_franchise_type) {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, lead_type: data_body.lead_type, franchisee_franchise_type: data_body.franchisee_franchise_type });
+            } else {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, lead_type: data_body.lead_type });
             }
-            if(sortname == "franchisee_address" ){
-            sortquery = { franchisee_address : data_query.order };
+        } else {
+            if (data_body.franchisee_franchise_type) {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id, franchisee_franchise_type: data_body.franchisee_franchise_type });
+            } else {
+                query = Object.assign({ archieve_franchisee: false, franchisor_id: data_body.franchisor_id });
             }
-            if(sortname == "franchisee_pincode" ){
-            sortquery = { franchisee_address : data_query.order };
-            }
-            if(sortname == "franchisee_franchise_model" ){
-            sortquery = { franchisee_address : data_query.order };
-            }
-            if(sortname == "franchisee_franchise_type" ){
-            sortquery = { franchisee_franchise_type : data_query.order };
-            }
-        }else{
-            sortquery = {franchisee_created_on : 1};
         }
-        
-        Franchisee
-          .find(query)
-          .sort(sortquery)
-          .select(data_query.select || '')
-          .limit(lt || '')
-          .skip(sk || '')
-          .lean()
-          .exec(function (err, franchiees) {
+    }
+    let sortquery = "";
+    if (data_query.sort) {
+
+        let sortname = data_query.sort;
+        if (sortname == "franchisee_name") {
+            sortquery = { franchisee_name: data_query.order };
+        }
+        if (sortname == "franchisee_address") {
+            sortquery = { franchisee_address: data_query.order };
+        }
+        if (sortname == "franchisee_pincode") {
+            sortquery = { franchisee_address: data_query.order };
+        }
+        if (sortname == "franchisee_franchise_model") {
+            sortquery = { franchisee_address: data_query.order };
+        }
+        if (sortname == "franchisee_franchise_type") {
+            sortquery = { franchisee_franchise_type: data_query.order };
+        }
+    } else {
+        sortquery = { franchisee_created_on: 1 };
+    }
+
+    Franchisee
+        .find(query)
+        .sort(sortquery)
+        .select(data_query.select || '')
+        .limit(lt || '')
+        .skip(sk || '')
+        .lean()
+        .exec(function (err, franchiees) {
             if (err) {
                 console.log(err);
                 return res.send(500, err);
@@ -354,169 +354,172 @@ router.get('/get_franchisees_new', function (req, res) {
             }
             else {
                 Franchisee
-                .find(query)
-                .count()
-                .lean()
-                .exec(function (err, count) {
-                  if (err) {
-                      
-                      return res.send(500, err);
-                  }
-                  if (!count) {
-                      
-                      res.send({
-                          "status": 200,
-                          "message": "Franchiees not found",
-                          "message": "failure",
-                          "franchisees_list": []
-                      }, 404);
-                  }
-                  else {
-                      console.log(count);
-                      res.send({
-                          status: "200",
-                          state: "success",
-                          items: franchiees,
-                          count: count,
-                          skip:sk
-                      }, 200);
-                  }
-              })
+                    .find(query)
+                    .count()
+                    .lean()
+                    .exec(function (err, count) {
+                        if (err) {
+
+                            return res.send(500, err);
+                        }
+                        if (!count) {
+
+                            res.send({
+                                "status": 200,
+                                "message": "Franchiees not found",
+                                "message": "failure",
+                                "franchisees_list": []
+                            }, 404);
+                        }
+                        else {
+                            console.log(count);
+                            res.send({
+                                status: "200",
+                                state: "success",
+                                items: franchiees,
+                                count: count,
+                                skip: sk
+                            }, 200);
+                        }
+                    })
             }
         })
-    })
+})
 
 //get franchisee by id
 
 
-router.post('/get_franchiseelist_counts',utils.authenticated, function (req, res) {
-   
+router.post('/get_franchiseelist_counts', utils.authenticated, function (req, res) {
+
     let data = req.body;
-    if(data.franchisor_id) {
-    if(data.franchisor_id.length == 24) {
-    data.franchisor_id = objectId(data.franchisor_id);
-    franchiseeService.findandCount({franchisor_id:data.franchisor_id})
-    .then((response) => {
-      if(response){
-        let data = {};
-        let total = 0;
-        response.forEach((resp) => {
-          if(resp._id.key == "Hot"){
-            data.Hot = resp.count;
-          }
-          if(resp._id.key == "Warm"){
-            data.Warm = resp.count;
-          }
-          if(resp._id.key == "Cold"){
-            data.Cold = resp.count;
-          }
-          if(resp._id.key == "On Hold"){
-            data.On_Hold = resp.count;
-          }
-          if(resp._id.key == "Franchisees"){
-            data.Franchisees = resp.count;
-          }
-          if(resp._id.key == "Rejected"){
-            data.Rejected = resp.count;
-          }
-          if(resp._id.key == "Unassigned"){
-            data.Unassigned = resp.count;
-          }
-          total += resp.count;
-        });
-        if(data.Hot == undefined){
-          data.Hot = 0;
+    if (data.franchisor_id) {
+        if (data.franchisor_id.length == 24) {
+            data.franchisor_id = objectId(data.franchisor_id);
+            franchiseeService.findandCount({ franchisor_id: data.franchisor_id })
+                .then((response) => {
+                    if (response) {
+                        let data = {};
+                        let total = 0;
+                        response.forEach((resp) => {
+                            if (resp._id.key == "Hot") {
+                                data.Hot = resp.count;
+                            }
+                            if (resp._id.key == "Warm") {
+                                data.Warm = resp.count;
+                            }
+                            if (resp._id.key == "Cold") {
+                                data.Cold = resp.count;
+                            }
+                            if (resp._id.key == "On Hold") {
+                                data.On_Hold = resp.count;
+                            }
+                            if (resp._id.key == "Franchisees") {
+                                data.Franchisees = resp.count;
+                            }
+                            if (resp._id.key == "Rejected") {
+                                data.Rejected = resp.count;
+                            }
+                            if (resp._id.key == "Unassigned") {
+                                data.Unassigned = resp.count;
+                            }
+                            total += resp.count;
+                        });
+                        if (data.Hot == undefined) {
+                            data.Hot = 0;
+                        }
+                        if (data.Warm == undefined) {
+                            data.Warm = 0;
+                        }
+                        if (data.Cold == undefined) {
+                            data.Cold = 0;
+                        }
+                        if (data.On_Hold == undefined) {
+                            data.On_Hold = 0;
+                        }
+                        if (data.Franchisees == undefined) {
+                            data.Franchisees = 0;
+                        }
+                        if (data.Rejected == undefined) {
+                            data.Rejected = 0;
+                        }
+                        if (data.Unassigned == undefined) {
+                            data.Unassigned = 0;
+                        }
+                        data.all = total;
+
+                        res.status(201).json({ error: "0", message: "Successfully fetched", data: data });
+                    } else {
+                        res.status(404).json({ error: "1", message: "Error in fetching" });
+                    }
+
+                })
+                .catch((error) => {
+                    res.status(500).json({ error: "4", message: "Internal server error" });
+                });
+        } else {
+            res.status(400).json({ error: '2', message: "Please enter valid doctor id." });
         }
-        if(data.Warm == undefined){
-          data.Warm = 0;
-        }
-        if(data.Cold == undefined){
-          data.Cold = 0;
-        }
-         if(data.On_Hold == undefined){
-          data.On_Hold = 0;
-        }
-         if(data.Franchisees == undefined){
-          data.Franchisees = 0;
-        }
-         if(data.Rejected == undefined){
-          data.Rejected = 0;
-        }
-         if(data.Unassigned == undefined){
-          data.Unassigned = 0;
-        }
-        data.all = total;
-       
-        res.status(201).json({ error: "0", message: "Successfully fetched", data: data});
-      }else{
-        res.status(404).json({ error: "1", message: "Error in fetching"});
-      }
-      
-    })
-    .catch((error) => {
-      res.status(500).json({ error: "4", message: "Internal server error"});
-    });
-  }else{
-    res.status(400).json({error:'2',message:"Please enter valid doctor id."});
-  }}
-  else{
-    res.status(403).json({error:'2',message:"id is required, Missing required parameters."});
-  }
-    })
+    }
+    else {
+        res.status(403).json({ error: '2', message: "id is required, Missing required parameters." });
+    }
+})
 
 
 router.get('/get_franchisee/:id', function (req, res) {
     // try {
-        // Franchisee.findById({ _id: req.params.id}, function (err, franchisee) {
-            Franchisee.aggregate([
-                { $match: { _id:  mongoose.Types.ObjectId(req.params.id)} },
-                { $lookup: {
-                    from: "stages",
-                    localField: "_id",
-                    foreignField: "franchisee_id",
-                    as: "stagesData"
-                    }}
-            ]).exec()
-            .then((franchisee) => {
-                console.log(franchisee[0].stagesData);
-                // return res.send(200, franchisee[0]);
-                res.send({
-                            status: 200,
-                            state: "success",
-                            franchisees_data: franchisee[0]
-                        }, 200);
-            })
+    // Franchisee.findById({ _id: req.params.id}, function (err, franchisee) {
+    Franchisee.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+        {
+            $lookup: {
+                from: "stages",
+                localField: "_id",
+                foreignField: "franchisee_id",
+                as: "stagesData"
+            }
+        }
+    ]).exec()
+        .then((franchisee) => {
+            console.log(franchisee[0].stagesData);
+            // return res.send(200, franchisee[0]);
+            res.send({
+                status: 200,
+                state: "success",
+                franchisees_data: franchisee[0]
+            }, 200);
+        })
 
-            
-            // .then(() => {
-            //     console.log(franchisee, 'franchisee');
-            //     return res.json({
-            //         state: 'success',
-            //         franchisee_date: franchisee
-            //     })
-            // })
 
-            // if (err) {
-            //     return res.send(500, err);
-            // }
-            // if (!franchisee) {
-            //     res.send({
-            //         "state": "failure",
-            //         "franchisees_data": []
-            //     }, 400);
-            // }
-            // else {
-            //     //     let franchisee_data =[];
-            //     //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
-            //     //     franchisee_data.push(franchisee);
-            //     res.send({
-            //         status: 200,
-            //         state: "success",
-            //         franchisees_data: franchisee
-            //     }, 200);
+    // .then(() => {
+    //     console.log(franchisee, 'franchisee');
+    //     return res.json({
+    //         state: 'success',
+    //         franchisee_date: franchisee
+    //     })
+    // })
 
-            // }
-        // })
+    // if (err) {
+    //     return res.send(500, err);
+    // }
+    // if (!franchisee) {
+    //     res.send({
+    //         "state": "failure",
+    //         "franchisees_data": []
+    //     }, 400);
+    // }
+    // else {
+    //     //     let franchisee_data =[];
+    //     //   franchisee.franchisee_profile_pic = utils.getPreSignedURL( franchisee.franchisee_profile_pic);
+    //     //     franchisee_data.push(franchisee);
+    //     res.send({
+    //         status: 200,
+    //         state: "success",
+    //         franchisees_data: franchisee
+    //     }, 200);
+
+    // }
+    // })
     // }
     // catch (err) {
     //     return res.send({
@@ -533,10 +536,10 @@ router.post('/get_all_leads', utils.authenticated, (req, res) => {
         master_query = { master_franchisee_id: req.body._id }
     }
     if (req.body.location) {
-        var query = { $and: [{ lead_type: { $exists: true, $ne: "" }}, {franchisee_address: req.body.location }, master_query ] }
+        var query = { $and: [{ lead_type: { $exists: true, $ne: "" } }, { franchisee_address: req.body.location }, master_query] }
     }
     else if (!req.body.location || req.body.location == null) {
-        query = { $and: [{ lead_type: { $exists: true, $ne: "" } }, master_query ] }
+        query = { $and: [{ lead_type: { $exists: true, $ne: "" } }, master_query] }
     }
     var hot_leads = 0
     var warm_leads = 0
@@ -2000,7 +2003,7 @@ router.get('/get_stage_by_id/:id', function (req, res) {
         });
     }
 });
-//delete stage
+// delete stage
 router.delete('/delete_stage/:id', function (req, res) {
     try {
         Stages.findByIdAndRemove({ _id: req.params.id }, function (err, stage) {
@@ -2096,7 +2099,7 @@ var cpUpload = upload.single('file');
 router.put('/edit_stage', cpUpload, function (req, res) {
 
     stageForm = JSON.parse(req.body.franchisee_id);
-    console.log(req.body,'-------req body ---------------')
+    console.log(req.body, '-------req body ---------------')
     activity_data.franchisor_id = stageForm.franchisor_id;
     activity_data.franchisee_id = stageForm.franchisee_id;
     var stage_Completed = 0;
@@ -2120,55 +2123,65 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     stage.stage_discussion.payment_file_name = req.file.originalname;
                     activity_data.name = '1 Lac Payment updated!';
                     activity_data.activity_of = 'franchisor';
-
-
                 }
                 //'nda'
                 if (stageForm.sub_stage === 'nda') {
+                    // if (req.body.nda_status === 'uploaded') {
+                    //     if (req.body.user_role === 'franchisee') {
+                    //         stage.notification_to === 'franchisor'
+                    //     }
+                    //     if (req.body.user_role === 'franchisor') {
+                    //         stage.notification_to === 'franchisee'
+                    //     }
+                    // }
+                    console.log('vishnu-------', stageForm.nda_status);
+                    if ( stageForm.nda_status === "approved" || "declined") {
+                        console.log('tester');
+                        stage.notification_to = "franchisee"
+                        console.log('testerrrrr', stage.notification_to)
+                    }
                     activity_data.activity_of = stageForm.user_role;
                     if (stageForm.user_role == 'franchisor' && stage.stage_discussion.nda_status == 'pending') {
                         stage.stage_discussion.nda_status = "approved";
                         activity_data.name = 'NDA Uploaded';
                     }
-                  else if (stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee') {
+                    else if (stage.stage_discussion.nda_status == 'pending' && stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.nda_status = "uploaded";
                         activity_data.name = 'NDA Uploaded';
                     }
-                 else if (stage.stage_discussion.nda_status == 'declined' &&  stageForm.user_role == 'franchisee') {
+                    else if (stage.stage_discussion.nda_status == 'declined' && stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.nda_status = 'uploaded';
                         activity_data.name = 'NDA Reuploaded';
                     }
-                else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'declined' &&  stageForm.user_role == 'franchisor') {
+                    else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'declined' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.nda_status = 'declined';
                         stage.stage_discussion.nda_file_rejected_reason = stageForm.nda_file_rejected_reason;
-                        activity_data.name = 'NDA Declined due to' +'' + stageForm.nda_file_rejected_reason;
+                        activity_data.name = 'NDA Declined due to' + '' + stageForm.nda_file_rejected_reason;
 
                         let user_data = {};
-                        console.log(stageForm.franchisee_email,'77777777777777777777777777777777777777777777');
                         user_data.user_mail = stageForm.franchisee_email;
-                        if(stageForm.franchisee_name){
+                        if (stageForm.franchisee_name) {
                             user_data.user_name = stageForm.franchisee_name;
-                        }else{
+                        } else {
                             user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'NDA Declined';
-                        user_data.html =  "<p>Hi, "+user_data.user_name  + "<br>" + "Franchisor has Declined your NDA Document due to "+stage.stage_discussion.nda_file_rejected_reason +". "+"Please upload again. <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Franchisor has Declined your NDA Document due to " + stage.stage_discussion.nda_file_rejected_reason + ". " + "Please upload again. <br>" + "Best," + "<br>" + "Carz.</p>"
                         utils.send_mail(user_data)
 
                     }
-                    else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'approved' &&  stageForm.user_role == 'franchisor') {
+                    else if (stage.stage_discussion.nda_status == 'uploaded' && stageForm.nda_status == 'approved' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.nda_status = 'approved';
                         activity_data.name = 'NDA approved'
                         let user_data = {};
                         user_data.user_mail = stageForm.franchisee_email;
-                        if(stageForm.franchisee_name){
-                        user_data.user_name = stageForm.franchisee_name;
-                    }else{
-                        user_data.user_name = stageForm.partner_name;
-                    }
-                        console.log(stageForm.partner_name,'77777777777777777777777777777777777777777777');
+                        if (stageForm.franchisee_name) {
+                            user_data.user_name = stageForm.franchisee_name;
+                        } else {
+                            user_data.user_name = stageForm.partner_name;
+                        }
                         user_data.subject = 'NDA Approved';
-                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has approved your NDA Document." + "<br> "+" <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Franchisor has approved your NDA Document." + "<br> " + " <br>" + "Best," + "<br>" + "Carz.</p>"
                         utils.send_mail(user_data)
                     }
                     // if (stage.stage_discussion.nda_status == 'declined' && stage.stage_discussion.nda_status.nda_file_rejected_reason != null &&){
@@ -2209,47 +2222,47 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     if (stageForm.user_role == 'franchisor' && stage.stage_discussion.application_status == 'pending') {
                         stage.stage_discussion.application_status = "approved";
                     }
-                   else if (stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee') {
+                    else if (stage.stage_discussion.application_status == 'pending' && stageForm.user_role == 'franchisee') {
                         stage.stage_discussion.application_status = "Submitted";
                     }
-                //    else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
-                //         stage.stage_discussion.application_status = stageForm.application_status;
-                //        console.log(stage.stage_discussion.application_status,'-----------submitted-----');
-                //     }
-                    
-                   else if (stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor') {
+                    //    else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
+                    //         stage.stage_discussion.application_status = stageForm.application_status;
+                    //        console.log(stage.stage_discussion.application_status,'-----------submitted-----');
+                    //     }
+
+                    else if (stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.status = true;
                     }
-                    
+
                     // else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
                     //     stage.stage_discussion.application_status = stageForm.application_status;
                     // }
-                   else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.application_status == 'declined' &&  stageForm.user_role == 'franchisor') {
+                    else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.application_status == 'declined' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.application_status = 'declined';
                         stage.stage_discussion.application_rejected_reason = stageForm.application_rejected_reason
                         let user_data = {};
 
                         user_data.user_mail = stageForm.franchisee_email;
-                        if(stageForm.franchisee_name){
+                        if (stageForm.franchisee_name) {
                             user_data.user_name = stageForm.franchisee_name;
-                        }else{
+                        } else {
                             user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'Application form Rejected';
-                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has Declined your Application form due to"+" " +stage.stage_discussion.application_rejected_reason + "." +" <br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Franchisor has Declined your Application form due to" + " " + stage.stage_discussion.application_rejected_reason + "." + " <br>" + "Best," + "<br>" + "Carz.</p>"
                         utils.send_mail(user_data)
                     }
-               else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
+                    else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.application_status = stageForm.application_status;
                         let user_data = {};
                         user_data.user_mail = stageForm.franchisee_email;
-                        if(stageForm.franchisee_name){
+                        if (stageForm.franchisee_name) {
                             user_data.user_name = stageForm.franchisee_name;
-                        }else{
+                        } else {
                             user_data.user_name = stageForm.partner_name;
                         }
                         user_data.subject = 'Application form Approved';
-                        user_data.html =  "<p>Hi, "+user_data.user_name + "<br>" + "Franchisor has approved your Application form." + "<br>" + "Best," + "<br>"+ "Carz.</p>"
+                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Franchisor has approved your Application form." + "<br>" + "Best," + "<br>" + "Carz.</p>"
                         utils.send_mail(user_data)
                     }
                     //  send_mail(req,res,stageForm);
@@ -2928,7 +2941,7 @@ router.post('/import_franchisee', function (req, res) {
 
                 var existing_franchisees_list = get_existing_mails(franchiseeMultipleForm);
                 existing_franchisees_list.then(function (list) {
-                    
+
                     if (list.length != 0) {
                         return res.send({
                             state: "failure",
@@ -2987,27 +3000,27 @@ router.post('/import_franchisee', function (req, res) {
                                 franchisee.save(function (err, franchisee) {
 
                                     if (err) {
-                                return res.send({
+                                        return res.send({
                                             state: "err",
                                             message: "Something went wrong."
                                         }, 500);
                                     }
                                     else {
                                         //  if(franchisee_length==i){
-                                            var stage = new Stages();
-                                stage.franchisee_id = franchisee._id,
-                                    stage.stage_profile = 'completed'
-                                stage.save((err) => {
-                                    if (err, stage) {
-                                        console.log(err, 'errorrrr');
-                                    }
-                                    if (stage) {
-                                        console.log('Stage saved', stage)
-                                    }
-                                });
+                                        var stage = new Stages();
+                                        stage.franchisee_id = franchisee._id,
+                                            stage.stage_profile = 'completed'
+                                        stage.save((err) => {
+                                            if (err, stage) {
+                                                console.log(err, 'errorrrr');
+                                            }
+                                            if (stage) {
+                                                console.log('Stage saved', stage)
+                                            }
+                                        });
 
                                         var partner = new Partner();
-                                        
+
 
                                         partner.partner_name = franchisee.partner_name;
                                         partner.partner_occupation = franchisee.partner_occupation;
@@ -3036,7 +3049,7 @@ router.post('/import_franchisee', function (req, res) {
                                                     state: "success",
                                                     message: "Franchisee Created."
                                                 });
-                                                
+
                                                 var folder = new Folder();
                                                 folder.crm_folder = true;
                                                 folder.franchisee_Id = franchisee._id;
@@ -3474,7 +3487,7 @@ router.post('/create_franchisee_web', function (req, res) {
                         });
                     }
                     if (!franchisee) {
-                        
+
                         var franchisee = new Franchisee();
                         let franchisee_details = {};
                         franchisee_details.franchisee_name = franchiseeForm.franchiseeForm;
@@ -3497,7 +3510,7 @@ router.post('/create_franchisee_web', function (req, res) {
                         franchisee_details.partner_city = franchiseeForm.franchisee_city;
                         franchisee_details.partner_state = franchiseeForm.franchisee_state;
                         franchisee_details.partner_pincode = franchiseeForm.franchisee_pincode;
-                        
+
                         Franchisee.create(franchisee_details, function (err, franchisee) {
                             if (err) {
                                 res.send({
@@ -3513,23 +3526,23 @@ router.post('/create_franchisee_web', function (req, res) {
                                     stage.stage_profile = franchisee.stage_profile
                                 stage.save((err) => {
                                     if (err, stage) {
-                                     
+
                                     }
                                     if (stage) {
-                                        
+
                                     }
                                 });
 
                                 var partner = new Partner();
                                 partner.partner_name = franchiseeForm.franchiseeForm,
-                                partner.partner_email = franchiseeForm.franchisee_email,
-                                partner.partner_mobile_number = franchiseeForm.franchisee_mobile_number,
-                                partner.partner_city = franchiseeForm.franchisee_city,
-                                partner.partner_state = franchiseeForm.franchisee_state,
-                                partner.partner_pincode = franchiseeForm.franchisee_pincode,
-                                partner.main_partner = true,
-                                partner.franchisee_id = franchisee._id;
-                                
+                                    partner.partner_email = franchiseeForm.franchisee_email,
+                                    partner.partner_mobile_number = franchiseeForm.franchisee_mobile_number,
+                                    partner.partner_city = franchiseeForm.franchisee_city,
+                                    partner.partner_state = franchiseeForm.franchisee_state,
+                                    partner.partner_pincode = franchiseeForm.franchisee_pincode,
+                                    partner.main_partner = true,
+                                    partner.franchisee_id = franchisee._id;
+
                                 partner.save(function (err, partner) {
                                     if (err) {
                                         res.send({
@@ -3540,10 +3553,10 @@ router.post('/create_franchisee_web', function (req, res) {
                                     else {
                                         if (franchiseeForm.master_franchisee_id) {
                                             Franchisee.findById({ _id: franchiseeForm.master_franchisee_id }, function (err, franchisee) {
-                                               
+
                                                 franchisee.sub_franchisee_count = franchisee.sub_franchisee_count + 1;
                                                 franchisee.save(function (err, franchisee) {
-                                                
+
                                                 })
                                             })
                                         }
@@ -3553,7 +3566,7 @@ router.post('/create_franchisee_web', function (req, res) {
                                         library.franchisee_Id = franchisee._id;
                                         library.folder_name = 'Discussion';
                                         library.save(function (err, library) {
-                                          
+
                                         });
                                         res.send({
                                             state: "success",
