@@ -318,7 +318,6 @@ function send_notifications(notification_type, data, iofromp) {
             }
         }
         else if (data.meeting_status === 'approved') {
-            console.log("Approved meeting notification");
             if (data.notification_to == "franchisor") {
     
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been approved. ";
@@ -328,7 +327,6 @@ function send_notifications(notification_type, data, iofromp) {
             }
         }
         else if (data.meeting_status === 'declined') {
-            console.log("Declined meeting notification");
             if (data.notification_to == "franchisor") {
     
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been declined. ";
@@ -338,7 +336,6 @@ function send_notifications(notification_type, data, iofromp) {
             }
         }
         if (data.meeting_status === 'edited') {
-            console.log("Edited meeting notification");
             if (data.notification_to == "franchisor") {
     
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been edited, please look below for further details.";
