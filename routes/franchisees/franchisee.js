@@ -134,11 +134,10 @@ router.get('/get_franchisees/:franchisor_id', function (req, res) {
             }
             if (!franchiees) {
                 res.send({
-                    "status": 400,
                     "message": "Franchiees not found",
                     "message": "failure",
                     "franchisees_list": []
-                }, 404);
+                }, 201);
             }
             else {
 
@@ -3336,11 +3335,11 @@ router.put('/archieve_franchisee', function (req, res) {
         //         }, 400);
         //     }
         // });
-        Franchisee.findByIdAndRemove({ _id: req.body._id }, function (err, franchisee) {
+        Franchisee.findByIdAndRemove(req.body._id, function (err, franchisee) {
             if (err) {
                 return res.send(500, err);
             } else {
-                Stages.findOneAndRemove({ 'franchisee_id': f_id }, (err, stage) => {
+                Stages.findOneAndRemove( req.body._id,  (err, stage) => {
                     if (err) {
                         return res.json(500, err);
                     }
