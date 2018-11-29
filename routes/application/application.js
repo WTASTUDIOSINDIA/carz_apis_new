@@ -48,7 +48,7 @@ var upload = multer({
 router.post('/application_form', utils.authenticated, function (req, res) {
   var applicationForm = req.body;
   try {
-    Application.findOne({question_EN: {$regex: new RegExp(applicationForm.question_EN, 'i')} }, function (err, ques) {
+    Application.findOne({ question_EN: { $regex: new RegExp(applicationForm.question_EN, 'i') } }, function (err, ques) {
       if (err) {
         return res.send({
           state: "error",
@@ -223,74 +223,74 @@ router.delete('/delete/question/:id', function (req, res) {
   }
 });
 
-router.put('/edit_question', function(req, res) {
+router.put('/edit_question', function (req, res) {
   var applicationForm = req.body;
   try {
-    Application.findById({_id: applicationForm.ques_id}, function (err,ques) {
-      if(err) {
+    Application.findById({ _id: applicationForm.ques_id }, function (err, ques) {
+      if (err) {
         return res.send({
-            state:"err",
-            message:"Something went wrong. We are looking into it."
-        },500);
+          state: "err",
+          message: "Something went wrong. We are looking into it."
+        }, 500);
       }
-      if(!ques){
+      if (!ques) {
         res.send({
-          state:"failure",
-          message:"No versions found"
-        },201);
+          state: "failure",
+          message: "No versions found"
+        }, 201);
       }
-      if(ques){
-       if(ques.question_EN == applicationForm.question_EN){
-        ques.question_EN = applicationForm.question_EN;
-        ques.question_type = applicationForm.question_type;
-        ques.options = applicationForm.options;
-        ques.isRequire = applicationForm.isRequire,
-        ques.save(function (err, version){
-            res.send({
-              state:"success",
-              message:"Question updated"
-            },200);
-          })
-         
-      }
-      else{
-        Application.find({question_EN: {$regex: new RegExp(req.body.question_EN, 'i')}}, function (err,ques_name) {
-          if(err) {
-            return res.send({
-                state:"err",
-                message:"Something went wrong. We are looking into it."
-            },500);
-          }
-          if(ques_name == null || ques_name.length != 0){
-            res.send({
-              state:"failure",
-              message:"Name already exists"
-            },201);
-          }
-       else{
-        ques.question_EN = applicationForm.question_EN;
-        ques.question_type = applicationForm.question_type;
-        ques.options = applicationForm.options;
-        ques.isRequire = applicationForm.isRequire,
-            ques.save(function (err, ques){
-            res.send({
-              state:"success",
-              message:"Question updated"
-            },200);
-          })
+      if (ques) {
+        if (ques.question_EN == applicationForm.question_EN) {
+          ques.question_EN = applicationForm.question_EN;
+          ques.question_type = applicationForm.question_type;
+          ques.options = applicationForm.options;
+          ques.isRequire = applicationForm.isRequire,
+            ques.save(function (err, version) {
+              res.send({
+                state: "success",
+                message: "Question updated"
+              }, 200);
+            })
+
         }
-        })
-       
+        else {
+          Application.find({ question_EN: { $regex: new RegExp(req.body.question_EN, 'i') } }, function (err, ques_name) {
+            if (err) {
+              return res.send({
+                state: "err",
+                message: "Something went wrong. We are looking into it."
+              }, 500);
+            }
+            if (ques_name == null || ques_name.length != 0) {
+              res.send({
+                state: "failure",
+                message: "Name already exists"
+              }, 201);
+            }
+            else {
+              ques.question_EN = applicationForm.question_EN;
+              ques.question_type = applicationForm.question_type;
+              ques.options = applicationForm.options;
+              ques.isRequire = applicationForm.isRequire,
+                ques.save(function (err, ques) {
+                  res.send({
+                    state: "success",
+                    message: "Question updated"
+                  }, 200);
+                })
+            }
+          })
+
+        }
+
       }
-     
-    }
-   
+
     })
   }
-  catch(err){
+  catch (err) {
     return res.send({
-      state:"error",
-      message:err
+      state: "error",
+      message: err
     });
   }
 });
@@ -308,7 +308,8 @@ router.put('/update_application_after_approval_by_franchisor', cpUpload, functio
   // console.log(req.body);
   var application_form = JSON.parse(req.body.data);
   try {
-    ApplicationSubmitted.findOne({ franchisee_Id: application_form.franchisee_Id
+    ApplicationSubmitted.findOne({
+      franchisee_Id: application_form.franchisee_Id
     }, function (err, application) {
       if (err) {
         return res.send({
@@ -339,16 +340,16 @@ router.put('/update_application_after_approval_by_franchisor', cpUpload, functio
 
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
-              }
-              if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                }
+                if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
                   application_form.application_list[j].file_type = "image";
-              }
-              i++;
+                }
+                i++;
               }
             }
           }
         }
-        application.franchisee_Id = application_form.franchisee_Id;      
+        application.franchisee_Id = application_form.franchisee_Id;
         application.answers = application_form.application_list;
         application.save(function (err, application) {
           if (err) {
@@ -357,7 +358,7 @@ router.put('/update_application_after_approval_by_franchisor', cpUpload, functio
               message: "Something went wrong.We are looking into it."
             }, 500);
           } else {
-            
+
             return res.send({
               state: "success",
               message: "application submitted.",
@@ -381,17 +382,17 @@ router.put('/update_application_after_approval_by_franchisor', cpUpload, functio
 
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
-              }
-              if (req.files.file_upload[i].mimetype  == "image/png" || req.files.file_upload[i].mimetype  == "image/jpg" || req.files.file_upload[i].mimetype  == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
-                application_form.application_list[j].file_type = "image";
-              }
+                }
+                if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                  application_form.application_list[j].file_type = "image";
+                }
               }
             }
 
           }
 
         }
-        application_stats.franchisee_Id = application_form.franchisee_Id;        
+        application_stats.franchisee_Id = application_form.franchisee_Id;
         application_stats.answers = application_form.application_list;
         application_stats.save(function (err, application_stats) {
           if (err) {
@@ -399,11 +400,11 @@ router.put('/update_application_after_approval_by_franchisor', cpUpload, functio
               state: "err",
               message: "Something went wrong.We are looking into it."
             }, 500);
-          } else {            
+          } else {
             return res.send({
               state: "success",
               message: "application submitted.",
-              data:application
+              data: application
             }, 200);
           }
         })
@@ -422,7 +423,8 @@ router.put('/submit_application', cpUpload, function (req, res) {
   // console.log(req.body);
   var application_form = JSON.parse(req.body.data);
   try {
-    ApplicationSubmitted.findOne({ franchisee_Id: application_form.franchisee_Id
+    ApplicationSubmitted.findOne({
+      franchisee_Id: application_form.franchisee_Id
     }, function (err, application) {
       if (err) {
         return res.send({
@@ -453,11 +455,11 @@ router.put('/submit_application', cpUpload, function (req, res) {
 
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
-              }
-              if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                }
+                if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
                   application_form.application_list[j].file_type = "image";
-              }
-              i++;
+                }
+                i++;
               }
             }
           }
@@ -474,6 +476,9 @@ router.put('/submit_application', cpUpload, function (req, res) {
           } else {
             Stages.findOne({ franchisee_id: application.franchisee_Id }, function (err, stage) {
               stage.stage_discussion.application_status = application_form.application_status;
+              if (application_form.stage_discussion.application_status === 'Submitted') {
+                stage.notification_to = 'franchisor'
+              }
               stage.save(function (err, stage) {
                 console.log(stage);
               })
@@ -501,10 +506,10 @@ router.put('/submit_application', cpUpload, function (req, res) {
 
                 if (req.files.file_upload[i].mimetype == "application/pdf") {
                   application_form.application_list[j].file_type = "pdf";
-              }
-              if (req.files.file_upload[i].mimetype  == "image/png" || req.files.file_upload[i].mimetype  == "image/jpg" || req.files.file_upload[i].mimetype  == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
-                application_form.application_list[j].file_type = "image";
-              }
+                }
+                if (req.files.file_upload[i].mimetype == "image/png" || req.files.file_upload[i].mimetype == "image/jpg" || req.files.file_upload[i].mimetype == "image/jpeg" || application_form.application_list[j].key == "image/gif") {
+                  application_form.application_list[j].file_type = "image";
+                }
               }
             }
 
@@ -529,12 +534,11 @@ router.put('/submit_application', cpUpload, function (req, res) {
             return res.send({
               state: "success",
               message: "application submitted.",
-              data:application
+              data: application, stage
             }, 200);
           }
         })
       }
-
     })
   } catch (err) {
     res.send({

@@ -310,7 +310,7 @@ function send_notifications(notification_type, data, iofromp) {
             console.log("Hello Motto 365");
             var franchisee_name = '';
             if (data.notification_to == "franchisor") {
-    
+
                 notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
             }
             if (data.notification_to == "franchisee") {
@@ -319,7 +319,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
         else if (data.meeting_status === 'approved') {
             if (data.notification_to == "franchisor") {
-    
+
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been approved. ";
             }
             if (data.notification_to == "franchisee") {
@@ -328,7 +328,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
         else if (data.meeting_status === 'declined') {
             if (data.notification_to == "franchisor") {
-    
+
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been declined. ";
             }
             if (data.notification_to == "franchisee") {
@@ -337,7 +337,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
         if (data.meeting_status === 'edited') {
             if (data.notification_to == "franchisor") {
-    
+
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been edited, please look below for further details.";
             }
             if (data.notification_to == "franchisee") {
@@ -345,12 +345,38 @@ function send_notifications(notification_type, data, iofromp) {
             }
         }
     }
-    else {
+    else if (data.notification_type === 'nda_approve_decline') {
         if (data.status === 'approved') {
-            notific.notification_title = data.franchisee_name + "has approved your NDA file."
-        }if (data.status === 'declined') {
-            notific.notification_title = data.franchisee_name + "has declined your NDA file."
+            notific.notification_title = data.franchisor + " has approved your NDA file."
+        } if (data.status === 'declined') {
+            notific.notification_title = data.franchisee_name + " has declined your NDA file, reason: " + data.rejected_reason
         }
+    }
+    else if (data.notification_type === 'nda_uploaded') {
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has uploaded your nda file, please wait for approval."
+        }
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has uploaded the nda file."
+        }
+    }
+    else if (data.notification_type === 'payment_uploaded') {
+        notific.notification_title = data.franchisor_name + " has uploaded your payment file."
+    }
+    else if (data.notification_type === 'app_form_uploaded') {
+        if (data.notification_to === 'franchisee') {
+            if (data.status === 'approved' || 'declined') {
+                notific.notification_title = data.franchisor_name + " has " + data.status + " your application."
+            }
+        }
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has submitted application, please check for further review."
+        }
+        notific.notification_title = data.franchisor_name + " has uploaded your payment file."
+    }
+    else if (data.notification_type === 'agreement_uploaded') {
+        notific.notification_title = data.franchisor_name + " has uploaded agreement file."
+        console.log('vamshi ntooo');
     }
     notific.notification_to = data.notification_to;
     notific.save(function (err, application) {
