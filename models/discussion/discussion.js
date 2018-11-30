@@ -31,7 +31,10 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     franchisor_question_file_attachment_file_name: String,
     franchisor_question_file_attachment_file_url: String,
     franchisor_question_file_attachment_file_type: String,
-
+    question_declined_reason: String,
+    created_by_role: String,
+    franchisor_id: {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    franchisee_id:{type: Schema.Types.ObjectId, ref: 'Franchisee'},
     user_id: String,
     user_name: String,
     franchisee_name: String,

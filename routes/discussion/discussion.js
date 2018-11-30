@@ -37,7 +37,9 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
     console.log('34', req.body.discussionquestion, typeof(req.body.discussionquestion), 'typeoflfjsal;fskfsad');
     try {
-        DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
+        // DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
+            DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}, "status": "1"},function(err,discussionquestion){
+            console.log(discussionquestion,'+++++++++++++++++++++++')
             if (err) {
                 res.send({
                     state: "failure",
@@ -50,7 +52,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                     message: "This question already exists."
                 }, 201);
             }
-            else {
+            if(!discussionquestion) {
                 dquestion = new DiscussionQuestion();
                 dquestion.discussion_question = discussinQuestionForm.discussion_question;
                 dquestion.created_by = discussinQuestionForm.created_by;
@@ -60,6 +62,9 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                 dquestion.user_name = discussinQuestionForm.user_name;
                 dquestion.franchisee_address = discussinQuestionForm.franchisee_address;
                 dquestion.user_profile_pic = discussinQuestionForm.user_profile_pic;
+                dquestion.created_by_role = discussinQuestionForm.created_by_role;
+                dquestion.franchisor_id = discussinQuestionForm.franchisor_id;
+                dquestion.franchisee_id = discussinQuestionForm.franchisee_id;
                 if (req.file) {
                     console.log(req.file);
                     var discussion_question_img = {};
@@ -208,6 +213,7 @@ router.put('/update_discussion_questions', upload.single('discussion_question_im
 //To delete question by id
 router.delete('/delete_discussion_question/:question_id', function (req, res) {
     try {
+        console.log(req, '***************req****************')
         DiscussionQuestion.findByIdAndRemove({ _id: req.params.question_id }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
@@ -303,12 +309,18 @@ router.get('/getComments/:question_id', function (req, res) {
 // To approve or decline
 router.put('/change_question_status', function (req, res) {
     try {
-        DiscussionQuestion.findById({ _id: req.body._id }, function (err, discussionquestion) {
+        let id = mongoose.Types.ObjectId(req.body._id)
+        DiscussionQuestion.findById({ _id: id }, function (err, discussionquestion) {
+            console.log(discussionquestion,'11111111111111111111111111111')
+            // DiscussionQuestion.findById({status:req.body.status, _id:req.body._id, id : { $exists: true }},function(err,discussionquestion){
+
             if (err) {
                 return res.send(500, err);
-            } if (discussionquestion) {
+            }
+             if (discussionquestion) {
                 console.log('discussionquestion', discussionquestion);
                 discussionquestion.status = req.body.status;
+                discussionquestion.question_declined_reason = req.body.question_declined_reason;
                 console.log('status', req.body.status);
                 discussionquestion.save(function (err, discussionquestion) {
                     if (err) {
