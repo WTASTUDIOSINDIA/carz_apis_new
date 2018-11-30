@@ -376,7 +376,15 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'agreement_uploaded') {
         notific.notification_title = data.franchisor_name + " has uploaded agreement file."
-        console.log('vamshi ntooo');
+    }
+    else if (data.notification_type === 'kyc_uploaded') {
+        notific.notification_title = data.franchisee_name + " has uploaded kyc file."
+    }
+    else if (data.notification_type === 'kyc_declined') {
+        notific.notification_title = data.franchisor_name + " has declined your kyc file. " + "\n" + "Reason: " + data.reason + "\n"+ "Comment: " + data.comment + "\n" + "Please upload again for further verification." 
+    }
+    else if (data.notification_type === 'kyc_approved') {
+        notific.notification_title = data.franchisor_name + " has approved your kyc file."
     }
     notific.notification_to = data.notification_to;
     notific.save(function (err, application) {
