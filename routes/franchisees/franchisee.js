@@ -134,11 +134,10 @@ router.get('/get_franchisees/:franchisor_id', function (req, res) {
             }
             if (!franchiees) {
                 res.send({
-                    "status": 400,
                     "message": "Franchiees not found",
                     "message": "failure",
                     "franchisees_list": []
-                }, 404);
+                }, 201);
             }
             else {
 
@@ -2607,10 +2606,12 @@ router.put('/update_stage', function (req, res) {
             if (req.body.stage_name == 'Discussion') {
                 stage_Completed = 1;
                 stage.stage_discussion.status = true;
+                console.log(stage.stage_discussion.status, 'stage.stage_discussion.status-+-+-')
             }
             if (req.body.stage_name == 'Agreement_Copy') {
                 stage_Completed = 1;
                 stage.stage_agreenent.status = true;
+                console.log(stage.stage_discussion.status, 'stage.stage_discussion.status**-')                
             }
             if (req.body.stage_name == 'Kyc_Uploads') {
                 stage_Completed = 1;
@@ -2625,7 +2626,17 @@ router.put('/update_stage', function (req, res) {
             if (req.body.stage_name == 'setup') {
                 stage_Completed = 1;
                 stage.stage_setup.status = true;
+                Franchisee.findOneAndUpdate({ franchisee_id: req.body.franchisee_id }, { $set: { lead_type: 'Franchisees'}}, { new: true} , function (err, franchisee) {
+                    if(err){
+                    console.log("err", err);
+                }
+                if(franchisee){
+                    console.log("franchisee----", franchisee);
+
+                }
+                })
             }
+
             stage.save(function (err, stage) {
                 if (err) {
                     return res.send({
@@ -3275,11 +3286,11 @@ router.put('/archieve_franchisee', function (req, res) {
         //         }, 400);
         //     }
         // });
-        Franchisee.findByIdAndRemove({ _id: req.body._id }, function (err, franchisee) {
+        Franchisee.findByIdAndRemove(req.body._id, function (err, franchisee) {
             if (err) {
                 return res.send(500, err);
             } else {
-                Stages.findOneAndRemove({ 'franchisee_id': f_id }, (err, stage) => {
+                Stages.findOneAndRemove( req.body._id,  (err, stage) => {
                     if (err) {
                         return res.json(500, err);
                     }
