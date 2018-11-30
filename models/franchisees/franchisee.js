@@ -120,50 +120,52 @@ var partnerSchema = new mongoose.Schema({
 
 });
 var meetingSchema = new mongoose.Schema({
-   "meeting_title" : String,
-   "meeting_location": String,
-   "meeting_date": Date,
-   "meeting_time": String,
-   "meeting_assigned_people": Array,
-   "meeting_additional_services": String,
-   "meeting_remarks": String,
-   "franchisor_id":{ type: Schema.Types.ObjectId, ref: 'Franchisor'},
-   "franchisee_id":{ type: Schema.Types.ObjectId, ref: 'Franchisee'},
-   "franchisee_name": String,
-   "stage_id": String,
-   "meeting_franchisor_remarks":String,
-   "notification_to": String,
-   "user_name": String,
-   "meeting_status": {type: String, default: 'pending'}, //pending, rejected, approved
-   "created_by": {type: String, enum: ['franchisor', 'franchisee']},
-   "meeting_reason":String,
-   "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
-   "franchisee_name": String,
-   "partner_name": String,
-   "notification_type": { type: String, default: 'meeting_request' }
+    "meeting_title": String,
+    "meeting_location": String,
+    "meeting_date": Date,
+    "meeting_time": String,
+    "meeting_assigned_people": Array,
+    "meeting_additional_services": String,
+    "meeting_remarks": String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor' },
+    "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee' },
+    "franchisee_name": String,
+    "stage_id": String,
+    "meeting_franchisor_remarks": String,
+    "notification_to": String,
+    "user_name": String,
+    "meeting_status": { type: String, default: 'pending' }, //pending, rejected, approved
+    "created_by": { type: String, enum: ['franchisor', 'franchisee'] },
+    "meeting_reason": String,
+    "approved_by": { type: String, enum: ['franchisor', 'franchisee'] },
+    "franchisee_name": String,
+    "partner_name": String,
+    "notification_type": { type: String, default: 'meeting_request' }
 
 });
 
 var notificationSchema = new mongoose.Schema({
-    "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
-    "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    "created_at" : { type: Date, default: Date.now },
-    "meeting_title" : String,
-    "meeting_date" : String,
-    "meeting_time" : String,
-    "meeting_location" : String,
+    "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor' },
+    "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee' },
+    "created_at": { type: Date, default: Date.now },
+    "meeting_title": String,
+    "meeting_date": String,
+    "meeting_time": String,
+    "meeting_location": String,
     "notification_type": String,
     "notification_data": {
-        
+
     },
-    "notification_title":  String,
-    "status" : Boolean,
+    "notification_title": String,
+    "status": Boolean,
     "notification_to": String,
     "discussion_notification": String,
-    "read_status": { type: Boolean, default: false},
-    "meeting_reason":String,
-    "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
-    "meeting_status": {type: String, default: 'pending'}
+    "read_status": { type: Boolean, default: false },
+    "meeting_reason": String,
+    "approved_by": { type: String, enum: ['franchisor', 'franchisee'] },
+    "meeting_status": { type: String, default: 'pending' },
+    "nda_status": { type: String, default: "pending" },
+    "payment_status": { type: String, default: 'pending' }
     // "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
     // "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
     // "created_at" : { type: Date, default: Date.now },
