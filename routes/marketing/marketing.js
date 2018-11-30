@@ -739,6 +739,8 @@ router.put('/after_campaign_details', cpUpload, function (req, res) {
             campaign.campaign_status = campaignDetails.campaign_status;
             campaign.franchisor_id = campaignDetails.franchisor_id;
             campaign.franchisee_id = campaignDetails.franchisee_id;
+            campaign.franchisee_feedback = campaignDetails.franchisee_feedback;
+            campaign.franchisor_feedback= campaignDetails.franchisor_feedback;
 
             console.log(req.file, '492');
             if (req.file) {

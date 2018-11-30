@@ -632,7 +632,7 @@ router.post('/franchisor-login', function (req,res){
   })
 
 
-  router.post('/verifyotp_and_resetpass', utils.authenticated, function (req,res){
+  router.post('/verifyotp_and_resetpass', function (req,res){
 
     let data = req.body;
     console.log(data);

@@ -124,7 +124,7 @@ router.get('/get_all_discussion_questions', function (req, res) {
             if (err) {
                 return res.send({
                     state: "err",
-                    message: error
+                    message: "error"
                 }, 500);
             }
             if (!discussionquestion) {
