@@ -166,36 +166,6 @@ var notificationSchema = new mongoose.Schema({
     "meeting_status": { type: String, default: 'pending' },
     "nda_status": { type: String, default: "pending" },
     "payment_status": { type: String, default: 'pending' }
-    // "franchisor_id" : {type: Schema.Types.ObjectId, ref: 'Franchisor'},
-    // "franchisee_id" : { type: Schema.Types.ObjectId, ref: 'Franchisee'},
-    // "created_at" : { type: Date, default: Date.now },
-    // "meeting_title" : String,
-    // "meeting_date" : String,
-    // "meeting_time" : String,
-    // "meeting_location" : String,
-    // "notification_type": String,
-    // "notification_data": {
-
-    // },
-    // "status" : Boolean,
-    // "notification_to": String,
-    // "discussion_notification": String,
-    // "read_status": { type: Boolean, default: false},
-    // "meeting_reason":String,
-    // "approved_by":{type: String, enum: ['franchisor', 'franchisee']},
-    // "meeting_status": {type: String, default: 'pending'}
-    // 'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor' },
-    // 'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    // 'created_at': { type: Date, default: Date.now },
-    // 'notification_title': String,
-    // 'notification_type': { type: String, enum: ['meeting', 'nda', 'one_lac', 'application_form', 'kyc_docs', 'backgroung_verification', 'franchisee_assessment', 'agreement', 'upload', 'four_lac', 'status_change'] },
-    // 'read_status': { type: Boolean, default: false },
-    // 'notification_to': { type: String, enum: ['franchisee', 'franchisor'] },
-    // 'approved_by': { type: String, enum: ['franchisor', 'franchisee'] },
-    // 'meeting_id': { type: Schema.Types.ObjectId, ref: 'Meeting' },
-    // 'stages_id': { type: Schema.Types.ObjectId, ref: 'Stages' },
-    // 'status': Boolean
-
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
@@ -206,18 +176,6 @@ var notificationSchema = new mongoose.Schema({
 
 
 // duplicate notification schema
-var notificationsSchema = new mongoose.Schema({
-    'franshisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor' },
-    'franchisee_id': { type: Schema.Types.ObjectId, ref: 'Franchisee' },
-    'created_at': { type: Date, default: Date.now },
-    'notification_title': String,
-    'notification_type': { type: String, enum: ['meeting', 'nda', 'one_lac', 'application_form', 'kyc_docs', 'backgroung_verification', 'franchisee_assessment', 'agreement', 'upload', 'four_lac', 'status_change'] },
-    'read_status': { type: Boolean, default: false },
-    'notification_to': { type: String, enum: ['franchisee', 'franchisor'] },
-    'approved_by': { type: String, enum: ['franchisor', 'franchisee'] },
-    'meeting_id': { type: Schema.Types.ObjectId, ref: 'Meeting' },
-    'status': Boolean
-})
 
 var FolderSchema = new mongoose.Schema({
     "folder_name": String,

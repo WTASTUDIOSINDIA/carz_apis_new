@@ -347,44 +347,49 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'nda_approve_decline') {
         if (data.status === 'approved') {
-            notific.notification_title = data.franchisor + " has approved your NDA file."
+            notific.notification_title = data.franchisor_name + " has approved your NDA file."
         } if (data.status === 'declined') {
-            notific.notification_title = data.franchisee_name + " has declined your NDA file, reason: " + data.rejected_reason
+            notific.notification_title = data.franchisor_name + " has declined your NDA file, reason: " + data.rejected_reason
         }
     }
     else if (data.notification_type === 'nda_uploaded') {
         if (data.notification_to === 'franchisee') {
-            notific.notification_title = data.franchisor_name + " has uploaded your nda file, please wait for approval."
+            notific.notification_title = 'Franchisor' + " has uploaded your nda file, please wait for approval."
         }
         if (data.notification_to === 'franchisor') {
             notific.notification_title = data.franchisee_name + " has uploaded the nda file."
         }
     }
     else if (data.notification_type === 'payment_uploaded') {
-        notific.notification_title = data.franchisor_name + " has uploaded your payment file."
+        notific.notification_title = 'Franchisor' + " has uploaded your 1 lakh payment file."
     }
     else if (data.notification_type === 'app_form_uploaded') {
         if (data.notification_to === 'franchisee') {
-            if (data.status === 'approved' || 'declined') {
+            if (data.status === 'approved') {
                 notific.notification_title = data.franchisor_name + " has " + data.status + " your application."
+            }
+            if (data.status === 'declined') {
+                notific.notification_title = data.franchisor_name + " has " + data.status + " your application. Reason: " + data.reason;
             }
         }
         if (data.notification_to === 'franchisor') {
             notific.notification_title = data.franchisee_name + " has submitted application, please check for further review."
         }
-        notific.notification_title = data.franchisor_name + " has uploaded your payment file."
     }
     else if (data.notification_type === 'agreement_uploaded') {
         notific.notification_title = data.franchisor_name + " has uploaded agreement file."
     }
+    else if (data.notification_type === 'four_lac_uploaded') {
+        notific.notification_title = data.franchisor_name + " has uploaded four lac payment file."
+    }
     else if (data.notification_type === 'kyc_uploaded') {
-        notific.notification_title = data.franchisee_name + " has uploaded kyc file."
+        notific.notification_title = " Franchisee's partner, "+ data.partner_name + " has uploaded kyc file " + data.doc_name
     }
     else if (data.notification_type === 'kyc_declined') {
-        notific.notification_title = data.franchisor_name + " has declined your kyc file. " + "\n" + "Reason: " + data.reason + "\n"+ "Comment: " + data.comment + "\n" + "Please upload again for further verification." 
+        notific.notification_title = data.franchisor_name + " has declined your kyc file. " + "\n" + "Reason: " + data.reason + "\n" + "Comment: " + data.comment + "\n" + "Please upload again for further verification."
     }
     else if (data.notification_type === 'kyc_approved') {
-        notific.notification_title = data.franchisor_name + " has approved your kyc file."
+        notific.notification_title = data.franchisor_name + " has approved your kyc file " + data.doc_name
     }
     notific.notification_to = data.notification_to;
     notific.save(function (err, application) {
@@ -405,9 +410,6 @@ function send_notifications(notification_type, data, iofromp) {
         }
         // return "Test sdsds";
     })
-
-
-
 };
 // 'franchisee_id':meetingForm.franchisee_id,'franchisor_id':meetingForm.franchisor_id,'stage_id':meetingForm.stage_id
 router.post('/create_meeting_old', function (req, res) {
