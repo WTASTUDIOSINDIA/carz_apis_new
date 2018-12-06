@@ -465,7 +465,7 @@ router.get('/get_franchisees_new', function (req, res) {
 //get franchisee by id
 
 
-router.post('/get_franchiseelist_counts',utils.authenticated, function (req, res) {
+router.post('/get_franchiseelist_counts', function (req, res) {
    
     let data = req.body;
     if(data.franchisor_id) {
@@ -603,10 +603,17 @@ router.get('/get_franchisee/:id', function (req, res) {
 });
 
 // get all leads count
-router.post('/get_all_leads', utils.authenticated, (req, res) => {
-    let master_query = { master_franchisee_id: { $exists: false } }
-    if (req.body._id) {
-        master_query = { master_franchisee_id: req.body._id }
+router.post('/get_all_leads',  (req, res) => {
+    // let master_query = { master_franchisee_id: { $exists: false } }
+    // if (req.body._id) {
+    //     master_query = { master_franchisee_id: req.body._id }
+    // }
+    let master_query = {};
+    if(req.body.user_role == 'franchisee'){
+        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    }
+    else{
+        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
     }
     if (req.body.location) {
         var query = { $and: [{ lead_type: { $exists: true, $ne: "" }}, {franchisee_address: req.body.location }, master_query ] }
@@ -622,6 +629,7 @@ router.post('/get_all_leads', utils.authenticated, (req, res) => {
     var franchisee = 0
     var onhold = 0
     var total = 0
+    var franchisor_id = franchisor_id
     Franchisee.aggregate([
         { $match: query },
         {
@@ -697,15 +705,26 @@ router.post('/get_all_leads', utils.authenticated, (req, res) => {
                 'rejected': rejected,
                 'franchisee': franchisee,
                 'on_hold': onhold,
-                'total_leads': total
+                'total_leads': total,
+                'franchisor_id': franchisor_id
             })
         })
 })
 
 router.post('/get_leads_by_location', (req, res) => {
-    let master_query = { master_franchisee_id: { $exists: false } }
-    if (req.body._id) {
-        master_query = { master_franchisee_id: req.body._id }
+    // if (req.body._id) {
+    //     master_query = { master_franchisee_id: req.body._id }
+    // }
+        // master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id) }    
+        // if (req.body._id) {
+        //     master_query = { $or: [ {franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id)}, { master_franchisee_id: req.body._id} ]  }
+        // }
+        let master_query = {};
+    if(req.body.user_role == 'franchisee'){
+        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    }
+    else{
+        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
     }
     console.log(req.body);
     if (req.body.country && !req.body.state && !req.body.city) {
@@ -734,18 +753,28 @@ router.post('/get_leads_by_location', (req, res) => {
 })
 
 // get franchisee status
-router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
+router.post('/get_franchisee_status',  (req, res) => {
     let status = {
         profile_pending: 0,
         discussion_pending: 0,
         kyc_pending: 0,
         interview_pending: 0,
         agreement_pending: 0,
-        setup_pending: 0
+        setup_pending: 0,
+        franchisor_id: req.body.franchisor_id
     }
-    let master_query = { master_franchisee_id: { $exists: false } }
-    if (req.body._id) {
-        master_query = { master_franchisee_id: req.body._id }
+    // let master_query = { master_franchisee_id: { $exists: false } }
+    // let master_query = {}
+    // master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id) }    
+    // if (req.body._id) {
+    //     master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id), master_franchisee_id: req.body._id }
+    // }
+    let master_query = {};
+    if(req.body.user_role == 'franchisee'){
+        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    }
+    else{
+        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
     }
     Stages.aggregate([
         { $match: { $and: [{ 'stage_profile': 'completed' }, { 'stage_discussion.status': false }, master_query] } },
@@ -853,11 +882,14 @@ router.post('/get_franchisee_status', utils.authenticated, (req, res) => {
 })
 
 // to get total revenue 
-router.post('/get_total_revenue', utils.authenticated, (req, res) => {
+router.post('/get_total_revenue', (req, res) => {
     var query = { $exists: true };
-    let master_query = {}
-    if (req.body._id) {
-        master_query = { master_franchisee_id: req.body._id }
+    let master_query = {};
+    if(req.body.user_role == 'franchisee'){
+        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    }
+    else{
+        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
     }
     if (req.body.type === 'yearly') {
         var first_day_of_year = new Date(req.body.date, 0, 1);
@@ -880,6 +912,7 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
     var four_lac_total = 0;
     var total_leads = 0;
     var progress = 0;
+    var franchisor_id = req.body.franchisor_id
     Stages.aggregate([
         { $match: { $and: [{ 'stage_discussion.payment_status': 'uploaded' }, { 'stage_discussion.one_lac_payment_uploaded_date': query }, master_query] } },
         { $group: { _id: null, one_lac_count: { $sum: 1 } } }
@@ -920,7 +953,8 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
                 'total_four_lac_revenue': four_lac_total,
                 'total_received': one_lac_total + four_lac_total,
                 'total_revenue': total_leads,
-                'progress': progress
+                'progress': progress,
+                'franchisor_id': franchisor_id
             })
         })
         .catch((err) => {
@@ -929,7 +963,7 @@ router.post('/get_total_revenue', utils.authenticated, (req, res) => {
         })
 })
 
-router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
+router.post('/get_revenue_graph', (req, res) => {
     var year = req.body.date;
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var date;
@@ -946,11 +980,19 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
         let four_lac_total = 0;
         let total_leads = 0;
         let progress = 0;
+        let franchisor_id = req.body.franchisor_id
         let query = { $gte: fdt, $lte: ldt };
-        let master_query = { master_franchisee_id: { $exists: false } }
-        if (req.body._id) {
-            master_query = { master_franchisee_id: req.body._id }
+        // let master_query = { master_franchisee_id: { $exists: false } }
+        let master_query = {};
+        if(req.body.user_role == 'franchisee'){
+            master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
         }
+        else{
+            master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+        }
+        // if (req.body._id) {
+        //     master_query = { master_franchisee_id: req.body._id }
+        // }
         console.log(query);
         console.log(master_query);
         Stages.aggregate([
@@ -975,7 +1017,8 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
                         return res.json({
                             state: 'success',
                             message: 'Successfully fetched total revenue',
-                            'total_yearly_revenue': data
+                            'total_yearly_revenue': data,
+                            'franchisor_id': franchisor_id
                         })
                     }
                     console.log(months_data);
@@ -1010,7 +1053,8 @@ router.post('/get_revenue_graph', utils.authenticated, (req, res) => {
                                 return res.json({
                                     state: 'success',
                                     message: 'Successfully fetched total revenue',
-                                    'total_yearly_revenue': data
+                                    'total_yearly_revenue': data,
+                                    'franchisor_id': franchisor_id
                                 })
                             }
                             // return (one_lac, four_lac);
@@ -1450,8 +1494,11 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
 
                                 var stage = new Stages();
                                 stage.franchisee_id = franchisee._id,
+                                stage.franchisor_id = franchisee.franchisor_id,
+                                stage.master_franchisee_id = franchisee.master_franchisee_id,
                                     stage.stage_profile = franchisee.stage_profile
                                 stage.save((err) => {
+                                    console.log(stage,'-----------*--------------')
                                     if (err, stage) {
                                         console.log(err, 'errorrrr');
                                     }
@@ -1964,7 +2011,6 @@ router.delete('/delete_franchisees', function (req, res) {
             }
             if (!franchisee) {
                 res.send({
-                    "status": 400,
                     "message": "Unsucessfull",
                     "franchisees_data": "failure"
                 }, 400);

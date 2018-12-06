@@ -12,6 +12,7 @@ var Schema = mongoose.Schema;
 //     "stage_agreenent":  [{type: Schema.Types.ObjectId, ref: 'Agreement', status: false}]
 // });
 var stagesSchema = new mongoose.Schema({
+  "franchisor_id": { type: Schema.Types.ObjectId, ref: 'Franchisor'},
   "franchisee_id": { type: Schema.Types.ObjectId, ref: 'Franchisee'},
   "folder_id": String,
   "stage_profile": {type: String, default: 'completed'},
@@ -38,7 +39,7 @@ var stagesSchema = new mongoose.Schema({
     "application_rejected_reason": String,
     "franchisee_email": String,
     "franchisee_name": String,
-    "partner_name": String
+    "partner_name": String,
   },
   "stage_kycupload": {
     "status": { type: Boolean, default: false },

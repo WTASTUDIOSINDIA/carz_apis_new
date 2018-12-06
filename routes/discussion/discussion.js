@@ -38,7 +38,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
     console.log('34', req.body.discussionquestion, typeof(req.body.discussionquestion), 'typeoflfjsal;fskfsad');
     try {
         // DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
-            DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}, "status": "1"},function(err,discussionquestion){
+            DiscussionQuestion.findOne({'franchisor_id': discussinQuestionForm.franchisor_id,'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}, "status": "1"},function(err,discussionquestion){
             console.log(discussionquestion,'+++++++++++++++++++++++')
             if (err) {
                 res.send({
@@ -100,9 +100,9 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
 })
 
 //Get question by question id
-router.get('/get_discussion_question/:question_id', function (req, res) {
+router.get('/get_discussion_question/:question_id/:franchisor_id', function (req, res) {
     try {
-        DiscussionQuestion.find({ _id: req.params.question_id }, function (err, discussionquestion) {
+        DiscussionQuestion.find({ _id: req.params.question_id,franchisor_id:req.params.franchisor_id }, function (err, discussionquestion) {
             if (err) {
                 return res.send(500, err);
             }
@@ -123,9 +123,9 @@ router.get('/get_discussion_question/:question_id', function (req, res) {
 })
 
 //Get all questions
-router.get('/get_all_discussion_questions', function (req, res) {
+router.get('/get_all_discussion_questions/:franchisor_id', function (req, res) {
     try {
-        DiscussionQuestion.find({},{}, { sort: { 'created_at' : -1 } }, function (err, discussionquestion) {
+        DiscussionQuestion.find({franchisor_id:req.params.franchisor_id},{}, { sort: { 'created_at' : -1 } }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
                     state: "err",
