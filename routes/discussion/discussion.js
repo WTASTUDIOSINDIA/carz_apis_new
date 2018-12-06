@@ -122,6 +122,45 @@ router.get('/get_discussion_question/:question_id/:franchisor_id', function (req
     }
 })
 
+//
+router.put('/delete_discussion_question',  function(req, res){
+    try{
+        DiscussionQuestion.findOne({_id: req.body.question_data._id}, function(err, question){
+            if(err){
+                return res.send({
+                    state: "failure",
+                    message: error
+                })
+            }
+            if(question){
+                console.log(question);
+                console.log(question, "134");                
+                console.log(req.body.comment, "133 data from request");
+                console.log(question.discussion_comments, "134");
+                // var index = question.discussion_comments.indexOf(req.body.comment);
+                // console.log(index, "134");
+                // if(index != -1){
+                //     question.discussion_comments.splice(index, 1);
+                // }
+                question.discussion_comments = req.body.question_data.discussion_comments;
+                question.save(function(err, question){
+                    return res.send({
+                        state: 'success',
+                        message: "Question deleted successfully!",
+                        question: question
+                    })
+                })
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state: "error",
+            message: err
+        })
+    }
+})
+
 //Get all questions
 router.get('/get_all_discussion_questions/:franchisor_id', function (req, res) {
     try {
@@ -429,11 +468,27 @@ router.put('/question/vote', function (req, res) {
                     if (err) {
                         return res.send(err);
                     }
-                    else if(data.length != 0 || data != "") {
-                        res.send({
-                        state:'failure',
-                        message:'You have already voted for this question'
-                    },201);
+                    else if(data.length != 0 || data != "") {                        
+                        var index = discussionquestion.votedBy.indexOf(id);
+                        if(index != -1){
+                            discussionquestion.votedBy.splice(index, 1);
+                            discussionquestion.votes = discussionquestion.votes - 1;
+
+                            discussionquestion.save(function (err, discussionquestion) {
+                                if (err) {
+                                    res.send(err);
+                                }
+                                else {
+                                    res.send({
+                                        state: 'success',
+                                        data: discussionquestion,
+                                        vote_type: 'down_vote',
+                                        message:'Your question downvoted successfully!'
+                                    },200);
+                                }
+                            });
+                        }
+                        
                     }
                     else {
                         discussionquestion.votes = discussionquestion.votes + 1;
@@ -445,6 +500,7 @@ router.put('/question/vote', function (req, res) {
                             else {
                                 res.send({
                                     state: 'success',
+                                    vote_type: 'up_vote',
                                     data: discussionquestion
                                 },200);
                             }
