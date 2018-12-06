@@ -53,7 +53,7 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
     try {
-        Campaign.findOne({ 'title': {$regex: new RegExp(campaignForm.title, 'i')} }, function (err, campaign) {
+        Campaign.findOne({'franchisor_id':campaignForm.franchisor_id, 'title': {$regex: new RegExp(campaignForm.title, 'i')} }, function (err, campaign) {
 
             if (err) {
                 return res.send({
@@ -401,9 +401,9 @@ router.delete('/delete_campaign_file/:id', function(req, res){
     }
 })
 //To get all campaign
-router.get('/get_all_campaigns', utils.authenticated, function (req, res) {
+router.get('/get_all_campaigns/:franchisor_id', function (req, res) {
     try {
-        Campaign.find({}, function (err, campaign) {
+        Campaign.find({franchisor_id:req.params.franchisor_id}, function (err, campaign) {
             if (err) {
                 return res.send(500, err);
             }
@@ -432,9 +432,9 @@ router.get('/get_all_campaigns', utils.authenticated, function (req, res) {
         });
     }
 })
-router.get('/get_campaigns_by_franchisee/:franchisee_id', function (req, res) {
+router.get('/get_campaigns_by_franchisee/:franchisor_id/:franchisee_id', function (req, res) {
     try {
-        Campaign.find({ $or: [{ franchisee_id: req.params.franchisee_id }, { visible_to: 'franchisee', visible_to_franchisee_id: { $elemMatch: { $eq: req.params.franchisee_id } } }, { visible_to: 'All', created_by: 'franchisor' }] }, function (err, campaigns) {
+        Campaign.find({ $or: [{franchisor_id:req.params.franchisor_id, franchisee_id: req.params.franchisee_id }, { visible_to: 'franchisee', visible_to_franchisee_id: { $elemMatch: { $eq: req.params.franchisee_id } } }, { visible_to: 'All', created_by: 'franchisor' }] }, function (err, campaigns) {
             if (err) {
                 return res.send(500, err);
             }

@@ -1099,8 +1099,6 @@ router.put('/edit_version', function (req, res) {
           message: err
         }, 500);
       }
-      console.log(req.body, '+++++++++++++++++++++++++++')
-      console.log(version, "=====");
       if (version) {
         return res.send({
           state: "failure",

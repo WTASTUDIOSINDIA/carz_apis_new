@@ -824,18 +824,41 @@ router.get('/get_all_meetings', function (req, res) {
 });
 
 router.post('/get_meetings_count', async (req, res) => {
+    if(req.body.user_role == 'franchisee'){
     if (req.body.date) {
         date = new Date(req.body.date);
         var fdt = date.setHours(0, 0, 0, 0);
         var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt } }
+        query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
+        // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
+        // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
     }
     if (!req.body.date || req.body.date == null) {
         date = new Date();
         var fdt = date.setHours(0, 0, 0, 0);
         var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt } }
+        query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
+        // query = { meeting_date: { $gte: fdt, $lte: tdt } };
+        // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
+        // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
     }
+}
+else{
+    if (req.body.date) {
+        date = new Date(req.body.date);
+        var fdt = date.setHours(0, 0, 0, 0);
+        var tdt = date.setHours(23, 59, 59, 999);
+        query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id:  mongoose.Types.ObjectId(req.body._id) };
+
+    }
+    if (!req.body.date || req.body.date == null) {
+        date = new Date();
+        var fdt = date.setHours(0, 0, 0, 0);
+        var tdt = date.setHours(23, 59, 59, 999);
+        query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id: mongoose.Types.ObjectId(req.body._id) };
+
+    }
+}
     // console.log(query);
     //   Meeting.find(query, (err, data) => {
     //     if (err) {
@@ -878,7 +901,8 @@ router.post('/get_meetings_count', async (req, res) => {
     Meeting.find(query)
         .populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
         .exec(function (err, data) {
-            if (err) return handleError(err);
+            if (err) return 
+           console.log(err, 'err');
             if (!data) {
                 return res.json({
                     state: 'error',

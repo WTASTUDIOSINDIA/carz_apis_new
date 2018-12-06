@@ -45,7 +45,7 @@ var fileupload = upload.fields([{
 router.post('/create_user', utils.authenticated, function (req, res) {
     let userCreateForm = req.body;
     // try {
-      Admin.findOne({ user_mail:userCreateForm.user_mail, user_phone_number:userCreateForm.user_phone_number}, function (err, user) {
+      Admin.findOne({ franchisor_id:userCreateForm.franchisor_id,user_mail:userCreateForm.user_mail, user_phone_number:userCreateForm.user_phone_number}, function (err, user) {
         if (err) {
           res.send({
             state: "error",
@@ -274,9 +274,9 @@ router.post('/validate_user_phone_number', function (req, res) {
 });
 
 //   To get user
-router.get('/get_user', function (req,res){
+router.get('/get_user/:franchisor_id', function (req,res){
     try{
-      Admin.find({}, function (err, user){
+      Admin.find({franchisor_id:req.params.franchisor_id}, function (err, user){
             if(err){
                 return res.send({
                     state:'error',
