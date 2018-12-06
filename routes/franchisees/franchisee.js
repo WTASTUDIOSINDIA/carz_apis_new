@@ -2173,11 +2173,11 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         utils.send_mail(user_data)
                     }
                     if (stage.stage_discussion.nda_status === 'uploaded') {
-                        if (stageForm.user_role == 'franchisee') {
+                        if (stageForm.user_role === 'franchisee') {
                             stage.notification_to = 'franchisor'
-                            console.log('vishu-notification3', stage.notification_to)
+                            console.log(stageForm.user_role, 'vishu-notification3', stage.notification_to)
                         }
-                        if (stageForm.user_role == 'franchisor') {
+                        if (stageForm.user_role === 'franchisor') {
                             stage.notification_to = 'franchisee'
                         }
                     }
@@ -2233,7 +2233,6 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                     else if (stage.stage_discussion.application_status == 'Submitted' && stage.stage_discussion.application_status == 'approved' && stageForm.user_role == 'franchisor') {
                         stage.stage_discussion.status = true;
                     }
-
                     // else if (stage.stage_discussion.application_status == 'Submitted' && stageForm.user_role == 'franchisor') {
                     //     stage.stage_discussion.application_status = stageForm.application_status;
                     // }
@@ -2241,7 +2240,6 @@ router.put('/edit_stage', cpUpload, function (req, res) {
                         stage.stage_discussion.application_status = 'declined';
                         stage.stage_discussion.application_rejected_reason = stageForm.application_rejected_reason
                         let user_data = {};
-
                         user_data.user_mail = stageForm.franchisee_email;
                         if (stageForm.franchisee_name) {
                             user_data.user_name = stageForm.franchisee_name;

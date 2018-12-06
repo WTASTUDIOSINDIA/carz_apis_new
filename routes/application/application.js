@@ -476,7 +476,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
           } else {
             Stages.findOne({ franchisee_id: application.franchisee_Id }, function (err, stage) {
               stage.stage_discussion.application_status = application_form.application_status;
-              if (application_form.stage_discussion.application_status === 'Submitted') {
+              if (application_form.application_status === 'Submitted') {
                 stage.notification_to = 'franchisor'
               }
               stage.save(function (err, stage) {
