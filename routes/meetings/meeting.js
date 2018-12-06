@@ -306,11 +306,9 @@ function send_notifications(notification_type, data, iofromp) {
     console.log(data, "Robotooo");
     if (data.meeting_status) {
         notific.meeting_status = data.meeting_status;
+        notifi.meeting_type = 'Meeting'
         if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
-            console.log("Hello Motto 365");
-            var franchisee_name = '';
             if (data.notification_to == "franchisor") {
-
                 notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
             }
             if (data.notification_to == "franchisee") {
@@ -319,8 +317,8 @@ function send_notifications(notification_type, data, iofromp) {
         }
         else if (data.meeting_status === 'approved') {
             if (data.notification_to == "franchisor") {
-
-                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been approved. ";
+ 
+                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been approved. ";
             }
             if (data.notification_to == "franchisee") {
                 notific.notification_title = "Your meeting with franchisor has been approved";
@@ -329,7 +327,7 @@ function send_notifications(notification_type, data, iofromp) {
         else if (data.meeting_status === 'declined') {
             if (data.notification_to == "franchisor") {
 
-                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled" + data.meeting_title + " has been declined. ";
+                notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been declined. ";
             }
             if (data.notification_to == "franchisee") {
                 notific.notification_title = "Your meeting with franchisor has been declined";
@@ -346,6 +344,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
     }
     else if (data.notification_type === 'nda_approve_decline') {
+        notific.notification_type = 'NDA'
         if (data.status === 'approved') {
             notific.notification_title = data.franchisor_name + " has approved your NDA file."
         } if (data.status === 'declined') {
@@ -353,6 +352,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
     }
     else if (data.notification_type === 'nda_uploaded') {
+        notific.notification_type = 'NDA'
         if (data.notification_to === 'franchisee') {
             notific.notification_title = 'Franchisor' + " has uploaded your nda file, please wait for approval."
         }
@@ -361,9 +361,11 @@ function send_notifications(notification_type, data, iofromp) {
         }
     }
     else if (data.notification_type === 'payment_uploaded') {
+        notific.notification_type = 'PAYMENT'
         notific.notification_title = 'Franchisor' + " has uploaded your 1 lakh payment file."
     }
     else if (data.notification_type === 'app_form_uploaded') {
+        notific.notification_type = 'APPLICATION FORM'
         if (data.notification_to === 'franchisee') {
             if (data.status === 'approved') {
                 notific.notification_title = data.franchisor_name + " has " + data.status + " your application."
@@ -377,18 +379,23 @@ function send_notifications(notification_type, data, iofromp) {
         }
     }
     else if (data.notification_type === 'agreement_uploaded') {
+        notific.notification_type = 'AGREEMENT FILE'
         notific.notification_title = data.franchisor_name + " has uploaded agreement file."
     }
     else if (data.notification_type === 'four_lac_uploaded') {
-        notific.notification_title = data.franchisor_name + " has uploaded four lac payment file."
+        notific.notification_type = '4 LAC PAYMENT'
+        notific.notification_title = data.franchisor_name + " has uploaded 4 lac payment file."
     }
     else if (data.notification_type === 'kyc_uploaded') {
+        notific.notification_type = 'KYC'
         notific.notification_title = " Franchisee's partner, "+ data.partner_name + " has uploaded kyc file " + data.doc_name
     }
     else if (data.notification_type === 'kyc_declined') {
+        notific.notification_type = 'KYC'
         notific.notification_title = data.franchisor_name + " has declined your kyc file. " + "\n" + "Reason: " + data.reason + "\n" + "Comment: " + data.comment + "\n" + "Please upload again for further verification."
     }
     else if (data.notification_type === 'kyc_approved') {
+        notific.notification_type = 'KYC'
         notific.notification_title = data.franchisor_name + " has approved your kyc file " + data.doc_name
     }
     notific.notification_to = data.notification_to;
