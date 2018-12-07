@@ -202,6 +202,7 @@ var DocSchema = new mongoose.Schema({
     "stage_name": String,
     "date_uploaded": Date,
     "key": String,
+    'uploaded_by': String,
     "franchisor_response": { type: String, default: 'inProgress' }
 });
 
@@ -248,7 +249,9 @@ var ReasonSchema = new mongoose.Schema({
     'partner_Id': { type: Schema.Types.ObjectId, ref: 'Partner' },
     'kyc_id': { type: Schema.Types.ObjectId, ref: 'KycUploads' },
     "franchisee_email": String,
-    "partner_email": String
+    "partner_email": String,
+    'action_by': String,
+    'created_by': String,
 });
 
 var QuestionTypeSchema = new mongoose.Schema({

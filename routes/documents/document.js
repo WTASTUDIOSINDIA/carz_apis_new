@@ -20,6 +20,8 @@ var multerS3 = require('multer-s3');
 var Franchisee = mongoose.model('Franchisee');
 var Partner = mongoose.model('Partner');
 var bCrypt = require('bcrypt-nodejs');
+var franchisee = require('../../routes/franchisees/franchisee');
+var saveActivityTracker = franchisee.saveActivity;
 aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
@@ -701,6 +703,9 @@ function update_business_type(req, res, getData, doc) {
 }
 router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
     var getData = JSON.parse(req.body.document);
+    console.log(getData.uploaded_by,'706');
+    activity_data.franchisor_id = getData.franchisor_id;
+    activity_data.franchisee_id = getData.franchisee_id;
     try {
         var doc = new Doc();
         doc.doc_name = getData.doc_name;
@@ -708,6 +713,7 @@ router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
         doc.key = req.file.key;
         doc.franchisee_id = getData.franchisee_id;
         doc.partner_id = getData.partner_id;
+        doc.uploaded_by = getData.uploaded_by;
         if (req.file.mimetype == "application/pdf") {
             doc.file_type = "pdf";
         }
@@ -716,6 +722,9 @@ router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
         }
         doc.stage_name = getData.stage_name;
         doc.date_uploaded = new Date();
+        activity_data.name = 'Kyc file ' +  getData.doc_name + ' has uploaded.';
+        activity_data.activity_of = 'franchisee';
+        var saveActivity = saveActivityTracker(activity_data);
         doc.save(function (err, doc) {
             console.log(doc, "561");
             upload_folder_file(req, res, req.file, getData.status, getData.folder_Id, getData.franchisee_id)
@@ -843,6 +852,13 @@ router.put('/reject_doc', function (req, res) {
         }, 500);
     }
 });
+var activity_data = {
+    name: '',
+    source: '',
+    activity_of: '',
+    franchisee_id: '',
+    franchisor_id: ''
+}
 router.put('/approve_doc', function (req, res) {
     var kycForm = req.body;
     console.log("kycForm", kycForm);
@@ -868,6 +884,7 @@ router.put('/approve_doc', function (req, res) {
                 reason.franchisee_Id = req.body.franchisee_Id;
                 reason.partner_Id = req.body.partner_Id;
                 reason.kyc_id = kyc._id;
+                console.log(saveActivity,'-------------------');
                 reason.save(function (err, reason) {
                     if (err) {
                         res.send({
