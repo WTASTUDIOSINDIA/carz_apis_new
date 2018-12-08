@@ -632,6 +632,8 @@ function notify_user(req, res, message, reason, kyc_data) {
 function update_kyc(req, res, kyc, message, reason) {
     let franchisee_name;
     let partner_name;
+    let franchisee_email;
+    let partner_email;
     KycUploads.findById({ _id: kyc._id }, function (err, update_kyc) {
         if (err) {
             return res.send({
@@ -652,7 +654,9 @@ function update_kyc(req, res, kyc, message, reason) {
                         console.log(err);
                     }
                     if (franchisee) {
-                        franchisee_name = franchisee.franchisee_name
+                        franchisee_name = franchisee.franchisee_name;
+                        franchisee_email = franchisee.franchisee_email;
+
                     }
                 })
                 Partner.findById( { _id: update_kyc.partner_id }, (err, partner) => {
@@ -661,10 +665,11 @@ function update_kyc(req, res, kyc, message, reason) {
                     }
                     if (partner) {
                         partner_name = partner.partner_name;
+                        partner_email = partner.partner_email;
                         res.send({
                             state: "success",
                             message: message,
-                            data: kyc, franchisee_name, partner_name
+                            data: kyc, franchisee_name, partner_name, partner_email, franchisee_email
                         }, 200);
                     }
                 })
@@ -823,6 +828,7 @@ router.put('/reject_doc', function (req, res) {
                         });
                         kyc.docs_types[results].doc_link = "";
                         kyc.docs_types[results].doc_status = 'Rejected';
+                        kyc.docs_types[results].reason_in_text = req.body.reason_in_text;
 
 
                         let user_data = {};
@@ -832,7 +838,7 @@ router.put('/reject_doc', function (req, res) {
                         // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
                         user_data.html = "<p>Hi, " + req.body.franchisee_name + "<br>" + "Your Kyc file has been rejected" + "<br> " + " <b>Reason:</b>" + req.body.reason_listed + " <br>" + "<b>Comment:</b>" + req.body.reason_in_text + "<br><br>" + "Best," + "<br>" + "Carz.</p>"
 
-                        console.log(user_data);
+                        console.log(user_data,'user_data');
                         utils.send_mail(user_data)
                         // res.send({
                         //     state:"success",
@@ -884,7 +890,6 @@ router.put('/approve_doc', function (req, res) {
                 reason.franchisee_Id = req.body.franchisee_Id;
                 reason.partner_Id = req.body.partner_Id;
                 reason.kyc_id = kyc._id;
-                console.log(saveActivity,'-------------------');
                 reason.save(function (err, reason) {
                     if (err) {
                         res.send({
