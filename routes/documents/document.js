@@ -20,6 +20,8 @@ var multerS3 = require('multer-s3');
 var Franchisee = mongoose.model('Franchisee');
 var Partner = mongoose.model('Partner');
 var bCrypt = require('bcrypt-nodejs');
+var franchisee = require('../../routes/franchisees/franchisee');
+var saveActivityTracker = franchisee.saveActivity;
 aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
@@ -630,6 +632,8 @@ function notify_user(req, res, message, reason, kyc_data) {
 function update_kyc(req, res, kyc, message, reason) {
     let franchisee_name;
     let partner_name;
+    let franchisee_email;
+    let partner_email;
     KycUploads.findById({ _id: kyc._id }, function (err, update_kyc) {
         if (err) {
             return res.send({
@@ -650,7 +654,9 @@ function update_kyc(req, res, kyc, message, reason) {
                         console.log(err);
                     }
                     if (franchisee) {
-                        franchisee_name = franchisee.franchisee_name
+                        franchisee_name = franchisee.franchisee_name;
+                        franchisee_email = franchisee.franchisee_email;
+
                     }
                 })
                 Partner.findById( { _id: update_kyc.partner_id }, (err, partner) => {
@@ -659,10 +665,11 @@ function update_kyc(req, res, kyc, message, reason) {
                     }
                     if (partner) {
                         partner_name = partner.partner_name;
+                        partner_email = partner.partner_email;
                         res.send({
                             state: "success",
                             message: message,
-                            data: kyc, franchisee_name, partner_name
+                            data: kyc, franchisee_name, partner_name, partner_email, franchisee_email
                         }, 200);
                     }
                 })
@@ -701,6 +708,9 @@ function update_business_type(req, res, getData, doc) {
 }
 router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
     var getData = JSON.parse(req.body.document);
+    console.log(getData.uploaded_by,'706');
+    activity_data.franchisor_id = getData.franchisor_id;
+    activity_data.franchisee_id = getData.franchisee_id;
     try {
         var doc = new Doc();
         doc.doc_name = getData.doc_name;
@@ -708,6 +718,7 @@ router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
         doc.key = req.file.key;
         doc.franchisee_id = getData.franchisee_id;
         doc.partner_id = getData.partner_id;
+        doc.uploaded_by = getData.uploaded_by;
         if (req.file.mimetype == "application/pdf") {
             doc.file_type = "pdf";
         }
@@ -716,6 +727,9 @@ router.put('/upload_doc', upload.single('doc_file'), function (req, res) {
         }
         doc.stage_name = getData.stage_name;
         doc.date_uploaded = new Date();
+        activity_data.name = 'Kyc file ' +  getData.doc_name + ' has uploaded.';
+        activity_data.activity_of = 'franchisee';
+        var saveActivity = saveActivityTracker(activity_data);
         doc.save(function (err, doc) {
             console.log(doc, "561");
             upload_folder_file(req, res, req.file, getData.status, getData.folder_Id, getData.franchisee_id)
@@ -814,6 +828,7 @@ router.put('/reject_doc', function (req, res) {
                         });
                         kyc.docs_types[results].doc_link = "";
                         kyc.docs_types[results].doc_status = 'Rejected';
+                        kyc.docs_types[results].reason_in_text = req.body.reason_in_text;
 
 
                         let user_data = {};
@@ -823,7 +838,7 @@ router.put('/reject_doc', function (req, res) {
                         // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
                         user_data.html = "<p>Hi, " + req.body.franchisee_name + "<br>" + "Your Kyc file has been rejected" + "<br> " + " <b>Reason:</b>" + req.body.reason_listed + " <br>" + "<b>Comment:</b>" + req.body.reason_in_text + "<br><br>" + "Best," + "<br>" + "Carz.</p>"
 
-                        console.log(user_data);
+                        console.log(user_data,'user_data');
                         utils.send_mail(user_data)
                         // res.send({
                         //     state:"success",
@@ -843,6 +858,13 @@ router.put('/reject_doc', function (req, res) {
         }, 500);
     }
 });
+var activity_data = {
+    name: '',
+    source: '',
+    activity_of: '',
+    franchisee_id: '',
+    franchisor_id: ''
+}
 router.put('/approve_doc', function (req, res) {
     var kycForm = req.body;
     console.log("kycForm", kycForm);

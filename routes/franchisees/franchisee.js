@@ -2550,7 +2550,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
     }
 });
 
-function saveActivity(data) {
+function saveActivity(data){
     try {
         console.log(data, '1284');
         var activitytracker = new ActivityTracker();
@@ -3649,3 +3649,6 @@ router.post('/create_franchisee_web', function (req, res) {
 
 
 module.exports = router;
+module.exports.saveActivity = saveActivity;
+
+

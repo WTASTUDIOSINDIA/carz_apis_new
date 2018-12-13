@@ -534,7 +534,7 @@ router.put('/submit_application', cpUpload, function (req, res) {
             return res.send({
               state: "success",
               message: "application submitted.",
-              data: application, stage
+              // data: application, stage
             }, 200);
           }
         })

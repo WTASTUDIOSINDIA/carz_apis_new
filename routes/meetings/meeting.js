@@ -12,12 +12,15 @@ var Stages = mongoose.model('Stages');
 var Admin = mongoose.model('Admin');
 var nodemailer = require('nodemailer');
 var dateFormat = require('dateformat');
+var ActivityTracker = mongoose.model('ActivityTracker');
 // var app = express();
 // var http = require('http').createServer(app);
 var io = require('socket.io-client');
 // var socket = io('http://localhost:3010?k=foo&p=bar');
 var ical = require("ical-generator");
 var utils = require('../../common/utils');
+var franchisee = require('../../routes/franchisees/franchisee');
+var saveActivityTracker = franchisee.saveActivity;
 const { google } = require('googleapis');
 var socket = io("http://locahost:3000");
 const { GoogleAuth } = require('google-auth-library');
@@ -53,9 +56,18 @@ socket.once('connect', function () {
     console.log("new client connected");
     console.log("new client connectsed");
 });
+var activity_data = {
+    name: '',
+    source: '',
+    activity_of: '',
+    franchisee_id: '',
+    franchisor_id: ''
+}
 router.post('/create_meeting', function (req, res) {
 
     var meetingForm = req.body;
+    activity_data.franchisor_id = meetingForm.franchisor_id;
+    activity_data.franchisee_id = meetingForm.franchisee_id;
     str = JSON.stringify(req.body);
     str1 = JSON.parse(str);
     var attendies = [];
@@ -117,6 +129,7 @@ router.post('/create_meeting', function (req, res) {
 
                     });
                 }
+              
 
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
@@ -127,8 +140,17 @@ router.post('/create_meeting', function (req, res) {
                             if (err) {
                                 console.log(err);
                             } else {
+                                if(meetingForm.created_by == 'franchisor'){
+                                    activity_data.name = 'Meeting Created';
+                                    activity_data.activity_of = 'franchisor';
+                                }
+                                if(meetingForm.created_by == 'franchisee'){
+                                    activity_data.name = 'Meeting Created';
+                                    activity_data.activity_of = 'franchisee';
+                                }
                                 attendies.push(franchisee.franchisee_email);
-
+                                var saveActivity = saveActivityTracker(activity_data);
+                                // console.log(saveActivity,'---------------');
                                 meeting.save(function (err, meeting) {
                                     if (err) {
                                         res.send({
@@ -306,7 +328,7 @@ function send_notifications(notification_type, data, iofromp) {
     console.log(data, "Robotooo");
     if (data.meeting_status) {
         notific.meeting_status = data.meeting_status;
-        notifi.meeting_type = 'Meeting'
+        notific.meeting_type = 'Meeting'
         if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
             if (data.notification_to == "franchisor") {
                 notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
