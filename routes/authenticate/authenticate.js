@@ -111,7 +111,7 @@ module.exports = function(passport){
     });
 
     router.get('/success-franchisee', function(req, res){
-
+        console.log(req.user,'requser');
     if(req.user.verified == false){
         //console.log(req.user)
         var otp = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
@@ -137,13 +137,14 @@ module.exports = function(passport){
         });
         transporter.sendMail(mailOptions, function(error, response){
             if(error){
-                return res.send(error);
+                console.log(error,'error');
             }
             else{
-                return res.send(response);
+                // return res.send(response);
+                // console.log(error,'error');
             }
         });
-
+        utils.sendMobileOTP(otp, req.user.partner_mobile_number);
         req.user.verification = {
               otp: otp,
               status: false
