@@ -21,6 +21,9 @@ var Meeting = mongoose.model('Meeting');
 var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
+let axios = require('axios');
+let bodyParser = require('body-parser');
+const VERIFY_TOKEN = 'carz123';
 
 var auto = require('run-auto');
 // var Discussion = mongoose.model('Discussion');
@@ -60,7 +63,6 @@ var upload = multer({
 });
 
 //to get total franchisees count
-
 router.get('/total_franchisees_count/:franchisor_id', function (req, res) {
     // try {
     Franchisee.count({ franchisor_id: req.params.franchisor_id, archieve_franchisee: false }, function (err, count) {
@@ -1483,6 +1485,16 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
                                         library.save(function (err, library) {
                                             console.log("discussion folder created");
                                         });
+                                        let user_data = {};
+                                        user_data.user_mail = franchiseeForm.franchisee_email;
+                                        if (franchiseeForm.franchisee_name) {
+                                            user_data.user_name = franchiseeForm.franchisee_name;
+                                        } else {
+                                            user_data.user_name = franchiseeForm.partner_name;
+                                        }
+                                        user_data.subject = 'Franchisee Created';
+                                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Your account has been created by the franchisor. Please login with your email, by clicking on "+ "http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/pages/franchisee-login" +"<br>" + "Best," + "<br>" + "Carz.</p>"
+                                        utils.send_mail(user_data)
                                         //   }
                                         // })
                                         res.send({
@@ -3647,6 +3659,30 @@ router.post('/create_franchisee_web', function (req, res) {
     }
 });
 
+router.get('/leadgen', (req, res) => {
+    if (!req.query) {
+      res.send({success: false, reason: 'Empty request params'});
+      return;
+    }
+    // Extract a verify token we set in the webhook subscription and a challenge to echo back.
+    const verifyToken = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+  
+    if (!verifyToken || !challenge) {
+      res.send({
+        success: false,
+        reason: 'Missing hub.verify_token and hub.challenge params',
+      });
+      return;
+    }
+  
+    if (verifyToken !== VERIFY_TOKEN) {
+      res.send({success: false, reason: 'Verify token does not match'});
+      return;
+    }
+    // We echo the received challenge back to Facebook to finish the verification process.
+    res.send(challenge);
+  });
 
 module.exports = router;
 module.exports.saveActivity = saveActivity;
