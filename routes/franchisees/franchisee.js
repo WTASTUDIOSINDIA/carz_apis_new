@@ -21,6 +21,9 @@ var Meeting = mongoose.model('Meeting');
 var Campaign = mongoose.model('Campaign');
 var nodemailer = require('nodemailer');
 var _ = require('lodash');
+let axios = require('axios');
+let bodyParser = require('body-parser');
+const VERIFY_TOKEN = 'carz123';
 
 var auto = require('run-auto');
 // var Discussion = mongoose.model('Discussion');
@@ -3656,6 +3659,30 @@ router.post('/create_franchisee_web', function (req, res) {
     }
 });
 
+router.get('/leadgen', (req, res) => {
+    if (!req.query) {
+      res.send({success: false, reason: 'Empty request params'});
+      return;
+    }
+    // Extract a verify token we set in the webhook subscription and a challenge to echo back.
+    const verifyToken = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+  
+    if (!verifyToken || !challenge) {
+      res.send({
+        success: false,
+        reason: 'Missing hub.verify_token and hub.challenge params',
+      });
+      return;
+    }
+  
+    if (verifyToken !== VERIFY_TOKEN) {
+      res.send({success: false, reason: 'Verify token does not match'});
+      return;
+    }
+    // We echo the received challenge back to Facebook to finish the verification process.
+    res.send(challenge);
+  });
 
 module.exports = router;
 module.exports.saveActivity = saveActivity;

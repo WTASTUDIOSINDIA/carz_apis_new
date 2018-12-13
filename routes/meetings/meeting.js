@@ -1027,16 +1027,16 @@ function saveMeetingNotification(request, response) {
 //     }
 // })
 router.get('/get_notifications/:user_id', function (req, res) {
-    var notifications = {
-        franchisor_id: null,
-        franchisee_id: null,
-        notification_title: null,
-        notification_status: null,
-        location: null,
-        notification_date: null,
-        read_status: null,
-        notification_to: null
-    }
+    // var notifications = {
+    //     franchisor_id: null,
+    //     franchisee_id: null,
+    //     notification_title: null,
+    //     notification_status: null,
+    //     location: null,
+    //     notification_date: null,
+    //     read_status: null,
+    //     notification_to: null
+    // }
     try {
         Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
             if (err) {
