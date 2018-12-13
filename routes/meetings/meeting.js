@@ -420,6 +420,10 @@ function send_notifications(notification_type, data, iofromp) {
         notific.notification_type = 'KYC'
         notific.notification_title = data.franchisor_name + " has approved your kyc file " + data.doc_name
     }
+    else if (data.notification_type === 'Discussion question') {
+        notific.notification_type = 'Discussion question'
+        notific.notification_title = data.franchisor_name + " has declined your question. Reason: " + data.reason
+    }    
     notific.notification_to = data.notification_to;
     notific.save(function (err, application) {
         console.log(application, "235");
