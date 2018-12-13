@@ -794,6 +794,7 @@ router.put('/delete_doc', function (req, res) {
 });
 router.put('/reject_doc', function (req, res) {
     try {
+        console.log(req.body,'reqbody');
         KycUploads.findOne({ _id: req.body.kyc_id }, function (err, kyc) {
             if (err) {
                 res.send({
@@ -832,7 +833,6 @@ router.put('/reject_doc', function (req, res) {
 
 
                         let user_data = {};
-                        user_data.user_mail = req.body.franchisee_email;
                         user_data.user_mail = req.body.partner_email;
                         user_data.subject = 'Kyc file rejected';
                         // user_data.html = req.body.reason_listed + req.body.reason_in_text +'.' + ' Please reupload.<p>Best,</p><p>Carz.</p>'
@@ -917,6 +917,44 @@ router.put('/approve_doc', function (req, res) {
     }
 });
 
+
+
+// facebook lead generator
+// const request = require('request-promise');
+
+// module.exports = (app) => {
+
+//   // you'll need to have requested 'user_about_me' permissions
+//   // in order to get 'quotes' and 'about' fields from search
+//   const userFieldSet = 'name, link, is_verified, picture';
+//   const pageFieldSet = 'name, category, link, picture, is_verified';
+
+
+//   app.post('/facebook-search', (req, res) => {
+//     const  { queryTerm, searchType } = req.body;
+
+//     const options = {
+//       method: 'GET',
+//       uri: 'https://graph.facebook.com/search',
+//       qs: {
+//         access_token: config.user_access_token,
+//         q: queryTerm,
+//         type: searchType,
+//         fields: searchType === 'page' ? pageFieldSet : userFieldSet
+//       }
+//     };
+
+//     request(options)
+//       .then(fbRes => {
+// // Search results are in the data property of the response.
+// // There is another property that allows for pagination of results.
+// // Pagination will not be covered in this post,
+// // so we only need the data property of the parsed response.
+//         const parsedRes = JSON.parse(fbRes).data; 
+//         res.json(parsedRes);
+//       })
+//   });
+// }
 
 
 module.exports = router;

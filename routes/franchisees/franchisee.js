@@ -60,7 +60,6 @@ var upload = multer({
 });
 
 //to get total franchisees count
-
 router.get('/total_franchisees_count/:franchisor_id', function (req, res) {
     // try {
     Franchisee.count({ franchisor_id: req.params.franchisor_id, archieve_franchisee: false }, function (err, count) {
