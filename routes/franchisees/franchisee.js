@@ -3660,6 +3660,7 @@ router.post('/create_franchisee_web', function (req, res) {
 });
 
 router.get('/leadgen', (req, res) => {
+    console.log('object')
     if (!req.query) {
       res.send({success: false, reason: 'Empty request params'});
       return;
@@ -3682,9 +3683,9 @@ router.get('/leadgen', (req, res) => {
     }
     // We echo the received challenge back to Facebook to finish the verification process.
     res.send(challenge);
-  });
+  })
 
-module.exports = router;
-module.exports.saveActivity = saveActivity;
+module.exports = router
+module.exports.saveActivity = saveActivity
 
 
