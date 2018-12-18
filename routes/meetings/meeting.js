@@ -329,7 +329,8 @@ function send_notifications(notification_type, data, iofromp) {
     console.log(data, "Robotooo");
     if (data.meeting_status) {
         notific.meeting_status = data.meeting_status;
-        notific.meeting_type = 'Meeting'
+        notific.meeting_type = 'Meeting',
+            notific.notification_type = 'Meeting'
         if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
             if (data.notification_to == "franchisor") {
                 notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
@@ -443,21 +444,30 @@ function send_notifications(notification_type, data, iofromp) {
             notific.notification_title = data.franchisee_name + " has created a question";
         }
     }
+    else if (data.notification_type === 'campaign_created') {
+        console.log('vamshi');
+        notific.notification_type = 'Campaign';
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created campaign " + data.title
+        }
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created campaign " + data.title
+        }
+    }
     notific.save(function (err, application) {
-        console.log(application, "235")
         if (err) {
             console.log(err);
         }
         else {
-            socket.on('join', (params, callback) => {
-                // if(!isRealString(params.name) || !isRealString(params.room)) {
-                //     callback('Name and room are required.');
-                // }
-                socket.join(params.id);
-                // socket.emit('newNotification'.generateMessage('You have a new notification'));
-                socket.broadcast.to(params.id).emit('newNotification', params);
-                io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: application });
-            });
+            // socket.on('join', (params, callback) => {
+            //     // if(!isRealString(params.name) || !isRealString(params.room)) {
+            //     //     callback('Name and room are required.');
+            //     // }
+            //     socket.join(params.id);
+            //     // socket.emit('newNotification'.generateMessage('You have a new notification'));
+            //     socket.broadcast.to(params.id).emit('newNotification', params);
+            //     io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: application });
+            // });
         }
         // return "Test sdsds";
     })
@@ -1056,7 +1066,7 @@ router.get('/get_notifications/:user_id', function (req, res) {
     //     notification_to: null
     // }
     try {
-        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }, {notification_type: 'Campaign'}] }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }
