@@ -459,6 +459,7 @@ function send_notifications(notification_type, data, iofromp) {
             console.log(err);
         }
         else {
+            console.log('notification_response', application);
             // socket.on('join', (params, callback) => {
             //     // if(!isRealString(params.name) || !isRealString(params.room)) {
             //     //     callback('Name and room are required.');
@@ -1066,7 +1067,7 @@ router.get('/get_notifications/:user_id', function (req, res) {
     //     notification_to: null
     // }
     try {
-        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }, {notification_type: 'Campaign'}] }, function (err, meeting) {
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }, {notification_type: 'Discussion'}, {notification_type: 'Campaign'}] }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }
