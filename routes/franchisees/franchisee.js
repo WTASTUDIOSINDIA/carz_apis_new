@@ -391,7 +391,7 @@ router.get('/get_franchisees_new_one', function (req, res) {
 
 
 router.post('/get_franchiseelist_counts', function (req, res) {
-   
+
     let data = req.body;
     if (data.franchisor_id) {
         if (data.franchisor_id.length == 24) {
@@ -531,17 +531,17 @@ router.get('/get_franchisee/:id', function (req, res) {
 });
 
 // get all leads count
-router.post('/get_all_leads',  (req, res) => {
+router.post('/get_all_leads', (req, res) => {
     // let master_query = { master_franchisee_id: { $exists: false } }
     // if (req.body._id) {
     //     master_query = { master_franchisee_id: req.body._id }
     // }
     let master_query = {};
-    if(req.body.user_role == 'franchisee'){
-        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    if (req.body.user_role == 'franchisee') {
+        master_query = { master_franchisee_id: mongoose.Types.ObjectId(req.body._id) }
     }
-    else{
-        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+    else {
+        master_query = { franchisor_id: mongoose.Types.ObjectId(req.body._id) }
     }
     if (req.body.location) {
         var query = { $and: [{ lead_type: { $exists: true, $ne: "" } }, { franchisee_address: req.body.location }, master_query] }
@@ -643,16 +643,16 @@ router.post('/get_leads_by_location', (req, res) => {
     // if (req.body._id) {
     //     master_query = { master_franchisee_id: req.body._id }
     // }
-        // master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id) }    
-        // if (req.body._id) {
-        //     master_query = { $or: [ {franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id)}, { master_franchisee_id: req.body._id} ]  }
-        // }
-        let master_query = {};
-    if(req.body.user_role == 'franchisee'){
-        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    // master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id) }    
+    // if (req.body._id) {
+    //     master_query = { $or: [ {franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id)}, { master_franchisee_id: req.body._id} ]  }
+    // }
+    let master_query = {};
+    if (req.body.user_role == 'franchisee') {
+        master_query = { master_franchisee_id: mongoose.Types.ObjectId(req.body._id) }
     }
-    else{
-        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+    else {
+        master_query = { franchisor_id: mongoose.Types.ObjectId(req.body._id) }
     }
     console.log(req.body);
     if (req.body.country && !req.body.state && !req.body.city) {
@@ -681,7 +681,7 @@ router.post('/get_leads_by_location', (req, res) => {
 })
 
 // get franchisee status
-router.post('/get_franchisee_status',  (req, res) => {
+router.post('/get_franchisee_status', (req, res) => {
     let status = {
         profile_pending: 0,
         discussion_pending: 0,
@@ -698,11 +698,11 @@ router.post('/get_franchisee_status',  (req, res) => {
     //     master_query = { franchisor_id:mongoose.Types.ObjectId(req.body.franchisor_id), master_franchisee_id: req.body._id }
     // }
     let master_query = {};
-    if(req.body.user_role == 'franchisee'){
-        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    if (req.body.user_role == 'franchisee') {
+        master_query = { master_franchisee_id: mongoose.Types.ObjectId(req.body._id) }
     }
-    else{
-        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+    else {
+        master_query = { franchisor_id: mongoose.Types.ObjectId(req.body._id) }
     }
     Stages.aggregate([
         { $match: { $and: [{ 'stage_profile': 'completed' }, { 'stage_discussion.status': false }, master_query] } },
@@ -813,11 +813,11 @@ router.post('/get_franchisee_status',  (req, res) => {
 router.post('/get_total_revenue', (req, res) => {
     var query = { $exists: true };
     let master_query = {};
-    if(req.body.user_role == 'franchisee'){
-        master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+    if (req.body.user_role == 'franchisee') {
+        master_query = { master_franchisee_id: mongoose.Types.ObjectId(req.body._id) }
     }
-    else{
-        master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+    else {
+        master_query = { franchisor_id: mongoose.Types.ObjectId(req.body._id) }
     }
     if (req.body.type === 'yearly') {
         var first_day_of_year = new Date(req.body.date, 0, 1);
@@ -912,11 +912,11 @@ router.post('/get_revenue_graph', (req, res) => {
         let query = { $gte: fdt, $lte: ldt };
         // let master_query = { master_franchisee_id: { $exists: false } }
         let master_query = {};
-        if(req.body.user_role == 'franchisee'){
-            master_query = { master_franchisee_id:mongoose.Types.ObjectId(req.body._id) }
+        if (req.body.user_role == 'franchisee') {
+            master_query = { master_franchisee_id: mongoose.Types.ObjectId(req.body._id) }
         }
-        else{
-            master_query = { franchisor_id:mongoose.Types.ObjectId(req.body._id)}
+        else {
+            master_query = { franchisor_id: mongoose.Types.ObjectId(req.body._id) }
         }
         // if (req.body._id) {
         //     master_query = { master_franchisee_id: req.body._id }
@@ -1421,11 +1421,11 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
 
                                 var stage = new Stages();
                                 stage.franchisee_id = franchisee._id,
-                                stage.franchisor_id = franchisee.franchisor_id,
-                                stage.master_franchisee_id = franchisee.master_franchisee_id,
+                                    stage.franchisor_id = franchisee.franchisor_id,
+                                    stage.master_franchisee_id = franchisee.master_franchisee_id,
                                     stage.stage_profile = franchisee.stage_profile
                                 stage.save((err) => {
-                                    console.log(stage,'-----------*--------------')
+                                    console.log(stage, '-----------*--------------')
                                     if (err, stage) {
                                         console.log(err, 'errorrrr');
                                     }
@@ -1493,7 +1493,7 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
                                             user_data.user_name = franchiseeForm.partner_name;
                                         }
                                         user_data.subject = 'Franchisee Created';
-                                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Your account has been created by the franchisor. Please login with your email, by clicking on "+ "http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/pages/franchisee-login" +"<br>" + "Best," + "<br>" + "Carz.</p>"
+                                        user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Your account has been created by the franchisor. Please login with your email, by clicking on " + "http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/pages/franchisee-login" + "<br>" + "Best," + "<br>" + "Carz.</p>"
                                         utils.send_mail(user_data)
                                         //   }
                                         // })
@@ -2562,7 +2562,7 @@ router.put('/edit_stage', cpUpload, function (req, res) {
     }
 });
 
-function saveActivity(data){
+function saveActivity(data) {
     try {
         console.log(data, '1284');
         var activitytracker = new ActivityTracker();
@@ -2680,14 +2680,14 @@ router.put('/update_stage', function (req, res) {
             if (req.body.stage_name == 'setup') {
                 stage_Completed = 1;
                 stage.stage_setup.status = true;
-                Franchisee.findOneAndUpdate({ franchisee_id: req.body.franchisee_id }, { $set: { lead_type: 'Franchisees'}}, { new: true} , function (err, franchisee) {
-                    if(err){
-                    console.log("err", err);
-                }
-                if(franchisee){
-                    console.log("franchisee----", franchisee);
+                Franchisee.findOneAndUpdate({ franchisee_id: req.body.franchisee_id }, { $set: { lead_type: 'Franchisees' } }, { new: true }, function (err, franchisee) {
+                    if (err) {
+                        console.log("err", err);
+                    }
+                    if (franchisee) {
+                        console.log("franchisee----", franchisee);
 
-                }
+                    }
                 })
             }
 
@@ -3344,7 +3344,7 @@ router.put('/archieve_franchisee', function (req, res) {
             if (err) {
                 return res.send(500, err);
             } else {
-                Stages.findOneAndRemove( req.body._id,  (err, stage) => {
+                Stages.findOneAndRemove(req.body._id, (err, stage) => {
                     if (err) {
                         return res.json(500, err);
                     }
@@ -3660,31 +3660,36 @@ router.post('/create_franchisee_web', function (req, res) {
 });
 
 router.get('/leadgen', (req, res) => {
+    console.log('object', req.body)
+    req.body.entry[0].changes.forEach(element => {
+        console.log(element)
+    });
     if (!req.query) {
-      res.send({success: false, reason: 'Empty request params'});
-      return;
+        res.send({ success: false, reason: 'Empty request params' });
+        return;
     }
     // Extract a verify token we set in the webhook subscription and a challenge to echo back.
     const verifyToken = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
-  
+
     if (!verifyToken || !challenge) {
-      res.send({
-        success: false,
-        reason: 'Missing hub.verify_token and hub.challenge params',
-      });
-      return;
+        res.send({
+            success: false,
+            reason: 'Missing hub.verify_token and hub.challenge params',
+        });
+        return;
     }
-  
+
     if (verifyToken !== VERIFY_TOKEN) {
-      res.send({success: false, reason: 'Verify token does not match'});
-      return;
+        res.send({ success: false, reason: 'Verify token does not match' });
+        return;
     }
     // We echo the received challenge back to Facebook to finish the verification process.
+    // console.log(req);
     res.send(challenge);
-  });
+})
 
-module.exports = router;
-module.exports.saveActivity = saveActivity;
+module.exports = router
+module.exports.saveActivity = saveActivity
 
 
