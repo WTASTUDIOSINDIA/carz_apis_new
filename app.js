@@ -108,7 +108,7 @@ io.on('connection', function(socket) {
          //  }
          // }
         // var meeting_data = saveMeetingNotification(data);
-        var notification_data = send_notifications('notification',data, io);
+       var notification_data = send_notifications('notification',data, io);
         console.log(notification_data, "44notification");
     });
     
