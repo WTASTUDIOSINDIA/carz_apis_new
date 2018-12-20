@@ -129,7 +129,7 @@ router.post('/create_meeting', function (req, res) {
 
                     });
                 }
-              
+
 
                 Franchisor.findById(meetingForm.franchisor_id, function (err, franchisor) {
                     if (err) {
@@ -140,11 +140,11 @@ router.post('/create_meeting', function (req, res) {
                             if (err) {
                                 console.log(err);
                             } else {
-                                if(meetingForm.created_by == 'franchisor'){
+                                if (meetingForm.created_by == 'franchisor') {
                                     activity_data.name = 'Meeting Created';
                                     activity_data.activity_of = 'franchisor';
                                 }
-                                if(meetingForm.created_by == 'franchisee'){
+                                if (meetingForm.created_by == 'franchisee') {
                                     activity_data.name = 'Meeting Created';
                                     activity_data.activity_of = 'franchisee';
                                 }
@@ -325,10 +325,12 @@ function send_notifications(notification_type, data, iofromp) {
     notific.franchisee_id = data.franchisee_id;
     data.meeting_date = dateFormat(data.meeting_date, "dd-mm-yyyy");
     notific.created_at = new Date();
+    notific.notification_to = data.notification_to;
     console.log(data, "Robotooo");
     if (data.meeting_status) {
         notific.meeting_status = data.meeting_status;
-        notific.meeting_type = 'Meeting'
+        notific.meeting_type = 'Meeting',
+            notific.notification_type = 'Meeting'
         if (data.notification_type === 'meeting_request' && data.meeting_status === 'pending') {
             if (data.notification_to == "franchisor") {
                 notific.notification_title = "You have a new meeting request regarding " + data.meeting_title + " with Franchisee on " + data.meeting_date + " at " + data.meeting_date + " " + data.meeting_time;
@@ -339,7 +341,7 @@ function send_notifications(notification_type, data, iofromp) {
         }
         else if (data.meeting_status === 'approved') {
             if (data.notification_to == "franchisor") {
- 
+
                 notific.notification_title = "Your meeting with " + data.franchisee_name + " titled " + data.meeting_title + " has been approved. ";
             }
             if (data.notification_to == "franchisee") {
@@ -410,7 +412,7 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'kyc_uploaded') {
         notific.notification_type = 'KYC'
-        notific.notification_title = " Franchisee's partner, "+ data.partner_name + " has uploaded kyc file " + data.doc_name
+        notific.notification_title = " Franchisee's partner, " + data.partner_name + " has uploaded kyc file " + data.doc_name
     }
     else if (data.notification_type === 'kyc_declined') {
         notific.notification_type = 'KYC'
@@ -423,23 +425,50 @@ function send_notifications(notification_type, data, iofromp) {
     else if (data.notification_type === 'Discussion question') {
         notific.notification_type = 'Discussion question'
         notific.notification_title = data.franchisor_name + " has declined your question. Reason: " + data.reason
-    }    
-    notific.notification_to = data.notification_to;
+    }
+    else if (data.notification_type === 'assessment_submitted') {
+        notific.notification_type = 'Assessment'
+        if (data.notification_to = 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has successfully submitted assessment."
+        }
+        else {
+            notific.notification_title = "Your assessment has been successfully submitted."
+        }
+    }
+    else if (data.notification_type === 'discussion_question_uploaded') {
+        notific.notification_type = 'Discussion';
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created a question";
+        }
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created a question";
+        }
+    }
+    else if (data.notification_type === 'campaign_created') {
+        console.log('vamshi');
+        notific.notification_type = 'Campaign';
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created campaign " + data.title
+        }
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created campaign " + data.title
+        }
+    }
     notific.save(function (err, application) {
-        console.log(application, "235");
         if (err) {
             console.log(err);
         }
         else {
-            socket.on('join', (params, callback) => {
-                // if(!isRealString(params.name) || !isRealString(params.room)) {
-                //     callback('Name and room are required.');
-                // }
-                socket.join(params.id);
-                // socket.emit('newNotification'.generateMessage('You have a new notification'));
-                socket.broadcast.to(params.id).emit('newNotification', params);
-                io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: application });
-            });
+            console.log('notification_response', application);
+            // socket.on('join', (params, callback) => {
+            //     // if(!isRealString(params.name) || !isRealString(params.room)) {
+            //     //     callback('Name and room are required.');
+            //     // }
+            //     socket.join(params.id);
+            //     // socket.emit('newNotification'.generateMessage('You have a new notification'));
+            //     socket.broadcast.to(params.id).emit('newNotification', params);
+            //     io.emit.to(params.id).to('newNotification', { type: 'new-notification', text: application });
+            // });
         }
         // return "Test sdsds";
     })
@@ -472,7 +501,7 @@ router.post('/create_meeting_old', function (req, res) {
                 meeting.meeting_time = meetingForm.meeting_time;
                 meeting.meeting_assigned_people = meetingForm.meeting_assigned_people;
                 meeting.meeting_additional_services = meetingForm.meeting_additional_services;
-                meeting.meeting_remarks = meetingForm.meeting_remarks
+                meeting.meeting_remarks = meetingForm.meeting_remarks;
                 meeting.meeting_franchisor_remarks = meetingForm.meeting_franchisor_remarks;
                 meeting.franchisee_name = meetingForm.franchisee_name;
                 meeting.franchisor_id = meetingForm.franchisor_id;
@@ -850,41 +879,41 @@ router.get('/get_all_meetings', function (req, res) {
 });
 
 router.post('/get_meetings_count', async (req, res) => {
-    if(req.body.user_role == 'franchisee'){
-    if (req.body.date) {
-        date = new Date(req.body.date);
-        var fdt = date.setHours(0, 0, 0, 0);
-        var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
-        // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
-        // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
+    if (req.body.user_role == 'franchisee') {
+        if (req.body.date) {
+            date = new Date(req.body.date);
+            var fdt = date.setHours(0, 0, 0, 0);
+            var tdt = date.setHours(23, 59, 59, 999);
+            query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
+            // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
+            // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
+        }
+        if (!req.body.date || req.body.date == null) {
+            date = new Date();
+            var fdt = date.setHours(0, 0, 0, 0);
+            var tdt = date.setHours(23, 59, 59, 999);
+            query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
+            // query = { meeting_date: { $gte: fdt, $lte: tdt } };
+            // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
+            // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
+        }
     }
-    if (!req.body.date || req.body.date == null) {
-        date = new Date();
-        var fdt = date.setHours(0, 0, 0, 0);
-        var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt }, master_franchisee_id: mongoose.Types.ObjectId(req.body._id) };
-        // query = { meeting_date: { $gte: fdt, $lte: tdt } };
-        // var franchisor_id = mongoose.Types.ObjectId(req.body._id)
-        // var master_franchisee_id = mongoose.Types.ObjectId(req.body._id)
-    }
-}
-else{
-    if (req.body.date) {
-        date = new Date(req.body.date);
-        var fdt = date.setHours(0, 0, 0, 0);
-        var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id:  mongoose.Types.ObjectId(req.body._id) };
+    else {
+        if (req.body.date) {
+            date = new Date(req.body.date);
+            var fdt = date.setHours(0, 0, 0, 0);
+            var tdt = date.setHours(23, 59, 59, 999);
+            query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id: mongoose.Types.ObjectId(req.body._id) };
 
-    }
-    if (!req.body.date || req.body.date == null) {
-        date = new Date();
-        var fdt = date.setHours(0, 0, 0, 0);
-        var tdt = date.setHours(23, 59, 59, 999);
-        query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id: mongoose.Types.ObjectId(req.body._id) };
+        }
+        if (!req.body.date || req.body.date == null) {
+            date = new Date();
+            var fdt = date.setHours(0, 0, 0, 0);
+            var tdt = date.setHours(23, 59, 59, 999);
+            query = { meeting_date: { $gte: fdt, $lte: tdt }, franchisor_id: mongoose.Types.ObjectId(req.body._id) };
 
+        }
     }
-}
     // console.log(query);
     //   Meeting.find(query, (err, data) => {
     //     if (err) {
@@ -927,8 +956,8 @@ else{
     Meeting.find(query)
         .populate('franchisee_id', 'franchisee_name franchisee_profile_pic') // only works if we pushed refs to person.eventsAttended
         .exec(function (err, data) {
-            if (err) return 
-           console.log(err, 'err');
+            if (err) return
+            console.log(err, 'err');
             if (!data) {
                 return res.json({
                     state: 'error',
@@ -1038,7 +1067,7 @@ router.get('/get_notifications/:user_id', function (req, res) {
     //     notification_to: null
     // }
     try {
-        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }] }, function (err, meeting) {
+        Notification.find({ $or: [{ franchisor_id: req.params.user_id }, { franchisee_id: req.params.user_id }, {notification_type: 'Discussion'}, {notification_type: 'Campaign'}] }, function (err, meeting) {
             if (err) {
                 return res.send(500, err);
             }

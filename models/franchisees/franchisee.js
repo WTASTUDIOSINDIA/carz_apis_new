@@ -166,7 +166,8 @@ var notificationSchema = new mongoose.Schema({
     "approved_by": { type: String, enum: ['franchisor', 'franchisee'] },
     "meeting_status": { type: String, default: 'pending' },
     "nda_status": { type: String, default: "pending" },
-    "payment_status": { type: String, default: 'pending' }
+    "payment_status": { type: String, default: 'pending' },
+    "visible_to": String
 });
 // var UserlibrarySchema = new mongoose.Schema({
 //     "personal_files":[{path:String,key:String}],
