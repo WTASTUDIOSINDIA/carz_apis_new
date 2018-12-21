@@ -574,7 +574,7 @@ function update_partners(req,res,partner_id,status){
 
 router.put('/answer',function(req,res){
     try{
-        Assessment.findOne({franchisee_id:req.body.franchisee_id,partner_id:req.body.partner_id},function(err,answer){
+        Assessment.findOne({franchisee_id:req.body.franchisee_id,partner_id:req.body.partner_id, crm_status:true},function(err,answer){
             if(err){
                 return res.send({
                     state:"error",
