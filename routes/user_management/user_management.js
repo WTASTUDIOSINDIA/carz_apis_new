@@ -18,7 +18,6 @@ aws.config.loadFromPath('./config.json');
 aws.config.update({
   signatureVersion: 'v4'
 });
-var utils = require('../../common/utils');
 var s0 = new aws.S3({})
 var upload = multer({
   storage: multerS3({
@@ -116,8 +115,12 @@ router.post('/create_user', utils.authenticated, function (req, res) {
           user_data.user_name = user.user_name;
           user_data.subject = 'User Created';
           user_data.html = "<p>Hi, " + user_data.user_name + "<br>" + "Your account has been created by the franchisor. Please login with your email, by clicking on " + "http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/" + "<br>" + "Best," + "<br>" + "Carz.</p>"
-          console.log(user_data)
+          console.log(user_data,'user_data');
           utils.send_mail(user_data)
+          console.log(user.user_phone_number, '+++++');
+          // utils.sendMobileOTPForUserManagement(user.user_phone_number); 
+          let messageData = {source:user.user_name, destination:'+91' + user.user_phone_number, text: 'messageText' };
+          utils.messages(messageData);
           res.send({
             state: "success",
             message: "User created",

@@ -19,6 +19,7 @@ var config = common.config();
 var bucketName = 'carzdev';
 var otpGenerator = require('otp-generator');
 var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4");
+var msg91PromotionalSms = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "1");
 var bucketName = 'carzdev';
 
 const awsFileUrl = () => {
@@ -212,6 +213,31 @@ const sendMobileOTP = (otp, mobile) => {
 
 };
 
+const sendMobileOTPForUserManagement = (mobile) => {
+    console.log(mobile);
+    msg91PromotionalSms.send(mobile, "Your account has been created by the franchisor. Please check your email for login details." + " CarZ.", function (err, response) {
+        if (err) {
+            console.log(err, 'err');
+        }
+        if (response) {
+            console.log(response, 'response');
+        }
+    });
+
+};
+// const sendMobileOTPForUserManagement = (mobile) => {
+//     console.log(mobile, 'mobile');
+//     msg91.send(mobile, "Your account has been created by the franchisor. Please check your email for login details.", function (err, response) {
+//         if (err) {
+//             console.log(err,'err');
+//         }
+//         if (response) {
+//             console.log(response, 'response');
+//         }
+//     });
+
+// };
+
 const sendMailOTP = (otp, mail) => {
     mailOptions.to = mail;
     mailOptions.subject = 'OTP - Carz';
@@ -271,6 +297,56 @@ const saveMeetingNotification = (request, response) => {
     })
 }
 
+
+var request = require("request");
+function messages() {
+    var options = {
+        method: 'POST',
+        url: 'http://enterprise.smsgupshup.com/GatewayAPI/rest',
+        // url:'http://enterprise.smsgupshup.com/GatewayAPI/rest?method=SendMessage&send_to=919885826654&msg=Welcome to GupShup.&msg_type=TEXT&userid=2000164499&auth_scheme=plain&password=Jdga5W&v=1.1&format=text',
+        form:
+        {
+            method: 'sendMessage',
+            send_to: '919885826654',
+            msg: 'This is sample test message from GupShup',
+            msg_type: 'TEXT',
+            userid: '2000164499',
+            auth_scheme: 'PLAIN',
+            password: 'Jdga5W',
+            format: 'JSON'
+        }
+    };
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        console.log(body, '++++++++++++++++++++++++++');
+    });
+}
+// const request = require('request-promise');
+
+// function messages(data) {
+//     var options = {
+//         method: 'PUT',
+//         // url: 'https://api.gupshup.io/sm/api/ent/sms/msg?message='+data.source+'&destination='+data.destination+'&text='+data.text,
+//         url:'http://enterprise.smsgupshup.com/GatewayAPI/rest?method=SendMessage&send_to=+919885826654&msg=Welcome to GupShup.&msg_type=TEXT&userid=2000164499&auth_scheme=plain&password=Jdga5W&v=1.1&format=text',
+//         // body: data,
+//         json: true,
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'apiKey': '110c9bb4796e49fdc98137624af6a857',
+//             'Accept': 'text/plain'
+//         }
+//     }
+
+//     request(options).then(function (response) {
+//         // res.status(200).json(response);
+//         console.log(response);
+//     })
+//         .catch(function (err) {
+//             console.log(err);
+//         })
+// }
+
+
 module.exports = {
     generateJwtToken,
     decodeJwtToken,
@@ -286,5 +362,7 @@ module.exports = {
     generateOTP,
     awsFileUrl,
     authenticated,
-    saveMeetingNotification
+    saveMeetingNotification,
+    sendMobileOTPForUserManagement,
+    messages
 };
