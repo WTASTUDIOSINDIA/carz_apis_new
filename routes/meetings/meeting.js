@@ -386,7 +386,7 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'payment_uploaded') {
         notific.notification_type = 'PAYMENT'
-        notific.notification_title = 'Franchisor' + " has uploaded your 1 lakh payment file."
+        notific.notification_title = 'Franchisor' + " has uploaded your 1st payment file."
     }
     else if (data.notification_type === 'app_form_uploaded') {
         notific.notification_type = 'APPLICATION FORM'
@@ -408,7 +408,7 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'four_lac_uploaded') {
         notific.notification_type = '4 LAC PAYMENT'
-        notific.notification_title = data.franchisor_name + " has uploaded 4 lac payment file."
+        notific.notification_title = data.franchisor_name + " has uploaded 2nd payment file."
     }
     else if (data.notification_type === 'kyc_uploaded') {
         notific.notification_type = 'KYC'
