@@ -191,6 +191,47 @@ console.log(req.query,'+++++++++++++++++++++++')
 
 
 
+router.put('/for_sms', function (req, res) {
+    // try {
+    Franchisee.find({  }, function (err, franchisee) {
+        if (err) {
+            res.send({
+                state: 'failure',
+                message: 'Something went wrong',
+            }, 500)
+        }
+        // if (franchisee) {
+        //     res.send({
+        //         state: "failure",
+        //         message: "failed"
+        //     }, 201);
+        // }
+        else {
+           franchisee = new Franchisee();
+           franchisee.franchisee_mobile_number = req.body.franchisee_mobile_number
+        //    let messageData = '+919885826654' ;
+           utils.sendMobileOTPForUserManagement('9885826654');
+            //   let messageData = {source:user.user_name, destination:'+91' + user.user_phone_number, text: 'messageText' };
+            //   utils.messages(messageData);
+            franchisee.save(function (err, franchisee) {
+                if (err) {
+                    res.send({
+                        state: 'failure',
+                        message: 'Something went wrong, we are looking into it.'
+                    }, 500)
+                }
+                    res.send({
+                        state: 'success',
+                        message: 'successfull'
+                    }, 200)
+                
+            })
+        }
+    })
+})
+
+
+
 //to get total franchisees count
 router.get('/total_franchisees_count/:franchisor_id', function (req, res) {
     // try {
