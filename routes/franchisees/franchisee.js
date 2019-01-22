@@ -3829,6 +3829,127 @@ router.post('/create_franchisee_web', function (req, res) {
     }
 });
 
+router.post('/create_franchisee_fb/:franchisor_id', function (req, res) {
+
+    let franchiseeForm = req.body;
+    let franchisor_id = req.params.franchisor_id
+    try {
+        console.log(franchiseeForm);
+
+                Franchisee.findOne({ 'franchisee_email': franchiseeForm.franchisee_email }, function (err, franchisee) {
+                    if (err) {
+                        return res.send({
+                            status: 500,
+                            state: "err",
+                            message: "Something went wrong.We are looking into it."
+                        });
+                    }
+                    if (franchisee) {
+                        res.send({
+                            status: 200,
+                            state: "failure",
+                            message: "This email already exists!"
+                        });
+                    }
+                    if (!franchisee) {
+
+                        var franchisee = new Franchisee();
+                        let franchisee_details = {};
+                        franchisee_details.franchisee_name = franchiseeForm.franchisee_name;
+                        franchisee_details.franchisee_pass = createHash('mypassword');
+                        franchisee_details.franchisee_email = franchiseeForm.franchisee_email;
+                        franchisee_details.franchisee_mobile_number = franchiseeForm.franchisee_mobile_number;
+                        franchisee_details.partner_name = franchiseeForm.franchisee_name;
+                        franchisee_details.stage_profile = "completed";
+                        franchisee_details.franchisee_city = franchiseeForm.franchisee_city;
+                        franchisee_details.franchisee_state = franchiseeForm.franchisee_state;
+                        franchisee_details.lead_source = "FB";
+                        franchisee_details.partners_list = 1;
+                        franchisee_details.franchisee_franchise_model = "CarZ Grande";
+                        franchisee_details.franchisee_franchise_type = "Independent";
+                        franchisee_details.franchisor_id = franchisor_id;//"5afe878c750c1a0014c62a11";
+                        franchisee_details.partner_email = franchiseeForm.franchisee_email;
+                        franchisee_details.partner_mobile_number = franchiseeForm.franchisee_mobile_number;
+                        franchisee_details.partner_city = franchiseeForm.franchisee_city;
+                        franchisee_details.partner_state = franchiseeForm.franchisee_state;
+                        
+                        Franchisee.create(franchisee_details, function (err, franchisee) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    state: "err",
+                                    message: "Something went wrong."
+                                }, 500);
+                            }
+                            else {
+
+                                var stage = new Stages();
+                                stage.franchisee_id = franchisee._id,
+                                    stage.stage_profile = franchisee.stage_profile
+                                stage.save((err) => {
+                                    if (err, stage) {
+
+                                    }
+                                    if (stage) {
+
+                                    }
+                                });
+
+                                var partner = new Partner();
+                                partner.partner_name = franchiseeForm.franchiseeForm,
+                                    partner.partner_email = franchiseeForm.franchisee_email,
+                                    partner.partner_mobile_number = franchiseeForm.franchisee_mobile_number,
+                                    partner.partner_city = franchiseeForm.franchisee_city,
+                                    partner.partner_state = franchiseeForm.franchisee_state,
+                                    partner.main_partner = true,
+                                    partner.franchisee_id = franchisee._id;
+
+                                partner.save(function (err, partner) {
+                                    if (err) {
+                                        res.send({
+                                            state: "err",
+                                            message: "Something went wrong."
+                                        }, 500);
+                                    }
+                                    else {
+                                        if (franchiseeForm.master_franchisee_id) {
+                                            Franchisee.findById({ _id: franchiseeForm.master_franchisee_id }, function (err, franchisee) {
+
+                                                franchisee.sub_franchisee_count = franchisee.sub_franchisee_count + 1;
+                                                franchisee.save(function (err, franchisee) {
+
+                                                })
+                                            })
+                                        }
+                                        kyc_Upload(req, res, partner, franchisee, franchiseeForm);
+
+                                        var library = new Library();
+                                        library.franchisee_Id = franchisee._id;
+                                        library.folder_name = 'Discussion';
+                                        library.save(function (err, library) {
+
+                                        });
+                                        res.send({
+                                            state: "success",
+                                            message: "Franchisee created successfully.",
+                                            data: franchisee
+                                        }, 200);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+});
+
 router.get('/leadgen', (req, res) => {
     console.log('object', req.body)
     req.body.entry[0].changes.forEach(element => {
