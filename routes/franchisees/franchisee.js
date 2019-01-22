@@ -3848,6 +3848,7 @@ router.post('/create_franchisee_fb/:franchisor_id', function (req, res) {
                         res.send({
                             status: 200,
                             state: "failure",
+                            franchisor_id : franchisor_id,
                             message: "This email already exists!"
                         });
                     }
