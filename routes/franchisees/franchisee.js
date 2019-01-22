@@ -3829,9 +3829,10 @@ router.post('/create_franchisee_web', function (req, res) {
     }
 });
 
-router.post('/create_franchisee_fb', function (req, res) {
+router.post('/create_franchisee_fb/:franchisor_id', function (req, res) {
 
     let franchiseeForm = req.body;
+    let franchisor_id = req.params.franchisor_id
     try {
         console.log(franchiseeForm);
 
@@ -3864,9 +3865,9 @@ router.post('/create_franchisee_fb', function (req, res) {
                         franchisee_details.franchisee_state = franchiseeForm.franchisee_state;
                         franchisee_details.lead_source = "FB";
                         franchisee_details.partners_list = 1;
-                        franchisee_details.franchisee_franchise_model = "CarZ Grande"
-                        franchisee_details.franchisee_franchise_type = "Independent"
-                        franchisee_details.franchisor_id = "5afe878c750c1a0014c62a11";
+                        franchisee_details.franchisee_franchise_model = "CarZ Grande";
+                        franchisee_details.franchisee_franchise_type = "Independent";
+                        franchisee_details.franchisor_id = franchisor_id;//"5afe878c750c1a0014c62a11";
                         franchisee_details.partner_email = franchiseeForm.franchisee_email;
                         franchisee_details.partner_mobile_number = franchiseeForm.franchisee_mobile_number;
                         franchisee_details.partner_city = franchiseeForm.franchisee_city;
