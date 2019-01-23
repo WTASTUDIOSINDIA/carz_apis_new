@@ -93,6 +93,7 @@ router.post('/create_user', utils.authenticated, function (req, res) {
       user.user_mail = userCreateForm.user_mail;
       user.user_type_role = userCreateForm.user_type_role;
       user.user_status = userCreateForm.user_status;
+      user.user_department - userCreateForm.user_department;
       user.user_country_code = userCreateForm.user_country_code;
       user.user_phone_number = userCreateForm.user_phone_number;
       user.user_profile_pic = userCreateForm.user_profile_pic;
@@ -118,9 +119,9 @@ router.post('/create_user', utils.authenticated, function (req, res) {
           console.log(user_data,'user_data');
           utils.send_mail(user_data)
           console.log(user.user_phone_number, '+++++');
-          // utils.sendMobileOTPForUserManagement(user.user_phone_number); 
-          let messageData = {source:user.user_name, destination:'+91' + user.user_phone_number, text: 'messageText' };
-          utils.messages(messageData);
+          utils.sendMobileOTPForUserManagement(user.user_phone_number); 
+          // let messageData = {source:user.user_name, destination:'+91' + user.user_phone_number, text: 'messageText' };
+          // utils.messages(messageData);
           res.send({
             state: "success",
             message: "User created",
@@ -250,6 +251,7 @@ router.put('/update_user', function (req, res, next) {
       user.user_mail = userEditForm.user_mail;
       user.user_role = userEditForm.user_role;
       user.user_status = userEditForm.user_status;
+      user.user_department = userEditForm.user_department;
       user.user_country_code = userEditForm.user_country_code;
       user.user_phone_number = userEditForm.user_phone_number;
       user.franchisor_id = userEditForm.franchisor_id;
