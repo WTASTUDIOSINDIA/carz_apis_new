@@ -203,9 +203,9 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
         if (campaign) {
             if (campaignEditForm.amount_spent > Number(campaignEditForm.budget)) {
                 return res.send({
-                    state: "err",
+                    state: "failure",
                     message: "Amount spent is greater than the allocated budget."
-                }, 500);
+                }, 201);
             }
             else {
                 campaign.title = campaignEditForm.title;
@@ -732,7 +732,6 @@ router.put('/after_campaign_details', cpUpload, function (req, res) {
     console.log(req.body.campaign);
     // try{
     Campaign.findOne({ '_id': campaignDetails._id }, function (err, campaign) {
-        console.log(campaign);
         if (err) {
             return res.send({
                 state: "err",
@@ -740,34 +739,47 @@ router.put('/after_campaign_details', cpUpload, function (req, res) {
             }, 500);
         }
         if (campaign) {
-            campaign.amount_spent = campaignDetails.amount_spent;
-            campaign.leads_generated = campaignDetails.leads_generated;
-            campaign.footfalls = campaignDetails.footfalls;
-            campaign.campaign_duration = campaignDetails.campaign_duration;
-            campaign.campaign_status = campaignDetails.campaign_status;
-            campaign.franchisor_id = campaignDetails.franchisor_id;
-            campaign.franchisee_id = campaignDetails.franchisee_id;
-            campaign.franchisee_feedback = campaignDetails.franchisee_feedback;
-            campaign.franchisor_feedback = campaignDetails.franchisor_feedback;
-
-            console.log(req.file, '492');
-            if (req.file) {
-                console.log(req.file, '492');
-                campaign.after_campaign_file_attachment_file_url = req.file.location;
-                campaign.after_campaign_file_attachment_file_name = req.file.key;
-                campaign.after_campaign_file_attachment_file_type = req.file.contentType;
+            if (campaignDetails.amount_spent > Number(campaignDetails.budget)) {
+                return res.send({
+                    state: "failure",
+                    message: "Amount spent is greater than the allocated budget."
+                }, 201);
             }
-            campaign.save(function (err, campaign) {
-                {
+            if (Number(campaignDetails.leads_generated) > Number(campaignDetails.footfalls)) {
+                return res.send({
+                    state: "failure",
+                    message: "Leads generated are more than number of footfalls"
+                }, 201);
+            }
+            else {
+                campaign.amount_spent = campaignDetails.amount_spent;
+                campaign.leads_generated = campaignDetails.leads_generated;
+                campaign.footfalls = campaignDetails.footfalls;
+                campaign.campaign_duration = campaignDetails.campaign_duration;
+                campaign.campaign_status = campaignDetails.campaign_status;
+                campaign.franchisor_id = campaignDetails.franchisor_id;
+                campaign.franchisee_id = campaignDetails.franchisee_id;
+                campaign.franchisee_feedback = campaignDetails.franchisee_feedback;
+                campaign.franchisor_feedback = campaignDetails.franchisor_feedback;
 
-                    res.send({
-                        state: "success",
-                        message: "Campaign updated.",
-                        data: campaign
-                    }, 200);
+                console.log(req.file, '492');
+                if (req.file) {
+                    console.log(req.file, '492');
+                    campaign.after_campaign_file_attachment_file_url = req.file.location;
+                    campaign.after_campaign_file_attachment_file_name = req.file.key;
+                    campaign.after_campaign_file_attachment_file_type = req.file.contentType;
                 }
-            });
+                campaign.save(function (err, campaign) {
+                    {
 
+                        res.send({
+                            state: "success",
+                            message: "Campaign updated.",
+                            data: campaign
+                        }, 200);
+                    }
+                });
+            }
         }
         if (!campaign) {
             res.send({
