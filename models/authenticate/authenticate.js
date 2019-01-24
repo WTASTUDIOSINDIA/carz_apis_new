@@ -48,6 +48,7 @@ var adminSchema = new mongoose.Schema({
         "created_on" : Date
     },
     "user_profile_pic":{type: Schema.Types.Mixed, default : {}},
+    "user_department": String,
 
   "seen_notification":{type: Number, default: 0},
   "verification": {

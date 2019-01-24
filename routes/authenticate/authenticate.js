@@ -912,7 +912,9 @@ router.post('/franchisor-login', function (req,res){
             authService.findFranchisee({_id:objectId(data.id)}, '')
             .then((response) => {
                 if(response) {
-                    if(data.user_pass){                        
+                    console.log(response);
+                    if(data.user_pass){
+                        //console.log('mobileotp', franchisee_mobile_number);
                         utils.sendMobileOTP(otp,response.franchisee_mobile_number);   
                         utils.sendMailOTP(otp,response.franchisee_email);
                         response.pass_verification = {
