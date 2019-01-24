@@ -155,6 +155,27 @@ const send_mail = (data) => {
     });
 }
 
+const send_notification_mail = (data) => {
+
+   
+        mailOptions.subject = "Campaign Notification";
+    
+        mailOptions.html = "You didn't update the campaign, Please update it!";
+    
+
+        data.forEach(function (to) {
+            mailOptions.to = to;
+            transporter.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    console.log(response);
+                }
+            });
+        })
+}
+
 
 const send_franchisor_registartion_mail = (data) => {
 
@@ -364,5 +385,6 @@ module.exports = {
     authenticated,
     saveMeetingNotification,
     sendMobileOTPForUserManagement,
-    messages
+    messages,
+    send_notification_mail
 };

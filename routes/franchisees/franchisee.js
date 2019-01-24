@@ -24,6 +24,7 @@ var _ = require('lodash');
 let axios = require('axios');
 let bodyParser = require('body-parser');
 const VERIFY_TOKEN = 'carz123';
+var schedule = require('node-schedule');
 
 var auto = require('run-auto');
 // var Discussion = mongoose.model('Discussion');
@@ -62,6 +63,14 @@ var upload = multer({
     })
 });
 
+var day_rule = new schedule.RecurrenceRule();
+day_rule.dayOfWeek = [new schedule.Range(1, 6)];
+day_rule.hour = 23;
+day_rule.minute = 59;
+day_rule.second = 599;
+
+var sec_rule = new schedule.RecurrenceRule();
+sec_rule.second = 10;
 
 
 
@@ -188,7 +197,44 @@ console.log(req.query,'+++++++++++++++++++++++')
 // );
 
 
+schedule.scheduleJob(day_rule, function(req,res){
 
+    Campaign.find({$and: [{campaign_status: "inprogress",end:{$lt: new Date()}}]}).lean().exec(function(err,campaigns){
+      if(err){
+          return res.send(500, err);
+      }
+      if(!campaigns){
+          res.send({
+              "status":400,
+              "message":"Campaigns not found",
+              "message":"failure",
+              "franchisees_list":[]
+          },404);
+      }
+      else{
+         
+        campaigns.forEach(function(element){
+
+            Campaign.findById(element._id)
+            .populate('franchisor_id')
+            .populate('franchisee_id')
+            .exec(function (err, campaign_result) {
+                let mails = [];
+                if(campaign_result.franchisor_id != "" && campaign_result.franchisor_id != null){
+                    mails.push(campaign_result.franchisor_id.user_mail);
+                }
+                if(campaign_result.franchisee_id != "" && campaign_result.franchisee_id != null){
+
+                    mails.push(campaign_result.franchisee_id.franchisee_email);
+                }
+                
+                utils.send_notification_mail(mails);
+                
+        });
+    })
+    }
+});
+});
 
 
 router.put('/for_sms', function (req, res) {
