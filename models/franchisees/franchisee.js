@@ -306,8 +306,8 @@ var ApplicationSubmittedSchema = new mongoose.Schema({
 var CampaignSchema = new mongoose.Schema({
     'title': String,
     'location': String,
-    'start': String,
-    'end': String,
+    'start': Date,
+    'end': Date,
     'type': String,
     'notes': String,
     'campaign_color': String,
@@ -344,7 +344,7 @@ var CampaignSchema = new mongoose.Schema({
     'after_campaign_file_attachment_file_url': String,
     'after_campaign_file_attachment_file_type': String,
     // 'campaign_id': String,
-    'campaign_status': String
+    'campaign_status': { type: String, default: "inprogress" }
 });
 
 //franchiseeSchema.index({franchisee_name: 'text',partner_name:'text',franchisee_address:'text',franchisee_city:'text',franchisee_pincode:'text',franchisee_franchise_type:'text'}, {unique: true})
