@@ -1281,6 +1281,14 @@ router.post('/create_employee_details', function (req, res) {
                         }
 
                     })
+                    // let user_data = {};
+                    // user_data.employee_email = employeeDetails.employee_email;
+                    // user_data.employee_name = employeeDetails.employee_name;
+                    // user_data.subject = 'Employee Created';
+                    // user_data.html = "<p>Hi, " + user_data.employee_name + "<br>" + "Your details has been added by the franchisee." + "<br>" + "Best," + "<br>" + "Carz.</p>"
+                    // console.log(user_data,'user_data');
+                    // utils.send_mail(user_data)
+                    utils.sendEmployeeCreatedAssessment(employeeDetails.employee_mobile_number); 
                     res.send({
                         state: 'success',
                         message: 'Employee created successfully'

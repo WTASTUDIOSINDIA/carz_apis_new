@@ -246,6 +246,20 @@ const sendMobileOTPForUserManagement = (mobile) => {
     });
 
 };
+
+const sendEmployeeCreatedAssessment = (mobile) => {
+    console.log(mobile);
+    msg91PromotionalSms.send(mobile, "Your details has been added by the franchisee." + " CarZ.", function (err, response) {
+        if (err) {
+            console.log(err, 'err');
+        }
+        if (response) {
+            console.log(response, 'response');
+        }
+    });
+
+};
+
 // const sendMobileOTPForUserManagement = (mobile) => {
 //     console.log(mobile, 'mobile');
 //     msg91.send(mobile, "Your account has been created by the franchisor. Please check your email for login details.", function (err, response) {
@@ -386,5 +400,6 @@ module.exports = {
     saveMeetingNotification,
     sendMobileOTPForUserManagement,
     messages,
-    send_notification_mail
+    send_notification_mail,
+    sendEmployeeCreatedAssessment
 };

@@ -437,11 +437,21 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'discussion_question_uploaded') {
         notific.notification_type = 'Discussion';
-        if (data.notification_to === 'franchisee') {
-            notific.notification_title = data.franchisor_name + " has created a question";
+        if (data.status == true) {
+            if (data.notification_to === 'franchisee') {
+                notific.notification_title = "Congrats, you have successfully completed the checklist tasks for today.";
+            }
+            if (data.notification_to === 'franchisor') {
+                notific.notification_title = data.franchisee_name + " has completed the checklist tasks for today.";
+            }
         }
-        if (data.notification_to === 'franchisor') {
-            notific.notification_title = data.franchisee_name + " has created a question";
+        if (data.status == false) {
+            if (data.notification_to === 'franchisee') {
+                notific.notification_title = "You haven't completed the assigned tasks for today.";
+            }
+            if (data.notification_to === 'franchisor') {
+                notific.notification_title = data.franchisee_name + " has not completed the checklist tasks for today.";
+            }
         }
     }
     else if (data.notification_type === 'campaign_created') {
@@ -452,6 +462,15 @@ function send_notifications(notification_type, data, iofromp) {
         }
         if (data.notification_to === 'franchisee') {
             notific.notification_title = data.franchisor_name + " has created campaign " + data.title
+        }
+    }
+    else if (data.notification_type === 'checklist_task') {
+        notific.notification_type = 'Checklist';
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created a question";
+        }
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created a question";
         }
     }
     notific.save(function (err, application) {
