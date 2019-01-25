@@ -16,7 +16,7 @@ aws.config.loadFromPath('./config.json');
 aws.config.update({
     signatureVersion: 'v4'
 });
-let camp_file= [];
+let camp_file = [];
 //carzwtaff
 var s0 = new aws.S3({})
 var upload = multer({
@@ -53,7 +53,7 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
     var campaignForm = JSON.parse(req.body.campaign);
     console.log(campaignForm);
     try {
-        Campaign.findOne({'franchisor_id':campaignForm.franchisor_id, 'title': {$regex: new RegExp(campaignForm.title, 'i')} }, function (err, campaign) {
+        Campaign.findOne({ 'franchisor_id': campaignForm.franchisor_id, 'title': { $regex: new RegExp(campaignForm.title, 'i') } }, function (err, campaign) {
 
             if (err) {
                 return res.send({
@@ -155,7 +155,7 @@ router.post('/create_campaign', createCampaignFiles, function (req, res) {
                                         });
                                     }
                                 }
-                                else{
+                                else {
                                     return res.send({
                                         state: "success",
                                         message: "Campaign Created",
@@ -201,160 +201,168 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
             }, 500);
         }
         if (campaign) {
-            campaign.title = campaignEditForm.title;
-            campaign.location = campaignEditForm.location;
-            campaign.start = campaignEditForm.start;
-            campaign.end = campaignEditForm.end;
-            campaign.type = campaignEditForm.type;
-            campaign.notes = campaignEditForm.notes;
-            campaign.campaign_color = campaignEditForm.campaign_color;
-            campaign.medium = campaignEditForm.medium;
-            campaign.budget = campaignEditForm.budget;
-            campaign.meta = campaignEditForm.meta;
-            campaign.franchisor_id = campaignEditForm.franchisor_id;
-            campaign.franchisee_id = campaignEditForm.franchisee_id;
-            if (campaignEditForm.visible_to == 'franchisee') {
-                campaign.visible_to_franchisee_id = campaignEditForm.visible_to_franchisee_id;
-                campaign.visible_to_franchisee_name = campaignEditForm.visible_to_franchisee_name;
+            if (campaignEditForm.amount_spent > Number(campaignEditForm.budget)) {
+                return res.send({
+                    state: "failure",
+                    message: "Amount spent is greater than the allocated budget."
+                }, 201);
             }
-            campaign.visible_to = campaignEditForm.visible_to;
-            campaign.amount_spent = campaignEditForm.amount_spent;
-            campaign.leads_generated = campaignEditForm.leads_generated;
-            campaign.footfalls = campaignEditForm.footfalls;
-            campaign.campaign_duration = campaignEditForm.campaign_duration;
-            campaign.campaign_status = campaignEditForm.campaign_status;
-            // console.log(req.file, "143");
-            let files = req.files.createCampaignFiles;
-            // let camp_file = [];
-            if (undefined !== files && files.length != 0) {
-                for (var i = 0; i < files.length; i++) {
+            else {
+                campaign.title = campaignEditForm.title;
+                campaign.location = campaignEditForm.location;
+                campaign.start = campaignEditForm.start;
+                campaign.end = campaignEditForm.end;
+                campaign.type = campaignEditForm.type;
+                campaign.notes = campaignEditForm.notes;
+                campaign.campaign_color = campaignEditForm.campaign_color;
+                campaign.medium = campaignEditForm.medium;
+                campaign.budget = campaignEditForm.budget;
+                campaign.meta = campaignEditForm.meta;
+                campaign.franchisor_id = campaignEditForm.franchisor_id;
+                campaign.franchisee_id = campaignEditForm.franchisee_id;
+                if (campaignEditForm.visible_to == 'franchisee') {
+                    campaign.visible_to_franchisee_id = campaignEditForm.visible_to_franchisee_id;
+                    campaign.visible_to_franchisee_name = campaignEditForm.visible_to_franchisee_name;
+                }
+                campaign.visible_to = campaignEditForm.visible_to;
+                campaign.amount_spent = campaignEditForm.amount_spent;
+                campaign.leads_generated = campaignEditForm.leads_generated;
+                campaign.footfalls = campaignEditForm.footfalls;
+                campaign.campaign_duration = campaignEditForm.campaign_duration;
+                campaign.campaign_status = campaignEditForm.campaign_status;
+                // console.log(req.file, "143");
+                let files = req.files.createCampaignFiles;
+                // let camp_file = [];
+                if (undefined !== files && files.length != 0) {
+                    for (var i = 0; i < files.length; i++) {
 
-                    let c_file = {
-                        "campaign_file_attachment_file_url": files[i].location,
-                        "campaign_file_attachment_file_name": files[i].key,
-                        "campaign_file_attachment_file_type": files[i].contentType
+                        let c_file = {
+                            "campaign_file_attachment_file_url": files[i].location,
+                            "campaign_file_attachment_file_name": files[i].key,
+                            "campaign_file_attachment_file_type": files[i].contentType
+                        }
+                        campaign.campaign_files.push(c_file);
                     }
-                    campaign.campaign_files.push(c_file);
                 }
+                // campaign.campaign_files = camp_file;
+                console.log('camp', campaign);
+                campaign.save(function (err, campaign) {
+                    if (err) {
+                        console.log(err, 'campaign error/////////////////')
+                    }
+                    if (campaign) {
+                        res.send({
+                            state: "success",
+                            message: "Campaign updated.",
+                            data: campaign
+                        }, 200);
+                    }
+                    // var folder = new Folder();
+                    // Folder.findOne({ campaign_id: req.body.campaign_id }, (err, fold) => {
+                    //     console.log('++++++++++++++++----',fold);
+                    //     if (err) {
+                    //         console.log(err, 'error');
+                    //     }
+                    //     if (fold) {
+                    //     console.log('*****************+----',fold);
+                    //         createCampaignFiles = req.files.createCampaignFiles;
+                    //         console.log('campaignfiles///////////////////////', campaign.campaign_files);
+                    //         // for (i = 0; i < campaign.campaign_files.length; i++) {
+                    //         //     var library = new Library();
+                    //         //     library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
+                    //         //     library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
+                    //         //     library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
+                    //         //     if (library.key == "application/pdf") {
+                    //         //         library.image_type = "pdf";
+                    //         //     }
+                    //         //     if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
+                    //         //         library.image_type = "image";
+                    //         //     }
+                    //         //     library.date_uploaded = Date.now();
+                    //         //     library.folder_Id = fold._id;
+                    //         //     library.campaign_id = campaign._id;
+                    //         //     library.franchisee_Id = campaignEditForm.franchisee_id;
+                    //         //     library.save(function (err, library) {
+                    //         //         if(err) {
+                    //         //             console.log(err, 'errrrrrrorrororrorroro')
+                    //         //         }
+                    //         //         console.log('library++++++++++', library);
+                    //         //         res.send({
+                    //         //             state: "success",
+                    //         //             message: "Campaign updated.",
+                    //         //             data: campaign
+                    //         //         }, 200);
+                    //         //     });
+
+                    //         // }
+                    //     }
+                    //     if (!fold) {
+                    //         var folder = new Folder();
+                    //         folder.marketing_folder = true;
+                    //     folder.campaign_id = campaign._id;
+                    //     folder.franchisee_Id = campaignEditForm.franchisee_id;
+                    //     folder.franchisor_Id = campaignEditForm.franchisor_id;
+                    //     folder.folder_name = campaignEditForm.title;
+                    //     folder.save(function (err, folder) {
+                    //         if(err) {
+                    //             console.log(err, 'err1');
+                    //         }
+                    //         console.log("campaign folder created");
+                    //         console.log('folder----------------', folder);
+                    //         if (folder) {
+                    //             createCampaignFiles = req.files.createCampaignFiles;
+                    //             console.log('campaignfiles///////////////////////', campaign.campaign_files);
+                    //             for (i = 0; i < campaign.campaign_files.length; i++) {
+                    //                 var library = new Library();
+                    //                 library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
+                    //                 library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
+                    //                 library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
+                    //                 if (library.key == "application/pdf") {
+                    //                     library.image_type = "pdf";
+                    //                 }
+                    //                 if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
+                    //                     library.image_type = "image";
+                    //                 }
+                    //                 library.date_uploaded = Date.now();
+                    //                 library.folder_Id = folder._id;
+                    //                 library.campaign_id = campaign._id;
+                    //                 library.franchisee_Id = campaignEditForm.franchisee_id;
+                    //                 library.save(function (err, library) {
+                    //                     if(err) {
+                    //                         console.log(err, 'error2')
+                    //                     }
+                    //                     console.log('library++++++++++', library);
+                    //                     res.send({
+                    //                         state: "success",
+                    //                         message: "Campaign updated.",
+                    //                         data: campaign
+                    //                     }, 200);
+                    //                 });
+
+                    //             }
+
+                    //         }
+                    //     });
+                    //     }
+
+
+                    // })
+                    // if(err){
+                    //     res.send({
+                    //         state:"err",
+                    //         message:"Something went wrong."
+                    //     },500);
+                    // }
+                    {
+                        // console.log(campaign23);
+                        // campaign23.meta.campaign_id = campaign23._id;
+                        // campaign23.save(function(err,campaign24){
+                        //     console.log(campaign);
+
+                        // });
+                    }
+                });
             }
-            // campaign.campaign_files = camp_file;
-            console.log('camp', campaign);
-            campaign.save(function (err, campaign) {
-                if(err) {
-                    console.log(err, 'campaign error/////////////////')
-                }
-                if(campaign){
-                    res.send({
-                        state: "success",
-                        message: "Campaign updated.",
-                        data: campaign
-                    }, 200);
-                }
-                // var folder = new Folder();
-                // Folder.findOne({ campaign_id: req.body.campaign_id }, (err, fold) => {
-                //     console.log('++++++++++++++++----',fold);
-                //     if (err) {
-                //         console.log(err, 'error');
-                //     }
-                //     if (fold) {
-                //     console.log('*****************+----',fold);
-                //         createCampaignFiles = req.files.createCampaignFiles;
-                //         console.log('campaignfiles///////////////////////', campaign.campaign_files);
-                //         // for (i = 0; i < campaign.campaign_files.length; i++) {
-                //         //     var library = new Library();
-                //         //     library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
-                //         //     library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
-                //         //     library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
-                //         //     if (library.key == "application/pdf") {
-                //         //         library.image_type = "pdf";
-                //         //     }
-                //         //     if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
-                //         //         library.image_type = "image";
-                //         //     }
-                //         //     library.date_uploaded = Date.now();
-                //         //     library.folder_Id = fold._id;
-                //         //     library.campaign_id = campaign._id;
-                //         //     library.franchisee_Id = campaignEditForm.franchisee_id;
-                //         //     library.save(function (err, library) {
-                //         //         if(err) {
-                //         //             console.log(err, 'errrrrrrorrororrorroro')
-                //         //         }
-                //         //         console.log('library++++++++++', library);
-                //         //         res.send({
-                //         //             state: "success",
-                //         //             message: "Campaign updated.",
-                //         //             data: campaign
-                //         //         }, 200);
-                //         //     });
-    
-                //         // }
-                //     }
-                //     if (!fold) {
-                //         var folder = new Folder();
-                //         folder.marketing_folder = true;
-                //     folder.campaign_id = campaign._id;
-                //     folder.franchisee_Id = campaignEditForm.franchisee_id;
-                //     folder.franchisor_Id = campaignEditForm.franchisor_id;
-                //     folder.folder_name = campaignEditForm.title;
-                //     folder.save(function (err, folder) {
-                //         if(err) {
-                //             console.log(err, 'err1');
-                //         }
-                //         console.log("campaign folder created");
-                //         console.log('folder----------------', folder);
-                //         if (folder) {
-                //             createCampaignFiles = req.files.createCampaignFiles;
-                //             console.log('campaignfiles///////////////////////', campaign.campaign_files);
-                //             for (i = 0; i < campaign.campaign_files.length; i++) {
-                //                 var library = new Library();
-                //                 library.path = campaign.campaign_files[i].campaign_file_attachment_file_url;
-                //                 library.key = campaign.campaign_files[i].campaign_file_attachment_file_type;
-                //                 library.file_name = campaign.campaign_files[i].campaign_file_attachment_file_name;
-                //                 if (library.key == "application/pdf") {
-                //                     library.image_type = "pdf";
-                //                 }
-                //                 if (library.key == "image/png" || library.key == "image/jpg" || library.key == "image/jpeg" || library.key == "image/gif") {
-                //                     library.image_type = "image";
-                //                 }
-                //                 library.date_uploaded = Date.now();
-                //                 library.folder_Id = folder._id;
-                //                 library.campaign_id = campaign._id;
-                //                 library.franchisee_Id = campaignEditForm.franchisee_id;
-                //                 library.save(function (err, library) {
-                //                     if(err) {
-                //                         console.log(err, 'error2')
-                //                     }
-                //                     console.log('library++++++++++', library);
-                //                     res.send({
-                //                         state: "success",
-                //                         message: "Campaign updated.",
-                //                         data: campaign
-                //                     }, 200);
-                //                 });
-        
-                //             }
-        
-                //         }
-                //     });
-                //     }
-                    
-
-                // })
-                // if(err){
-                //     res.send({
-                //         state:"err",
-                //         message:"Something went wrong."
-                //     },500);
-                // }
-                {
-                    // console.log(campaign23);
-                    // campaign23.meta.campaign_id = campaign23._id;
-                    // campaign23.save(function(err,campaign24){
-                    //     console.log(campaign);
-
-                    // });
-                }
-            });
 
         }
         if (!campaign) {
@@ -373,7 +381,7 @@ router.put('/update_campaign', createCampaignFiles, function (req, res) {
     // }
 });
 
-router.delete('/delete_campaign_file/:id', function(req, res){
+router.delete('/delete_campaign_file/:id', function (req, res) {
     try {
         Library.findByIdAndRemove({ _id: req.params.id }, function (err, library) {
             if (err) {
@@ -403,7 +411,7 @@ router.delete('/delete_campaign_file/:id', function(req, res){
 //To get all campaign
 router.get('/get_all_campaigns/:franchisor_id', function (req, res) {
     try {
-        Campaign.find({franchisor_id:req.params.franchisor_id}, function (err, campaign) {
+        Campaign.find({ franchisor_id: req.params.franchisor_id }, function (err, campaign) {
             if (err) {
                 return res.send(500, err);
             }
@@ -434,7 +442,7 @@ router.get('/get_all_campaigns/:franchisor_id', function (req, res) {
 })
 router.get('/get_campaigns_by_franchisee/:franchisor_id/:franchisee_id', function (req, res) {
     try {
-        Campaign.find({ $or: [{franchisor_id:req.params.franchisor_id, franchisee_id: req.params.franchisee_id }, { visible_to: 'franchisee', visible_to_franchisee_id: { $elemMatch: { $eq: req.params.franchisee_id } } }, { visible_to: 'All', created_by: 'franchisor' }] }, function (err, campaigns) {
+        Campaign.find({ $or: [{ franchisor_id: req.params.franchisor_id, franchisee_id: req.params.franchisee_id }, { visible_to: 'franchisee', visible_to_franchisee_id: { $elemMatch: { $eq: req.params.franchisee_id } } }, { visible_to: 'All', created_by: 'franchisor' }] }, function (err, campaigns) {
             if (err) {
                 return res.send(500, err);
             }
@@ -724,7 +732,6 @@ router.put('/after_campaign_details', cpUpload, function (req, res) {
     console.log(req.body.campaign);
     // try{
     Campaign.findOne({ '_id': campaignDetails._id }, function (err, campaign) {
-        console.log(campaign);
         if (err) {
             return res.send({
                 state: "err",
@@ -732,34 +739,47 @@ router.put('/after_campaign_details', cpUpload, function (req, res) {
             }, 500);
         }
         if (campaign) {
-            campaign.amount_spent = campaignDetails.amount_spent;
-            campaign.leads_generated = campaignDetails.leads_generated;
-            campaign.footfalls = campaignDetails.footfalls;
-            campaign.campaign_duration = campaignDetails.campaign_duration;
-            campaign.campaign_status = campaignDetails.campaign_status;
-            campaign.franchisor_id = campaignDetails.franchisor_id;
-            campaign.franchisee_id = campaignDetails.franchisee_id;
-            campaign.franchisee_feedback = campaignDetails.franchisee_feedback;
-            campaign.franchisor_feedback= campaignDetails.franchisor_feedback;
-
-            console.log(req.file, '492');
-            if (req.file) {
-                console.log(req.file, '492');
-                campaign.after_campaign_file_attachment_file_url = req.file.location;
-                campaign.after_campaign_file_attachment_file_name = req.file.key;
-                campaign.after_campaign_file_attachment_file_type = req.file.contentType;
+            if (campaignDetails.amount_spent > Number(campaignDetails.budget)) {
+                return res.send({
+                    state: "failure",
+                    message: "Amount spent is greater than the allocated budget."
+                }, 201);
             }
-            campaign.save(function (err, campaign) {
-                {
+            if (Number(campaignDetails.leads_generated) > Number(campaignDetails.footfalls)) {
+                return res.send({
+                    state: "failure",
+                    message: "Leads generated are more than number of footfalls"
+                }, 201);
+            }
+            else {
+                campaign.amount_spent = campaignDetails.amount_spent;
+                campaign.leads_generated = campaignDetails.leads_generated;
+                campaign.footfalls = campaignDetails.footfalls;
+                campaign.campaign_duration = campaignDetails.campaign_duration;
+                campaign.campaign_status = campaignDetails.campaign_status;
+                campaign.franchisor_id = campaignDetails.franchisor_id;
+                campaign.franchisee_id = campaignDetails.franchisee_id;
+                campaign.franchisee_feedback = campaignDetails.franchisee_feedback;
+                campaign.franchisor_feedback = campaignDetails.franchisor_feedback;
 
-                    res.send({
-                        state: "success",
-                        message: "Campaign updated.",
-                        data: campaign
-                    }, 200);
+                console.log(req.file, '492');
+                if (req.file) {
+                    console.log(req.file, '492');
+                    campaign.after_campaign_file_attachment_file_url = req.file.location;
+                    campaign.after_campaign_file_attachment_file_name = req.file.key;
+                    campaign.after_campaign_file_attachment_file_type = req.file.contentType;
                 }
-            });
+                campaign.save(function (err, campaign) {
+                    {
 
+                        res.send({
+                            state: "success",
+                            message: "Campaign updated.",
+                            data: campaign
+                        }, 200);
+                    }
+                });
+            }
         }
         if (!campaign) {
             res.send({

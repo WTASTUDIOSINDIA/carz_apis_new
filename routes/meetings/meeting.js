@@ -437,6 +437,32 @@ function send_notifications(notification_type, data, iofromp) {
     }
     else if (data.notification_type === 'discussion_question_uploaded') {
         notific.notification_type = 'Discussion';
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created a question";
+        }
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created a question";
+        }
+    }
+    else if (data.notification_type === 'campaign_created') {
+        notific.notification_type = 'Campaign';
+        if (data.notification_to === 'franchisor') {
+            notific.notification_title = data.franchisee_name + " has created campaign " + data.title
+        }
+        if (data.notification_to === 'franchisee') {
+            notific.notification_title = data.franchisor_name + " has created campaign " + data.title
+        }
+    }
+    else if (data.notification_type === 'franchisee_campaign_updated') {
+        notific.notification_type = 'Campaign',
+        notific.notification_title = data.franchisee_name + " has completed the campaign " + data.title
+    }
+    else if (data.notification_type === 'franchisor_campaign_updated') {
+        notific.notification_type = 'Campaign',
+        notific.notification_title =  "You have completed the campaign " + data.title
+    }
+    else if (data.notification_type === 'checklist_task') {
+        notific.notification_type = 'Checklist';
         if (data.status == true) {
             if (data.notification_to === 'franchisee') {
                 notific.notification_title = "Congrats, you have successfully completed the checklist tasks for today.";
@@ -452,25 +478,6 @@ function send_notifications(notification_type, data, iofromp) {
             if (data.notification_to === 'franchisor') {
                 notific.notification_title = data.franchisee_name + " has not completed the checklist tasks for today.";
             }
-        }
-    }
-    else if (data.notification_type === 'campaign_created') {
-        console.log('vamshi');
-        notific.notification_type = 'Campaign';
-        if (data.notification_to === 'franchisor') {
-            notific.notification_title = data.franchisee_name + " has created campaign " + data.title
-        }
-        if (data.notification_to === 'franchisee') {
-            notific.notification_title = data.franchisor_name + " has created campaign " + data.title
-        }
-    }
-    else if (data.notification_type === 'checklist_task') {
-        notific.notification_type = 'Checklist';
-        if (data.notification_to === 'franchisee') {
-            notific.notification_title = data.franchisor_name + " has created a question";
-        }
-        if (data.notification_to === 'franchisor') {
-            notific.notification_title = data.franchisee_name + " has created a question";
         }
     }
     notific.save(function (err, application) {
