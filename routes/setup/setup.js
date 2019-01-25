@@ -1099,32 +1099,65 @@ router.put('/edit_version', function (req, res) {
           message: err
         }, 500);
       }
-      if (version) {
+      if (!version) {
         return res.send({
           state: "failure",
           message: "This version already exists!"
         }, 200);
       }
-      if (!version) {
-
-        let data = {};
-
-        data.version_name = req.body.version_name;
-        data.version_description = req.body.version_description;
-        data.version_type = req.body.version_type;
-        data.franchisor_id = req.body.franchisor_id;
-        data.default = req.body.default;
+      if (version) {
+        // let data = {};
+        version.version_name = req.body.version_name;
+        version.version_description = req.body.version_description;
+        version.version_type = req.body.version_type;
+        version.franchisor_id = req.body.franchisor_id;
+        version.default = req.body.default;
         console.log("----" + version);
 
-        Versions.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, ver) {
-          if (ver) {
-            return res.send({
-              state: "success",
-              message: "Version updated succssfully!"
-            }, 200);
-          }
+        // Versions.findByIdAndUpdate(req.body._id, data, { new: true }, function (err, ver) {
+        //   if (ver) {
+        //     return res.send({
+        //       state: "success",
+        //       message: "Version updated succssfully!"
+        //     }, 200);
+        //   }
+        // })
+        version.save(function(err, version){
+          res.send({
+            state:"success",
+            message:"Version updated."
+          },200);
         })
 
+      }
+      else{
+        Versions.find({version_name: {$regex: new RegExp(req.body.version_name, 'i')}}, function (err, ver_name){
+          if(err){
+            return res.send({
+              state:"failure",
+              message:"Something went wrong. We are looking into it."
+            },500);
+          }
+          if(ver_name.length !=0){
+            res.send({
+              state:'failure',
+              message:'Name already exists'
+            },201);
+          }
+          else{
+            data.version_name = req.body.version_name;
+            data.version_description = req.body.version_description;
+            data.version_type = req.body.version_type;
+            data.franchisor_id = req.body.franchisor_id;
+            data.default = req.body.default;
+            data.save(function(err, data){
+              res.send({
+                state:'success',
+                message:'Version updated'
+              },200)
+            })
+          }
+        })
       }
 
     })
