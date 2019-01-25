@@ -276,7 +276,7 @@ const sendEmployeeCreatedAssessment = (mobile) => {
 const sendMailOTP = (otp, mail) => {
     mailOptions.to = mail;
     mailOptions.subject = 'OTP - Carz';
-    mailOptions.html = otp + ' is your One Time Password . Please enter OTP.';
+    mailOptions.html = otp + ' is your OTP for your forgot password.';
 
     transporter.sendMail(mailOptions, function (error, response) {
         if (error) {
