@@ -447,7 +447,12 @@ function send_notifications(notification_type, data, iofromp) {
     else if (data.notification_type === 'campaign_created') {
         notific.notification_type = 'Campaign';
         if (data.notification_to === 'franchisor') {
-            notific.notification_title = data.franchisee_name + " has created campaign " + data.title
+            if (data.created_by && data.created_by === 'franchisor') {
+                notific.notification_title = "You have created campaign " + data.title
+            }
+            else{
+                notific.notification_title = data.franchisee_name + " has created campaign " + data.title
+            }
         }
         if (data.notification_to === 'franchisee') {
             notific.notification_title = data.franchisor_name + " has created campaign " + data.title
