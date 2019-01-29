@@ -30,7 +30,9 @@ router.post('/create_version', utils.authenticated, function (req, res) {
         version.franchisor_id = req.body.franchisor_id;
         version.bussiness_type_id = req.body.bussiness_type_id;
         version.released_on = new Date();
-        version.default = req.body.default;
+        if (req.body.default !== "") {
+          version.default = req.body.default;
+        }
         version.save(function (err, version) {
           if (err) {
             console.log(err, 'Create version error');

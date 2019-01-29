@@ -332,7 +332,7 @@ var CampaignSchema = new mongoose.Schema({
 
     'visible_to': String,
     'visible_to_franchisee_id': Array,
-    'visible_to_franchisee_name': Array,
+        'visible_to_franchisee_name': Array,
     'amount_spent': String,
     'franchisee_feedback': String,
     'franchisor_feedback': String,
