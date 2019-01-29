@@ -235,16 +235,16 @@ router.put('/update_user', function (req, res, next) {
           let imageKey = "user_img/img_" + moment().unix();
           if (userEditForm.user_img) {
             utils.uploadToS3(imageKey, fileExt, userEditForm.user_img);
-            delete userEditForm.user_img;
           }
           userEditForm.prof_pic_org_url = utils.awsFileUrl() + imageKey + "." + fileExt;
           userEditForm.user_profile_pic = userEditForm.prof_pic_org_url;
 
-        } else {
+        } 
+        else {
           userEditForm.user_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
         }
       } else {
-        userEditForm.user_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
+        // userEditForm.user_profile_pic = utils.awsFileUrl() + "franchisee_img/fallout.png";
       }
 
       user.user_name = userEditForm.user_name;

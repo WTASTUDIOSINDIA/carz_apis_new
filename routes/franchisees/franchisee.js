@@ -3332,6 +3332,7 @@ router.post('/import_franchisee', function (req, res) {
 
 
                                 var franchisee = new Franchisee();
+                                franchisee.franchisor_id = franchiseeMultipleForm[i].franchisor_id;
                                 franchisee.franchisee_name = franchiseeMultipleForm[i].franchisee_name;
                                 franchisee.franchisee_address = franchiseeMultipleForm[i].franchisee_address;
                                 franchisee.franchisee_city = franchiseeMultipleForm[i].franchisee_city;
@@ -3400,6 +3401,7 @@ router.post('/import_franchisee', function (req, res) {
                                         partner.main_partner = true;
                                         partner.bussiness_type_id = franchisee.bussiness_type_id;
                                         partner.franchisee_id = franchisee._id;
+                                        partner.franchisor_id = franchisee.franchisor_id;
                                         partner.partner_profile_pic = franchisee.franchisee_profile_pic
                                         partner.save(function (err, partner) {
                                             if (err) {
