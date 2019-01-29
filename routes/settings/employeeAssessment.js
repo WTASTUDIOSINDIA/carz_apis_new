@@ -928,7 +928,7 @@ router.put('/submit_employee_assessmnent', function (req, res) {
                                             // },500)
                                         }
                                         if (data) {
-                                            console.log(data), 'data803';
+                                            console.log(data, 'data803---------------------');
                                             mailSend(data.employee_email);
                                         }
                                     })
