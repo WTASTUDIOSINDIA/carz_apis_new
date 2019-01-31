@@ -118,14 +118,25 @@ const mailOptions = {
     }
 }
 
+// const transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     secure: false, // use SSL
+//     port: 25, // port for secure SMTP
+//     auth: {
+//         user: 'carzdev@gmail.com',
+//         pass: 'Carz@123'
+//     }
+// });
+
 const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    secure: false, // use SSL
-    port: 25, // port for secure SMTP
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: 'carzdev@gmail.com',
-        pass: 'Carz@123'
-    }
+        pass: 'Carz@123',
+    },
 });
 
 const send_mail = (data) => {
@@ -226,12 +237,16 @@ const send_franchisor_change_mail_to_new = (data) => {
 }
 
 const sendMobileOTP = (otp, mobile) => {
-    console.log(otp);
-    console.log(mobile);
+    console.log(otp,'otp');
+    console.log(mobile,'mobile');
     msg91.send(mobile, "" + otp + " is your One Time Password . Please enter OTP .", function (err, response) {
+        if(err){
         console.log(err);
+        }
+        if(response){
+            console.log(response, 'response');
+        }
     });
-
 };
 
 const sendMobileOTPForUserManagement = (mobile) => {

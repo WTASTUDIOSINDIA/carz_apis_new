@@ -556,10 +556,8 @@ router.post('/franchisor-login', function (req,res){
   })
 
   router.post('/resendotp', function (req,res){
-    console.log('--------------------',req.body);
     let data = req.body;
     if(data.user_mail) {
-        console.log('++++++++++++++++++++++++++///',data.user_mail);
         authService.findSuperAdmin({user_mail: data.user_mail}, '')
       .then((response) => {
         if(response){
