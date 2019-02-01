@@ -168,6 +168,10 @@ const send_mail = (data) => {
            console.log(body)
         }
     });
+
+    // mailgun.messages().send(mailOptions, function (error, body) {
+    //     console.log(body);
+    //     });
 }
 
 const send_notification_mail = (data) => {
