@@ -1813,6 +1813,18 @@ router.post('/create_franchisee', utils.authenticated, function (req, res) {
         });
     }
 });
+
+// OTP test
+router.post('/send_otp_mail', (req, res) => {
+    data = {
+        user_mail: req.body.user_mail,
+        subject: req.body.subject,
+        html: req.body.html
+    }
+    utils.send_mail(data)
+    return res.json('success');
+})
+
 //Creating kyc table for the frachisee
 function kyc_Upload(req, res, partner, franchisee, franchiseeForm) {
 
