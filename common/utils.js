@@ -9,7 +9,7 @@ var mongoose = require('mongoose');
 var Notification = mongoose.model('Notification');
 var DOMAIN = 'muzicfez.com'
 var api_key = 'f8c2cc7f0ea0cb32c4db54be747ae6b4-9525e19d-0ec130ed';
-var mailgun = require('mailgun-js')({apiKey: api_key, domain: DOMAIN});
+var mailgun = require('mailgun-js')({ apiKey: api_key, domain: DOMAIN });
 // import AWS from "aws-sdk";
 aws.config.loadFromPath('./config.json');
 aws.config.update({
@@ -161,28 +161,34 @@ const send_mail = (data) => {
 
     mailgun.messages().send(mailOptions, function (error, body) {
         console.log(body);
-        });
+        if (error) {
+            res.json(500, error)
+        }
+        if (body) {
+           console.log(body)
+        }
+    });
 }
 
 const send_notification_mail = (data) => {
 
-   
-        mailOptions.subject = "Campaign Notification";
-    
-        mailOptions.html = "You didn't update the campaign, Please update it!";
-    
 
-        data.forEach(function (to) {
-            mailOptions.to = to;
-            transporter.sendMail(mailOptions, function (error, response) {
-                if (error) {
-                    console.log(error);
-                }
-                else {
-                    console.log(response);
-                }
-            });
-        })
+    mailOptions.subject = "Campaign Notification";
+
+    mailOptions.html = "You didn't update the campaign, Please update it!";
+
+
+    data.forEach(function (to) {
+        mailOptions.to = to;
+        transporter.sendMail(mailOptions, function (error, response) {
+            if (error) {
+                console.log(error);
+            }
+            else {
+                console.log(response);
+            }
+        });
+    })
 }
 
 
@@ -235,13 +241,13 @@ const send_franchisor_change_mail_to_new = (data) => {
 }
 
 const sendMobileOTP = (otp, mobile) => {
-    console.log(otp,'otp');
-    console.log(mobile,'mobile');
+    console.log(otp, 'otp');
+    console.log(mobile, 'mobile');
     msg91.send(mobile, "" + otp + " is your One Time Password . Please enter OTP .", function (err, response) {
-        if(err){
-        console.log(err);
+        if (err) {
+            console.log(err);
         }
-        if(response){
+        if (response) {
             console.log(response, 'response');
         }
     });
