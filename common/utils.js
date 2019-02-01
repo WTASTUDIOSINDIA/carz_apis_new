@@ -157,11 +157,19 @@ const send_mail = (data) => {
     else {
         mailOptions.html = 'File rejected.';
     }
+    
+    transporter.sendMail(mailOptions, function (error, response) {
+        if (error) {
+            console.log(error);
+        }
+        else {
+            console.log(response);
+        }
+    });
 
-
-    mailgun.messages().send(mailOptions, function (error, body) {
-        console.log(body);
-        });
+    // mailgun.messages().send(mailOptions, function (error, body) {
+    //     console.log(body);
+    //     });
 }
 
 const send_notification_mail = (data) => {
