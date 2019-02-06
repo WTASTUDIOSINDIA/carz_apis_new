@@ -240,6 +240,14 @@ router.post('/question_list',function(req,res){
                 question.franchisor_id = req.body.franchisor_id;
                 question.question_type = req.body.question_type;
                 question.question_section_id = req.body.question_section_id;
+                Versions.findById({ _id: req.body.version_id }, (err, version) => {
+                    if (err) {
+                        return res.json(500, err)
+                    }
+                    if (version) {
+                        question.version_name = version.version_name
+                    }
+                });
                 question.save(function(err,question){
                     if(err){
                         return res.send({
