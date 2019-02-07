@@ -67,18 +67,26 @@ router.post('/application_form', utils.authenticated, function (req, res) {
         application.question_type = applicationForm.question_type;
         application.options = applicationForm.options;
         application.isRequire = applicationForm.isRequire,
-          application.save(function (err, application) {
+          Versions.findById({ _id: req.body.version_id }, (err, version) => {
             if (err) {
-              return res.send({
-                state: "error",
-                message: err
-              }, 500);
-            } else {
-              return res.send({
-                state: "success",
-                message: "Application created",
-                data: application
-              }, 200);
+              return res.json(500, err)
+            }
+            if (version) {
+              application.version_name = version.version_name,
+                application.save(function (err, application) {
+                  if (err) {
+                    return res.send({
+                      state: "error",
+                      message: err
+                    }, 500);
+                  } else {
+                    return res.send({
+                      state: "success",
+                      message: "Application created",
+                      data: application
+                    }, 200);
+                  }
+                })
             }
           })
       }
