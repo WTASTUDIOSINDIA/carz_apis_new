@@ -2983,10 +2983,6 @@ router.put('/update_stage', function (req, res) {
                 stage_Completed = 1;
                 stage.stage_assessment.status = true;
                 stage.stage_assessment.franchisee_id = req.body.franchisee_id;
-            }
-            if (req.body.stage_name == 'setup') {
-                stage_Completed = 1;
-                stage.stage_setup.status = true;
                 Franchisee.findOneAndUpdate({ franchisee_id: req.body.franchisee_id }, { $set: { lead_type: 'Franchisees' } }, { new: true }, function (err, franchisee) {
                     if (err) {
                         console.log("err", err);
@@ -2996,6 +2992,19 @@ router.put('/update_stage', function (req, res) {
 
                     }
                 })
+            }
+            if (req.body.stage_name == 'setup') {
+                stage_Completed = 1;
+                stage.stage_setup.status = true;
+                // Franchisee.findOneAndUpdate({ franchisee_id: req.body.franchisee_id }, { $set: { lead_type: 'Franchisees' } }, { new: true }, function (err, franchisee) {
+                //     if (err) {
+                //         console.log("err", err);
+                //     }
+                //     if (franchisee) {
+                //         console.log("franchisee----", franchisee);
+
+                //     }
+                // })
             }
 
             stage.save(function (err, stage) {
@@ -3210,7 +3219,6 @@ async function upload_folder_file(req, res, obj, status, folder_Id, franchisee_I
                 console.log(library._id, "1189");
                 Stages.findOne({ franchisee_id: franchisee_Id }, function (err, stage) {
                     //payment, nda, aggrement, aggrement_Copy
-                    console.log(sub_stage_name, '1976666666');
                     if (sub_stage_name == 'payment') {
                         stage.stage_discussion.first_payment_library_file_id = library._id;
                     }
