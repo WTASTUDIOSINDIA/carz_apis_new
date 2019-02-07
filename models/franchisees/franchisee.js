@@ -259,6 +259,7 @@ var QuestionTypeSchema = new mongoose.Schema({
     'question_type_name': String,
     'description': String,
     'version_id': String,
+    'version_name': String,
     'franchisor_id': { type: Schema.Types.ObjectId, ref: 'Franchisor' }
 });
 
