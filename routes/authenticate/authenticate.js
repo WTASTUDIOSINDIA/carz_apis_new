@@ -20,6 +20,8 @@ var createHash = function(password){
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
 
+
+
 module.exports = function(passport){
     //sends successful login state back to angular
     router.get('/success-franchisor', function(req, res){
@@ -43,7 +45,10 @@ module.exports = function(passport){
     });
     //sends successful login state back to angular
 
-
+router.get('/check_otp',function(req,res){
+    console.log("-----------");
+    utils.sendMobileOTPCh(090909,8008325275);
+})
 
 
 

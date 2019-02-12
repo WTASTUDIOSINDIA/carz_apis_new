@@ -21,7 +21,8 @@ var config = common.config();
 
 var bucketName = 'carzdev';
 var otpGenerator = require('otp-generator');
-var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4");
+// var msg91 = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "4");
+const msg91 = require("msg91")("247281A60cuusC5bebb22b", "HEALTH", "4" ); 
 var msg91PromotionalSms = require("msg91")("228925AIFyHVr65b5edfae", "WTASTUDIOS", "1");
 var bucketName = 'carzdev';
 
@@ -261,6 +262,13 @@ const sendMobileOTP = (otp, mobile) => {
     });
 };
 
+const sendMobileOTPCh = (otp, mobile) => {
+console.log(otp,mobile);
+msg91.send(mobile, "" + otp + " is your One Time Password . Please enter OTP .", function (err, response) {
+    console.log(response);
+});
+}
+
 const sendMobileOTPForUserManagement = (mobile) => {
     console.log(mobile);
     msg91PromotionalSms.send(mobile, "Your account has been created by the franchisor. Please check your email for login details." + " CarZ.", function (err, response) {
@@ -428,5 +436,6 @@ module.exports = {
     sendMobileOTPForUserManagement,
     messages,
     send_notification_mail,
-    sendEmployeeCreatedAssessment
+    sendEmployeeCreatedAssessment,
+    sendMobileOTPCh
 };

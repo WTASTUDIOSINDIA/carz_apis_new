@@ -90,7 +90,6 @@ if(curr != 0){
           auditService.findNonWorkList(nonworking_query)
           .then((resp) => {
             if(resp){
-             console.log("Non working day");
             }else{
               auditService.findFranchiseeTasksByDaily(query)
               .then((response) => {
@@ -181,11 +180,9 @@ schedule.scheduleJob(day_rule, function(req,res){
           .then((response) => {
             if(response){
                 if(response.length == 0){
-                  console.log("email");
                   Utils.send_mail(element);
                 }
               }else{
-                  console.log("email");
                   Utils.send_mail(element);
               }
             })
@@ -233,11 +230,10 @@ schedule.scheduleJob(week_rule, function(req,res){
           .then((response) => {
             if(response){
                 if(response.length == 0){
-                  console.log("email");
+                  
                   Utils.send_mail(element);
                 }
               }else{
-                  console.log("email");
                   Utils.send_mail(element);
               }
             })
@@ -285,11 +281,11 @@ schedule.scheduleJob(month_rule, function(req,res){
           .then((response) => {
             if(response){
                 if(response.length == 0){
-                  console.log("email");
+                  
                   Utils.send_mail(element);
                 }
               }else{
-                  console.log("email");
+                
                   Utils.send_mail(element);
               }
             })
@@ -419,10 +415,10 @@ router.post('/get_checklist', function (req,res){
             let data_list = [];
             
             if(data.checklist_type == "Daily"){
-              console.log(nonworking_query);
+              
               auditService.findNonWorkList(nonworking_query)
               .then((resp) => {
-                console.log(resp);
+                
                 if(resp){
                   data_list.push({non_working_day:resp.status,checklist_data:response})
                 res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
@@ -436,7 +432,7 @@ router.post('/get_checklist', function (req,res){
               });
 
             }else{
-              console.log()
+              
               data_list.push({non_working_day:"false",checklist_data:response})
               res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
             }
@@ -460,7 +456,6 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
   
   var not_act = false;
   if(data.task_id && data.franchisee_id  && data.checklist_type && data.checklist_id){
-    console.log(req.file);
     if(req.file){
     data["file_name"] = req.file.originalname;
     data["file_url"] = req.file.location;
@@ -489,8 +484,9 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
         query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gte: new Date(from_date),$lte: new Date(to_date) }}]};
         //query.task_id = task_id; 
         }else{
-          not_act = true;
-          res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+          // not_act = true;
+          // res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+          query = {$and: [{task_id:task_id,checklist_type:data.checklist_type,franchisee_id :franchisee_id,created_on:{ $gte: new Date(from_date),$lte: new Date(to_date) }}]};
         }
        
       }else{
@@ -513,8 +509,9 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
           query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
           //query.task_id = task_id; 
           }else{
-            not_act = true;
-            res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+            // not_act = true;
+            // res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+            query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
           }
 
       }else{
@@ -576,8 +573,9 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
 
             query = {checklist_type:data.checklist_type,franchisee_id:objectId(data.franchisee_id), created_on:{ $gte: new Date(from_date),$lte: new Date(to_date)  }};
           }else{
-            not_act = true;
-            res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+            // not_act = true;
+            // res.status(203).json({error:'2',message:"You can not complete this task right now!"});
+            query = {$and: [{task_id:task_id,franchisee_id :franchisee_id,created_on:{ $gte: new Date(firstday),$lte: new Date(lastday)}}]};
           }
 
       }else{
@@ -628,7 +626,7 @@ router.post('/save_franchisee_audit_task',upload.single('file'), function (req,r
                 if(resp.audit_file_upload_required == true && req.file){
                   res.status(203).json({ error: "2", message: "File upload is mandetory for this task"});
                 }else if(resp.audit_task_type == 'Radio Button' && !req.body.task_data.radio_option_answer){
-                  console.log(req, "631 list of request data");
+                  
                   res.status(203).json({ error: "2", message: "Please select the radio option before submitting!"});
                 }
                 else {
@@ -826,10 +824,10 @@ router.post('/get_tasks_at_checklist_id', function (req,res){
           let data_list=[];
           //res.status(200).json({ error: "0", message: "Succesfully fetched", data: response});
           if(data.checklist_type == "Daily"){
-            console.log(nonworking_query);
+            
             auditService.findNonWorkList(nonworking_query)
             .then((resp) => {
-              console.log(resp);
+              
               if(resp){
                 data_list.push({non_working_day:resp.status,tasklist_data:response})
               res.status(200).json({ error: "0", message: "Succesfully fetched", data: data_list});
@@ -1005,7 +1003,7 @@ router.post('/get_calender_list', function (req,res){
                 }else{
                 auditService.findNonWorkList(non_working_day_query)
                 .then((r) => {
-                  console.log(r);
+                  
                   if(r){
                     day_list.push({"date":new Date(to_date),"total_tasks":response.length,"completed_tasks":resp.length,"non_working_day":r.status});
                   }else{
