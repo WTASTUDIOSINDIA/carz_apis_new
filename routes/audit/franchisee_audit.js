@@ -1147,4 +1147,57 @@ function daysInMonth(month,year) {
   return new Date(year, month, 0).getDate();
 }
 
+router.get('/get_total_tasks', function (req,res){
+ let total_tasks ={
+   "daily" : 0,
+   "weekly" : 0,
+   "monthly" : 0
+ }
+  auditService.totalTasks()
+
+      .then((response) => {
+        if(response){
+          // response.data.forEach((element) =>{
+          //   console.log(element);
+          //   // if(element._id.key.toLowerCase() == "daily"){
+          //   //   total_tasks['daily'] = element.count;
+          //   // }
+          //   // if(element._id.key.toLowerCase() == "weekly"){
+          //   //   total_tasks['weekly'] = element.count;
+          //   // }
+          //   // if(element._id.key.toLowerCase() == "monthly"){
+          //   //   total_tasks['monthly'] = element.count;
+          //   // }
+          // })
+          res.status(201).json({ error: "0", message: "Successfully fetched", data: response});
+        }else{
+          res.status(404).json({ error: "1", message: "Error in fetching"});
+        }
+        
+      })
+      .catch((error) => {
+        res.status(500).json({ error: "4", message: "Internal server error"});
+      });
+    
+  })
+
+router.post('/get_completed_tasks', function (req,res){
+  
+  let data = req.body;
+  data.franchisee_id = objectId(data.franchisee_id);
+  auditService.completedTasks()
+      .then((response) => {
+        if(response){
+          res.status(201).json({ error: "0", message: "Successfully fetched", data: response});
+        }else{
+          res.status(404).json({ error: "1", message: "Error in fetching"});
+        }
+        
+      })
+      .catch((error) => {
+        res.status(500).json({ error: "4", message: "Internal server error"});
+      });
+
+  })
+
 module.exports = router;

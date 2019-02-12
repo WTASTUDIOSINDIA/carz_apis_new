@@ -194,6 +194,38 @@ const updateNonWorkingDay = (query, data) => {
   return NonWorkingDay.findOneAndUpdate(query, data, { new: true }).exec();
 }
 
+const totalTasks = () => {
+  return AuditTask.aggregate([
+    { $match: {
+     
+  } },
+  
+  { $group: { 
+    "_id": {       
+      "key": "$checklist_type",
+    },
+   "count": { "$sum": 1 }
+  }}
+
+  ]).exec();
+}
+
+const completedTasks = () => {
+  return FranchiseeAuditTask.aggregate([
+    { $match: {
+     
+  } },
+  
+  { $group: { 
+    "_id": {       
+      "key": "$checklist_type",
+    },
+   "count": { "$sum": 1 }
+  }}
+
+  ]).exec();
+}
+
 module.exports = {
   findOne,
   findUser,
@@ -212,5 +244,7 @@ module.exports = {
   findCalenderList,
   findTasksList,
   findNonWorkList,
-  findOneTaskById
+  findOneTaskById,
+  totalTasks,
+  completedTasks
 };
