@@ -196,7 +196,7 @@ app.use('/franchisee_audit', franchisee_audit);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {
-    //res.sendFile('public/index.html', { root: __dirname });
+    res.sendFile('public/index.html', { root: __dirname });
 });
 
 // catch 404 and forward to error handler
