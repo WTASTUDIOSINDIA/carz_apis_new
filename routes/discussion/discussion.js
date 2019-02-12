@@ -7,8 +7,9 @@ var Franchisee = mongoose.model('Franchisee');
 // var DiscussionQuestion = mongoose.model('DiscussionQuestion');
 var DiscussionQuestion = mongoose.model('DiscussionQuestion');
 var io = require('socket.io')(http);
-var http = require ('http').Server(app);
+var http = require('http').Server(app);
 var app = express();
+var utils = require('../../common/utils');
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
@@ -20,7 +21,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage: multerS3({
         s3: s0,
-        bucket: 'celebappfiles',
+        bucket: 'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -34,40 +35,45 @@ var upload = multer({
 
 router.post('/create_discussion_question', upload.single('discussion_question_img'), function (req, res) {
     var discussinQuestionForm = JSON.parse(req.body.discussionquestion);
-    console.log('34',req.body.discussionquestion);
+    console.log('34', req.body.discussionquestion, typeof(req.body.discussionquestion), 'typeoflfjsal;fskfsad');
     try {
-        DiscussionQuestion.find({}, function (err, discussionquestion) {
-            console.log('37',discussionquestion);
+        // DiscussionQuestion.findOne({'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}}, function (err, discussionquestion) {
+            DiscussionQuestion.findOne({'franchisor_id': discussinQuestionForm.franchisor_id,'discussion_question': {$regex: new RegExp(discussinQuestionForm.discussion_question,'i')}, "status": "1"},function(err,discussionquestion){
+            console.log(discussionquestion,'+++++++++++++++++++++++')
             if (err) {
                 res.send({
                     state: "failure",
                     message: "Something went wrong."
                 }, 500);
             }
-            // if (discussionquestion) {
-            //     res.send({
-            //         state: "failure",
-            //         message: "This question already exists."
-            //     }, 400);
-            // }
-            else {
-                discussionquestion = new DiscussionQuestion();
-                discussionquestion.discussion_question = discussinQuestionForm.discussion_question;
-                discussionquestion.created_by = discussinQuestionForm.created_by;
-                discussionquestion.created_at = discussinQuestionForm.created_at;
-                discussionquestion.user_id = discussinQuestionForm.user_id;
-                discussionquestion.franchisee_name = discussinQuestionForm.franchisee_name;
-                discussionquestion.user_name = discussinQuestionForm.user_name;
-                discussionquestion.franchisee_address = discussinQuestionForm.franchisee_address;
-                discussionquestion.franchisee_profic_pic = discussinQuestionForm.franchisee_profile_pic;
+            if (discussionquestion) {
+                res.send({
+                    state: "failure",
+                    message: "This question already exists."
+                }, 201);
+            }
+            if(!discussionquestion) {
+                dquestion = new DiscussionQuestion();
+                dquestion.discussion_question = discussinQuestionForm.discussion_question;
+                dquestion.created_by = discussinQuestionForm.created_by;
+                dquestion.created_at = new Date();
+                dquestion.user_id = discussinQuestionForm.user_id;
+                dquestion.franchisee_name = discussinQuestionForm.franchisee_name;
+                dquestion.user_name = discussinQuestionForm.user_name;
+                dquestion.franchisee_address = discussinQuestionForm.franchisee_address;
+                dquestion.user_profile_pic = discussinQuestionForm.user_profile_pic;
+                dquestion.created_by_role = discussinQuestionForm.created_by_role;
+                dquestion.franchisor_id = discussinQuestionForm.franchisor_id;
+                dquestion.franchisee_id = discussinQuestionForm.franchisee_id;
                 if (req.file) {
                     console.log(req.file);
                     var discussion_question_img = {};
-                    discussionquestion.franchisor_question_file_attachment_file_url = req.file.location;
-                    discussionquestion.franchisor_question_file_attachment_file_name = req.file.key;
-                    discussionquestion.franchisor_question_file_attachment_file_type = req.file.contentType;
+                    dquestion.franchisor_question_file_attachment_file_url = req.file.location;
+                    dquestion.franchisor_question_file_attachment_file_name = req.file.key;
+                    dquestion.franchisor_question_file_attachment_file_type = req.file.contentType;
                 }
-                discussionquestion.save(function (err, discussionquestion) {
+                dquestion.save(function (err, discussques) {
+                console.log('*******', discussques);
                     if (err) {
                         res.send({
                             state: "failure",
@@ -78,7 +84,7 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
                         res.send({
                             state: "success",
                             message: "Question created successfully",
-                            data:discussionquestion
+                            data: discussques
                         }, 200);
                     }
                 });
@@ -94,12 +100,12 @@ router.post('/create_discussion_question', upload.single('discussion_question_im
 })
 
 //Get question by question id
-router.get('/get_discussion_question/:question_id', function (req, res) {
+router.get('/get_discussion_question/:question_id/:franchisor_id', function (req, res) {
     try {
-        DiscussionQuestion.find({ _id: req.params.question_id }, function (err, discussionquestion) {
+        DiscussionQuestion.find({ _id: req.params.question_id,franchisor_id:req.params.franchisor_id }, function (err, discussionquestion) {
             if (err) {
                 return res.send(500, err);
-              }
+            }
             else {
                 res.send({
                     state: "success",
@@ -116,14 +122,53 @@ router.get('/get_discussion_question/:question_id', function (req, res) {
     }
 })
 
+//
+router.put('/delete_discussion_question',  function(req, res){
+    try{
+        DiscussionQuestion.findOne({_id: req.body.question_data._id}, function(err, question){
+            if(err){
+                return res.send({
+                    state: "failure",
+                    message: error
+                })
+            }
+            if(question){
+                console.log(question);
+                console.log(question, "134");                
+                console.log(req.body.comment, "133 data from request");
+                console.log(question.discussion_comments, "134");
+                // var index = question.discussion_comments.indexOf(req.body.comment);
+                // console.log(index, "134");
+                // if(index != -1){
+                //     question.discussion_comments.splice(index, 1);
+                // }
+                question.discussion_comments = req.body.question_data.discussion_comments;
+                question.save(function(err, question){
+                    return res.send({
+                        state: 'success',
+                        message: "Question deleted successfully!",
+                        question: question
+                    })
+                })
+            }
+        })
+    }
+    catch (err){
+        return res.send({
+            state: "error",
+            message: err
+        })
+    }
+})
+
 //Get all questions
-router.get('/get_all_discussion_questions', function (req, res) {
+router.get('/get_all_discussion_questions/:franchisor_id', function (req, res) {
     try {
-        DiscussionQuestion.find({}, function (err, discussionquestion) {
+        DiscussionQuestion.find({franchisor_id:req.params.franchisor_id},{}, { sort: { 'created_at' : -1 } }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
                     state: "err",
-                    message: error
+                    message: "error"
                 }, 500);
             }
             if (!discussionquestion) {
@@ -131,7 +176,7 @@ router.get('/get_all_discussion_questions', function (req, res) {
                     state: "failure",
                     message: "Qustions not found.",
                     discussionquestion: []
-                }, 400);
+                }, 201);
             }
             else {
                 for (var i = 0; i < discussionquestion.length; i++) {
@@ -192,7 +237,7 @@ router.put('/update_discussion_questions', upload.single('discussion_question_im
                 res.send({
                     state: "failure",
                     message: "Failed to update."
-                }, 400);
+                }, 201);
             }
         })
     }
@@ -207,6 +252,7 @@ router.put('/update_discussion_questions', upload.single('discussion_question_im
 //To delete question by id
 router.delete('/delete_discussion_question/:question_id', function (req, res) {
     try {
+        console.log(req, '***************req****************')
         DiscussionQuestion.findByIdAndRemove({ _id: req.params.question_id }, function (err, discussionquestion) {
             if (err) {
                 return res.send({
@@ -236,47 +282,86 @@ router.delete('/delete_discussion_question/:question_id', function (req, res) {
     }
 })
 
+// delete all questions
+//To delete question by id
+router.delete('/delete_all_discussion_questions', function (req, res) {
+    try {
+        DiscussionQuestion.remove({}, function (err, discussionquestion) {
+            if (err) {
+                return res.send({
+                    state: err,
+                    message: "Something went wrong, We are looking into it."
+                }, 500);
+            }
+            if (!discussionquestion) {
+                res.send({
+                    message: "Question not found.",
+                    state: "failure",
+                }, 201);
+            }
+            else {
+                res.send({
+                    state: "success",
+                    message: "Questions deleted successfully.",
+                }, 200);
+            }
+        })
+    }
+    catch (err) {
+        return res.send({
+            state: "error",
+            message: err
+        });
+    }
+})
+
 
 //To get comments based on question id
-router.get('/getComments/:question_id',function(req,res){
-    try{
-        DiscussionQuestion.findOne({_id:req.params.question_id},function(err,discussionquestion){
-            if(err){
+router.get('/getComments/:question_id', function (req, res) {
+    try {
+        DiscussionQuestion.findOne({ _id: req.params.question_id }, function (err, discussionquestion) {
+            if (err) {
                 return res.send(err);
             }
-            if(discussionquestion.discussion_comments.length>0){
+            if (discussionquestion.discussion_comments.length > 0) {
                 res.send({
-                    state:'success',
-                    data:discussionquestion.discussion_comments
-                },200);
+                    state: 'success',
+                    data: discussionquestion.discussion_comments
+                }, 200);
             }
-            if(discussionquestion.discussion_comments.length==0){
+            if (discussionquestion.discussion_comments.length == 0) {
                 res.send({
-                    state:'failure',
-                    messgae:'No comments'
-                },400);
+                    state: 'failure',
+                    messgae: 'No comments'
+                }, 201);
             }
         });
     }
-    catch(err){
+    catch (err) {
         res.send({
-            state:"error",
-            message:"Something went wrong"
-        },500);
+            state: "error",
+            message: "Something went wrong"
+        }, 500);
     }
 });
 
 // To approve or decline
-router.put('/change_question_status',function(req,res){
-    try{
-        DiscussionQuestion.findById({_id:req.body._id},function(err,discussionquestion){
-            if(err){
+router.put('/change_question_status', function (req, res) {
+    try {
+        let id = mongoose.Types.ObjectId(req.body._id)
+        DiscussionQuestion.findById({ _id: id }, function (err, discussionquestion) {
+            console.log(discussionquestion,'11111111111111111111111111111')
+            // DiscussionQuestion.findById({status:req.body.status, _id:req.body._id, id : { $exists: true }},function(err,discussionquestion){
+
+            if (err) {
                 return res.send(500, err);
-            }   if(discussionquestion) {
-                console.log('discussionquestion',discussionquestion);
-                discussionquestion.status=req.body.status;
-                console.log('status',req.body.status);
-                discussionquestion.save(function(err,discussionquestion){
+            }
+             if (discussionquestion) {
+                console.log('discussionquestion', discussionquestion);
+                discussionquestion.status = req.body.status;
+                discussionquestion.question_declined_reason = req.body.question_declined_reason;
+                console.log('status', req.body.status);
+                discussionquestion.save(function (err, discussionquestion) {
                     if (err) {
                         res.send({
                             state: "err",
@@ -284,11 +369,11 @@ router.put('/change_question_status',function(req,res){
                         }, 500);
                     }
                     else {
-                        io.on('connection', function (socket){
-                            socket.emit('news', {hello: 'world'});
-                            socket.on('message', function (data, response){
-                                console.log(data,'messagediscussion');
-                                io.emit('message', {type: 'discussionNotification', text:'Question posted'});
+                        io.on('connection', function (socket) {
+                            socket.emit('news', { hello: 'world' });
+                            socket.on('message', function (data, response) {
+                                console.log(data, 'messagediscussion');
+                                io.emit('message', { type: 'discussionNotification', text: 'Question posted' });
                             })
                         })
                         res.send({
@@ -299,120 +384,194 @@ router.put('/change_question_status',function(req,res){
                     }
                 });
             }
-                    if (!discussionquestion) {
-                        res.send({
-                            state: "failure",
-                            message: "Failed."
-                        }, 400);
-                    }
+            if (!discussionquestion) {
+                res.send({
+                    state: "failure",
+                    message: "Failed."
+                }, 201);
+            }
         });
     }
-    catch(err){
+    catch (err) {
         res.send({
-            state:"error",
-            message:"Something went wrong"
-        },500);
+            state: "error",
+            message: "Something went wrong"
+        }, 500);
     }
 });
 
 //To vote
-router.put('/question/vote',function(req,res){
-    try{
-        DiscussionQuestion.findById({_id:req.body.question_id},function(err,discussionquestion){
-            if(err){
+// router.put('/question/vote',function(req,res){
+//     try{
+//         DiscussionQuestion.findById({_id:req.body.question_id},function(err,discussionquestion){
+//             if(err){
+//                 return res.send(err);
+//             }
+//             else{
+//                 console.log('id', id);
+//                 console.log(req.body.votedBy);
+//                 var flag = false;
+//                 var id = req.body.votedBy;
+//                 console.log('flag', flag);
+//                 if(discussionquestion.votedBy.length>0){
+//                     for(var i=0;i<discussionquestion.votedBy.length;i++){
+//                         if(discussionquestion.votedBy[i] === id){
+//                             flag = true;
+//                         }
+//                     }
+//                 }
+//                 if(flag){
+//                     res.send({
+//                         state:'failure',
+//                         message:'You have already voted for this question'
+//                     },201);
+//                 }
+//                 else{
+//                     discussionquestion.votes=discussionquestion.votes + 1;
+//                     discussionquestion.votedBy.push(id);
+//                     discussionquestion.save(function(err, discussionquestion){
+//                         if(err){
+//                             res.send(err);
+//                         }
+//                         else{
+//                             res.send({
+//                                 state:'success',
+//                                 data: discussionquestion
+//                             },200);
+//                         }
+//                     });
+//                 }
+//             }
+//         });
+//     }
+//     catch(err){
+//         res.send({
+//             state:"error",
+//             message:"Something went wrong"
+//         },500);
+//     }
+// });
+
+
+
+router.put('/question/vote', function (req, res) {
+    try {
+        DiscussionQuestion.findOne({ _id: req.body.question_id }, function (err, discussionquestion) {
+            if (err) {
                 return res.send(err);
             }
-            else{
-                var flag = false;
+            if (discussionquestion) {
+             
                 var id = req.body.votedBy;
-                if(discussionquestion.votedBy.length>0){
-                    for(var i=0;i<discussionquestion.votedBy.length;i++){
-                        if(discussionquestion.votedBy[i] == id){
-                            flag = true;
-                        }
+                DiscussionQuestion.find({$and:[{ votedBy: { $elemMatch: { $eq: id } } },{_id:mongoose.Types.ObjectId(req.body.question_id)}]}, (err, data) => {
+                    console.log(data);
+                    if (err) {
+                        return res.send(err);
                     }
-                }
-                if(flag){
-                    res.send({
-                        state:'failure',
-                        message:'You have already voted for this question'
-                    },201);
-                }
-                else{
-                    discussionquestion.votes=discussionquestion.votes + 1;
-                    discussionquestion.votedBy.push(id);
-                    discussionquestion.save(function(err, discussionquestion){
-                        if(err){
-                            res.send(err);
+                    else if(data.length != 0 || data != "") {                        
+                        var index = discussionquestion.votedBy.indexOf(id);
+                        if(index != -1){
+                            discussionquestion.votedBy.splice(index, 1);
+                            discussionquestion.votes = discussionquestion.votes - 1;
+
+                            discussionquestion.save(function (err, discussionquestion) {
+                                if (err) {
+                                    res.send(err);
+                                }
+                                else {
+                                    res.send({
+                                        state: 'success',
+                                        data: discussionquestion,
+                                        vote_type: 'down_vote',
+                                        message:'Your question downvoted successfully!'
+                                    },200);
+                                }
+                            });
                         }
-                        else{
-                            res.send({
-                                state:'success',
-                                data: discussionquestion
-                            },200);
-                        }
-                    });
-                }
+                        
+                    }
+                    else {
+                        discussionquestion.votes = discussionquestion.votes + 1;
+                        discussionquestion.votedBy.push(id);
+                        discussionquestion.save(function (err, discussionquestion) {
+                            if (err) {
+                                res.send(err);
+                            }
+                            else {
+                                res.send({
+                                    state: 'success',
+                                    vote_type: 'up_vote',
+                                    data: discussionquestion
+                                },200);
+                            }
+                        });
+                    }
+                })
+                
             }
         });
     }
-    catch(err){
+    catch (err) {
         res.send({
-            state:"error",
-            message:"Something went wrong"
-        },500);
+            state: "error",
+            message: "Something went wrong"
+        });
     }
 });
 
 //To add Comments by question id
-router.put('/discussion_question/addcomments', upload.single('comment_img'), function (req,res){
+router.put('/discussion_question/addcomments', upload.single('comment_img'), function (req, res) {
     var discussionComments = JSON.parse(req.body.discussionquestion);
-    console.log('401',discussionComments);
-    try{
-        DiscussionQuestion.findById({_id: discussionComments.question_id}, function (err, discussionquestion){
+    console.log('401', discussionComments);
+    try {
+        DiscussionQuestion.findById({ _id: discussionComments.question_id }, function (err, discussionquestion) {
             console.log('404', discussionquestion);
-            if(err){
+            if (err) {
                 return res.send({
-                    state:"err",
-                    message:"Something went wrong."
-                },500)
+                    state: "err",
+                    message: "Something went wrong."
+                }, 500)
             }
-            else{
-                discussionquestion.commentsCount = discussionquestion.commentsCount +1;
-                if(req.file){
+            else {
+                discussionquestion.commentsCount = discussionquestion.commentsCount + 1;
+                // discussionquestion.user_profile_pic = discussionComments.franchisee_profile_pic;
+                if (req.file) {
                     var comment_img = {};
                     discussionComments.comment.comment_file_attachment_file_url = req.file.location;
                     discussionComments.comment.comment_file_attachment_file_name = req.file.key;
                     discussionComments.comment.comment_file_attachment_file_type = req.file.contentType;
                 }
-                if(!discussionquestion.discussion_comments){
-                    discussionquestion.discussion_comments = [];
-                }
                 discussionquestion.discussion_comments.push(discussionComments.comment);
                 console.log('423', discussionquestion.discussion_comments);
                 console.log('424', discussionquestion);
-                discussionquestion.save(function( err, discussionquestion){
+                discussionquestion.save(function (err, discussionquestion) {
 
-                // if(req.file){
+                    // if(req.file){
 
-                //     discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
-                //     discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
-                //     discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;
-                // }
-                    if(err){
+                    //     discussionquestion.discussion_comments.comment_file_attachment_file_url = req.file.location;
+                    //     discussionquestion.discussion_comments.comment_file_attachment_file_name = req.file.key;
+                    //     discussionquestion.discussion_comments.comment_file_attachment_file_type = req.file.contentType;
+                    // }
+                    if (err) {
                         res.send({
-                            state:"failure",
-                            message:"Something went wrong."
-                        },500)
+                            state: "failure",
+                            message: "Something went wrong."
+                        }, 500)
                     }
-                    else{
-                    res.send({
-                        state: "success",
-                        message: "Comment posted.",
-                        data: discussionquestion
-                      }, 200);
+                    else {
+                        res.send({
+                            state: "success",
+                            message: "Comment posted.",
+                            data: discussionquestion
+                        }, 200);
                     }
                 });
+            }
+            if (!discussionquestion) {
+                res.send({
+                    state:"failure",
+                    message:"No comments found."
+                },201);
             }
         });
     }
@@ -424,4 +583,4 @@ router.put('/discussion_question/addcomments', upload.single('comment_img'), fun
     }
 })
 
-module.exports = router;
+module.exports = router

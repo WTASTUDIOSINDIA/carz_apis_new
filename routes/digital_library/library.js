@@ -7,6 +7,7 @@ var Franchisee = mongoose.model('Franchisee');
 var Library = mongoose.model('Library');
 var Folder = mongoose.model('Folder');
 var _ = require('lodash');
+var utils = require('../../common/utils');
 /*S3 uploads*/
 var aws = require('aws-sdk');
 var multerS3 = require('multer-s3');
@@ -19,7 +20,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'celebappfiles',
+        bucket:'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -34,7 +35,7 @@ var upload = multer({
 function deleteFile(key){
   console.log(key, 'test dsdsds');
     try{
-        var params = {Bucket: 'celebappfiles', Key : key};
+        var params = {Bucket: 'carzdev', Key : key};
         s0.deleteObject(params, function (err, response) {
             if (err) {
                 return res.send({ "error": err });
@@ -130,7 +131,7 @@ router.post('/uploadDtaa',cpUpload,function(req,res){
     }
 });
 router.get('/get_common_files/:uploaded_status',function(req,res){
-    Library.find({uploaded_status:req.params.uploaded_status},function(err,file){
+    Library.find({uploaded_status:req.params.uploaded_status, is_campaign_file: false},function(err,file){
         if(err){
             res.send ({
                 status: 500,
@@ -293,33 +294,30 @@ router.get('/get_folders_by_folder_id/:parent_folder_id',function(req,res){
     });
 });
 router.get('/get_files_by_id/:folder_id/:franchisee_id',function(req,res){
-    Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_Id},function(err,file){
+    Library.findOne({franchisee_Id:req.params.franchisee_id,folder_Id:req.params.folder_id},function(err,file){
         if(err){
             res.send ({
-                status: 500,
-                message: "File deleted successfully.",
+                message: "Something went wrong.",
                 state: "error"
-            });
+            },500);
         }
         if(!file){
             res.send ({
-                status: 201,
                 message: "File not found.",
                 state: "failure"
-            });
+            },201);
         }
         if(file){
             res.send ({
-                status: 200,
-                file: file,
-                state: "failure"
-            });
+                state: "success",
+                data:file
+            },200);
         }
     });
 });
 
 router.post('/create_Folder',function(req,res){
-    Folder.findOne({franchisee_Id:req.body.franchisee_Id,folder_name:req.body.folder_name},function(err,folder){
+    Folder.findOne({franchisee_Id:req.body.franchisee_Id,'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -342,6 +340,9 @@ router.post('/create_Folder',function(req,res){
 
            if(req.body.crm_folder){
                 folder.crm_folder = req.body.crm_folder;
+           }
+               if(req.body.marketing_folder){
+                folder.marketing_folder = req.body.marketing_folder;
            }
            if(req.body.parent_folder_id){
              folder.parent_folder_id = req.body.parent_folder_id;
@@ -374,6 +375,7 @@ router.post('/create_Folder',function(req,res){
                     res.send ({
                         status: 200,
                         message: "Folder created successfully.",
+                        data: folder,
                         state: "success"
                     });
                 }
@@ -455,12 +457,46 @@ router.get('/get_crm_folders/:franchisee_id', function(req, res){
         }
 });
 
+router.get('/get_marketing_folders/:franchisor_id', function(req, res){
+    // try{
+    // Franchisee.findOne({_id: req.params.franchisee_id}, function(err, franchisee){
+    //     if(franchisee){
+            Folder.find({franchisee_Id:req.params.franchisor_id, marketing_folder:true}, function(err, folder){
+                if(err){
+                  return res.send(500, err);
+                }
+            console.log('----------', folder);
+                if(folder){
+                  res.send({
+                      state:"success",
+                      data:folder
+                  },200);
+                }
+                else {
+                  res.send({
+                      state:"failure",
+                      data:[]
+                  },201);
+                }
+              })
+    //     }
+    // })     
+    // }
+    //    catch(err){
+    //     return res.send({
+    //       state:"error",
+    //       message:err
+    //     });
+    //     }
+});
+
 
 router.put('/edit_folder', function(req, res, next){
 
   var folderEditForm = req.body;
 
   try{
+    
     Folder.findOne({'_id': folderEditForm._id}, function(err, folder){
       if(err){
         return res.send({
@@ -469,27 +505,41 @@ router.put('/edit_folder', function(req, res, next){
               message:"Something went wrong.We are looking into it."
           });
       }
-
+     
       if(folder){
-        folder.folder_name = folderEditForm.folder_name
-        folder.save(function(err, folder){
-          if(err){
+          console.log('-------', folderEditForm.folder_name);
+        if (!folderEditForm.folder_name || folderEditForm.folder_name == "") {
             res.send({
-               status:500,
-               state:"err",
-               message:"Something went wrong."
-           });
-        }
-        else{
-            res.send({
-                status:200,
-                state:"success",
-                message:"Folder Updated."
-            });
-        }
-      });
+                state:'failure',
+                message:'Folder name required'
+            },201)
+        }else{
+            folder.folder_name = folderEditForm.folder_name
+            folder.save(function(err, folder){
+              if(err){
+                res.send({
+                   state:"err",
+                   message:"Something went wrong."
+               },500);
+            }
+            else{
+                res.send({
+                    state:"success",
+                    message:"Folder Updated."
+                },200);
+            }
+          });
 
+        }
+      
     }
+    if(!folder){
+        res.send({
+            state:'failure',
+            message:'Failed to update'
+        },201);
+    }
+   
 
   })
 }
@@ -556,7 +606,7 @@ router.put('/delete_file_by_Id',function(req,res){
         if(err){
             res.send ({
                 status: 500,
-                message: "File deleted successfully.",
+                message: "Error.",
                 state: "error"
             });
         }
@@ -595,8 +645,8 @@ router.put('/delete_folder_by_Id',function(req,res){
 
 
 // To create common folder
-router.post('/create_common_folder',function(req,res){
-    Folder.findOne({folder_name:req.body.folder_name},function(err,folder){
+router.post('/create_common_folder', function(req,res){
+    Folder.findOne({'folder_name':{$regex: new RegExp(req.body.folder_name,'i')}},function(err,folder){
         if(err){
             res.send ({
                 status: 500,
@@ -680,7 +730,7 @@ router.post('/create_common_sub_folder',function(req,res){
 router.get('/get_common_folder',function(req,res){
     try{
     //  var franchisee_Id = 'franchisee_Id';
-        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }},function(err,folder){
+        Folder.find({ franchisee_Id : { $exists: false }, parent_folder_id : { $exists: false }, marketing_folder: false},function(err,folder){
             if(err){
                 res.send ({
                     status: 500,

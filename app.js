@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
 var session = require('express-session');
+var cors = require('cors');
 require('./models/franchisees/franchisee');
 require('./models/authenticate/authenticate');
 require('./models/franchisors/franchisor');
@@ -18,6 +19,7 @@ require('./models/settings/employeeAssessment');
 require('./models/activity_tracker/activity_tracker');
 require('./models/versions/versions');
 require('./models/user_management/user_management');
+require('./models/audit/audit');
 var franchisee = require('./routes/franchisees/franchisee');
 var franchisor = require('./routes/franchisor/franchisor');
 var authenticate = require('./routes/authenticate/authenticate')(passport);
@@ -26,6 +28,7 @@ var library = require('./routes/digital_library/library');
 var partner = require('./routes/partner/partner');
 var meeting = require('./routes/meetings/meeting');
 var saveMeetingNotification = meeting.saveMeetingNotification;
+var send_notifications = meeting.send_notifications;
 var setup = require('./routes/setup/setup');
 var document = require('./routes/documents/document');
 var application = require('./routes/application/application');
@@ -36,18 +39,23 @@ var settings = require('./routes/settings/employeeAssessment');
 var versions = require('./routes/versions/versions');
 var activity_tracker = require('./routes/activity_tracker/activity_tracker');
 var user_management = require('./routes/user_management/user_management');
+var audit = require('./routes/audit/audit');
+var franchisee_audit = require('./routes/audit/franchisee_audit');
+var common = require('./common')
+var config = common.config();
 
 //var auth = require('./routes/authenticate/auth-service');
 //initialize mongoose schemas\
 
-var mongoose = require('mongoose');      //add for Mongo support
+var mongoose = require('mongoose');      //add for Mongo support 
 //console.log(mongoose.connection.readyState);
 //mongoose.connect('mongodb://localhost/carz-api');
 //\LIVE CARZ USING IT  from carz-api heroku
 // mongoose.connect('mongodb://swamy:swamy123@ds123728.mlab.com:23728/heroku_0bdbxrrk');
-
+console.log("database-------"+JSON.stringify(config));
+console.log("database-------"+config.database);
 //DEVELOPMENT // from carz-web heroku/
-mongoose.connect('mongodb://swamy:swamy123@ds141611.mlab.com:41611/heroku_zdnxfw0l');
+ mongoose.connect(config.database);
 
 var app = express();
 var http = require('http').Server(app);
@@ -55,11 +63,12 @@ var io = require('socket.io')(http);
 var connectedSocketUsers = [];
 var socketusers = [];
 io.on('connection', function(socket) {
-  console.log("stwa");
+//   console.log("stwa");
+
     socket.emit('news', {hello: 'world'});
     socket.on('add-user', function(data, response){
     //  connectedSocketUsers.push(data);
-      console.log(data, "57");
+      console.log(data, "57Swamy");
       socketusers[data.socket_id] = socket;
       for (var i = 0; i < connectedSocketUsers.length; i++) {
         if (connectedSocketUsers[i].user_id === data.user_id) { // modify whatever property you need
@@ -79,6 +88,9 @@ io.on('connection', function(socket) {
   //   socket.on('disconnect', function() {
   //   connectedSocketUsers = [];
   // });
+  socket.on('chat_message', function(data, response){
+      console.log(data, '42appJS91');
+  })
     socket.on('message', function (data, response) {
          console.log(data, "42");
 
@@ -94,12 +106,11 @@ io.on('connection', function(socket) {
          //
          //  }
          // }
-        var meeting_data = saveMeetingNotification(data);
-        //console.log(meeting_data, "44");
-
-
-
+        // var meeting_data = saveMeetingNotification(data);
+       var notification_data = send_notifications('notification',data, io);
+        console.log(notification_data, "44notification");
     });
+    
     socket.on('discussionMessage', function (data, response){
         io.emit('discussionMessage', data);
     })
@@ -119,7 +130,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.enable('trust proxy');
 app.use(function(req, res, next) {
-  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com'];
+  var allowedOrigins = ['http://localhost:4200', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com', 'http://arya-reddy.com', 'https://carz-franchiseefrom-frontend.herokuapp.com', 'http://carzweb.s3-website.ap-south-1.amazonaws.com'];
   //var origin = req.headers.origin;
   //res.setHeader('Access-Control-Allow-Origin', origin);
   var origin = req.headers.origin;
@@ -139,6 +150,8 @@ app.use(require('express-session')({
     saveUninitialized: true,
     cookie : { secure : false, maxAge : (4 * 60 * 60 * 1000) }, // 4 hours
 }));
+// app.use(cors('cors'))
+app.use(cors({credentials: true, origin: ['http://localhost:4200', 'http://localhost:4200/#/', 'https://carz-web.herokuapp.com', 'https://carz-web.herokuapp.com/#/', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com', 'http://ec2-13-228-158-215.ap-southeast-1.compute.amazonaws.com/#/', 'http://arya-reddy.com', 'https://carz-franchiseefrom-frontend.herokuapp.com', 'http://carzweb.s3-website.ap-south-1.amazonaws.com']}));
 app.use(logger('dev'));
 app.use(session({
   secret: '128013A7-5B9F-4CC0-BD9E-4480B2D3EFE9',
@@ -178,10 +191,12 @@ app.use('/settings',settings);
 app.use('/versions',versions);
 app.use('/usermanagement', user_management);
 app.use('/activity_tracker', activity_tracker);
+app.use('/audit', audit);
+app.use('/franchisee_audit', franchisee_audit);
 var authService = require('./routes/authenticate/auth-service');
 authService(passport);
 app.get('/*', function(req, res, next) {
-    res.sendFile('public/index.html', { root: __dirname });
+    //res.sendFile('public/index.html', { root: __dirname });
 });
 
 // catch 404 and forward to error handler

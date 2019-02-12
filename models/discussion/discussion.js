@@ -12,32 +12,36 @@ var DiscussionQuestionSchema = new mongoose.Schema({
     //0 = unapproved; 1 = approved, 2 = declined
     status: {type: String, default: 0},
 	votes: {type: Number, default: 0},
-    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee'}],
+    votedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Franchisee' }],
     commentsCount: {type: Number, default: 0},
     discussion_comments: [{'franchisee_id':String,
     'user_id': String,
      'franchisee_name':String, 
      'user_name': String,
      'franchisee_address': String,
-      'franchisee_profile_pic':{type: Schema.Types.Mixed, default : {}},
-      'user_profile_pic':{type: Schema.Types.Mixed, default : {}},
+      'franchisee_profile_pic':String,
+      'created_at': {type: Date, default: Date.now},
+      'user_profile_pic':String,
       'comment_text' :String,
       'comment_file_attachment_file_name': String,
       'comment_file_attachment_file_url': String,
       'comment_file_attachment_file_type': String,}],
     isVoted:{type:Boolean,default:false},
+    franchisee_name: String,
     franchisor_question_file_attachment_file_name: String,
     franchisor_question_file_attachment_file_url: String,
     franchisor_question_file_attachment_file_type: String,
-
+    question_declined_reason: String,
+    created_by_role: String,
+    franchisor_id: {type: Schema.Types.ObjectId, ref: 'Franchisee'},
+    franchisee_id:{type: Schema.Types.ObjectId, ref: 'Franchisee'},
     user_id: String,
     user_name: String,
     franchisee_name: String,
     franchisee_address: String,
     franchisee_profile_pic:{type: Schema.Types.Mixed, default : {}},
-    user_profile_pic:{type: Schema.Types.Mixed, default : {}},
-
-});
+    user_profile_pic:{type: Schema.Types.Mixed, default : {}}
+})
 // var questionSchema = new mongoose.Schema({
 // 	created_by: String,		//should be changed to ObjectId, ref "User"
 // 	participantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Audience'},

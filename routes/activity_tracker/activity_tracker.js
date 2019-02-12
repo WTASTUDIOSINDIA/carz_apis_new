@@ -31,7 +31,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage:multerS3({
         s3:s0,
-        bucket:'celebappfiles',
+        bucket:'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -76,10 +76,10 @@ router.get('/get_activities_tracker/:franchisee_id/:franchisor_id', function(req
 router.post('/save_activity', function(req, res){
   try {
     var activitytracker = new ActivityTracker();
-    activitytracker.activity_name = req.body.name;
-    activitytracker.activity_source = req.body.source;
-    activitytracker.activity_of = req.body.activity_of;
-    activitytracker.franchisee_id = req.body.franchisee_id;
+    // activitytracker.activity_name = req.body.name;
+    // activitytracker.activity_source = req.body.source;
+    // activitytracker.activity_of = req.body.activity_of;
+    // activitytracker.franchisee_id = req.body.franchisee_id;
     activitytracker.franchisor_id = req.body.franchisor_id;
     activitytracker.save(function(err, activitytracker){
       if(err){

@@ -12,6 +12,7 @@ var FranchiseeAssessment = mongoose.model('FranchiseeAssessment');
 var FranchiseeAssessmentSubmitted = mongoose.model('FranchiseeAssessmentSubmitted');
 var _ = require('lodash');
 var aws = require('aws-sdk');
+var utils = require('../../common/utils');
 var multerS3 = require('multer-s3');
 var bCrypt = require('bcrypt-nodejs');
 aws.config.loadFromPath('./config.json');
@@ -22,7 +23,7 @@ var s0 = new aws.S3({})
 var upload = multer({
     storage: multerS3({
         s3: s0,
-        bucket: 'celebappfiles',
+        bucket: 'carzdev',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         metadata: function (req, file, cb) {
@@ -34,7 +35,7 @@ var upload = multer({
     })
 });
 
-router.post('/create_franchisee_assessment', function (req, res) {
+router.post('/create_franchisee_assessment', utils.authenticated, function (req, res) {
     var franchiseeAssessmentForm = req.body;
     try {
         FranchiseeAssessment.findOne({ question_EN: franchiseeAssessmentForm.question_EN }, function (err, question) {
